@@ -1,0 +1,64 @@
+@import "./colors";
+
+@mixin scrollbarVertical($color: rgba($black, 0.4), $bgColor: transparent, $rtl: false) {
+  scrollbar-color: $color rgba($black, 0.3);
+
+  @if $rtl {
+    transform: scaleX(-1);
+
+    & > * {
+      transform: scaleX(-1);
+    }
+  }
+
+  &::-webkit-scrollbar {
+    opacity: 0.3;
+    background-color: $bgColor;
+    width: 0.5rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $color;
+    border-radius: 0.5rem;
+    opacity: 0.4;
+    transition: 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin scrollbarHorizontal($color: rgba($black, 0.4), $bgColor: transparent) {
+  scrollbar-color: $color rgba($black, 0.3);
+
+  &::-webkit-scrollbar {
+    opacity: 0.3;
+    background-color: $bgColor;
+    height: 0.25em;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $color;
+    border-radius: 100vw;
+    height: 0.25em;
+    opacity: 0.4;
+    transition: 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin scrollbarNone() {
+  scrollbar-color: transparent;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    display: none;
+  }
+}
