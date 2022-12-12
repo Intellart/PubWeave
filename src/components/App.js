@@ -3,6 +3,7 @@ import React from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import Home from './pages/Home';
 import { useScrollTopEffect } from '../utils/hooks';
 
 function App(): Node {
@@ -19,7 +20,7 @@ function App(): Node {
       />
       <div className="application-wrapper">
         <Routes>
-          <Route index />
+          <Route index element={<Home />} />
         </Routes>
       </div>
     </div>

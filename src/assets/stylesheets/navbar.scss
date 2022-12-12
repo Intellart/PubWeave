@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+.home-wrapper .navbar {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-around;
+    // border: 1px solid black;
+    // justify-content: space-between;
+    gap: 50px;
+    height: 70px;
+    box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
+    .search-wrapper {
+        align-items: center;
+        display: flex;
+        gap:20px;
+
+        .nav--logo {
+            padding: 5px;
+            margin-left: 20px;
+        }
+        .searchbar {
+            margin-bottom: 0px;
+            width: 500px;
+            border-radius: 18px;
+        }
+        .select select {
+            border-radius: 16px;
+            
+        }
+    }
+    
+    a {
+        color: #11273F;
+        font-size: 14px;
+    }
+    .navigation {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        justify-content: center;
+    }
+    .navigation .submit-work {
+        background-color: #11273F;
+        border-radius: 16px;
+        padding: 5px;
+        color: white;
+        width: 200px;
+        text-align: center;
+        font-family: Inter;
+        font-weight: 400;
+        height: 40px;
+        font-size: 14px;
+    }
+}
