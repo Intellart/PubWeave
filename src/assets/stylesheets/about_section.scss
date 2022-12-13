@@ -1,0 +1,40 @@
+.about-paragraph-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.about-paragraph {
+   display: flex;
+   flex-direction: column;
+   text-align: center;
+   justify-content: space-around;
+   gap: 30px;
+   margin-top: 90px;
+
+   h3 {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 45px;
+    line-height: 54px;
+    text-align: center;
+    color: #1B1B1B;
+   }
+
+   p {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 162%;
+    text-align: center;
+    olor: rgba(27, 27, 27, 0.7);
+   }
+}
+
+.about-img {
+    width: 70vw;
+}
