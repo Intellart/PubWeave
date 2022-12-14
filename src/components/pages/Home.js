@@ -1,47 +1,26 @@
 // @flow
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDiscord, faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import type { Node } from 'react';
-import logoImg from '../../images/LogoPubWeave.png';
+import { Link } from 'react-router-dom';
 import 'bulma/css/bulma.min.css';
 import chatDialoge from '../../images/chatdialoge.png';
 import AboutImg from '../../images/About.png';
 import TeamImg from '../../images/Teamwork.png';
 import stars from '../../images/stars.png';
+import Navbar from '../containers/Navbar';
+import Footer from '../containers/Footer';
 
 function Home(): Node {
   return (
     <main className="home-wrapper">
-      <nav className='navbar'>
-        <div className="search-wrapper">
-
-          <img src={logoImg} alt="PubWeave Logo" className="nav--logo" width="40px" />
-
-          <input className="input searchbar" type="text" placeholder="Search" />
-
-          <div className="select filter">
-            <select>
-              <option>Filter</option>
-              <option>Author</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="navigation">
-          <a href="/About">About</a>
-          <a href="/About">Contact Us</a>
-          <button className='submit-work'>Submit your research</button>
-        </div>
-      </nav>
-
+      <Navbar />
       <section className="hero-section">
         <div className="punchline-cta-buttons">
           <div className="punchline">
             <h1>Your proof  <br />  of Science </h1>
             <h4>Fast, reliable & unlimited scientific projects.</h4>
             <div className="cta-buttons">
-              <button className='explore'>Explore</button>
+              <Link to="/blogs"><button className='explore'>Explore</button></Link>
               <button className='our-mission'>Our Mission</button>
             </div>
           </div>
@@ -78,32 +57,7 @@ function Home(): Node {
         </div>
       </section>
       {/* --------------------------------- */}
-      <footer className="footer-pubweave">
-        <div className="footer-details">
-          <div className="social-networks">
-            <h3>Social</h3>
-            <div className="icons-social">
-              <FontAwesomeIcon icon={faTwitter} />
-              <FontAwesomeIcon icon={faGithub} />
-              <FontAwesomeIcon icon={faDiscord} />
-            </div>
-          </div>
-          <div className="contact-details">
-            <h3>Contact</h3>
-            <p>info@intellart.ca</p>
-          </div>
-          <div className="navigation">
-            <h3>Navigation</h3>
-            <p>Home</p>
-            <p>About Us</p>
-          </div>
-        </div>
-        <hr className="solid" />
-        <div className="copyrights-termsofuse">
-          <p>© 2022 Intellart. All rights reserved.</p>
-          <p>Terms of Use | Cookie policy | Privacy policy</p>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
