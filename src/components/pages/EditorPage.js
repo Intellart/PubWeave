@@ -11,6 +11,8 @@ import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import logoImg from '../../images/LogoPubWeave.png';
 import 'bulma/css/bulma.min.css';
+import Navbar from '../containers/Navbar';
+import Footer from '../containers/Footer';
 
 // const ReactEditorJS = createReactEditorJS();
 
@@ -56,28 +58,9 @@ function ReactEditor () {
 
   return (
     <main className="home-wrapper">
-      <nav className='navbar'>
-        <div className="search-wrapper">
-
-          <img src={logoImg} alt="PubWeave Logo" className="nav--logo" width="40px" />
-
-          <input className="input searchbar" type="text" placeholder="Search" />
-
-          <div className="select filter">
-            <select>
-              <option>Filter</option>
-              <option>Author</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="navigation">
-          <a href="/About">About</a>
-          <a href="/About">Contact Us</a>
-          <button className='submit-work'>Submit your research</button>
-        </div>
-      </nav>
+      <Navbar />
       <div ref={editorRef} id="editorjs" />
+      <Footer />
     </main>
   );
 }

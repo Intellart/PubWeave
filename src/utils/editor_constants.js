@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
 import List from '@editorjs/list';
@@ -65,47 +66,47 @@ export const EDITOR_JS_TOOLS = {
   image: {
     class: Image,
     inlineToolbar: ['link'],
-    config: {
-      /**
-       * Custom uploader
-       */
-      uploader: {
-        /**
-         * Upload file to the server and return an uploaded image data
-         * @param {File} file - file selected from the device or pasted by drag-n-drop
-         * @return {Promise.<{success, file: {url}}>}
-         */
-        uploadByFile(file) {
-          // your own uploading logic here
-          return MyAjax.upload(file).then(() => ({
-            success: 1,
-            file: {
-              url: 'https://codex.so/upload/redactor_images/o_80beea670e49f04931ce9e3b2122ac70.jpg',
-              // any other image data you want to store, such as width, height, color, extension, etc
-            },
-          }));
-        },
+    // config: {
+    //   /**
+    //    * Custom uploader
+    //    */
+    //   uploader: {
+    //     /**
+    //      * Upload file to the server and return an uploaded image data
+    //      * @param {File} file - file selected from the device or pasted by drag-n-drop
+    //      * @return {Promise.<{success, file: {url}}>}
+    //      */
+    //     uploadByFile(file) {
+    //       // your own uploading logic here
+    //       return MyAjax.upload(file).then(() => ({
+    //         success: 1,
+    //         file: {
+    //           url: 'https://codex.so/upload/redactor_images/o_80beea670e49f04931ce9e3b2122ac70.jpg',
+    //           // any other image data you want to store, such as width, height, color, extension, etc
+    //         },
+    //       }));
+    //     },
 
-        /**
-         * Send URL-string to the server. Backend should load image by this URL and return an uploaded image data
-         * @param {string} url - pasted image URL
-         * @return {Promise.<{success, file: {url}}>}
-         */
-        // eslint-disable-next-line no-unused-vars
-        uploadByUrl(url) {
-          console.log('uploadByUrl', url);
+    //     /**
+    //      * Send URL-string to the server. Backend should load image by this URL and return an uploaded image data
+    //      * @param {string} url - pasted image URL
+    //      * @return {Promise.<{success, file: {url}}>}
+    //      */
+    //     // eslint-disable-next-line no-unused-vars
+    //     uploadByUrl(url) {
+    //       console.log('uploadByUrl', url);
 
-          // your ajax request for uploading
-          return MyAjax.upload(file).then(() => ({
-            success: 1,
-            file: {
-              url: 'https://codex.so/upload/redactor_images/o_e48549d1855c7fc1807308dd14990126.jpg',
-              // any other image data you want to store, such as width, height, color, extension, etc
-            },
-          }));
-        },
-      },
-    },
+    //       // your ajax request for uploading
+    //       return MyAjax.upload(file).then(() => ({
+    //         success: 1,
+    //         file: {
+    //           url: 'https://codex.so/upload/redactor_images/o_e48549d1855c7fc1807308dd14990126.jpg',
+    //           // any other image data you want to store, such as width, height, color, extension, etc
+    //         },
+    //       }));
+    //     },
+    //   },
+    // },
   },
   simpleImage: {
     class: SimpleImageApi,
