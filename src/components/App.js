@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import Home from './pages/Home';
 import { useScrollTopEffect } from '../utils/hooks';
+import EditorPage from './pages/EditorPage';
 import Blogs from './pages/Blogs';
 
 function App(): Node {
@@ -22,6 +23,7 @@ function App(): Node {
       <div className="application-wrapper">
         <Routes>
           <Route index element={<Home />} />
+          <Route path="/about" element={<EditorPage />} />
           <Route path="/blogs" element={<Blogs />} />
         </Routes>
       </div>
