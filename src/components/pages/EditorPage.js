@@ -7,7 +7,7 @@ import { isEmpty } from 'lodash';
 
 import * as API from '../../api';
 
-import { EDITOR_JS_TOOLS } from './constants';
+import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import logoImg from '../../images/LogoPubWeave.png';
 import 'bulma/css/bulma.min.css';
@@ -20,7 +20,7 @@ function ReactEditor () {
 
   async function fetchArticle () {
     if (isEmpty(defaultValue)) {
-      const response = await API.getRequest('blog_articles/2');
+      const response = await API.getRequest('blog_articles/1');
       setDefaultValue(response.article_content);
       console.log('response', response);
     }
@@ -45,7 +45,7 @@ function ReactEditor () {
           api.saver.save().then((articleContent) => {
             console.log('savedData', articleContent);
 
-            API.putRequest('blog_articles/2', { blog_article: { article_content: articleContent } });
+            API.putRequest('blog_articles/1', { blog_article: { article_content: articleContent } });
           });
         },
         autofocus: true,
