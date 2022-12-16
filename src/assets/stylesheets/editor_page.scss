@@ -1,0 +1,38 @@
+.editor-wrapper{
+  #editorjs > .codex-editor{
+
+    // #katex-node{
+    //   display: flex;
+    //   justify-content: space-between;
+    //   flex-direction: row;
+    //   align-items: center;
+
+    //   .virtual-keyboard-button{
+    //     display: flex;
+    //     justify-content: center;
+    //     align-items: center;
+    //     width: 55px;
+    //     height: 40px;
+    //     border-radius: 15%;
+    //     border: 1px solid rgb(114, 114, 114);
+    //   }
+    // }
+
+    .text-node{
+      border: 1px solid rgb(114, 114, 114);
+      border-radius: 5px;
+      display: flex;
+      min-width: 500px !important;
+
+      &:where([hidden]){
+        display: none;
+      }
+
+      .ML__container{
+        min-width: 500px !important;
+      }
+
+    }
+
+  }
+}

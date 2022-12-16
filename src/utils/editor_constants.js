@@ -15,27 +15,35 @@ import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
 import SimpleImageApi from '@editorjs/simple-image';
 
-import MathTexApi from 'editorjs-math';
 import Tooltip from 'editorjs-tooltip';
+import LatexPlugin from './latex_plugin';
 
-class MathTex extends MathTexApi {
-  constructor({ data, config, api }) {
-    super({ data, config, api });
-  }
+// class MathTex extends MathTexApi {
+//   constructor({ data, config, api }) {
+//     super({ data, config, api });
+//   }
 
-  enableEditing() {
-    super.enableEditing();
-    console.log('enableEditing');
+//   enableEditing() {
+//     if (this.textNode) {
+//       this.textNode.hidden = false;
 
-    // add button child to this.textNode
-    const button = document.createElement('button');
-    button.innerText = 'Click me';
-    button.addEventListener('click', () => {
-      console.log('button clicked');
-    });
-    this.textNode.appendChild(button);
-  }
-}
+//       return false;
+//     }
+
+//     this.textNode = document.createElement('math-field');
+//     this.textNode.contentEditable = true;
+//     this.textNode.id = 'mf';
+//     // this.data.text = '\\text{Equation:}';
+//     this.textNode.value = this.data.text === 'equation:' ? mfe.value : this.data.text;
+//     this.textNode.hidden = true;
+//     this.textNode.className = 'text-node';
+//     this.textNode.setOptions({
+//       virtualKeyboardMode: 'manual',
+//       virtualKeyboards: 'numeric symbols',
+//     });
+//     this._element.appendChild(this.textNode);
+//   }
+// }
 
 export const EDITOR_JS_TOOLS = {
   tooltip: {
@@ -57,7 +65,7 @@ export const EDITOR_JS_TOOLS = {
   marker: Marker,
   list: List,
   math: {
-    class: MathTex,
+    class: LatexPlugin,
     inlineToolbar: true,
   },
   warning: Warning,

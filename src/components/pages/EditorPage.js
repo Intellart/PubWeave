@@ -19,11 +19,17 @@ import Footer from '../containers/Footer';
 function ReactEditor () {
   const editorRef = React.useRef(null);
   const [defaultValue, setDefaultValue] = React.useState(null);
+  const equationRef = React.useRef(null);
 
   async function fetchArticle () {
     if (isEmpty(defaultValue)) {
       const response = await API.getRequest('blog_articles/1');
-      setDefaultValue(response.article_content);
+      if (!isEmpty(response.article_content)) {
+        setDefaultValue(response.article_content);
+      } else {
+        setDefaultValue({ blocks: [] });
+      }
+
       console.log('response', response);
     }
   }
@@ -57,9 +63,10 @@ function ReactEditor () {
   }, [editorRef, defaultValue]);
 
   return (
-    <main className="home-wrapper">
+    <main className="editor-wrapper">
       <Navbar />
       <div ref={editorRef} id="editorjs" />
+
       <Footer />
     </main>
   );

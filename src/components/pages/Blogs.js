@@ -1,13 +1,9 @@
 // @flow
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
-import { faShare } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
-import FeaturedImg from '../../images/featured-card.png';
 import FeaturedCard from '../containers/FeaturedCard';
 
 function Blogs(): Node {
