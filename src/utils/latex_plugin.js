@@ -95,6 +95,16 @@ export default class LatexPlugin {
     const renderingTime = 100;
 
     this.textarea = document.createElement('math-field');
+    this.textarea.id = 'mf';
+    // this.textarea.addEventListener('keydown', (evt) => {
+    //   evt.preventDefault();
+
+    //   return { capture: true };
+    // });
+    this.textarea.setOptions({
+      virtualKeyboardMode: 'manual',
+      virtualKeyboards: 'numeric symbols',
+    });
 
     wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
 
