@@ -26,7 +26,16 @@ function Home(): Node {
           </div>
           <img src={chatDialoge} className="chat-dialoge" alt="chatDialoge" />
         </div>
-        <div className="arrow-down"> </div>
+        <div
+          className="arrow-down"
+          onClick={() => {
+            window.scrollTo({
+              top: window.innerHeight,
+              left: 0,
+              behavior: 'smooth',
+            });
+          }}
+        />
       </section>
       <section className="about-section">
         <div className="about-paragraph-img">
