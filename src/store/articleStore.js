@@ -1,5 +1,6 @@
 // @flow
 // import React from 'react';
+import { get } from 'lodash';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload } from '../types';
 
@@ -62,9 +63,17 @@ export const actions = {
     type: types.ART_FETCH_ARTICLE,
     payload: API.getRequest(`blog_articles/${id}`),
   }),
-  createArticle: (id: number): ReduxAction => ({
+  createArticle: (): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest(`blog_articles/${id}`),
+    payload: API.postRequest('blog_articles.json',
+      {
+        blog_article: {
+          title: 'Undefined',
+          article_content: {
+            blocks: [],
+          },
+        },
+      }),
   }),
   updateArticle: (id: number, articleSettings: any, articleContent: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
@@ -73,8 +82,11 @@ export const actions = {
         blog_article: {
           title: articleSettings.title,
           article_content: {
-            ...articleContent,
-            ...articleSettings,
+            blocks: get(articleContent, 'blocks', []),
+            time: get(articleContent, 'time', 0),
+            tags: get(articleSettings, 'tags', []),
+            category: get(articleSettings, 'category', ''),
+            author: get(articleSettings, 'author', ''),
           },
         },
       }),
@@ -98,12 +110,18 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     //   return logoutUser();
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
-      console.log('action.payload', action.payload);
 
-      return { ...state, ...{ articleContent: action.payload.article_content, articleSettings: action.payload } };
+      return {
+        ...state,
+        ...action.payload,
+      };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
-      return { ...state, ...{ articleContent: action.payload.article_content, articleSettings: action.payload } };
+      return {
+        ...state,
+        title: action.payload.title,
+        article_content: action.payload.article_content,
+      };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
       return { ...state, ...{ articleContent: action.payload.article_content, articleSettings: action.payload } };

@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { createReactEditorJS } from 'react-editor-js';
+import { useDispatch, useSelector } from 'react-redux';
+
 import {
   isEmpty, sum, words, get, filter, map,
 } from 'lodash';
@@ -9,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from 'react-router-dom';
 
+import Button from '@mui/material/Button';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
@@ -17,14 +20,13 @@ import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
 import { store } from '../../store';
-import { StaticDatePicker } from '@mui/lab';
-import { actions } from "../../store/articleStore";
+import { actions } from '../../store/articleStore';
 
 const ReactEditorJS = createReactEditorJS();
 
 function ReactEditor () {
   // const editorRef = React.useRef(null);
-  const [articleContent, setArticleContent] = React.useState(null);
+  // const [articleContent, setArticleContent] = React.useState(null);
   const [titleFocus, setTitleFocus] = React.useState(false);
   const titleRef = React.useRef(null);
   const { id } = useParams();
@@ -38,15 +40,18 @@ function ReactEditor () {
     tags: [],
   };
 
-  console.log('Initial state: ', store.getState());
+  // define useSelector
+  const article = useSelector((state) => get(state, 'article'));
+  const articleContent = useSelector((state) => get(state, 'article.article_content'));
+  const blocks = useSelector((state) => get(state, 'article.article_content.blocks'));
 
-  useEffect(() => {
-    console.log('State changed: ', store.getState());
-    store.dispatch(actions.fetchArticle(id));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store]);
+  // define dispatch
+  const dispatch = useDispatch();
+  const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
+  const updateArticle = (ind, as, ac) => dispatch(actions.updateArticle(ind, as, ac));
 
   const [articleSettings, setArticleSettings] = React.useState(defaultArticleSettings);
+  const [stateReady, setStateReady] = React.useState(false);
 
   const handleArticleSettings = (action, e) => {
     const newArticleSettings = { ...articleSettings };
@@ -75,23 +80,22 @@ function ReactEditor () {
   };
 
   useEffect(() => {
-    if (!articleContent || isEmpty(articleContent)) {
-      const response = {}; // fetchArticle(id);
-
-      console.log('response', response);
-
-      if (!isEmpty(response.article_content)) {
-        setArticleContent(response.article_content);
-        handleArticleSettings('word_count', sum(map(get(response, 'article_content.blocks'), (block) => words(get(block, 'data.text')).length)));
-      } else {
-        setArticleContent({ blocks: [], time: 0, version: '2.19.0' });
-      }
-      handleArticleSettings('title', response.title || 'Undefined');
+    console.log('State changed: ', store.getState());
+    if (isEmpty(article)) {
+      fetchArticle(id);
+    } else {
+      console.log('Article already loaded');
+      setStateReady(true);
+      setArticleSettings({
+        title: get(article, 'title'),
+        category: get(article, 'article_content.category'),
+        description: get(article, 'article_content.description'),
+        tags: get(article, 'article_content.tags'),
+        word_count: sum(map(get(article, 'article_content.blocks'), (block) => words(get(block, 'data.text')).length)),
+      });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [articleContent, id]);
-
-  console.log('AC', articleContent);
+  }, [article]);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -102,16 +106,25 @@ function ReactEditor () {
   const handleUploadEditorContent = (api) => {
     api.saver.save().then((newArticleContent) => {
       handleArticleSettings('word_count', sum(get(newArticleContent, 'blocks').map((block) => words(get(block, 'data.text')).length)));
-      console.log('savedData', newArticleContent);
-
-      // updateArticle(id, articleSettings, newArticleContent);
-      setArticleContent(newArticleContent);
+      store.dispatch(actions.updateArticle(id, articleSettings, newArticleContent));
     });
   };
 
   return (
     <main className="editor-wrapper">
       <Navbar />
+      <Button
+        onClick={() => store.dispatch(actions.fetchArticle(id))}
+        variant="contained"
+      >
+        Dispatch
+      </Button>
+      <Button
+        variant="contained"
+        onClick={() => console.log(store.getState())}
+      >
+        Console log
+      </Button>
       <div
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
@@ -123,7 +136,7 @@ function ReactEditor () {
           onFocus={() => setTitleFocus(true)}
           onBlur={() => {
             setTitleFocus(false);
-            // updateArticle(id, articleSettings, articleContent);
+            updateArticle(id, articleSettings, articleContent);
           }}
           ref={titleRef}
           onChange={(e) => handleArticleSettings('title', e.target.value)}
@@ -134,7 +147,7 @@ function ReactEditor () {
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
       <ArticleConfig
         articleSettings={articleSettings}
-        lastSaved={get(articleContent, 'time', 0)}
+        lastSaved={get(article, 'article_content.time', 0)}
         onToggleSpellCheck={(e) => handleArticleSettings('toggle_spell_check', e)}
         addTag={(e) => {
           handleArticleSettings('add_tag', e);
@@ -143,8 +156,11 @@ function ReactEditor () {
           handleArticleSettings('remove_tag', e);
         }}
       />
+      {stateReady && (
       <ReactEditorJS
-        defaultValue={{ blocks: get(articleContent, 'blocks', []) }}
+        defaultValue={{
+          blocks: blocks || [],
+        }}
         tools={EDITOR_JS_TOOLS}
         onChange={(api) => {
           handleUploadEditorContent(api);
@@ -152,6 +168,7 @@ function ReactEditor () {
         autofocus
         placeholder='Start your article here!'
       />
+      )}
       <Footer />
     </main>
   );
