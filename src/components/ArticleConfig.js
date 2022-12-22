@@ -9,19 +9,29 @@ import { faClock } from '@fortawesome/free-regular-svg-icons';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
+import { map } from 'lodash';
+import Button from '@mui/material/Button';
 
 type Props = {
-  wordCount: number,
+  articleSettings: any,
   lastSaved: number,
   onToggleSpellCheck: (any) => void,
-  toggleSpellCheck: boolean,
+  addTag: (any) => void,
+  // eslint-disable-next-line react/no-unused-prop-types
+  removeTag: (any) => void,
 };
 
 function ArticleConfig(props: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isEditingTags, setIsEditingTags] = useState(false);
+  const [tags, setTags] = useState(props.articleSettings.tags);
 
   const SECOND_MS = 1000;
+
+  useEffect(() => {
+    setTags(props.articleSettings.tags);
+  }, [props.articleSettings.tags]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,7 +72,7 @@ function ArticleConfig(props: Props): Node {
           className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
         >
           <div className="article-config-item">
-            <h6>{props.wordCount} words</h6>
+            <h6>{props.articleSettings.wordCount} words</h6>
             <FontAwesomeIcon icon={faPen} />
           </div>
           <div className="article-config-item">
@@ -78,10 +88,51 @@ function ArticleConfig(props: Props): Node {
         >
           <div className="article-config-group">
             <h5>Article Info</h5>
-            <TextField id="standard-basic" label="Standard" variant="standard" />
+            <TextField id="standard-basic" label="Description" variant="standard" />
+            <TextField id="standard-basic" label="Additional authors" variant="standard" />
+            {isEditingTags && (
+              <>
+                <TextField
+                  value={tags}
+                  onChange={(e) => {
+                    setTags(e.target.value);
+                  }}
+                  id="standard-basic"
+                  label="Tags"
+                  variant="standard"
+                />
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setIsEditingTags(false);
+                    props.addTag(tags);
+                    setTags('');
+                  }}
+                >
+                  Save
+                </Button>
+              </>
+            )}
+            {!isEditingTags && (
+              <div
+                onClick={() => setIsEditingTags(true)}
+                className="article-config-item"
+              >
+                <FontAwesomeIcon icon={faBook} />
+                <h6>Edit tags</h6>
+              </div>
+            )}
+            <div className="all-chips">
+              {map(props.articleSettings.tags, (tag, index) => (
+                <div key={index} className="chip">
+                  <div className="chip-content">{tag}</div>
+                </div>
+              ))}
+            </div>
+
             <div className="article-config-item">
               <FontAwesomeIcon icon={faPen} />
-              <h6>{props.wordCount} words</h6>
+              <h6>{props.articleSettings.wordCount} words</h6>
             </div>
             <div className="article-config-item">
               <FontAwesomeIcon icon={faClock} />
@@ -99,7 +150,7 @@ function ArticleConfig(props: Props): Node {
             <h5>Article Settings</h5>
             <div className="article-config-item">
               <Switch
-                value={props.toggleSpellCheck ? 'checked' : 'unchecked'}
+                value={props.articleSettings.toggleSpellCheck ? 'checked' : 'unchecked'}
                 onClick={(e) => {
                   e.stopPropagation();
                   props.onToggleSpellCheck(e.target.checked);
