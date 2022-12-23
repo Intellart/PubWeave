@@ -11,14 +11,19 @@ import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { map } from 'lodash';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 
 type Props = {
+  readOnly: boolean,
+  setReadOnly: (boolean) => void,
   articleSettings: any,
+  wordCount: number,
   lastSaved: number,
   onToggleSpellCheck: (any) => void,
   addTag: (any) => void,
   // eslint-disable-next-line react/no-unused-prop-types
   removeTag: (any) => void,
+  setCategory: (any) => void,
 };
 
 function ArticleConfig(props: Props): Node {
@@ -26,12 +31,17 @@ function ArticleConfig(props: Props): Node {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [tags, setTags] = useState(props.articleSettings.tags);
+  const [category, setCategory] = useState(props.articleSettings.category);
 
   const SECOND_MS = 1000;
 
   useEffect(() => {
     setTags(props.articleSettings.tags);
   }, [props.articleSettings.tags]);
+
+  useEffect(() => {
+    setCategory(props.articleSettings.category);
+  }, [props.articleSettings.category]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -66,13 +76,13 @@ function ArticleConfig(props: Props): Node {
       mouseEvent="onMouseDown"
       touchEvent="onTouchStart"
     >
-      <div>
+      <div className='article-config-modals'>
         <div
           onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
           className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
         >
           <div className="article-config-item">
-            <h6>{props.articleSettings.word_count} words</h6>
+            <h6>{props.wordCount} words</h6>
             <FontAwesomeIcon icon={faPen} />
           </div>
           <div className="article-config-item">
@@ -88,11 +98,24 @@ function ArticleConfig(props: Props): Node {
         >
           <div className="article-config-group">
             <h5>Article Info</h5>
-            <TextField id="standard-basic" label="Description" variant="standard" />
-            <TextField id="standard-basic" label="Additional authors" variant="standard" />
+            <TextField
+              id="standard-basic"
+              label="Category"
+              variant="standard"
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+              }}
+              onBlur={(e) => {
+                setCategory(e.target.value);
+                props.setCategory(e.target.value);
+              }}
+
+            />
             {isEditingTags && (
-              <>
+              <div className='article-config-subgroup-tags'>
                 <TextField
+                  className='article-config-subgroup-tags-input'
                   value={tags}
                   onChange={(e) => {
                     setTags(e.target.value);
@@ -102,6 +125,7 @@ function ArticleConfig(props: Props): Node {
                   variant="standard"
                 />
                 <Button
+                  className='article-config-subgroup-tags-button'
                   variant="contained"
                   onClick={() => {
                     setIsEditingTags(false);
@@ -111,28 +135,29 @@ function ArticleConfig(props: Props): Node {
                 >
                   Save
                 </Button>
-              </>
+              </div>
             )}
             {!isEditingTags && (
               <div
-                onClick={() => setIsEditingTags(true)}
+                onClick={() => {
+                  setIsEditingTags(true);
+                  setTags('');
+                }}
                 className="article-config-item"
               >
                 <FontAwesomeIcon icon={faBook} />
-                <h6>Edit tags</h6>
+                <h6>Add tags</h6>
               </div>
             )}
             <div className="all-chips">
               {map(props.articleSettings.tags, (tag, index) => (
-                <div key={index} className="chip">
-                  <div className="chip-content">{tag}</div>
-                </div>
+                <Chip key={index} label={tag} onDelete={() => props.removeTag(tag)} />
               ))}
             </div>
 
             <div className="article-config-item">
               <FontAwesomeIcon icon={faPen} />
-              <h6>{props.articleSettings.wordCount} words</h6>
+              <h6>{props.wordCount} words</h6>
             </div>
             <div className="article-config-item">
               <FontAwesomeIcon icon={faClock} />
@@ -144,6 +169,16 @@ function ArticleConfig(props: Props): Node {
             <div className="article-config-item">
               <FontAwesomeIcon icon={faBook} />
               <h6>Publish</h6>
+            </div>
+            <div className="article-config-item">
+              <Switch
+                value={props.readOnly ? 'checked' : 'unchecked'}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.setReadOnly(e.target.checked);
+                }}
+              />
+              <h6>Toggle read-only</h6>
             </div>
           </div>
           <div className="article-config-group">

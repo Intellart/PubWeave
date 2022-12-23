@@ -75,7 +75,8 @@ export default class Testing {
   render() {
     this.button = document.createElement('button');
     this.button.type = 'button';
-    this.button.classList.add(this.iconClasses.base);
+    // this.button.classList.add(this.iconClasses.base);
+    this.button.classList.add('my-word-count-button');
     this.button.innerHTML = this.toolboxIcon;
 
     return this.button;
@@ -326,6 +327,6 @@ export const EDITOR_JS_TOOLS = {
   checklist: CheckList,
   delimiter: Delimiter,
   inlineCode: InlineCode,
-  testing: Testing,
+  wordCount: Testing,
 
 };

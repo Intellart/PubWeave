@@ -18,6 +18,11 @@
     width: 100%;
 
     .articles-title{
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
       font-family: 'Inter';
       font-style: normal;
       font-weight: 600;

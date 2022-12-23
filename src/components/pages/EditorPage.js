@@ -1,5 +1,6 @@
-/* eslint-disable no-console */
-import React, { useEffect } from 'react';
+/* eslint-disable no-console */ import React, {
+  useEffect,
+} from 'react';
 import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -35,7 +36,7 @@ function ReactEditor () {
     category: '',
     description: '',
     author: '',
-    wordCount: 0,
+    // wordCount: 0,
     spellCheck: false,
     tags: [],
   };
@@ -49,9 +50,18 @@ function ReactEditor () {
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (ind, as, ac) => dispatch(actions.updateArticle(ind, as, ac));
+  const [wordCount, setWordCount] = React.useState(0);
 
   const [articleSettings, setArticleSettings] = React.useState(defaultArticleSettings);
   const [stateReady, setStateReady] = React.useState(false);
+  const [inReadOnlyMode, setInReadOnlyMode] = React.useState(false);
+
+  useEffect(() => {
+    if (!isEmpty(articleSettings) && stateReady) {
+      updateArticle(id, articleSettings, articleContent);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articleSettings]);
 
   const handleArticleSettings = (action, e) => {
     const newArticleSettings = { ...articleSettings };
@@ -67,11 +77,14 @@ function ReactEditor () {
       case 'toggle_spell_check':
         newArticleSettings.spellCheck = e;
         break;
-      case 'word_count':
-        newArticleSettings.wordCount = e;
-        break;
+      // case 'word_count':
+      //   newArticleSettings.wordCount = e;
+      //   break;
       case 'title':
         newArticleSettings.title = e;
+        break;
+      case 'category':
+        newArticleSettings.category = e;
         break;
       default:
         throw new Error('Invalid action');
@@ -79,11 +92,13 @@ function ReactEditor () {
     setArticleSettings(newArticleSettings);
   };
 
+  console.log(wordCount);
+
   useEffect(() => {
     console.log('State changed: ', store.getState());
     if (isEmpty(article)) {
       fetchArticle(id);
-    } else {
+    } else if (!stateReady) {
       console.log('Article already loaded');
       setStateReady(true);
       setArticleSettings({
@@ -91,13 +106,11 @@ function ReactEditor () {
         category: get(article, 'article_content.category'),
         description: get(article, 'article_content.description'),
         tags: get(article, 'article_content.tags'),
-        word_count: sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0),
       });
+      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article]);
-
-  console.log(articleSettings.word_count);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -107,8 +120,8 @@ function ReactEditor () {
 
   const handleUploadEditorContent = (api) => {
     api.saver.save().then((newArticleContent) => {
-      handleArticleSettings('word_count', sum(get(newArticleContent, 'blocks').map((block) => words(get(block, 'data.text')).length), 0));
-      store.dispatch(actions.updateArticle(id, articleSettings, newArticleContent));
+      updateArticle(id, articleSettings, newArticleContent);
+      setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
     });
   };
 
@@ -136,11 +149,17 @@ function ReactEditor () {
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
       <ArticleConfig
+        readOnly={inReadOnlyMode}
+        setReadOnly={(e) => setInReadOnlyMode(e)}
+        setCategory={(e) => handleArticleSettings('category', e)}
+        wordCount={wordCount}
         articleSettings={articleSettings}
         lastSaved={get(articleContent, 'time', 0)}
         onToggleSpellCheck={(e) => handleArticleSettings('toggle_spell_check', e)}
         addTag={(e) => {
-          handleArticleSettings('add_tag', e);
+          map(e.split(','), (tag) => {
+            handleArticleSettings('add_tag', tag);
+          });
         }}
         removeTag={(e) => {
           handleArticleSettings('remove_tag', e);

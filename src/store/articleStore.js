@@ -124,7 +124,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
-      return { ...state, ...{ articleContent: action.payload.article_content, articleSettings: action.payload } };
+      return {
+        ...state,
+        ...action.payload,
+      };
 
     default:
       return state || {};
