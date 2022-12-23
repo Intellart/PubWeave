@@ -52,6 +52,19 @@
   }
   #editorjs {
 
+    .ce-inline-toolbar{
+      // &::after{
+      //   content: "";
+      //   position: absolute;
+      //   top: 0;
+      //   right: -80px;
+      //   width: 80px;
+      //   height: 100%;
+      //   background-color: rgba(0, 0, 0, 0.8);
+      //   border-radius: 5px;
+      // }
+    }
+
     min-height: calc(80vh - 210px);
     
     .codex-editor{

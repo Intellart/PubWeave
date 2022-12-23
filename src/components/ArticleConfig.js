@@ -72,7 +72,7 @@ function ArticleConfig(props: Props): Node {
           className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
         >
           <div className="article-config-item">
-            <h6>{props.articleSettings.wordCount} words</h6>
+            <h6>{props.articleSettings.word_count} words</h6>
             <FontAwesomeIcon icon={faPen} />
           </div>
           <div className="article-config-item">
