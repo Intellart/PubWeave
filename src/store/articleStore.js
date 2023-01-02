@@ -23,6 +23,7 @@ export type ArticleContent = {
 export type State = {
   articleContent: ArticleContent,
   articleSettings: ArticleSettings,
+  allArticles: Array<Object>,
 };
 
 export const types = {
@@ -30,6 +31,11 @@ export const types = {
   ART_FETCH_ARTICLE_PENDING: 'ART/FETCH_ARTICLE_PENDING',
   ART_FETCH_ARTICLE_REJECTED: 'ART/FETCH_ARTICLE_REJECTED',
   ART_FETCH_ARTICLE_FULFILLED: 'ART/FETCH_ARTICLE_FULFILLED',
+
+  ART_FETCH_ALL_ARTICLES: 'ART/FETCH_ALL_ARTICLES',
+  ART_FETCH_ALL_ARTICLES_PENDING: 'ART/FETCH_ALL_ARTICLES_PENDING',
+  ART_FETCH_ALL_ARTICLES_REJECTED: 'ART/FETCH_ALL_ARTICLES_REJECTED',
+  ART_FETCH_ALL_ARTICLES_FULFILLED: 'ART/FETCH_ALL_ARTICLES_FULFILLED',
 
   ART_UPDATE_ARTICLE: 'ART/UPDATE_ARTICLE',
   ART_UPDATE_ARTICLE_PENDING: 'ART/UPDATE_ARTICLE_PENDING',
@@ -43,29 +49,22 @@ export const types = {
 
 };
 
-// export const selectors = {
-//   // getUser: (state: ReduxState): User|null => state.user.currentUser,
-// };
+export const selectors = {
+  // getUser: (state: ReduxState): User|null => state.user.currentUser,
+};
 
 export const actions = {
-  // loginUser: (payload: LoginCredentials): ReduxAction => ({
-  //   type: types.USR_LOGIN_USER,
-  //   payload: API.postRequest('auth/session', { user: payload }),
-  // }),
-  // logoutUser: (): ReduxAction => ({
-  //   type: types.USR_LOGOUT_USER,
-  //   payload: API.deleteRequest('auth/session'),
-  // }),
-  // clearUser: (): ReduxAction => ({
-  //   type: types.USR_CLEAR_USER,
-  // }),
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
-    payload: API.getRequest(`blog_articles/${id}`),
+    payload: API.getRequest(`pubweave/blog_articles/${id}`),
+  }),
+  fetchAllArticles: (): ReduxAction => ({
+    type: types.ART_FETCH_ALL_ARTICLES,
+    payload: API.getRequest('pubweave/blog_articles.json'),
   }),
   createArticle: (): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest('blog_articles.json',
+    payload: API.postRequest('pubweave/blog_articles.json',
       {
         blog_article: {
           title: 'Undefined',
@@ -77,7 +76,7 @@ export const actions = {
   }),
   updateArticle: (id: number, articleSettings: any, articleContent: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
-    payload: API.putRequest(`blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
           title: articleSettings.title,
@@ -96,24 +95,17 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
-    // case types.USR_LOGIN_USER_FULFILLED:
-    //   toast.success('User successfully logged in!');
-
-    //   return { ...state, ...{ profile: action.payload, currentAdmin: null } };
-
-    // case types.USR_LOGOUT_USER_FULFILLED:
-    //   toast.success('User successfully logged out!');
-
-    //   return logoutUser();
-
-    // case types.USR_CLEAR_USER:
-    //   return logoutUser();
-
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
       return {
         ...state,
         ...action.payload,
+      };
+
+    case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
+      return {
+        ...state,
+        articles: action.payload,
       };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
@@ -133,36 +125,3 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return state || {};
   }
 };
-
-// export async function fetchArticle(id: number): any {
-//   const response = await API.getRequest(`blog_articles/${id}`);
-
-//   console.log('response_', response);
-
-//   return response;
-// }
-
-// export async function createArticle(id: number, articleSettings: any, articleContent: any) {
-//   // API.postRequest('blog_articles/1', { blog_article: { title: 'Test Arqsdstttdrggrtsadiclse', article_content: { test: 'test' } } });
-//   await API.putRequest(`blog_articles/${id}`, {
-//     blog_article: {
-//       title: articleSettings.title,
-//       article_content: {
-//         ...articleContent,
-//         ...articleSettings,
-//       },
-//     },
-//   });
-// }
-
-// export async function updateArticle(id: number, articleSettings: any, articleContent: any) {
-//   await API.putRequest(`blog_articles/${id}`, {
-//     blog_article: {
-//       title: articleSettings.title,
-//       article_content: {
-//         ...articleContent,
-//         ...articleSettings,
-//       },
-//     },
-//   });
-// }
