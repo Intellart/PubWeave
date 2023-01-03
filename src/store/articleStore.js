@@ -56,15 +56,15 @@ export const selectors = {
 export const actions = {
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
-    payload: API.getRequest(`pubweave/blog_articles/${id}`),
+    payload: API.getRequest(`blog_articles/${id}`),
   }),
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
-    payload: API.getRequest('pubweave/blog_articles.json'),
+    payload: API.getRequest('blog_articles.json'),
   }),
   createArticle: (): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest('pubweave/blog_articles.json',
+    payload: API.postRequest('blog_articles.json',
       {
         blog_article: {
           title: 'Undefined',
@@ -76,7 +76,7 @@ export const actions = {
   }),
   updateArticle: (id: number, articleSettings: any, articleContent: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
-    payload: API.putRequest(`pubweave/blog_articles/${id}`,
+    payload: API.putRequest(`blog_articles/${id}`,
       {
         blog_article: {
           title: articleSettings.title,
