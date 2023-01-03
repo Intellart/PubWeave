@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { isPromise } from '../utils';
 import { reducer as globalStoreReducer } from './globalStore';
 import { reducer as userStoreReducer } from './userStore';
+import { reducer as articleStoreReducer } from './articleStore';
 import ErrorMessage from '../components/errors/ErrorMessage';
 import type {
   ReduxAction,
@@ -123,6 +124,7 @@ export const configureStore = (
     combineReducers({
       global: globalStoreReducer,
       user: userStoreReducer,
+      article: articleStoreReducer,
     }),
     initialState,
     middlewareApplier,

@@ -26,7 +26,7 @@ function Navbar(): Node {
       <div className="navigation">
         <a href="/About">About</a>
         <a href="/About">Contact Us</a>
-        <button className='submit-work'>Submit your research</button>
+        <a href="/submit-work" className='submit-work'>Submit your research</a>
       </div>
     </nav>
   );
