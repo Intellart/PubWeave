@@ -1,7 +1,8 @@
 // @flow
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { every, isEqual } from 'lodash';
+import { useInView } from 'react-intersection-observer';
 
 export const useScreenSize = (): Object => {
   const tabletQuery = window.matchMedia('(max-width: 991px)');
@@ -57,6 +58,25 @@ export const useDebounce = (value: any, delay: number = 500): any => {
 
   return debouncedValue;
 };
+
+function MultipleObserver({ children, onView }: any): any {
+  const { ref, inView } = useInView({ threshold: 0.6 });
+
+  // if ref is in view, call the onView function
+  useEffect(() => {
+    if (inView) {
+      onView();
+    }
+  }, [inView, onView]);
+
+  return (
+    <div ref={ref}>
+      {children}
+    </div>
+  );
+}
+
+export default MultipleObserver;
 
 export const useDebouncedState = (defaultValue: any, onDebounceChange: Function, delay: number = 500): any => {
   const [inputVal, setInputVal] = useState(defaultValue);
