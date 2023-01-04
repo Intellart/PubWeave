@@ -32,8 +32,8 @@ function Blogs(): Node {
           <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
           <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
           <div className="author">
-            <h7>John Doe, Jane Doe...</h7><br />
-            <h7>Updated Jan 1, 2022</h7>
+            <h6>John Doe, Jane Doe...</h6><br />
+            <h6>Updated Jan 1, 2022</h6>
           </div>
         </div>
       </section>
