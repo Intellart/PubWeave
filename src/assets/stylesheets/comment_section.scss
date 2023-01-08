@@ -8,7 +8,19 @@
                         supported by Chrome and Opera */
 }
 
+.comment-modal{
+  //remove scrollbar
+  overflow-y: scroll;
+  overflow-x: hidden;
+  //remove scrollbar
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
+
+}
 
 .comment-section-wrapper{
   display: flex;
@@ -16,11 +28,10 @@
   align-items: center;
   justify-content: center;
   gap: 30px;
-  margin: 90px;
   width: 800px;
   padding: 30px;
 
-  background: #c7cdd4a6;
+  background: #c7cdd4;
 
 
 
@@ -79,6 +90,7 @@
       .comment-rating{
         max-height: 250px;
         height: 100%;
+        width: 60px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -97,6 +109,7 @@
           justify-content: center;
           padding: 15px;
           cursor: pointer;
+          width: 100%;
         }
 
         .comment-rating-up-active {

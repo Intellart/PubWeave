@@ -4,8 +4,8 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
-import CommentSection from '../containers/CommentSection';
 import StartEditButtonGrid from '../containers/MyDataGrid';
+import CommentModal from '../containers/CommentModal';
 
 function About(): Node {
   return (
@@ -13,7 +13,7 @@ function About(): Node {
       <Navbar />
       <section className="about-section">
         <StartEditButtonGrid />
-        <CommentSection />
+        <CommentModal />
       </section>
       <Footer />
     </main>
