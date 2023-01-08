@@ -1,0 +1,69 @@
+
+.datagrid-selected-rows-delete{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 40px;
+  background: #ad0000;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1.0rem;
+  font-weight: 500;
+  transition: 0.3s;
+  transform: translateX(200px) translateY(-40px);
+
+  &:hover{
+    background: #FF0000;
+    opacity: 0.8;
+  }
+}
+
+.datagrid-cell{
+  position: relative;
+  z-index: 1;
+
+  &.datagrid-cell-actions{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+
+    .datagrid-cell-actions-icon{
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+  }
+
+  &.datagrid-cell-date{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding-left: 20px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+
+    .datagrid-cell-date-input{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .datagrid-cell-date-date{
+      font-size: 1.0rem;
+      font-weight: 500;
+    }
+
+    .datagrid-cell-date-time{
+      font-size: 0.8rem;
+      font-weight: 400;
+    }
+  }
+}
+
