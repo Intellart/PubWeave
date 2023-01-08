@@ -52,16 +52,9 @@ function getChipProps(params: GridRenderCellParams): ChipProps {
 
 function renderEditChip(params: GridEditCellPropsParams) {
   const { api, id, field } = params;
-  // const {
-  //   id, value, api, field,
-  // } = params;
 
   const handleChange = (event) => {
     api.setEditCellValue({ id, field, value: event.target.value }, event);
-    // toast.success('Status changed');
-
-    // api.commitCellChange({ id, field });
-    // api.setCellMode(id, field, 'view');
   };
 
   const handleRef = (element) => {

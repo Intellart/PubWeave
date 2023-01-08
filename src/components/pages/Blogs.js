@@ -5,7 +5,6 @@ import 'bulma/css/bulma.min.css';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import FeaturedCard from '../containers/FeaturedCard';
-import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
 
 function Blogs(): Node {
@@ -49,7 +48,6 @@ function Blogs(): Node {
         <h2>Featured</h2>
         <FeaturedCard />
         <h2>Latest Blog Posts</h2>
-        <MyTable />
         <ArticleCard />
       </section>
       <Footer />
