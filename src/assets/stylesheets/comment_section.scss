@@ -1,0 +1,212 @@
+.unselectable {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                        supported by Chrome and Opera */
+}
+
+.comment-modal{
+  //remove scrollbar
+  overflow-y: scroll;
+  overflow-x: hidden;
+  //remove scrollbar
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+
+}
+
+.comment-section-wrapper{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  width: 800px;
+  padding: 30px;
+
+  background: #c7cdd4;
+
+
+
+  .comment-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 20px;
+    width: 100%;
+    border-radius: 15px;
+
+    .comment-replies{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 20px;
+      width: 100%;
+      border-radius: 15px;
+      position: relative;
+
+      
+      &::before{
+          content: "";
+          margin-left : 30px;
+          position: absolute;
+          width: 2px;
+          height: 90%;
+          background: #a4b6ce;
+          border-radius: 15px;
+          left: 0;
+          top: 0;
+      }
+
+      .comment{
+        margin-left : 60px;
+        max-width: calc(100% - 40px);
+      }
+
+
+    
+    
+  }
+
+    .comment{
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 10px;
+      background: #f2f4f5;
+      border-radius: 15px;
+      padding: 20px;
+  
+      .comment-rating{
+        max-height: 250px;
+        height: 100%;
+        width: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        background: #c7cdd4a6;
+        border-radius: 15px;
+  
+        .comment-rating-up,
+        .comment-rating-down,
+        .comment-rating-number{
+  
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 15px;
+          cursor: pointer;
+          width: 100%;
+        }
+
+        .comment-rating-up-active {
+          background: #597ba8;
+          color: #f2f4f5;
+          border-radius: 15px 15px 0 0;
+        }
+
+        .comment-rating-down-active {
+          background: #597ba8;
+          color: #f2f4f5;
+          border-radius: 0 0 15px 15px;
+        }
+      }
+      .comment-content{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 15px;
+        padding: 0 20px;
+        width: 100%;
+
+        .comment-content-body{
+          width: 100%;
+          .comment-content-body-textarea{
+            width: 100%;
+            border: 1px solid #597ba8;
+          }
+
+          .comment-content-body-buttons{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+            .comment-content-body-buttons-cancel,
+            .comment-content-body-buttons-save{
+              padding: 10px;
+              border-radius: 15px;
+              cursor: pointer;
+            }
+            .comment-content-body-buttons-cancel{
+              background: #f2f4f5;
+              color: #597ba8;
+            }
+            .comment-content-body-buttons-save{
+              background: #597ba8;
+              color: #f2f4f5;
+            }
+          }
+        }
+      }
+  
+      .comment-content-header{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        width: 100%;
+        margin: 10px;
+        padding: 10px;
+        // border-bottom: 1px solid #b1c0d4;
+  
+        .comment-content-header-left{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+  
+        }
+  
+        .comment-content-header-right{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 10px;
+  
+          .comment-content-header-right-comment-reply{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            color: #711583;
+            font-weight: 550;
+  
+            
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+
+}

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
@@ -14,10 +15,24 @@ import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
 import SimpleImageApi from '@editorjs/simple-image';
+import Image from '@editorjs/image';
 
 import Tooltip from 'editorjs-tooltip';
 import { words } from 'lodash';
+import { Cloudinary } from '@cloudinary/url-gen';
+import { AdvancedImage } from '@cloudinary/react';
 import LatexPlugin from './latex_plugin';
+
+const cld = new Cloudinary({
+  cloud: {
+    cloudName: 'demo',
+  },
+});
+
+// cld.image returns a CloudinaryImage with the configuration set.
+const myImage = cld.image('sample');
+
+const imageLink = myImage.toURL();
 
 export default class Testing {
   /**
@@ -203,33 +218,6 @@ export default class Testing {
   }
 }
 
-// class MathTex extends MathTexApi {
-//   constructor({ data, config, api }) {
-//     super({ data, config, api });
-//   }
-
-//   enableEditing() {
-//     if (this.textNode) {
-//       this.textNode.hidden = false;
-
-//       return false;
-//     }
-
-//     this.textNode = document.createElement('math-field');
-//     this.textNode.contentEditable = true;
-//     this.textNode.id = 'mf';
-//     // this.data.text = '\\text{Equation:}';
-//     this.textNode.value = this.data.text === 'equation:' ? mfe.value : this.data.text;
-//     this.textNode.hidden = true;
-//     this.textNode.className = 'text-node';
-//     this.textNode.setOptions({
-//       virtualKeyboardMode: 'manual',
-//       virtualKeyboards: 'numeric symbols',
-//     });
-//     this._element.appendChild(this.textNode);
-//   }
-// }
-
 export const EDITOR_JS_TOOLS = {
   tooltip: {
     class: Tooltip,
@@ -256,58 +244,43 @@ export const EDITOR_JS_TOOLS = {
   warning: Warning,
   code: Code,
   linkTool: LinkTool,
-  // image: {
-  //   class: Image,
-  //   inlineToolbar: ['link'],
-  // config: {
-  //   /**
-  //    * Custom uploader
-  //    */
-  //   uploader: {
-  //     /**
-  //      * Upload file to the server and return an uploaded image data
-  //      * @param {File} file - file selected from the device or pasted by drag-n-drop
-  //      * @return {Promise.<{success, file: {url}}>}
-  //      */
-  //     uploadByFile(file) {
-  //       // your own uploading logic here
-  //       return MyAjax.upload(file).then(() => ({
-  //         success: 1,
-  //         file: {
-  //           url: 'https://codex.so/upload/redactor_images/o_80beea670e49f04931ce9e3b2122ac70.jpg',
-  //           // any other image data you want to store, such as width, height, color, extension, etc
-  //         },
-  //       }));
-  //     },
-
-  //     /**
-  //      * Send URL-string to the server. Backend should load image by this URL and return an uploaded image data
-  //      * @param {string} url - pasted image URL
-  //      * @return {Promise.<{success, file: {url}}>}
-  //      */
-  //     // eslint-disable-next-line no-unused-vars
-  //     uploadByUrl(url) {
-  //       console.log('uploadByUrl', url);
-
-  //       // your ajax request for uploading
-  //       return MyAjax.upload(file).then(() => ({
-  //         success: 1,
-  //         file: {
-  //           url: 'https://codex.so/upload/redactor_images/o_e48549d1855c7fc1807308dd14990126.jpg',
-  //           // any other image data you want to store, such as width, height, color, extension, etc
-  //         },
-  //       }));
-  //     },
-  //   },
-  // },
-  // },
-  simpleImage: {
-    class: SimpleImageApi,
+  image: {
+    class: Image,
     inlineToolbar: ['link'],
     config: {
+
       uploader: {
-        uploadByURL(url) {
-          console.log('uploadByURL', url);
+
+        uploadByFile(file) {
+        // your own uploading logic here
+          console.log('uploadByFile', file);
+
+          const data = new FormData();
+          data.append('file', file);
+          data.append('upload_preset', 'pubweave_article_img_upload');
+          data.append('cloud_name', 'dbfbnjcqf');
+
+          return fetch('  https://api.cloudinary.com/v1_1/dbfbnjcqf/image/upload', {
+            method: 'post',
+            body: data,
+          }).then((res) => res.json())
+            .then((d) => {
+              console.log('data', d);
+
+              return {
+                success: 1,
+                file: {
+                  url: d.url,
+                },
+              };
+            })
+            .catch((err) => {
+              console.log('err', err);
+            });
+        },
+
+        uploadByUrl(url) {
+          console.log('uploadByUrl', url);
 
           return new Promise((resolve) => {
             resolve({
@@ -321,6 +294,26 @@ export const EDITOR_JS_TOOLS = {
       },
     },
   },
+  // simpleImage: {
+  //   class: SimpleImageApi,
+  //   inlineToolbar: ['link'],
+  //   config: {
+  //     uploader: {
+  //       uploadByURL(url) {
+  //         console.log('uploadByURL', url);
+
+  //         return new Promise((resolve) => {
+  //           resolve({
+  //             success: 1,
+  //             file: {
+  //               url,
+  //             },
+  //           });
+  //         });
+  //       },
+  //     },
+  //   },
+  // },
   raw: Raw,
   header: HeaderAPI,
   quote: Quote,
