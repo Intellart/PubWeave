@@ -5,13 +5,14 @@ import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faHeartBroken } from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
-import { faComment } from '@fortawesome/free-regular-svg-icons';
+// import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import Avatar from '@mui/material/Avatar';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import SingleBlog from '../../images/SingleBlog.png';
 import AvatarImg from '../../images/Avatar.png';
+import CommentModal from '../containers/CommentModal';
 
 function Blogs(): Node {
   return (
@@ -93,12 +94,7 @@ function Blogs(): Node {
             }}
             icon={faHeartBroken}
           /><p>0</p>
-          <FontAwesomeIcon
-            style={{
-              width: 28, color: '#11273F', height: 28, marginLeft: 14, marginRight: 8,
-            }}
-            icon={faComment}
-          />
+          <CommentModal />
           <p>12</p>
         </div>
       </section>

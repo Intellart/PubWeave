@@ -30,7 +30,13 @@ export default function TransitionsModal() {
 
   return (
     <div>
-      <Button onClick={handleOpen}><FontAwesomeIcon icon={faComment} /></Button>
+      <Button onClick={handleOpen}><FontAwesomeIcon
+        icon={faComment}
+        style={{
+          width: 28, height: 28, color: '#11273F', marginLeft: 14,
+        }}
+      />
+      </Button>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
