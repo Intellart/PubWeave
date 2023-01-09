@@ -11,8 +11,9 @@ import {
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
+import { Alert, Button } from '@mui/material';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
@@ -92,7 +93,7 @@ function ReactEditor () {
     setArticleSettings(newArticleSettings);
   };
 
-  console.log(articleSettings);
+  console.log(wordCount);
 
   useEffect(() => {
     console.log('State changed: ', store.getState());
@@ -146,10 +147,30 @@ function ReactEditor () {
           value={articleSettings.title}
           className={classNames('editor-title-input', { focus: titleFocus })}
         />
+        <Link to={`/submit-work/${id}`}>
+          <Button variant="contained" color="primary" sx={{ ml: 2 }}>
+            Back to editor
+          </Button>
+        </Link>
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+
+        }}
+        className="alert-container"
+      >
+        <Alert
+          sx={{ width: '60%' }}
+          severity="info"
+        >
+          You are in read only mode and can only view the article. To edit the article, click on the Back button.
+        </Alert>
+      </div>
       <ArticleConfig
-        id={id}
         readOnly={inReadOnlyMode}
         setReadOnly={(e) => setInReadOnlyMode(e)}
         setCategory={(e) => handleArticleSettings('category', e)}
@@ -169,6 +190,7 @@ function ReactEditor () {
       {stateReady && (
       <ReactEditorJS
         holder='editorjs'
+        readOnly
         defaultValue={{
           blocks: blocks || [],
         }}

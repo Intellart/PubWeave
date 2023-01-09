@@ -4,8 +4,17 @@ import type { Node } from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../../images/LogoPubWeave.png';
 import 'bulma/css/bulma.min.css';
+import BasicMenu from './UserDropdownMenu';
 
 function Navbar(): Node {
+  const isUserLoggined = () => {
+    if (sessionStorage.getItem('token')) {
+      return true;
+    }
+
+    return false;
+  };
+
   return (
 
     <nav className='navbar'>
@@ -24,9 +33,11 @@ function Navbar(): Node {
       </div>
 
       <div className="navigation">
+        <a href="/Dashboard">Dashboard</a>
         <a href="/About">About</a>
         <a href="/About">Contact Us</a>
         <a href="/submit-work" className='submit-work'>Submit your research</a>
+        {isUserLoggined() && BasicMenu()}
       </div>
     </nav>
   );
