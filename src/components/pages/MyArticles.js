@@ -9,10 +9,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { get, map } from 'lodash';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
-import BlogCard from '../containers/BlogCard';
 
 import { actions } from '../../store/articleStore';
 import { store } from '../../store';
+import ArticleCard from '../containers/ArticleCard';
+import Rocket from '../../images/RocketLaunch.png';
+import Space from '../../images/SpaceImg.png';
+import Astronaut from '../../images/AstronautImg.png';
+import Earth from '../../images/EarthImg.png';
+
+const images = [Rocket, Space, Astronaut, Earth];
 
 function MyArticles(): Node {
   store.getState();
@@ -24,7 +30,9 @@ function MyArticles(): Node {
   const createArticle = () => dispatch(actions.createArticle());
 
   useEffect(() => {
-    fetchAllArticles();
+    if (!articles) {
+      fetchAllArticles();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles]);
 
@@ -48,7 +56,9 @@ function MyArticles(): Node {
         </div>
         <div className="articles-list">
           {map(articles, (a) => (
-            <BlogCard
+            <ArticleCard
+              editable
+              img={images[a.id % 4]}
               id={a.id}
               key={a.id}
               title={a.title}

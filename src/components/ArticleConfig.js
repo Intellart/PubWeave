@@ -12,10 +12,10 @@ import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { map } from 'lodash';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import { Link } from 'react-router-dom';
 
 type Props = {
-  readOnly: boolean,
-  setReadOnly: (boolean) => void,
+  id: number,
   articleSettings: any,
   wordCount: number,
   lastSaved: number,
@@ -166,20 +166,14 @@ function ArticleConfig(props: Props): Node {
           </div>
           <div className="article-config-group">
             <h5>Actions</h5>
-            <div className="article-config-item">
-              <FontAwesomeIcon icon={faBook} />
-              <h6>Publish</h6>
-            </div>
-            <div className="article-config-item">
-              <Switch
-                value={props.readOnly ? 'checked' : 'unchecked'}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  props.setReadOnly(e.target.checked);
-                }}
-              />
-              <h6>Toggle read-only</h6>
-            </div>
+            <Link to={`/publish/${props.id}`}>
+              <div
+                className="article-config-item"
+              >
+                <FontAwesomeIcon icon={faBook} />
+                <h6>Publish</h6>
+              </div>
+            </Link>
           </div>
           <div className="article-config-group">
             <h5>Article Settings</h5>
