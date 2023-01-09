@@ -36,17 +36,19 @@ const statuses = [
 
 function getChipProps(params: GridRenderCellParams): ChipProps {
   const res = filter(statuses, (status) => status.value === params.value);
-
+  const sx = { gap: '10px', padding: '10px' };
   if (res.length > 0) {
     return {
       label: res[0].label,
       color: res[0].color,
       icon: res[0].icon,
+      sx,
     };
   }
 
   return {
     label: 'Unknown',
+    sx,
   };
 }
 
@@ -219,8 +221,8 @@ export default function DataGridDemo() {
       sx={{
         height: 500,
         width: '90%',
-        border: '1px solid black',
         borderRadius: '18px',
+        boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
         padding: '20px',
         margin: '10px',
       }}

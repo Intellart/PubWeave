@@ -33,7 +33,7 @@ function CommentSection() {
       replies: [
         {
           id: 2,
-          content: 'I agree, this was a well-written and thought-provoking article. I\'m looking forward to seeing more research in this area.',
+          content: 'I agree, this was a well-written and thought-provoking article. I\'m looking forward to seeing more research in this area. I agree, this was a well-written and thought-provoking article. I\'m looking forward to seeing more research in this area.',
           username: 'janedoe',
           rating: 6,
         },

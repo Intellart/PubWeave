@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Backdrop from '@mui/material/Backdrop';
+// import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
@@ -10,17 +10,17 @@ import CommentSection from './CommentSection';
 
 const style = {
   position: 'absolute',
-  top: '50%',
+  top: '80%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 'fit-content',
-  height: '100%',
+  width: '100%',
+  height: '40%',
   bgcolor: 'background.paper',
   boxShadow: 24,
   overflow: 'scroll',
   padding: 0,
   backgroundColor: '#c7cdd4',
-  p: 4,
+  p: 3,
 };
 
 export default function TransitionsModal() {
@@ -37,7 +37,6 @@ export default function TransitionsModal() {
         open={open}
         onClose={handleClose}
         closeAfterTransition
-        BackdropComponent={Backdrop}
         BackdropProps={{
           timeout: 500,
         }}

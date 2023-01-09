@@ -6,6 +6,7 @@ import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faShare } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { Link } from 'react-router-dom';
 
 type Props = {
   img: string,
@@ -28,7 +29,7 @@ function ArticleCard(props : Props): Node {
       <img src={props.img} className="article-card-img" alt="article" />
       <div className="article-right-side-content">
         <h4>{props.category || 'Category'}</h4>
-        <h2>{props.title} {props.id}</h2>
+        <Link to="/singleblog"><h2>{props.title} {props.id}</h2></Link>
         <p className="author">By {props.author || 'Authors Name'}</p>
         <p className="article-card-description">{description}</p>
         <div className="date-social">
