@@ -1,16 +1,16 @@
 // @flow
+/* eslint-disable react/prop-types */
 import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
-import FeaturedImg from '../../images/featured-card.png';
 
-function ArticleCard(): Node {
+function ArticleCard(props): Node {
   return (
     <div className="article-card">
-      <img src={FeaturedImg} className="article-card-img" alt="article" />
+      <img src={props.img} className="article-card-img" alt="article" />
       <div className="article-right-side-content">
         <h4>Category name</h4>
         <h2>Maecenas mi quam, mattis at pulvinar at, tincidunt a magna. Donec vel...</h2>
