@@ -7,6 +7,7 @@ function CommentSection() {
   const [tempComment, setTempComment] = React.useState({});
 
   const handleReply = (replyContent) => {
+    // eslint-disable-next-line no-console
     console.log(replyContent);
     setTempComment({
       id: 999,
