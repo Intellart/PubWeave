@@ -8,6 +8,7 @@ import { useScrollTopEffect } from '../utils/hooks';
 import EditorPage from './pages/EditorPage';
 import Blogs from './pages/Blogs';
 import MyArticles from './pages/MyArticles';
+import SingleBlog from './pages/SingleBlog';
 import About from './pages/About';
 
 function App(): Node {
@@ -28,6 +29,7 @@ function App(): Node {
           <Route path="/submit-work" element={<MyArticles />} />
           <Route path="/submit-work/:id" element={<EditorPage />} />
           <Route path="/blogs" element={<Blogs />} />
+          <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </div>

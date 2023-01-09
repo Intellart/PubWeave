@@ -5,7 +5,12 @@ import 'bulma/css/bulma.min.css';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import FeaturedCard from '../containers/FeaturedCard';
+// import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
+import Rocket from '../../images/RocketLaunch.png';
+import Space from '../../images/SpaceImg.png';
+import Astronaut from '../../images/AstronautImg.png';
+import Earth from '../../images/EarthImg.png';
 
 function Blogs(): Node {
   return (
@@ -37,18 +42,34 @@ function Blogs(): Node {
         </div>
       </section>
       <section className="featured">
-        <h2>Browse all categories</h2>
-        <p>Category name 1</p>
-        <p>Category name 2</p>
-        <p>Category name 3</p>
-        <p>Category name 4</p>
-        <p>Category name 5</p>
-        <p>Category name 6</p>
+        <h2 style={{ marginLeft: 100, marginTop: 20, marginBottom: 20 }}>Browse all categories</h2>
+        <div className='catgories-headlines'>
+          <div>
+            <p>Category name 1</p>
+            <p>Category name 2</p>
+          </div>
+          <div>
+            <p>Category name 3</p>
+            <p>Category name 4</p>
+          </div>
+          <div>
+            <p>Category name 5</p>
+            <p>Category name 6</p>
+          </div>
+        </div>
         <hr className="featured-divider" />
-        <h2>Featured</h2>
-        <FeaturedCard />
-        <h2>Latest Blog Posts</h2>
-        <ArticleCard />
+        <h2 style={{ marginLeft: 100 }}>Featured</h2>
+        <div className='featured-cards'>
+          <FeaturedCard />
+          <FeaturedCard />
+          <FeaturedCard />
+        </div>
+        <hr className="featured-divider" />
+        <h2 style={{ marginLeft: 100, marginBottom: 20 }}>Latest Blog Posts</h2>
+        <ArticleCard img={Rocket} />
+        <ArticleCard img={Space} />
+        <ArticleCard img={Astronaut} />
+        <ArticleCard img={Earth} />
       </section>
       <Footer />
     </main>
