@@ -156,7 +156,7 @@ function Comment(props: Props) {
                 className="comment-content-header-right-comment-edit"
                 onClick={() => setEditMode(true)}
               >
-                <p><FontAwesomeIcon icon={faPenToSquare} /> Edit</p>
+                <p style={{ color: '#1E5F8B' }}><FontAwesomeIcon icon={faPenToSquare} style={{ color: '#1E5F8B' }} /> Edit</p>
               </div>
             </div>
           </div>

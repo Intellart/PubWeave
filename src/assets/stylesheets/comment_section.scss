@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: center;
   gap: 30px;
-  width: 800px;
+  width: 1200px;
   padding: 30px;
 
   background: #c7cdd4;
@@ -210,3 +210,10 @@
 
 
 }
+
+
+.MuiBackdrop-root .css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop {
+  opacity: 0;
+}
+
+// class="MuiBackdrop-root MuiModal-backdrop css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
