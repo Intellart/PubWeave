@@ -8,6 +8,7 @@ function CommentSection() {
 
   const handleReply = (replyContent) => {
     // eslint-disable-next-line
+    // eslint-disable-next-line no-console
     console.log(replyContent);
     setTempComment({
       id: 999,
