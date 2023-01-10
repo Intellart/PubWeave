@@ -46,6 +46,7 @@ export default function TransitionsModal() {
         BackdropProps={{
           timeout: 500,
         }}
+        disableScrollLock
       >
         <Fade in={open}>
           <Box sx={style} className="comment-modal">

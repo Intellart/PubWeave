@@ -135,6 +135,7 @@ export default function DataGridDemo() {
   ]);
 
   const handleDelete = () => {
+    // eslint-disable-next-line
     console.log('delete', selectedIds);
     setRows(filter(rows, (row) => !includes(selectedIds, row.id)));
   };
@@ -204,11 +205,13 @@ export default function DataGridDemo() {
           <FontAwesomeIcon
             className='datagrid-cell-actions-icon'
             icon={faPencil}
+            // eslint-disable-next-line
             onClick={() => console.log('edit', params.row)}
           />
           <FontAwesomeIcon
             className='datagrid-cell-actions-icon'
             icon={faSave}
+            // eslint-disable-next-line
             onClick={() => console.log('save', params.row)}
           />
         </div>
