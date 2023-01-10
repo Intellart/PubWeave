@@ -257,10 +257,10 @@ export const EDITOR_JS_TOOLS = {
 
           const data = new FormData();
           data.append('file', file);
-          data.append('upload_preset', 'pubweave_article_img_upload');
-          data.append('cloud_name', 'dbfbnjcqf');
+          data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
+          data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME);
 
-          return fetch('  https://api.cloudinary.com/v1_1/dbfbnjcqf/image/upload', {
+          return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`, {
             method: 'post',
             body: data,
           }).then((res) => res.json())
