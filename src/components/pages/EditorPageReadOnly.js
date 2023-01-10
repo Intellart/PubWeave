@@ -5,7 +5,7 @@ import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  isEmpty, sum, words, get, filter, map,
+  isEmpty, sum, words, get, filter, map, isEqual,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -22,7 +22,7 @@ import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
 import { store } from '../../store';
-import { actions } from '../../store/articleStore';
+import { actions, selectors } from '../../store/articleStore';
 
 const ReactEditorJS = createReactEditorJS();
 
@@ -43,9 +43,9 @@ function ReactEditor () {
   };
 
   // define useSelector
-  const article = useSelector((state) => get(state, 'article'));
-  const articleContent = useSelector((state) => get(state, 'article.article_content'));
-  const blocks = useSelector((state) => get(state, 'article.article_content.blocks'));
+  const article = useSelector((state) => get(state, selectors.article), isEqual);
+  const articleContent = useSelector((state) => get(state, selectors.articleContent), isEqual);
+  const blocks = useSelector((state) => get(state, selectors.blocks), isEqual);
 
   // define dispatch
   const dispatch = useDispatch();

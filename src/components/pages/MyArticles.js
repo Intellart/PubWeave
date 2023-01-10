@@ -6,7 +6,7 @@ import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { get, map } from 'lodash';
+import { get, isEqual, map } from 'lodash';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 
@@ -23,11 +23,12 @@ const images = [Rocket, Space, Astronaut, Earth];
 function MyArticles(): Node {
   store.getState();
 
-  const articles = useSelector((state) => get(state, 'article.articles'));
+  const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
   const createArticle = () => dispatch(actions.createArticle());
+  const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
 
   useEffect(() => {
     if (!articles) {
@@ -36,12 +37,19 @@ function MyArticles(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles]);
 
-  console.log(articles);
+  const handleCreateArticle = () => {
+    createArticle();
+  };
 
-  // useEffect(() => {
-  //   if (!article || isEmpty(article)) return;
-  //   window.location.href = `/submit-work/${article.id}`;
-  // }, [article]);
+  const handleEditClick = (id) => {
+    window.location.href = `/submit-work/${id}`;
+  };
+
+  const handleDeleteClick = (id) => {
+    deleteArticle(id);
+  };
+
+  console.log(store.getState());
 
   return (
     <main className="my-articles-wrapper">
@@ -51,13 +59,12 @@ function MyArticles(): Node {
           <h1>My Articles in progress</h1>
           <FontAwesomeIcon
             icon={faPlus}
-            onClick={() => createArticle()}
+            onClick={() => handleCreateArticle()}
           />
         </div>
         <div className="articles-list">
           {map(articles, (a) => (
             <ArticleCard
-              editable
               img={images[a.id % 4]}
               id={a.id}
               key={a.id}
@@ -67,6 +74,8 @@ function MyArticles(): Node {
               author={a.article_content.author}
               tags={a.article_content.tags}
               date={a.date}
+              editable={handleEditClick}
+              deleteable={handleDeleteClick}
             />
           ))}
         </div>

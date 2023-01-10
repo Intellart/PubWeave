@@ -1,6 +1,6 @@
 // @flow
 // import React from 'react';
-import { get } from 'lodash';
+import { filter, get } from 'lodash';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload } from '../types';
 
@@ -21,8 +21,10 @@ export type ArticleContent = {
 };
 
 export type State = {
-  articleContent: ArticleContent,
-  articleSettings: ArticleSettings,
+  oneArticle: {
+    articleContent: ArticleContent,
+    articleSettings: ArticleSettings,
+  },
   allArticles: Array<Object>,
 };
 
@@ -47,10 +49,17 @@ export const types = {
   ART_CREATE_ARTICLE_REJECTED: 'ART/CREATE_ARTICLE_REJECTED',
   ART_CREATE_ARTICLE_FULFILLED: 'ART/CREATE_ARTICLE_FULFILLED',
 
+  ART_DELETE_ARTICLE: 'ART/DELETE_ARTICLE',
+  ART_DELETE_ARTICLE_PENDING: 'ART/DELETE_ARTICLE_PENDING',
+  ART_DELETE_ARTICLE_REJECTED: 'ART/DELETE_ARTICLE_REJECTED',
+  ART_DELETE_ARTICLE_FULFILLED: 'ART/DELETE_ARTICLE_FULFILLED',
+
 };
 
 export const selectors = {
-  // getUser: (state: ReduxState): User|null => state.user.currentUser,
+  article: 'article.oneArticle',
+  articleContent: 'article.oneArticle.article_content',
+  blocks: 'article.oneArticle.article_content.blocks',
 };
 
 export const actions = {
@@ -67,7 +76,7 @@ export const actions = {
     payload: API.postRequest('blog_articles.json',
       {
         blog_article: {
-          title: 'Undefined',
+          title: 'Undefined_' + Math.floor(Math.random() * 1000),
           article_content: {
             blocks: [],
           },
@@ -90,6 +99,10 @@ export const actions = {
         },
       }),
   }),
+  deleteArticle: (id: number): ReduxAction => ({
+    type: types.ART_DELETE_ARTICLE,
+    payload: API.deleteRequest(`blog_articles/${id}`),
+  }),
 
 };
 
@@ -99,26 +112,38 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        ...action.payload,
+        oneArticle: action.payload,
       };
 
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
       return {
         ...state,
-        articles: action.payload,
+        allArticles: action.payload,
       };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
       return {
         ...state,
-        title: action.payload.title,
-        article_content: action.payload.article_content,
+        // oneArticle: {
+        //   title: action.payload.title,
+        //   article_content: action.payload.article_content,
+        // },
+        oneArticle: {
+          ...state.oneArticle,
+          ...action.payload,
+        },
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
       return {
         ...state,
-        ...action.payload,
+        allArticles: [...state.allArticles, action.payload],
+      };
+
+    case types.ART_DELETE_ARTICLE_FULFILLED:
+      return {
+        ...state,
+        allArticles: filter(state.allArticles, (article) => article.id !== action.payload.id),
       };
 
     default:
