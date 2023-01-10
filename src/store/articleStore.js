@@ -1,6 +1,6 @@
 // @flow
 // import React from 'react';
-import { filter, get } from 'lodash';
+import { filter, get, map } from 'lodash';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload } from '../types';
 
@@ -54,6 +54,11 @@ export const types = {
   ART_DELETE_ARTICLE_REJECTED: 'ART/DELETE_ARTICLE_REJECTED',
   ART_DELETE_ARTICLE_FULFILLED: 'ART/DELETE_ARTICLE_FULFILLED',
 
+  ART_PUBLISH_ARTICLE: 'ART/PUBLISH_ARTICLE',
+  ART_PUBLISH_ARTICLE_PENDING: 'ART/PUBLISH_ARTICLE_PENDING',
+  ART_PUBLISH_ARTICLE_REJECTED: 'ART/PUBLISH_ARTICLE_REJECTED',
+  ART_PUBLISH_ARTICLE_FULFILLED: 'ART/PUBLISH_ARTICLE_FULFILLED',
+
 };
 
 export const selectors = {
@@ -78,7 +83,20 @@ export const actions = {
         blog_article: {
           title: 'Undefined_' + Math.floor(Math.random() * 1000),
           article_content: {
-            blocks: [],
+            tags: [],
+            time: 0,
+            author: '',
+            category: '',
+            status: 'draft',
+            blocks: [
+              {
+                id: 'Y3pS0lTILC',
+                data: {
+                  text: 'Start your article.',
+                },
+                type: 'paragraph',
+              },
+            ],
           },
         },
       }),
@@ -90,6 +108,7 @@ export const actions = {
         blog_article: {
           title: articleSettings.title,
           article_content: {
+            status: 'draft',
             blocks: get(articleContent, 'blocks', []),
             time: get(articleContent, 'time', 0),
             tags: get(articleSettings, 'tags', []),
@@ -102,6 +121,23 @@ export const actions = {
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
     payload: API.deleteRequest(`blog_articles/${id}`),
+  }),
+  publishArticle: (id: number, newStatus: string, blogArticle: any): ReduxAction => ({
+    type: types.ART_PUBLISH_ARTICLE,
+    payload: API.putRequest(`blog_articles/${id}`,
+      {
+        blog_article: {
+          article_content: {
+            status: newStatus,
+            blocks: get(blogArticle, 'article_content.blocks', []),
+            time: get(blogArticle, 'article_content.time', 0),
+            tags: get(blogArticle, 'article_content.tags', []),
+            category: get(blogArticle, 'article_content.category', ''),
+            author: get(blogArticle, 'article_content.author', ''),
+          },
+          title: blogArticle.title,
+        },
+      }),
   }),
 
 };
@@ -132,6 +168,16 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...state.oneArticle,
           ...action.payload,
         },
+        allArticles: map(state.allArticles, (a) => {
+          if (a.id === action.payload.id) {
+            return {
+              ...a,
+              ...action.payload,
+            };
+          }
+
+          return a;
+        }),
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
@@ -144,6 +190,24 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         allArticles: filter(state.allArticles, (article) => article.id !== action.payload.id),
+      };
+
+    case types.ART_PUBLISH_ARTICLE_FULFILLED:
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          ...action.payload,
+        },
+        allArticles: map(state.allArticles, (a) => {
+          if (a.id === action.payload.id) {
+            return {
+              ...action.payload,
+            };
+          }
+
+          return a;
+        }),
       };
 
     default:

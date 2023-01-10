@@ -1,5 +1,6 @@
-/* eslint-disable no-console */
-import React, { useState } from 'react';
+/* eslint-disable no-console */ import React, {
+  useState,
+} from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import {
@@ -8,137 +9,93 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
 import {
-  faCheck, faPencil, faRotateRight, faXmark,
+  faPencil,
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
-import { filter, includes, map } from 'lodash';
+import {
+  map, get,
+} from 'lodash';
+import { statuses } from '../pages/Dashboard';
 // import { toast } from 'react-toastify';
 
-const statuses = [
-  {
-    value: 'Published',
-    label: 'Published',
-    color: 'primary',
-    icon: <FontAwesomeIcon icon={faCheck} />,
-  },
-  {
-    value: 'Requested',
-    label: 'Requested',
-    color: 'warning',
-    icon: <FontAwesomeIcon icon={faRotateRight} />,
-  },
-  {
-    value: 'Rejected',
-    label: 'Rejected',
-    color: 'error',
-    icon: <FontAwesomeIcon icon={faXmark} />,
-  },
-];
+type Props = {
+  onDelete: Function,
+  onChangeStatus: Function,
+  rows: any[],
+};
 
-function getChipProps(params: GridRenderCellParams): ChipProps {
-  const res = filter(statuses, (status) => status.value === params.value);
-  const sx = { gap: '10px', padding: '10px' };
-  if (res.length > 0) {
+export default function MyDataGrid(props: Props) {
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  function getChipProps(params: GridRenderCellParams): ChipProps {
+    const sx = { gap: '10px', padding: '10px' };
+    const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
+
     return {
-      label: res[0].label,
-      color: res[0].color,
-      icon: res[0].icon,
+      label: res.label,
+      icon: <FontAwesomeIcon icon={res.icon} />,
+      color: res.color,
       sx,
     };
   }
 
-  return {
-    label: 'Unknown',
-    sx,
-  };
-}
+  function renderEditChip(params: GridEditCellPropsParams) {
+    // eslint-disable-next-line no-unused-vars
+    const { api, id, field } = params;
 
-function renderEditChip(params: GridEditCellPropsParams) {
-  const { api, id, field } = params;
+    const handleChange = (event) => {
+      // api.setEditCellValue({ id, field, value: event.target.value }, event);
+      props.onChangeStatus(id, event.target.value);
+    };
 
-  const handleChange = (event) => {
-    api.setEditCellValue({ id, field, value: event.target.value }, event);
-  };
+    const handleRef = (element) => {
+      if (element) {
+        element.focus();
+      }
+    };
 
-  const handleRef = (element) => {
-    if (element) {
-      element.focus();
-    }
-  };
-
-  return (
-    <FormControl
-      className='myselect-container'
-      sx={{
-        width: '100%',
-        height: '100%',
-        border: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-
-      <Select
-        className='myselect'
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={params.value}
-        onChange={handleChange}
+    return (
+      <FormControl
+        className='myselect-container'
         sx={{
-          width: '80%',
-          height: '80%',
+          width: '100%',
+          height: '100%',
           border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
-        ref={handleRef}
       >
-        {map(statuses, (status, index) => (
-          <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
-        ))}
 
-      </Select>
-    </FormControl>
-  );
-}
+        <Select
+          className='myselect'
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={params.value.value}
+          onChange={handleChange}
+          sx={{
+            width: '80%',
+            height: '80%',
+            border: 'none',
+          }}
+          ref={handleRef}
+        >
+          {map(statuses, (status, index) => (
+            <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
+          ))}
 
-const randStatus = () => statuses[Math.floor(Math.random() * statuses.length)].value;
-
-export default function DataGridDemo() {
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [rows, setRows] = useState([
-    {
-      id: 1, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 2, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 3, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 4, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 5, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 6, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 7, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 8, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-    {
-      id: 9, status: randStatus(), firstName: 'Jon', email: 'jon@gmail.com', ORCID: '123456789', registeredOn: '2023-01-25T16:57',
-    },
-  ]);
+        </Select>
+      </FormControl>
+    );
+  }
 
   const handleDelete = () => {
     // eslint-disable-next-line
     console.log('delete', selectedIds);
-    setRows(filter(rows, (row) => !includes(selectedIds, row.id)));
+    // setRows(filter(rows, (row) => !includes(selectedIds, row.id)));
+    if (selectedIds.length === 1) {
+      props.onDelete(selectedIds[0]);
+    }
   };
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -150,6 +107,12 @@ export default function DataGridDemo() {
       editable: true,
       renderEditCell: renderEditChip,
       cellClassName: (/* params: GridCellParams<number> */) => classNames('datagrid-cell'),
+    },
+    {
+      field: 'title',
+      headerName: 'Article title',
+      width: 250,
+      editable: true,
     },
     {
       field: 'firstName',
@@ -220,6 +183,10 @@ export default function DataGridDemo() {
     },
   ];
 
+  console.log(props.rows);
+
+  const handleRows = () => props.rows;
+
   return (
     <Box
       sx={{
@@ -236,7 +203,7 @@ export default function DataGridDemo() {
           border: 'none',
 
         }}
-        rows={rows}
+        rows={handleRows()}
         columns={columns}
         pageSize={5}
         components={{

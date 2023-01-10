@@ -47,10 +47,15 @@ function ReactEditor () {
   const articleContent = useSelector((state) => get(state, selectors.articleContent), isEqual);
   const blocks = useSelector((state) => get(state, selectors.blocks), isEqual);
 
+  console.log('article', article);
+  console.log('articleContent', articleContent);
+
   // define dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (ind, as, ac) => dispatch(actions.updateArticle(ind, as, ac));
+  const publishArticle = (articleId, status, art) => dispatch(actions.publishArticle(articleId, status, art));
+
   const [wordCount, setWordCount] = React.useState(0);
 
   const [articleSettings, setArticleSettings] = React.useState(defaultArticleSettings);
@@ -154,6 +159,17 @@ function ReactEditor () {
         </Link>
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
+      <div className="editor-buttons">
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            publishArticle(id, 'published', article);
+          }}
+        >
+          Publish
+        </Button>
+      </div>
       <div
         style={{
           display: 'flex',
