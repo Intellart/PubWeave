@@ -212,8 +212,9 @@
 }
 
 
-.MuiBackdrop-root .css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop {
-  opacity: 0;
+.css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop {
+  opacity: 0 !important;
+  // overflow: 'scroll';
+  // transform: translate(42px, 18px);
 }
 
-// class="MuiBackdrop-root MuiModal-backdrop css-i9fmh8-MuiBackdrop-root-MuiModal-backdrop"
