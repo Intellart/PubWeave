@@ -77,7 +77,7 @@ function Dashboard(): Node {
   };
 
   const handleChangeStatus = (id, newStatus) => {
-    console.log(`Publishing article ${id} with status ${newStatus}`, find(articles, { id }));
+    // console.log(`Publishing article ${id} with status ${newStatus}`, find(articles, { id }));
     publishArticle(id, newStatus, find(articles, { id }));
   };
 

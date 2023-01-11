@@ -58,6 +58,7 @@ function App(): Node {
           <Route path="/publish/:id" element={<EditorPageReadOnly />} />
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/singleblog" element={<SingleBlog />} />
+          <Route path="/singleblog/:id" element={<SingleBlog />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </div>
