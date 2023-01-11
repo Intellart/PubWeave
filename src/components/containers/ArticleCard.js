@@ -19,6 +19,7 @@ type Props = {
   tags?: Array<string>,
   editable?: Function,
   deleteable?: Function,
+  status?: string,
 };
 
 function ArticleCard(props : Props): Node {
@@ -55,9 +56,15 @@ function ArticleCard(props : Props): Node {
     >
       <img src={props.img} className="article-card-img" alt="article" />
       <div className="article-right-side-content">
-        <h4>{props.category || 'Category'}</h4>
-        <h2>{props.title} {props.id}
-        </h2>
+        <div className="article-card-side-content-upper-wrapper">
+          <div className="article-card-side-content-title-wrapper">
+            <h4>{props.category || 'Category'}</h4>
+            <h2>{props.title} {props.id}</h2>
+          </div>
+          <div className="article-card-side-content-status-wrapper">
+            <p>{props.status || 'Status'}</p>
+          </div>
+        </div>
         <p className="author">By {props.author || 'Authors Name'}</p>
         <p className="article-card-description">{description}</p>
         <div className="date-social">

@@ -23,6 +23,7 @@ import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
+import ImageSelection from '../containers/ImageSelection';
 
 const ReactEditorJS = createReactEditorJS();
 
@@ -152,23 +153,22 @@ function ReactEditor () {
           value={articleSettings.title}
           className={classNames('editor-title-input', { focus: titleFocus })}
         />
+      </div>
+      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
+      <div className="editor-buttons">
         <Link to={`/submit-work/${id}`}>
           <Button variant="contained" color="primary" sx={{ ml: 2 }}>
             Back to editor
           </Button>
         </Link>
-      </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
-      <div className="editor-buttons">
-        <Button
-          variant="contained"
-          color="primary"
+        <div
+          className={classNames('editor-wrapper-publish-button')}
           onClick={() => {
             publishArticle(id, 'published', article);
           }}
         >
-          Publish
-        </Button>
+          Publish article
+        </div>
       </div>
       <div
         style={{
@@ -186,6 +186,12 @@ function ReactEditor () {
           You are in read only mode and can only view the article. To edit the article, click on the Back button.
         </Alert>
       </div>
+      <ImageSelection
+        linkList={map(filter(blocks, (block) => block.type === 'image'), (block) => get(block, 'data.file.url'))}
+        onImageSelection={() => {}}
+        oldSelectedImageIndex={1}
+      />
+
       <ArticleConfig
         readOnly={inReadOnlyMode}
         setReadOnly={(e) => setInReadOnlyMode(e)}

@@ -4,6 +4,55 @@
   align-items: center;
   justify-content: center;
 
+  #editorjs {
+    min-height: calc(80vh - 210px);
+    
+    .codex-editor{
+      caret-color: transparent !important;
+
+        // transform: translateY(-700px);
+
+      h1{
+        font-size: 2.5em;
+      }
+
+      h2{
+        font-size: 2em;
+      }
+
+      h3{
+        font-size: 1.5em;
+      }
+
+      h4{
+        font-size: 1.25em;
+      }
+
+      h5{
+        font-size: 1em;
+      }
+
+      h6{
+        font-size: 0.75em;
+      }
+
+      .text-node{
+        border: 1px solid rgb(114, 114, 114);
+        border-radius: 5px;
+        display: flex;
+        min-width: 500px !important;
+
+        &:where([hidden]){
+          display: none;
+        }
+
+        .ML__container{
+          min-width: 500px !important;
+        }
+      }
+    }
+  }
+
   .category-highlight {
     display: flex;
     flex-direction: row;

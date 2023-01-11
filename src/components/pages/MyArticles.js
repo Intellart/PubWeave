@@ -65,6 +65,7 @@ function MyArticles(): Node {
         <div className="articles-list">
           {map(articles, (a) => (
             <ArticleCard
+              status={a.article_content.status}
               img={images[a.id % 4]}
               id={a.id}
               key={a.id}

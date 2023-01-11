@@ -1,12 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
+// eslint-disable-next-line max-classes-per-file
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
 import List from '@editorjs/list';
 import Warning from '@editorjs/warning';
 import Code from '@editorjs/code';
 import LinkTool from '@editorjs/link';
-// import Image from '@editorjs/image';
 import Raw from '@editorjs/raw';
 import HeaderAPI from '@editorjs/header';
 import Quote from '@editorjs/quote';
@@ -14,7 +14,6 @@ import Marker from '@editorjs/marker';
 import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
-import SimpleImageApi from '@editorjs/simple-image';
 import Image from '@editorjs/image';
 
 import Tooltip from 'editorjs-tooltip';
@@ -31,10 +30,25 @@ const cld = new Cloudinary({
 
 // cld.image returns a CloudinaryImage with the configuration set.
 const myImage = cld.image('sample');
-
 const imageLink = myImage.toURL();
 
-export default class Testing {
+class ImageWrapper extends Image {
+  render() {
+    console.log(this.readOnly);
+    if (this.readOnly) {
+      const wrapper = this.ui.render(this.data);
+      // remove div from wrapper
+      wrapper.querySelector('.cdx-input').remove();
+      wrapper.querySelector('.cdx-button').remove();
+
+      return wrapper;
+    }
+
+    return this.ui.render(this.data);
+  }
+}
+
+class WordCounter {
   /**
    * Class name for term-tag
    *
@@ -245,7 +259,7 @@ export const EDITOR_JS_TOOLS = {
   code: Code,
   linkTool: LinkTool,
   image: {
-    class: Image,
+    class: ImageWrapper,
     inlineToolbar: ['link'],
     config: {
 
@@ -294,32 +308,12 @@ export const EDITOR_JS_TOOLS = {
       },
     },
   },
-  // simpleImage: {
-  //   class: SimpleImageApi,
-  //   inlineToolbar: ['link'],
-  //   config: {
-  //     uploader: {
-  //       uploadByURL(url) {
-  //         console.log('uploadByURL', url);
-
-  //         return new Promise((resolve) => {
-  //           resolve({
-  //             success: 1,
-  //             file: {
-  //               url,
-  //             },
-  //           });
-  //         });
-  //       },
-  //     },
-  //   },
-  // },
   raw: Raw,
   header: HeaderAPI,
   quote: Quote,
   checklist: CheckList,
   delimiter: Delimiter,
   inlineCode: InlineCode,
-  wordCount: Testing,
+  wordCount: WordCounter,
 
 };
