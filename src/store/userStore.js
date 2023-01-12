@@ -16,10 +16,11 @@ export type User = {
 type LoginCredentials = {
   email: string,
   password: string,
+  domain: string,
 }
 
 export type State = {
-  currentUser: User|null,
+  profile: User|null,
 };
 
 export const types = {
@@ -33,11 +34,16 @@ export const types = {
   USR_LOGOUT_USER_REJECTED: 'USR/LOGOUT_USER_REJECTED',
   USR_LOGOUT_USER_FULFILLED: 'USR/LOGOUT_USER_FULFILLED',
 
+  USR_VALIDATE_USER: 'USR/VALIDATE_USER',
+  USR_VALIDATE_USER_PENDING: 'USR/VALIDATE_USER_PENDING',
+  USR_VALIDATE_USER_REJECTED: 'USR/VALIDATE_USER_REJECTED',
+  USR_VALIDATE_USER_FULFILLED: 'USR/VALIDATE_USER_FULFILLED',
+
   USR_CLEAR_USER: 'USR/CLEAR_USER',
 };
 
 export const selectors = {
-  getUser: (state: ReduxState): User|null => state.user.currentUser,
+  getUser: (state: ReduxState): User|null => state.user.profile,
 };
 
 export const actions = {
@@ -52,6 +58,10 @@ export const actions = {
   clearUser: (): ReduxAction => ({
     type: types.USR_CLEAR_USER,
   }),
+  validateUser: (jwt: string): ReduxAction => ({
+    type: types.USR_VALIDATE_USER,
+    payload: API.postRequest('auth/validate_jwt', { jwt }),
+  }),
 };
 
 const logoutUser = (): State => {
@@ -60,10 +70,16 @@ const logoutUser = (): State => {
   return {};
 };
 
+const handleSilentLogin = (state: State, payload): State => ({ ...state, profile: payload.user });
+
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.USR_VALIDATE_USER_FULFILLED:
+      return handleSilentLogin(state, action.payload);
+
     case types.USR_LOGIN_USER_FULFILLED:
       toast.success('User successfully logged in!');
+      localStorage.setItem('user', JSON.stringify(action.payload));
 
       return { ...state, ...{ profile: action.payload, currentAdmin: null } };
 

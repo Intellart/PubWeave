@@ -4,7 +4,7 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import {
-  concat, forEach, get, isString, includes,
+  concat, forEach, get, isString, includes, isEmpty,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import { isPromise } from '../utils';
@@ -18,6 +18,7 @@ import type {
   ReduxMiddlewareArgument,
   ActionChains,
 } from '../types';
+import { getItem } from '../localStorage';
 
 const ignoreErrors = [];
 
@@ -131,5 +132,14 @@ export const configureStore = (
   );
 };
 
-const initialReduxState = {};
+const localUser: string|null = getItem('user');
+
+const initialReduxState: Object = {
+  ...(!isEmpty(localUser) && localUser && {
+    user: {
+      profile: JSON.parse(localUser),
+    },
+  }),
+};
+
 export const store: any = configureStore(initialReduxState);

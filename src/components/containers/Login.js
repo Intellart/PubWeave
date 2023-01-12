@@ -6,17 +6,20 @@ import 'bulma/css/bulma.min.css';
 import logoImg from '../../images/LogoPubWeave.png';
 
 type Props = {
-  setToken: (token: any) => void,
+  loginUser: (user: any) => void,
 };
 
 function Login(props: Props): Node {
   // eslint-disable-next-line no-unused-vars
-  const { setToken } = props;
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
 
   const handleSubmit = () => {
-    props.setToken({ token: username });
+    props.loginUser({
+      email: 'test@test.com',
+      password: '123456',
+      domain: 'Pubweave',
+    });
   };
 
   return (

@@ -2,17 +2,27 @@
 import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
+import { useDispatch } from 'react-redux';
 import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 // import MyTable from '../containers/MyTable';
 
 import Login from '../containers/Login';
+import { store } from '../../store';
+import { actions } from '../../store/userStore';
 
-type Props = {
-  setToken: (token: any) => void
-};
+type User = {
+  email: string,
+  password: string,
+  domain: string,
+}
 
-function LoginPage({ setToken }: Props): Node {
+function LoginPage(): Node {
+  store.getState();
+
+  const dispatch = useDispatch();
+  const loginUser = (user: User) => dispatch(actions.loginUser(user));
+
   return (
     <main className="login-page-wrapper">
       <Navbar />
@@ -25,7 +35,7 @@ function LoginPage({ setToken }: Props): Node {
             aliquam nisl nunc vel nisl. Sed malesuada, nisl eget aliquam
           </p>
         </div>
-        <Login setToken={setToken} />
+        <Login loginUser={loginUser} />
       </section>
 
       <Footer />
