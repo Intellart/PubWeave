@@ -10,6 +10,23 @@
     height: 70px;
     width: 100%;
     box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
+
+    .login-button{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #11273F;
+        border-radius: 16px;
+        padding: 5px;
+        color: #11273F;
+        width: 100px;
+        text-align: center;
+        font-family: Inter;
+        font-weight: 400;
+        height: 40px;
+        font-size: 14px;
+    }
+
     .search-wrapper {
         align-items: center;
         display: flex;

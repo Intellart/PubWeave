@@ -1,6 +1,6 @@
 // @flow
 // import React from 'react';
-import { filter, get, map } from 'lodash';
+import { filter, map } from 'lodash';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload } from '../types';
 
@@ -70,11 +70,11 @@ export const selectors = {
 export const actions = {
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
-    payload: API.getRequest(`blog_articles/${id}`),
+    payload: API.getRequest(`pubweave/blog_articles/${id}`),
   }),
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
-    payload: API.getRequest('blog_articles.json'),
+    payload: API.getRequest('pubweave/blog_articles.json'),
   }),
   createArticle: (): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
@@ -101,41 +101,25 @@ export const actions = {
         },
       }),
   }),
-  updateArticle: (id: number, articleSettings: any, articleContent: any): ReduxAction => ({
+  updateArticle: (id: number, payload: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
-    payload: API.putRequest(`blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
-          title: articleSettings.title,
-          article_content: {
-            status: 'draft',
-            blocks: get(articleContent, 'blocks', []),
-            time: get(articleContent, 'time', 0),
-            tags: get(articleSettings, 'tags', []),
-            category: get(articleSettings, 'category', ''),
-            author: get(articleSettings, 'author', ''),
-          },
+          ...payload,
         },
       }),
   }),
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
-    payload: API.deleteRequest(`blog_articles/${id}`),
+    payload: API.deleteRequest(`pubweave/blog_articles/${id}`),
   }),
-  publishArticle: (id: number, newStatus: string, blogArticle: any): ReduxAction => ({
+  publishArticle: (id: number, newStatus: string): ReduxAction => ({
     type: types.ART_PUBLISH_ARTICLE,
-    payload: API.putRequest(`blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
-          article_content: {
-            status: newStatus,
-            blocks: get(blogArticle, 'article_content.blocks', []),
-            time: get(blogArticle, 'article_content.time', 0),
-            tags: get(blogArticle, 'article_content.tags', []),
-            category: get(blogArticle, 'article_content.category', ''),
-            author: get(blogArticle, 'article_content.author', ''),
-          },
-          title: blogArticle.title,
+          status: newStatus,
         },
       }),
   }),

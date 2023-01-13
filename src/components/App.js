@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -16,13 +16,27 @@ import About from './pages/About';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import { selectors as userSelectors } from '../store/userStore';
+import Loader from './containers/Loader';
+
+import Navbar from './containers/Navbar';
+import CatchAllRoute from './pages/CatchAllRoute';
 
 function App(): Node {
-  // const [token, setToken] = useState();
-
+  const [isLoaded, setIsLoaded] = useState(false);
   useScrollTopEffect();
 
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 1000);
+  }, []);
+
   const isAuthorized: boolean = useSelector((state) => !isEmpty(userSelectors.getUser(state)), isEqual);
+  const isAdmin: boolean = useSelector((state) => !isEmpty(userSelectors.getAdmin(state)), isEqual);
+
+  if (!isLoaded) {
+    return (<Loader />);
+  }
 
   return (
     <div className="App">
@@ -34,6 +48,7 @@ function App(): Node {
         rtl={false}
       />
       <div className="application-wrapper">
+        <Navbar isAuthorized={isAuthorized} isAdmin={isAdmin} />
         <Routes>
           {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
           <Route index element={<Home />} />
@@ -50,6 +65,7 @@ function App(): Node {
               <Route path="/about" element={<About />} />
             </>
           )}
+          <Route path="*" element={<CatchAllRoute isAuthorized={isAuthorized} isAdmin={isAdmin} />} />
         </Routes>
       </div>
     </div>

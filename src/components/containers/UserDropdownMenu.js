@@ -4,10 +4,13 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { store } from '../../store';
+import { actions } from '../../store/userStore';
 
 export default function BasicMenu() {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -17,9 +20,7 @@ export default function BasicMenu() {
 
   const handleLogout = () => {
     setAnchorEl(null);
-
-    sessionStorage.clear();
-    window.location.href = '/';
+    store.dispatch(actions.logoutUser());
   };
 
   return (

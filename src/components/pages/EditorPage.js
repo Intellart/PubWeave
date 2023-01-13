@@ -16,7 +16,6 @@ import { useParams } from 'react-router-dom';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
-import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
@@ -41,12 +40,12 @@ function ReactEditor () {
     tags: [],
   };
 
-  // define useSelector
+  // useSelector
   const article = useSelector((state) => get(state, selectors.article), isEqual);
   const articleContent = useSelector((state) => get(state, selectors.articleContent), isEqual);
   const blocks = useSelector((state) => get(state, selectors.blocks), isEqual);
 
-  // define dispatch
+  // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (ind, as, ac) => dispatch(actions.updateArticle(ind, as, ac));
@@ -58,7 +57,7 @@ function ReactEditor () {
 
   useEffect(() => {
     if (!isEmpty(articleSettings) && stateReady) {
-      updateArticle(id, articleSettings, articleContent);
+      updateArticle(id, articleSettings);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articleSettings]);
@@ -92,7 +91,7 @@ function ReactEditor () {
     setArticleSettings(newArticleSettings);
   };
 
-  console.log(articleSettings);
+  console.log(article);
 
   useEffect(() => {
     console.log('State changed: ', store.getState());
@@ -120,14 +119,15 @@ function ReactEditor () {
 
   const handleUploadEditorContent = (api) => {
     api.saver.save().then((newArticleContent) => {
-      updateArticle(id, articleSettings, newArticleContent);
+      console.log('updating article content');
+      console.log({ content: newArticleContent });
+      updateArticle(id, { content: newArticleContent });
       setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
     });
   };
 
   return (
     <main className="editor-wrapper">
-      <Navbar />
       <div
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
@@ -139,7 +139,7 @@ function ReactEditor () {
           onFocus={() => setTitleFocus(true)}
           onBlur={() => {
             setTitleFocus(false);
-            updateArticle(id, articleSettings, articleContent);
+            updateArticle(id, articleSettings);
           }}
           ref={titleRef}
           onChange={(e) => handleArticleSettings('title', e.target.value)}

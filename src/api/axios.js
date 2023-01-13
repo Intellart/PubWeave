@@ -24,7 +24,7 @@ const apiClient: any = axios.create({
 apiClient.interceptors.request.use((config: any) => {
   const _jwt = getItem(localStorageKeys.jwt);
   if (!isEmpty(_jwt) && _jwt) {
-    config.headers.Authorization = JSON.parse(_jwt);
+    config.headers.Authorization = 'Bearer ' + _jwt;
 
     return config;
   }

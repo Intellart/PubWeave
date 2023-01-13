@@ -1,8 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;200;300;400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "./reset_stylesheet";
+@import "react-toastify/dist/ReactToastify.min.css";
+@import 'bulma/css/bulma.min.css';
 @import "./main";
 @import "./navbar.scss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "./hero_section.scss";
 @import "./about_section.scss";
 @import "./footer.scss";
@@ -23,3 +25,4 @@
 @import "./login_page.scss";
 @import "./image_selection.scss";
 @import "./toast.scss";
+@import "./loader.scss";

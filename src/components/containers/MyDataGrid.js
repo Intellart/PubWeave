@@ -2,7 +2,10 @@
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import {
+  DataGrid, GridColDef, GridToolbar,
+  GridCellModes,
+} from '@mui/x-data-grid';
 import {
   Chip, FormControl, MenuItem, Select,
 } from '@mui/material';
@@ -27,6 +30,39 @@ type Props = {
 export default function MyDataGrid(props: Props) {
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const [cellModesModel, setCellModesModel] = useState({});
+
+  const handleCellClick = React.useCallback((params: GridCellParams) => {
+    setCellModesModel((prevModel) => ({
+      // Revert the mode of the other cells from other rows
+      ...Object.keys(prevModel).reduce(
+        (acc, id) => ({
+          ...acc,
+          [id]: Object.keys(prevModel[id]).reduce(
+            (acc2, field) => ({
+              ...acc2,
+              [field]: { mode: GridCellModes.View },
+            }),
+            {},
+          ),
+        }),
+        {},
+      ),
+      [params.id]: {
+        // Revert the mode of other cells in the same row
+        ...Object.keys(prevModel[params.id] || {}).reduce(
+          (acc, field) => ({ ...acc, [field]: { mode: GridCellModes.View } }),
+          {},
+        ),
+        [params.field]: { mode: GridCellModes.Edit },
+      },
+    }));
+  }, []);
+
+  const handleCellModesModelChange = React.useCallback((newModel) => {
+    setCellModesModel(newModel);
+  }, []);
+
   function getChipProps(params: GridRenderCellParams): ChipProps {
     const sx = { gap: '10px', padding: '10px' };
     const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
@@ -46,6 +82,14 @@ export default function MyDataGrid(props: Props) {
     const handleChange = (event) => {
       // api.setEditCellValue({ id, field, value: event.target.value }, event);
       props.onChangeStatus(id, event.target.value);
+
+      setCellModesModel((prevModel) => ({
+        ...prevModel,
+        [id]: {
+          ...prevModel[id],
+          [field]: { mode: GridCellModes.View },
+        },
+      }));
     };
 
     const handleRef = (element) => {
@@ -212,18 +256,33 @@ export default function MyDataGrid(props: Props) {
         rowsPerPageOptions={[5]}
         checkboxSelection
         disableSelectionOnClick
+        cellModesModel={cellModesModel}
+        onCellClick={handleCellClick}
+        onCellModesModelChange={handleCellModesModelChange}
         experimentalFeatures={{ newEditingApi: true }}
         // onStateChange={(state) => console.log(state)}
         onSelectionModelChange={(newSelection) => setSelectedIds(newSelection)}
       />
       {selectedIds.length > 0 && (
-      <button
-        className='datagrid-selected-rows-delete'
-        type='button'
-        onClick={() => handleDelete()}
-      >
-        Delete
-      </button>
+      <div className='datagrid-selected-rows-actions'>
+        <button
+          className='datagrid-selected-rows-delete'
+          type='button'
+          onClick={() => handleDelete()}
+        >
+          Delete
+        </button>
+        <Select
+          className='datagrid-selected-rows-select-status'
+          labelId="demo-simple-select-label"
+        >
+          {map(statuses, (status, index) => (
+            <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
+          ))}
+
+        </Select>
+      </div>
+
       )}
     </Box>
   );

@@ -131,15 +131,15 @@ function Blogs(): Node {
         <h2 style={{ marginLeft: 100, marginBottom: 20 }}>Latest Blog Posts</h2>
         {map(articles, (a) => (
           <ArticleCard
-            status={a.article_content.status}
+            status={get(a, 'article_content.status', '')}
             img={images[a.id % 4]}
             id={a.id}
             key={a.id}
             title={a.title}
-            category={a.article_content.category}
-            description={a.article_content.description}
-            author={a.article_content.author}
-            tags={a.article_content.tags}
+            category={get(a, 'article_content.category', '')}
+            description={get(a, 'article_content.description', '')}
+            author={get(a, 'article_content.author', '')}
+            tags={get(a, 'article_content.tags', [])}
             date={a.date}
           />
         ))}

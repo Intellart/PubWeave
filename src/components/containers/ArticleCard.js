@@ -44,8 +44,6 @@ function ArticleCard(props : Props): Node {
 
     if (props.editable) {
       props.editable(props.id);
-    } else {
-      window.location.href = '/singleblog';
     }
   };
 

@@ -2,19 +2,17 @@
 import React from 'react';
 import type { Node } from 'react';
 import { Link } from 'react-router-dom';
+// import { useDispatch } from 'react-redux';
 import logoImg from '../../images/LogoPubWeave.png';
 import 'bulma/css/bulma.min.css';
 import BasicMenu from './UserDropdownMenu';
+// import { actions } from '../../store/userStore';
 
-function Navbar(): Node {
-  const isUserLoggined = () => {
-    if (sessionStorage.getItem('token')) {
-      return true;
-    }
-
-    return false;
-  };
-
+type Props = {
+  isAuthorized: boolean,
+  isAdmin: boolean,
+};
+function Navbar(props: Props): Node {
   return (
 
     <nav className='navbar'>
@@ -33,11 +31,21 @@ function Navbar(): Node {
       </div>
 
       <div className="navigation">
-        <a href="/Dashboard">Dashboard</a>
-        <a href="/About">About</a>
-        <a href="/About">Contact Us</a>
-        <a href="/submit-work" className='submit-work'>Submit your research</a>
-        {isUserLoggined() && BasicMenu()}
+        <Link to="/">Home</Link>
+        <Link to="/blogs">Blogs</Link>
+        {(props.isAuthorized || props.isAdmin) && <Link to="/Dashboard">Dashboard</Link>}
+        <Link to="/About">About</Link>
+        <Link to="/About">Contact Us</Link>
+        {props.isAuthorized && <Link to="/submit-work" className='submit-work'>Submit your research</Link>}
+        {(props.isAuthorized || props.isAdmin)
+          ? (<BasicMenu />)
+          : (
+            <Link
+              className="login-button"
+              to="/login"
+            >Login
+            </Link>
+          ) }
       </div>
     </nav>
   );

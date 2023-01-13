@@ -8,13 +8,15 @@ import App from './components/App';
 import { store } from './store';
 import './assets/stylesheets/index.scss';
 import reportWebVitals from './reportWebVitals';
-import { actions } from './store/userStore';
+import { actions as userActions } from './store/userStore';
 import { getItem } from './localStorage';
+import { actions as articleActions } from './store/articleStore';
 
 document.title = 'PubWeave';
 
 const _jwt = getItem('_jwt');
-if (!isEmpty(_jwt) && _jwt) store.dispatch(actions.validateUser(_jwt));
+if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
+store.dispatch(articleActions.fetchAllArticles());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
