@@ -9,8 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { get, isEqual, map } from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../containers/Footer';
-
-import { actions } from '../../store/articleStore';
+import { selectors as articleSelectors, actions } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
 import Rocket from '../../images/RocketLaunch.png';
 import Space from '../../images/SpaceImg.png';
@@ -21,7 +21,9 @@ const images = [Rocket, Space, Astronaut, Earth];
 
 function MyArticles(): Node {
   const dummyDescription = "This article is about the history of the universe. It's a long story, but it's a good one. I hope you enjoy it!";
-  const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const articles2 = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const articles = useSelector((state) => articleSelectors.getUsersArticles(state));
+  const user = useSelector((state) => userSelectors.getUser(state));
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
@@ -48,6 +50,9 @@ function MyArticles(): Node {
   const handleDeleteClick = (id) => {
     deleteArticle(id);
   };
+  console.log(articles2);
+  console.log(user);
+  console.log(articles);
 
   return (
     <main className="my-articles-wrapper">
@@ -69,9 +74,9 @@ function MyArticles(): Node {
               title={get(a, 'title')}
               category={get(a, 'category')}
               description={dummyDescription || get(a, 'description')}
-              author={get(a, 'author')}
+              author={get(a, 'user.full_name')}
               tags={get(a, 'tags')}
-              date={get(a, 'date')}
+              date={get(a, 'updated_at')}
               editable={handleEditClick}
               deleteable={handleDeleteClick}
             />

@@ -10,7 +10,7 @@ import {
   faCheck, faPaperPlane, faRotateRight, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import Footer from '../containers/Footer';
-import MyDataGrid from '../containers/MyDataGrid';
+import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
 
 import { actions } from '../../store/articleStore';
 
@@ -49,6 +49,7 @@ function Dashboard(): Node {
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
   const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
   const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
+  const updateArticle = (id, payload) => dispatch(actions.updateArticle(id, payload));
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -59,10 +60,11 @@ function Dashboard(): Node {
         id: article.id,
         title: article.title,
         status: get(statuses, get(article, 'status', 'draft')),
-        firstName: get(article, 'author.firstName', ''),
+        firstName: get(article, 'user.full_name', ''),
         email: '',
         ORCID: '123456789',
         registeredOn: '2023-01-25T16:57',
+        category: get(article, 'category', ''),
       })));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,6 +79,10 @@ function Dashboard(): Node {
     publishArticle(id, newStatus);
   };
 
+  const handleChangeTextField = (id, field, value) => {
+    updateArticle(id, { field: value });
+  };
+
   return (
     <main className="about-wrapper">
       <section className="about-section">
@@ -84,6 +90,7 @@ function Dashboard(): Node {
           rows={rows}
           onDelete={onDeleteClick}
           onChangeStatus={handleChangeStatus}
+          onChangeTextField={handleChangeTextField}
         />
       </section>
       <Footer />

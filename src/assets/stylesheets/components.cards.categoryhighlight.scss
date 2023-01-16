@@ -1,0 +1,51 @@
+.category-highlight {
+  padding: 20px 100px;
+  background: #11273F;
+  .category-highlight-text {
+      height: fit-content;
+      // border-style: solid;
+      color: white;
+      display: flex;
+      align-items: left;
+      gap: 40px;
+      flex-direction: column;
+      margin: 30px 0px;
+  
+      h4 {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 600;
+          font-size: 14px;
+          line-height: 17px;
+          color: #32B4FC;
+      }
+  
+      // h2 {
+      //     font-family: 'Inter';
+      //     font-style: normal;
+      //     font-weight: 600;
+      //     font-size: 30px;
+      //     line-height: 36px;
+      //     color: #FFFFFF;    
+      // }
+  
+      p {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 16px;
+          line-height: 19px;
+  
+      }
+  
+      .author {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 12px;
+          line-height: 15px;
+          margin-top: 20px;
+      }
+  }
+}
+

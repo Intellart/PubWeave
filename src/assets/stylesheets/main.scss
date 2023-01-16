@@ -23,7 +23,7 @@ html {
       .application-wrapper {
         display: flex;
         flex-direction: column;
-        height: 100%;
+        height: fit-content;
         position: relative;
         width: 100%;
       }

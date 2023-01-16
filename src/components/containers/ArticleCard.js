@@ -4,8 +4,11 @@ import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faShare, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPencil, faPenToSquare, faShare, faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import { Chip } from '@mui/material';
 
 type Props = {
   img: string,
@@ -20,6 +23,7 @@ type Props = {
   editable?: Function,
   deleteable?: Function,
   status?: string,
+  likeable?: boolean,
 };
 
 function ArticleCard(props : Props): Node {
@@ -47,6 +51,41 @@ function ArticleCard(props : Props): Node {
     }
   };
 
+  const chipParams = () => {
+    switch (props.status) {
+      case 'draft':
+        return {
+          color: 'info',
+          icon: <FontAwesomeIcon icon={faPenToSquare} />,
+          variant: 'outlined',
+        };
+      case 'published':
+        return {
+          color: 'success',
+          icon: <FontAwesomeIcon icon={faShare} />,
+          variant: 'outlined',
+        };
+      case 'rejected':
+        return {
+          color: 'error',
+          icon: <FontAwesomeIcon icon={faXmark} />,
+          variant: 'outlined',
+        };
+      case 'requested':
+        return {
+          color: 'warning',
+          icon: <FontAwesomeIcon icon={faPencil} />,
+          variant: 'outlined',
+        };
+      default:
+        return {
+          color: 'default',
+          icon: <FontAwesomeIcon icon={faPencil} />,
+          variant: 'outlined',
+        };
+    }
+  };
+
   return (
     <div
       onClick={handleTitleClick}
@@ -60,7 +99,7 @@ function ArticleCard(props : Props): Node {
             <h2>{props.title} {props.id}</h2>
           </div>
           <div className="article-card-side-content-status-wrapper">
-            <p>{props.status || 'Status'}</p>
+            <Chip className="article-card-side-content-status-chip" label={props.status || 'Status'} {...chipParams()} />
           </div>
         </div>
         <p className="author">By {props.author || 'Authors Name'}</p>
@@ -69,7 +108,7 @@ function ArticleCard(props : Props): Node {
           <p>Updated {props.date || 'Date'}</p>
           <div className="article-icons-share-heart">
             <FontAwesomeIcon icon={faShare} />
-            <FontAwesomeIcon icon={faHeart} />
+            {props.likeable && <FontAwesomeIcon icon={faHeart} />}
             {props.editable && (
             <a
               onClick={(e) => handleEditArticle(e)}

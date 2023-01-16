@@ -14,7 +14,6 @@ import {
   filter, get, isEmpty, isEqual, map,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
-import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import SingleBlog from '../../images/SingleBlog.png';
 import AvatarImg from '../../images/Avatar.png';
@@ -87,7 +86,6 @@ function Blogs(): Node {
 
   return (
     <main className="blogs-wrapper">
-      <Navbar />
       <section className="category-highlight">
         <div className="category-highlight-text">
           <div className="headline-category-chips-author">

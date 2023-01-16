@@ -18,12 +18,14 @@ import classNames from 'classnames';
 import {
   map, get,
 } from 'lodash';
-import { statuses } from '../pages/Dashboard';
+import { statuses } from '../../pages/Dashboard';
+import { Panorama } from '@mui/icons-material';
 // import { toast } from 'react-toastify';
 
 type Props = {
   onDelete: Function,
   onChangeStatus: Function,
+  onChangeTextField: Function,
   rows: any[],
 };
 
@@ -62,18 +64,6 @@ export default function MyDataGrid(props: Props) {
   const handleCellModesModelChange = React.useCallback((newModel) => {
     setCellModesModel(newModel);
   }, []);
-
-  function getChipProps(params: GridRenderCellParams): ChipProps {
-    const sx = { gap: '10px', padding: '10px' };
-    const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
-
-    return {
-      label: res.label,
-      icon: <FontAwesomeIcon icon={res.icon} />,
-      color: res.color,
-      sx,
-    };
-  }
 
   function renderEditChip(params: GridEditCellPropsParams) {
     // eslint-disable-next-line no-unused-vars
@@ -133,6 +123,21 @@ export default function MyDataGrid(props: Props) {
     );
   }
 
+  function getChipProps(params: GridRenderCellParams): ChipProps {
+    const sx = { gap: '10px', padding: '10px' };
+    const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
+
+    return {
+      label: res.label,
+      icon: <FontAwesomeIcon icon={res.icon} />,
+      color: res.color,
+      sx,
+    };
+  }
+  function renderStatusCell(params) {
+    return (<Chip {...getChipProps(params)} />);
+  }
+
   const handleDelete = () => {
     // eslint-disable-next-line
     console.log('delete', selectedIds);
@@ -146,7 +151,7 @@ export default function MyDataGrid(props: Props) {
     {
       field: 'status',
       headerName: 'Status',
-      renderCell: (params) => <Chip {...getChipProps(params)} />,
+      renderCell: (params) => renderStatusCell(params),
       width: 175,
       editable: true,
       renderEditCell: renderEditChip,
@@ -167,6 +172,12 @@ export default function MyDataGrid(props: Props) {
     {
       field: 'email',
       headerName: 'Email',
+      width: 250,
+      editable: true,
+    },
+    {
+      field: 'category',
+      headerName: 'Category',
       width: 250,
       editable: true,
     },
@@ -227,10 +238,6 @@ export default function MyDataGrid(props: Props) {
     },
   ];
 
-  console.log(props.rows);
-
-  const handleRows = () => props.rows;
-
   return (
     <Box
       sx={{
@@ -247,7 +254,7 @@ export default function MyDataGrid(props: Props) {
           border: 'none',
 
         }}
-        rows={handleRows()}
+        rows={props.rows}
         columns={columns}
         pageSize={5}
         components={{
@@ -262,6 +269,13 @@ export default function MyDataGrid(props: Props) {
         experimentalFeatures={{ newEditingApi: true }}
         // onStateChange={(state) => console.log(state)}
         onSelectionModelChange={(newSelection) => setSelectedIds(newSelection)}
+        onCellEditStop={(params: GridCellEditStopParams, event) => {
+          console.log(params);
+          console.log(event);
+          if (params.field === 'category') {
+            props.onChangeTextField(params.id, 'category_id', 3);
+          }
+        }}
       />
       {selectedIds.length > 0 && (
       <div className='datagrid-selected-rows-actions'>

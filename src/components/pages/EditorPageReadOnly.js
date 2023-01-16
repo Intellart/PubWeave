@@ -17,7 +17,6 @@ import { Alert, Button } from '@mui/material';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
-import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
@@ -134,7 +133,6 @@ function ReactEditor () {
 
   return (
     <main className="editor-wrapper">
-      <Navbar />
       <div
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}

@@ -6,6 +6,7 @@ import type { State as UserState } from '../store/userStore';
 export type ReduxState = {
   user: UserState,
   global: GlobalState,
+  article: any,
 };
 
 export type BaseReduxAction = {

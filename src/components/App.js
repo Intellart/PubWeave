@@ -53,16 +53,16 @@ function App(): Node {
           {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
           <Route index element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/submit-work" element={<MyArticles />} />
-          <Route path="/submit-work/:id" element={<EditorPage />} />
-          <Route path="/publish/:id" element={<EditorPageReadOnly />} />
           <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/singleblog/:id" element={<SingleBlog />} />
+          <Route path="/blogs" element={<Blogs />} />
 
           {isAuthorized && (
             <>
-              <Route path="/blogs" element={<Blogs />} />
               <Route path="/about" element={<About />} />
+              <Route path="/submit-work" element={<MyArticles />} />
+              <Route path="/submit-work/:id" element={<EditorPage />} />
+              <Route path="/publish/:id" element={<EditorPageReadOnly />} />
             </>
           )}
           <Route path="*" element={<CatchAllRoute isAuthorized={isAuthorized} isAdmin={isAdmin} />} />

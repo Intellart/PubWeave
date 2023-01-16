@@ -15,16 +15,21 @@ function CatchAllRoutes(props: Props): Node {
   useEffect(() => {
     if (props.isAuthorized) {
       navigate('/', { replace: true });
+
+      return;
     }
 
     if (props.isAdmin) {
       navigate('/', { replace: true });
+
+      return;
     }
+
+    navigate('/login', { replace: true });
   }, [props.isAuthorized, props.isAdmin, navigate]);
 
   return (
-    <main className="blogs-wrapper">asd
-    </main>
+    <main className="blogs-wrapper" />
   );
 }
 

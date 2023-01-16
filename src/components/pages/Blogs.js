@@ -4,7 +4,6 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { get, isEqual, map } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
@@ -78,7 +77,6 @@ function Blogs(): Node {
 
   return (
     <main className="blogs-wrapper">
-      <Navbar />
       <section className="category-highlight">
         <div className="category-highlight-text">
           <div className="all-chips">

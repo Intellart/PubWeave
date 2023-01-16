@@ -1,8 +1,9 @@
 // @flow
 // import React from 'react';
 import { filter, map } from 'lodash';
+import { toast } from 'react-toastify';
 import * as API from '../api';
-import type { ReduxAction, ReduxActionWithPayload } from '../types';
+import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 
 export type ArticleSettings = {
   title: string,
@@ -65,6 +66,7 @@ export const selectors = {
   article: 'article.oneArticle',
   articleContent: 'article.oneArticle.article_content',
   blocks: 'article.oneArticle.article_content.blocks',
+  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
 };
 
 export const actions = {
@@ -142,6 +144,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
+      toast.success(`Changed article ${action.payload.title} successfully!`);
+
       return {
         ...state,
         // oneArticle: {
@@ -164,6 +168,13 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         }),
       };
 
+    case types.ART_UPDATE_ARTICLE_REJECTED:
+      toast.error(`Error while updating article ${action.payload.title}!`);
+
+      return {
+        ...state,
+      };
+
     case types.ART_CREATE_ARTICLE_FULFILLED:
       return {
         ...state,
@@ -177,6 +188,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_PUBLISH_ARTICLE_FULFILLED:
+      toast.success(`Changed status of ${action.payload.title} to ${action.payload.status}.`);
+
       return {
         ...state,
         oneArticle: {
