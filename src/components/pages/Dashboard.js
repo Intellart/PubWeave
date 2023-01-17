@@ -80,7 +80,7 @@ function Dashboard(): Node {
   };
 
   const handleChangeTextField = (id, field, value) => {
-    updateArticle(id, { field: value });
+    updateArticle(id, { [field]: value });
   };
 
   return (

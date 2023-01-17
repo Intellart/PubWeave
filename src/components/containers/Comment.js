@@ -2,8 +2,8 @@
 import React, { useEffect } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faUserCircle } from '@fortawesome/free-regular-svg-icons';
-import { faMinus, faPlus, faReply } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
+import { faComment, faHandsClapping, faReply } from '@fortawesome/free-solid-svg-icons';
 
 import TextareaAutosize from '@mui/base/TextareaAutosize';
 import classNames from 'classnames';
@@ -24,9 +24,11 @@ type Props = {
   onReply?: Function,
   newComment?: boolean,
   onCancel?: Function,
+  onExpand?: Function,
+  hasReplies?: boolean,
 };
 
-function Comment(props: Props) {
+const Comment = React.forwardRef((props: Props, ref) => {
   const [content, setContent] = React.useState(props.content);
   const [editMode, setEditMode] = React.useState(false);
   const [editContent, setEditContent] = React.useState(props.content);
@@ -89,122 +91,105 @@ function Comment(props: Props) {
 
   return (
     <div className="comment-wrapper">
-      <div className="comment">
-        <div className="comment-rating unselectable">
-          <div
-            className={classNames('comment-rating-up', {
-              'comment-rating-up-active': alreadyVoted === 1,
-            })}
-            onClick={() => {
-              if (alreadyVoted === 1) {
-                setRating(rating - 1);
-                setAlreadyVoted(0);
-              } else {
-                setRating(rating + 1);
-                setAlreadyVoted(1);
-              }
-            }}
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </div>
-          <div className="comment-rating-number">
-            <p>{rating}</p>
-          </div>
-          <div
-            className={classNames('comment-rating-down', {
-              'comment-rating-down-active': alreadyVoted === -1,
-            })}
-            onClick={() => {
-              if (alreadyVoted === -1) {
-                setRating(rating + 1);
-                setAlreadyVoted(0);
-              } else {
-                setRating(rating - 1);
-                setAlreadyVoted(-1);
-              }
-            }}
-          >
-            <FontAwesomeIcon icon={faMinus} />
-          </div>
-        </div>
-        <div className="comment-content">
-          <div className="comment-content-header">
-            <div className="comment-content-header-left">
-              <div className="comment-content-header-left-user-image">
-                <FontAwesomeIcon icon={faUserCircle} />
+      <div ref={ref} className="comment">
+        <div className="comment-content-upper">
+          <div className="comment-content-upper-user">
+            <div className="comment-content-upper-user-image">
+              <FontAwesomeIcon icon={faUserCircle} />
+            </div>
+            <div className="comment-content-upper-user-text">
+              <div className="comment-content-upper-user-text-upper">
+                <p className='comment-content-upper-user-text-username'>{props.username}</p>
+                <p className='comment-content-upper-user-text-tag'>You</p>
               </div>
-              <div className="comment-content-header-left-user-username">
-                <p>{props.username}</p>
-              </div>
-              <div className="comment-content-header-left-comment-time">
+              <div className="comment-content-upper-user-text-lower">
                 <p>1 hour ago</p>
               </div>
             </div>
-            <div className="comment-content-header-right">
-              <div
-                className="comment-content-header-right-comment-reply"
-                onClick={() => props.onReply({
-                  content,
-                  author: props.username,
-                  id: props.id,
-                })
-                }
-              >
-                <p><FontAwesomeIcon icon={faReply} /> Reply</p>
-              </div>
-              <div
-                className="comment-content-header-right-comment-edit"
-                onClick={() => setEditMode(true)}
-              >
-                <p style={{ color: '#1E5F8B' }}><FontAwesomeIcon icon={faPenToSquare} style={{ color: '#1E5F8B' }} /> Edit</p>
-              </div>
-            </div>
-          </div>
-          <div className="comment-content-body">
-            {(props.newComment || editMode) ? (
-              <>
-                <TextareaAutosize
-                  className="comment-content-body-textarea"
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  // onBlur={() => {
-                  //   setEditMode(false);
-                  //   setContent(editContent);
-                  //   props.editComment(editContent);
-                  // }}
-                />
-                <div className="comment-content-body-buttons">
-                  <button
-                    className="comment-content-body-buttons-cancel"
-                    onClick={() => {
-                      setEditMode(false);
-                      props.onCancel();
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="comment-content-body-buttons-save"
-                    onClick={handleSave}
-                  >
-                    Save
-                  </button>
-                </div>
-              </>
-            ) : (
-
-              <p>
-                {renderContent()}
-              </p>
-            )}
           </div>
         </div>
+        <div className="comment-content-middle">
+          {(props.newComment || editMode) ? (
+            <>
+              <TextareaAutosize
+                className="comment-content-body-textarea"
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+              />
+              <div className="comment-content-body-buttons">
+                <button
+                  className="comment-content-body-buttons-cancel"
+                  onClick={() => {
+                    setEditMode(false);
+                    props.onCancel();
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="comment-content-body-buttons-save"
+                  onClick={handleSave}
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          ) : (
+
+            <p>
+              {renderContent()}
+            </p>
+          )}
+        </div>
+        {!props.newComment && (
+        <div className="comment-content-lower">
+          <div className="comment-content-lower-left">
+            <FontAwesomeIcon
+              className={classNames('comment-content-lower-vote', {
+                'comment-content-lower-vote-active': alreadyVoted === 1,
+              })}
+              onClick={() => {
+                if (alreadyVoted === 1) {
+                  setRating(rating - 1);
+                  setAlreadyVoted(0);
+                } else {
+                  setRating(rating + 1);
+                  setAlreadyVoted(1);
+                }
+              }
+            }
+              icon={faHandsClapping}
+            />
+            <p>{rating}</p>
+            {props.hasReplies && (
+            <FontAwesomeIcon
+              className="comment-content-lower-reply"
+              onClick={() => props.onExpand()}
+              icon={faComment}
+            />
+            )
+            }
+          </div>
+          <div className="comment-content-lower-right">
+            <FontAwesomeIcon
+              className="comment-content-lower-reply"
+              onClick={() => props.onReply({
+                content,
+                author: props.username,
+                id: props.id,
+              })
+            }
+              icon={faReply}
+            />
+          </div>
+        </div>
+        )}
       </div>
       <div className="comment-replies">
         {props.children}
       </div>
     </div>
   );
-}
+});
 
 export default Comment;

@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import {
   DataGrid, GridColDef, GridToolbar,
   GridCellModes,
+  // GridCellEditStopReasons,
 } from '@mui/x-data-grid';
 import {
   Chip, FormControl, MenuItem, Select,
@@ -19,7 +20,6 @@ import {
   map, get,
 } from 'lodash';
 import { statuses } from '../../pages/Dashboard';
-import { Panorama } from '@mui/icons-material';
 // import { toast } from 'react-toastify';
 
 type Props = {
@@ -30,11 +30,14 @@ type Props = {
 };
 
 export default function MyDataGrid(props: Props) {
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectionModel, setSelectionModel] = useState([]);
 
   const [cellModesModel, setCellModesModel] = useState({});
 
   const handleCellClick = React.useCallback((params: GridCellParams) => {
+    if (params.field === '__check__') {
+      return;
+    }
     setCellModesModel((prevModel) => ({
       // Revert the mode of the other cells from other rows
       ...Object.keys(prevModel).reduce(
@@ -61,9 +64,73 @@ export default function MyDataGrid(props: Props) {
     }));
   }, []);
 
+  // function CheckboxSelectionCustom(params) {
+  //   const handleChange = (event) => {
+  //     const id = get(params, 'id');
+  //     if (event.target.checked) {
+  //       setSelectedIds((prevIds) => [...prevIds, id]);
+  //     } else {
+  //       setSelectedIds((prevIds) => prevIds.filter((prevId) => prevId !== id));
+  //     }
+  //   };
+
+  //   return (
+  //     <Checkbox
+  //       checked={selectedIds.indexOf(params.id) !== -1}
+  //       onChange={handleChange}
+  //     />
+  //   );
+  // }
+
   const handleCellModesModelChange = React.useCallback((newModel) => {
+    console.log(newModel);
     setCellModesModel(newModel);
   }, []);
+
+  function renderTextField(params: GridEditCellPropsParams) {
+    // eslint-disable-next-line no-unused-vars
+    const { api, id, field } = params;
+
+    const handleChange = (event) => {
+      api.setEditCellValue({ id, field, value: event.target.value }, event);
+    };
+
+    const handleBlur = (event) => {
+      // console.log(event.target.value);
+      // console.log(field);
+      // console.log(id);
+      props.onChangeTextField(id, field, event.target.value);
+
+      setCellModesModel((prevModel) => ({
+        ...prevModel,
+        [id]: {
+          ...prevModel[id],
+          [field]: { mode: GridCellModes.View },
+        },
+      }));
+    };
+
+    const handleRef = (element) => {
+      if (element) {
+        element.focus();
+      }
+    };
+
+    return (
+      <div
+        className='datagrid-textfield-container'
+      >
+        <input
+          value={params.value}
+          onBlur={handleBlur}
+          onChange={handleChange}
+          ref={handleRef}
+          className='datagrid-textfield'
+        />
+      </div>
+
+    );
+  }
 
   function renderEditChip(params: GridEditCellPropsParams) {
     // eslint-disable-next-line no-unused-vars
@@ -140,12 +207,15 @@ export default function MyDataGrid(props: Props) {
 
   const handleDelete = () => {
     // eslint-disable-next-line
-    console.log('delete', selectedIds);
+    console.log('delete', selectionModel);
+
+    setSelectionModel([]);
     // setRows(filter(rows, (row) => !includes(selectedIds, row.id)));
-    if (selectedIds.length === 1) {
-      props.onDelete(selectedIds[0]);
-    }
+    // if (selectedIds.length === 1) {
+    //   props.onDelete(selectedIds[0]);
+    // }
   };
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
@@ -162,6 +232,8 @@ export default function MyDataGrid(props: Props) {
       headerName: 'Article title',
       width: 250,
       editable: true,
+      renderEditCell: renderTextField,
+
     },
     {
       field: 'firstName',
@@ -260,24 +332,23 @@ export default function MyDataGrid(props: Props) {
         components={{
           Toolbar: GridToolbar,
         }}
+        // onStateChange={(state) => console.log(state)}
         rowsPerPageOptions={[5]}
         checkboxSelection
         disableSelectionOnClick
-        cellModesModel={cellModesModel}
-        onCellClick={handleCellClick}
-        onCellModesModelChange={handleCellModesModelChange}
         experimentalFeatures={{ newEditingApi: true }}
-        // onStateChange={(state) => console.log(state)}
-        onSelectionModelChange={(newSelection) => setSelectedIds(newSelection)}
-        onCellEditStop={(params: GridCellEditStopParams, event) => {
-          console.log(params);
-          console.log(event);
-          if (params.field === 'category') {
-            props.onChangeTextField(params.id, 'category_id', 3);
-          }
-        }}
+        // used for one click edit
+        cellModesModel={cellModesModel}
+        // used for one click edit
+        onCellClick={handleCellClick}
+        // used for one click edit
+        onCellModesModelChange={handleCellModesModelChange}
+        // used for checkbox selection
+        onSelectionModelChange={(newSelection) => setSelectionModel(newSelection)}
+        // used for all text fields
+        selectionModel={selectionModel}
       />
-      {selectedIds.length > 0 && (
+      {selectionModel.length > 0 && (
       <div className='datagrid-selected-rows-actions'>
         <button
           className='datagrid-selected-rows-delete'
