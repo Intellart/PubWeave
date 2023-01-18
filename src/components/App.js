@@ -1,8 +1,10 @@
 // @flow
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { isEmpty, isEqual } from 'lodash';
 import Home from './pages/Home';
 import { useScrollTopEffect } from '../utils/hooks';
 import EditorPage from './pages/EditorPage';
@@ -13,31 +15,27 @@ import SingleBlog from './pages/SingleBlog';
 import About from './pages/About';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+import { selectors as userSelectors } from '../store/userStore';
+import Loader from './containers/Loader';
+
+import Navbar from './containers/Navbar';
+import CatchAllRoute from './pages/CatchAllRoute';
 
 function App(): Node {
-  // const [token, setToken] = useState();
-
+  const [isLoaded, setIsLoaded] = useState(false);
   useScrollTopEffect();
 
-  const setToken = (userToken) => {
-    sessionStorage.setItem('token', JSON.stringify(userToken));
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 1000);
+  }, []);
 
-    window.location.href = '/';
-  };
+  const isAuthorized: boolean = useSelector((state) => !isEmpty(userSelectors.getUser(state)), isEqual);
+  const isAdmin: boolean = useSelector((state) => !isEmpty(userSelectors.getAdmin(state)), isEqual);
 
-  function getToken() {
-    const tokenString = sessionStorage.getItem('token');
-    if (tokenString) {
-      const userToken = JSON.parse(tokenString);
-
-      return userToken?.token;
-    }
-  }
-
-  const token = getToken();
-
-  if (!token) {
-    return <LoginPage setToken={setToken} />;
+  if (!isLoaded) {
+    return (<Loader />);
   }
 
   return (
@@ -50,16 +48,24 @@ function App(): Node {
         rtl={false}
       />
       <div className="application-wrapper">
+        <Navbar isAuthorized={isAuthorized} isAdmin={isAdmin} />
         <Routes>
+          {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
           <Route index element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/submit-work" element={<MyArticles />} />
-          <Route path="/submit-work/:id" element={<EditorPage />} />
-          <Route path="/publish/:id" element={<EditorPageReadOnly />} />
-          <Route path="/blogs" element={<Blogs />} />
           <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/singleblog/:id" element={<SingleBlog />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/blogs" element={<Blogs />} />
+
+          {isAuthorized && (
+            <>
+              <Route path="/about" element={<About />} />
+              <Route path="/submit-work" element={<MyArticles />} />
+              <Route path="/submit-work/:id" element={<EditorPage />} />
+              <Route path="/publish/:id" element={<EditorPageReadOnly />} />
+            </>
+          )}
+          <Route path="*" element={<CatchAllRoute isAuthorized={isAuthorized} isAdmin={isAdmin} />} />
         </Routes>
       </div>
     </div>

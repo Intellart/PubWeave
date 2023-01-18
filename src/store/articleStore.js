@@ -1,18 +1,12 @@
 // @flow
 // import React from 'react';
-import { filter, get, map } from 'lodash';
+import {
+  filter, keyBy, omit,
+} from 'lodash';
+import { toast } from 'react-toastify';
 import * as API from '../api';
-import type { ReduxAction, ReduxActionWithPayload } from '../types';
-
-export type ArticleSettings = {
-  title: string,
-  category: string,
-  description: string,
-  author: string,
-  wordCount: number,
-  spellCheck: boolean,
-  tags: Array<string>,
-};
+import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
+import type { User } from './userStore';
 
 export type ArticleContent = {
   blocks: Array<Object>,
@@ -20,12 +14,36 @@ export type ArticleContent = {
   version: string,
 };
 
+export type Comment = {
+  id: number,
+  comment: string,
+  likes: number,
+  dislikes: number,
+  created_at: string,
+  updated_at: string,
+};
+
+export type Article = {
+  id: number,
+  title: string,
+  subtitle: string,
+  content: ArticleContent,
+  user: User,
+  likes: number,
+  status: string,
+  description: string,
+  image: string,
+  star: boolean,
+  category: string,
+  created_at: string,
+  updated_at: string,
+  blog_article_comments: { [number]: Comment },
+  tags: Array<string>,
+};
+
 export type State = {
-  oneArticle: {
-    articleContent: ArticleContent,
-    articleSettings: ArticleSettings,
-  },
-  allArticles: Array<Object>,
+  oneArticle: Article,
+  allArticles: { [number]: Article },
 };
 
 export const types = {
@@ -65,77 +83,58 @@ export const selectors = {
   article: 'article.oneArticle',
   articleContent: 'article.oneArticle.article_content',
   blocks: 'article.oneArticle.article_content.blocks',
+  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
+  getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
 };
 
 export const actions = {
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
-    payload: API.getRequest(`blog_articles/${id}`),
+    payload: API.getRequest(`pubweave/blog_articles/${id}`),
   }),
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
-    payload: API.getRequest('blog_articles.json'),
+    payload: API.getRequest('pubweave/blog_articles.json'),
   }),
-  createArticle: (): ReduxAction => ({
+  createArticle: (userId : number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest('blog_articles.json',
+    payload: API.postRequest('pubweave/blog_articles.json',
       {
-        blog_article: {
-          title: 'Undefined_' + Math.floor(Math.random() * 1000),
-          article_content: {
-            tags: [],
-            time: 0,
-            author: '',
-            category: '',
-            status: 'draft',
-            blocks: [
-              {
-                id: 'Y3pS0lTILC',
-                data: {
-                  text: 'Start your article.',
-                },
-                type: 'paragraph',
+        user_id: userId,
+        title: 'New article',
+        content: {
+          time: 0,
+          blocks: [
+            {
+              id: 'Y3pS0lTILC',
+              data: {
+                text: 'Start your article.',
               },
-            ],
-          },
+              type: 'paragraph',
+            },
+          ],
         },
       }),
   }),
-  updateArticle: (id: number, articleSettings: any, articleContent: any): ReduxAction => ({
+  updateArticle: (id: number, payload: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
-    payload: API.putRequest(`blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
-          title: articleSettings.title,
-          article_content: {
-            status: 'draft',
-            blocks: get(articleContent, 'blocks', []),
-            time: get(articleContent, 'time', 0),
-            tags: get(articleSettings, 'tags', []),
-            category: get(articleSettings, 'category', ''),
-            author: get(articleSettings, 'author', ''),
-          },
+          ...payload,
         },
       }),
   }),
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
-    payload: API.deleteRequest(`blog_articles/${id}`),
+    payload: API.deleteRequest(`pubweave/blog_articles/${id}`),
   }),
-  publishArticle: (id: number, newStatus: string, blogArticle: any): ReduxAction => ({
+  publishArticle: (id: number, newStatus: string): ReduxAction => ({
     type: types.ART_PUBLISH_ARTICLE,
-    payload: API.putRequest(`blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
-          article_content: {
-            status: newStatus,
-            blocks: get(blogArticle, 'article_content.blocks', []),
-            time: get(blogArticle, 'article_content.time', 0),
-            tags: get(blogArticle, 'article_content.tags', []),
-            category: get(blogArticle, 'article_content.category', ''),
-            author: get(blogArticle, 'article_content.author', ''),
-          },
-          title: blogArticle.title,
+          status: newStatus,
         },
       }),
   }),
@@ -154,60 +153,70 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
       return {
         ...state,
-        allArticles: action.payload,
+        allArticles: keyBy(action.payload, 'id'),
       };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
+      toast.success(`Changed article ${action.payload.title} successfully!`);
+
       return {
         ...state,
-        // oneArticle: {
-        //   title: action.payload.title,
-        //   article_content: action.payload.article_content,
-        // },
         oneArticle: {
           ...state.oneArticle,
           ...action.payload,
         },
-        allArticles: map(state.allArticles, (a) => {
-          if (a.id === action.payload.id) {
-            return {
-              ...a,
-              ...action.payload,
-            };
-          }
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: {
+            ...state.allArticles[action.payload.id],
+            ...action.payload,
+          },
+        },
+      };
 
-          return a;
-        }),
+    case types.ART_UPDATE_ARTICLE_REJECTED:
+      toast.error(`Error while updating article ${action.payload.title}!`);
+
+      return {
+        ...state,
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
+      toast.success(`Created article ${action.payload.title} successfully!`);
+
       return {
         ...state,
-        allArticles: [...state.allArticles, action.payload],
+        // allArticles: [...state.allArticles, action.payload],
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: action.payload,
+        },
       };
 
     case types.ART_DELETE_ARTICLE_FULFILLED:
+      toast.success(`Deleted article ${action.payload.title} successfully!`);
+
       return {
-        ...state,
-        allArticles: filter(state.allArticles, (article) => article.id !== action.payload.id),
+        allArticles: omit(state.allArticles, action.payload.id),
+        oneArticle: {},
       };
 
     case types.ART_PUBLISH_ARTICLE_FULFILLED:
+      toast.success(`Changed status of ${action.payload.title} to ${action.payload.status}.`);
+
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
           ...action.payload,
         },
-        allArticles: map(state.allArticles, (a) => {
-          if (a.id === action.payload.id) {
-            return {
-              ...action.payload,
-            };
-          }
-
-          return a;
-        }),
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: {
+            ...state.allArticles[action.payload.id],
+            ...action.payload,
+          },
+        },
       };
 
     default:

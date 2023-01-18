@@ -7,7 +7,6 @@ import chatDialoge from '../../images/chatdialoge.png';
 import AboutImg from '../../images/About.png';
 import TeamImg from '../../images/Teamwork.png';
 import stars from '../../images/stars.png';
-import Navbar from '../containers/Navbar';
 import Footer from '../containers/Footer';
 import MuiTimeline from '../containers/MuiTimeline';
 import MultipleObserver from '../../utils/hooks';
@@ -17,7 +16,6 @@ function Home(): Node {
 
   return (
     <main className="home-wrapper">
-      <Navbar />
       <MuiTimeline
         sections={['Home', 'About', 'Pricing']}
         activeSection={currentSection}

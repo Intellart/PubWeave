@@ -1,0 +1,51 @@
+.timeline{
+  position: fixed;
+  top: 50%;
+  right: 0;
+  width: 120px;
+  height: 200px;
+  transition: all 0.3s ease-in-out;
+
+  .MuiTimelineConnector-root{
+      background: #11273F;
+  }
+
+  .timeline-seperator-Home > .MuiTimelineConnector-root{
+      background: #bdbdbd;
+  }
+
+  .timeline-dot{
+      &.timeline-dot-Home{
+          // background: #11273F;
+      }
+      &.timeline-dot-About{
+          &.MuiTimelineDot-filled{
+          
+              background: #11273F;
+              border-color: #11273F;
+              transition: all 0.3s ease-in-out;
+          }
+
+          &.MuiTimelineDot-outlined{
+              background: transparent;
+              border-color: #11273F;
+              transition: all 0.3s ease-in-out;
+          }
+      }
+      
+      &.timeline-dot-Pricing{
+          &.MuiTimelineDot-filled{
+          
+              background: #11273F;
+              border-color: #11273F;
+              transition: all 0.3s ease-in-out;
+          }
+
+          &.MuiTimelineDot-outlined{
+              background: transparent;
+              border-color: #11273F;
+              transition: all 0.3s ease-in-out;
+          }
+      }
+  }
+}

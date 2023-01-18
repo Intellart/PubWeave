@@ -19,7 +19,11 @@ const style = {
   boxShadow: 24,
   overflow: 'scroll',
   padding: 0,
-  backgroundColor: '#c7cdd4',
+  backgroundColor: '#fff',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
   p: 3,
 };
 

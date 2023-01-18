@@ -3,12 +3,20 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router } from 'react-router-dom';
-import reportWebVitals from './reportWebVitals';
+import { isEmpty } from 'lodash';
 import App from './components/App';
 import { store } from './store';
 import './assets/stylesheets/index.scss';
+import reportWebVitals from './reportWebVitals';
+import { actions as userActions } from './store/userStore';
+import { getItem } from './localStorage';
+import { actions as articleActions } from './store/articleStore';
 
 document.title = 'PubWeave';
+
+const _jwt = getItem('_jwt');
+if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
+store.dispatch(articleActions.fetchAllArticles());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>

@@ -7,6 +7,7 @@ import { minutesToMilliseconds } from 'date-fns';
 import { store } from '../store';
 import { actions } from '../store/userStore';
 import { localStorageKeys } from '../tokens';
+import { getItem, setItem } from '../localStorage';
 
 export const requestTimeoutMs = 120000;
 export const baseURL: string = get(process.env, 'REACT_APP_API_BASE_URL', 'http://localhost:3000');
@@ -21,9 +22,9 @@ const apiClient: any = axios.create({
 });
 
 apiClient.interceptors.request.use((config: any) => {
-  const jwt = localStorage.getItem(localStorageKeys.jwt);
-  if (!isEmpty(jwt) && jwt) {
-    config.headers.Authorization = JSON.parse(jwt);
+  const _jwt = getItem(localStorageKeys.jwt);
+  if (!isEmpty(_jwt) && _jwt) {
+    config.headers.Authorization = 'Bearer ' + _jwt;
 
     return config;
   }
@@ -32,9 +33,10 @@ apiClient.interceptors.request.use((config: any) => {
 }, (error) => Promise.reject(error));
 
 apiClient.interceptors.response.use((response: any) => {
-  if (has(response, 'headers.authorization')) {
-    const jwt = get(response, 'headers.authorization');
-    localStorage.setItem(localStorageKeys.jwt, JSON.stringify(jwt));
+  if (has(response, `headers.${localStorageKeys.jwt}`)) {
+    const _jwt = get(response, `headers.${localStorageKeys.jwt}`);
+    // localStorage.setItem(localStorageKeys.jwt, JSON.stringify(jwt));
+    setItem(localStorageKeys.jwt, _jwt);
   }
 
   return response;

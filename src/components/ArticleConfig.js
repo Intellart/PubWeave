@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
-import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import { map } from 'lodash';
@@ -19,7 +18,6 @@ type Props = {
   articleSettings: any,
   wordCount: number,
   lastSaved: number,
-  onToggleSpellCheck: (any) => void,
   addTag: (any) => void,
   // eslint-disable-next-line react/no-unused-prop-types
   removeTag: (any) => void,
@@ -30,17 +28,17 @@ function ArticleConfig(props: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEditingTags, setIsEditingTags] = useState(false);
-  const [tags, setTags] = useState(props.articleSettings.tags);
-  const [category, setCategory] = useState(props.articleSettings.category);
+  const [tags, setTags] = useState(props.articleSettings.tags || []);
+  const [category, setCategory] = useState(props.articleSettings.category || '');
 
   const SECOND_MS = 1000;
 
   useEffect(() => {
-    setTags(props.articleSettings.tags);
+    setTags(props.articleSettings.tags || []);
   }, [props.articleSettings.tags]);
 
   useEffect(() => {
-    setCategory(props.articleSettings.category);
+    setCategory(props.articleSettings.category || '');
   }, [props.articleSettings.category]);
 
   useEffect(() => {
@@ -177,7 +175,7 @@ function ArticleConfig(props: Props): Node {
           </div>
           <div className="article-config-group">
             <h5>Article Settings</h5>
-            <div className="article-config-item">
+            {/* <div className="article-config-item">
               <Switch
                 value={props.articleSettings.toggleSpellCheck ? 'checked' : 'unchecked'}
                 onClick={(e) => {
@@ -186,7 +184,7 @@ function ArticleConfig(props: Props): Node {
                 }}
               />
               <h6>Toggle browser spellcheck</h6>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

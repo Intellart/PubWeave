@@ -1,59 +1,53 @@
 /* eslint-disable no-console */
 // @flow
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { get, isEqual, map } from 'lodash';
-import Navbar from '../containers/Navbar';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../containers/Footer';
-
-import { actions } from '../../store/articleStore';
-import { store } from '../../store';
+import { selectors as articleSelectors, actions } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
 import Rocket from '../../images/RocketLaunch.png';
 import Space from '../../images/SpaceImg.png';
 import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
+import { store } from '../../store';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
 function MyArticles(): Node {
-  store.getState();
-
-  const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const dummyDescription = "This article is about the history of the universe. It's a long story, but it's a good one. I hope you enjoy it!";
+  const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const dispatch = useDispatch();
-  const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
-  const createArticle = () => dispatch(actions.createArticle());
+  const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
 
-  useEffect(() => {
-    if (!articles) {
-      fetchAllArticles();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [articles]);
+  const navigate = useNavigate();
 
   const handleCreateArticle = () => {
-    createArticle();
+    createArticle(user.id);
   };
 
   const handleEditClick = (id) => {
-    window.location.href = `/submit-work/${id}`;
+    navigate(`/submit-work/${id}`);
   };
 
   const handleDeleteClick = (id) => {
     deleteArticle(id);
   };
-
-  console.log(store.getState());
+  console.log('user', user);
+  console.log('my', articles);
+  console.log('store', store.getState());
 
   return (
     <main className="my-articles-wrapper">
-      <Navbar />
       <section className="articles">
         <div className="articles-title">
           <h1>My Articles in progress</h1>
@@ -65,16 +59,16 @@ function MyArticles(): Node {
         <div className="articles-list">
           {map(articles, (a) => (
             <ArticleCard
-              status={a.article_content.status}
+              status={get(a, 'status')}
               img={images[a.id % 4]}
-              id={a.id}
-              key={a.id}
-              title={a.title}
-              category={a.article_content.category}
-              description={a.article_content.description}
-              author={a.article_content.author}
-              tags={a.article_content.tags}
-              date={a.date}
+              id={get(a, 'id')}
+              key={get(a, 'id')}
+              title={get(a, 'title')}
+              category={get(a, 'category')}
+              description={dummyDescription || get(a, 'description')}
+              author={get(a, 'user.full_name')}
+              tags={get(a, 'tags')}
+              date={get(a, 'updated_at')}
               editable={handleEditClick}
               deleteable={handleDeleteClick}
             />
