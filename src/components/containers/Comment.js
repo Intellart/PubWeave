@@ -42,7 +42,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
   const handleSave = () => {
     setEditMode(false);
     setContent(editContent);
-    // props.editComment(editContent);
+    props.onCancel();
   };
 
   const formatText = (text) => {
@@ -170,17 +170,20 @@ const Comment = React.forwardRef((props: Props, ref) => {
             )
             }
           </div>
-          <div className="comment-content-lower-right">
+          <div
+            onClick={() => props.onReply({
+              content,
+              author: props.username,
+              id: props.id,
+            })
+        }
+            className="comment-content-lower-right"
+          >
             <FontAwesomeIcon
               className="comment-content-lower-reply"
-              onClick={() => props.onReply({
-                content,
-                author: props.username,
-                id: props.id,
-              })
-            }
               icon={faReply}
             />
+            &nbsp;Reply
           </div>
         </div>
         )}

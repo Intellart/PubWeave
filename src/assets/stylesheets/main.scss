@@ -26,6 +26,15 @@ html {
         height: fit-content;
         position: relative;
         width: 100%;
+
+        // remove all link styles
+        a {
+          color: inherit;
+          text-decoration: none;
+          cursor: pointer;
+        }
+
+
       }
     }
   }

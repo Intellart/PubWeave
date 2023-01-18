@@ -5,6 +5,7 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCheck,
   faPencil, faPenToSquare, faShare, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
@@ -24,6 +25,7 @@ type Props = {
   deleteable?: Function,
   status?: string,
   likeable?: boolean,
+  published?: Function,
 };
 
 function ArticleCard(props : Props): Node {
@@ -49,6 +51,10 @@ function ArticleCard(props : Props): Node {
     if (props.editable) {
       props.editable(props.id);
     }
+
+    if (props.published) {
+      props.published(props.id);
+    }
   };
 
   const chipParams = () => {
@@ -62,7 +68,7 @@ function ArticleCard(props : Props): Node {
       case 'published':
         return {
           color: 'success',
-          icon: <FontAwesomeIcon icon={faShare} />,
+          icon: <FontAwesomeIcon icon={faCheck} />,
           variant: 'outlined',
         };
       case 'rejected':

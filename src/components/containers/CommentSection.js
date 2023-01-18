@@ -163,6 +163,7 @@ function CommentSection() {
       input: {
         padding: 9,
         border: '1px solid silver',
+        borderRadius: 8,
       },
     },
     '&singleLine': {
@@ -196,6 +197,22 @@ function CommentSection() {
   const mentionsStyle = {
     backgroundColor: '#cee4e5',
 
+  };
+
+  const handleNewPost = () => {
+    setTempComment({});
+    // eslint-disable-next-line
+    // eslint-disable-next-line no-console
+    comments.push({
+      id: 999,
+      key: 999,
+      content: newCommentContent,
+      rating: 0,
+      alreadyVoted: 0,
+      replyTo: null,
+      newComment: false,
+      isTempComment: false,
+    });
   };
 
   return (
@@ -232,7 +249,11 @@ function CommentSection() {
           />
         </MentionsInput>
 
-        <button type="button" className="comment-section-new-comment-button">
+        <button
+          type="button"
+          className="comment-section-new-comment-button"
+          onClick={handleNewPost}
+        >
           Post
         </button>
       </div>

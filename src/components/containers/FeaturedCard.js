@@ -5,26 +5,49 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
-import FeaturedImg from '../../images/featured-card.png';
+import { Link } from 'react-router-dom';
 
-function FeaturedCard(): Node {
+type Props = {
+  img: string,
+  id: number,
+  // title: string,
+  category: string,
+  description: string,
+  author: string,
+  date: string,
+  // eslint-disable-next-line react/no-unused-prop-types
+  tags?: Array<string>,
+  // editable?: Function,
+  // deleteable?: Function,
+  // status?: string,
+  // likeable?: boolean,
+};
+
+function FeaturedCard(props : Props): Node {
+  const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
+
   return (
-    <div className="featured-card">
-      <img src={FeaturedImg} className="featured-card-img" alt="featured" />
-      <div className="categoryname-share-like">
-        <h4>Category name</h4>
-        <div className="icons-share-heart">
-          <FontAwesomeIcon icon={faShare} />
-          <FontAwesomeIcon icon={faHeart} />
+    <Link to={`/singleblog/${props.id}`}>
+      <div
+        key={props.id}
+        className="featured-card"
+      >
+        <img src={props.img} className="featured-card-img" alt="featured" />
+        <div className="categoryname-share-like">
+          <h4>{props.category || 'Category'}</h4>
+          <div className="icons-share-heart">
+            <FontAwesomeIcon icon={faShare} />
+            <FontAwesomeIcon icon={faHeart} />
+          </div>
+        </div>
+        <hr className="featured-card-divider" />
+        <p className="featured-card-description">{description}</p>
+        <div className="author-date">
+          <p>By {props.author}</p>
+          <p>{props.date}</p>
         </div>
       </div>
-      <hr className="featured-card-divider" />
-      <p className="featured-card-description">Donec consectetur venenatis nisi vel facilisis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices  posuere cubilia curae.</p>
-      <div className="author-date">
-        <p>John Doe, Jane Doe...</p>
-        <p>Updated Jan 1, 2022</p>
-      </div>
-    </div>
+    </Link>
   );
 }
 

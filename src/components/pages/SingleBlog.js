@@ -126,9 +126,6 @@ function Blogs(): Node {
           <div />
           <div />
           <div />
-          <div />
-          <div />
-          <div />
         </div>
       </section>
       <img src={thumbnailLink} className="single-blog-img" alt="single blog" />
@@ -147,6 +144,24 @@ function Blogs(): Node {
         tools={EDITOR_JS_TOOLS}
       />
       )}
+
+      <div className="reaction-icons">
+        <FontAwesomeIcon
+          style={{
+            width: 28, height: 28, color: '#11273F', marginRight: 6,
+          }}
+          icon={faHeart}
+        />
+        <p>56</p>
+        <FontAwesomeIcon
+          style={{
+            width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
+          }}
+          icon={faHeartBroken}
+        /><p>0</p>
+        <CommentModal />
+        <p>12</p>
+      </div>
 
       <Footer />
     </main>

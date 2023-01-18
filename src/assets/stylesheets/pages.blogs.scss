@@ -4,6 +4,14 @@
   align-items: center;
   justify-content: center;
 
+  .reaction-icons {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    margin-top: 20px;
+    margin-bottom: 60px;
+}
+
   .all-chips {
     display: flex;
     gap: 10px;
@@ -132,13 +140,7 @@
           color: #11273F;
       }
   
-      .reaction-icons {
-          display: flex;
-          align-items: center;
-          justify-content: left;
-          margin-top: 20px;
-          margin-bottom: 60px;
-      }
+
   }
 
   

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 // @flow
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,31 +16,23 @@ import Rocket from '../../images/RocketLaunch.png';
 import Space from '../../images/SpaceImg.png';
 import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
+import { store } from '../../store';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
 function MyArticles(): Node {
   const dummyDescription = "This article is about the history of the universe. It's a long story, but it's a good one. I hope you enjoy it!";
-  const articles2 = useSelector((state) => get(state, 'article.allArticles'), isEqual);
-  const articles = useSelector((state) => articleSelectors.getUsersArticles(state));
-  const user = useSelector((state) => userSelectors.getUser(state));
+  const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const dispatch = useDispatch();
-  const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
-  const createArticle = () => dispatch(actions.createArticle());
+  const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!articles) {
-      fetchAllArticles();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [articles]);
-
   const handleCreateArticle = () => {
-    createArticle();
+    createArticle(user.id);
   };
 
   const handleEditClick = (id) => {
@@ -50,9 +42,9 @@ function MyArticles(): Node {
   const handleDeleteClick = (id) => {
     deleteArticle(id);
   };
-  console.log(articles2);
-  console.log(user);
-  console.log(articles);
+  console.log('user', user);
+  console.log('my', articles);
+  console.log('store', store.getState());
 
   return (
     <main className="my-articles-wrapper">
