@@ -1,7 +1,7 @@
 // @flow
 import React, { useState } from 'react';
 import type { Node } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 // import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import {
@@ -23,8 +23,10 @@ type Props = {
 };
 function Navbar(props: Props): Node {
   const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const navigate = useNavigate();
 
   const [searchParam, setSearchParam] = useState('author');
+  const [searchValue, setSearchValue] = useState('');
 
   const userItems = uniqBy(map(articles, (article) => ({
     ...article.user,
@@ -47,8 +49,17 @@ function Navbar(props: Props): Node {
 
         <Autocomplete
           disablePortal
+          value={searchValue}
+          onInputChange={(event, newInputValue) => {
+            setSearchValue(newInputValue);
+          }}
           className="navbar-search"
           options={options}
+          onChange={(event, newValue) => {
+            if (searchParam === 'article') {
+              navigate(`/singleblog/${newValue.id}`);
+            }
+          }}
           groupBy={(option) => option.category}
           sx={{
             width: 300,
@@ -64,7 +75,7 @@ function Navbar(props: Props): Node {
           renderInput={(params) => (
             <TextField
               {...params}
-              label="Search Article"
+              label={searchParam === 'author' ? 'Search Authors' : 'Search Articles'}
             />
           )}
         />
@@ -73,6 +84,7 @@ function Navbar(props: Props): Node {
           value={searchParam}
           exclusive
           onChange={(event, newParam) => {
+            setSearchValue('');
             setSearchParam(newParam);
           }}
           aria-label="text alignment"
