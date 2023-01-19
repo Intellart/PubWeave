@@ -23,8 +23,8 @@ function LoginPage(): Node {
 
   const handleSubmit = () => {
     loginUser({
-      email: 'test@test.com',
-      password: '123456',
+      email: username,
+      password: password,
       domain: 'Pubweave',
     });
   };

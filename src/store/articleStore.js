@@ -94,15 +94,15 @@ export const actions = {
   }),
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
-    payload: API.getRequest('pubweave/blog_articles.json'),
+    payload: API.getRequest('pubweave/blog_articles'),
   }),
   createArticle: (userId : number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest('pubweave/blog_articles.json',
+    payload: API.postRequest('pubweave/blog_articles',
       {
         user_id: userId,
         title: 'New article',
-        content: {
+        content: JSON.stringify({
           time: 0,
           blocks: [
             {
@@ -113,7 +113,7 @@ export const actions = {
               type: 'paragraph',
             },
           ],
-        },
+        }),
       }),
   }),
   updateArticle: (id: number, payload: any): ReduxAction => ({
@@ -129,6 +129,7 @@ export const actions = {
     type: types.ART_DELETE_ARTICLE,
     payload: API.deleteRequest(`pubweave/blog_articles/${id}`),
   }),
+  // this will be handled by Admin from the backend, see publish and reject actions
   publishArticle: (id: number, newStatus: string): ReduxAction => ({
     type: types.ART_PUBLISH_ARTICLE,
     payload: API.putRequest(`pubweave/blog_articles/${id}`,

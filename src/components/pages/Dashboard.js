@@ -61,9 +61,9 @@ function Dashboard(): Node {
         title: article.title,
         status: get(statuses, get(article, 'status', 'draft')),
         firstName: get(article, 'user.full_name', ''),
-        email: '',
-        ORCID: '123456789',
-        registeredOn: '2023-01-25T16:57',
+        email: get(article, 'user.email', ''),
+        ORCID: get(article, 'user.orcid_id', ''),
+        registeredOn: get(article, 'user.created_at', ''),
         category: get(article, 'category', ''),
       })));
     }
