@@ -17,7 +17,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import {
-  map, get,
+  map, get, find,
 } from 'lodash';
 import { statuses } from '../../pages/Dashboard';
 // import { toast } from 'react-toastify';
@@ -26,6 +26,8 @@ type Props = {
   onDelete: Function,
   onChangeStatus: Function,
   onChangeTextField: Function,
+  onChangeCategory: Function,
+  categories: { key: Object },
   rows: any[],
 };
 
@@ -33,6 +35,12 @@ export default function MyDataGrid(props: Props) {
   const [selectionModel, setSelectionModel] = useState([]);
 
   const [cellModesModel, setCellModesModel] = useState({});
+
+  const categories = map(props.categories, (c) => ({
+    value: c.id,
+    label: c.category_name,
+    color: 'primary',
+  }));
 
   const handleCellClick = React.useCallback((params: GridCellParams) => {
     if (params.field === '__check__') {
@@ -83,7 +91,6 @@ export default function MyDataGrid(props: Props) {
   // }
 
   const handleCellModesModelChange = React.useCallback((newModel) => {
-    console.log(newModel);
     setCellModesModel(newModel);
   }, []);
 
@@ -96,9 +103,6 @@ export default function MyDataGrid(props: Props) {
     };
 
     const handleBlur = (event) => {
-      // console.log(event.target.value);
-      // console.log(field);
-      // console.log(id);
       props.onChangeTextField(id, field, event.target.value);
 
       setCellModesModel((prevModel) => ({
@@ -190,6 +194,63 @@ export default function MyDataGrid(props: Props) {
     );
   }
 
+  function renderEditCategory(params: GridEditCellPropsParams) {
+    // eslint-disable-next-line no-unused-vars
+    const { api, id, field } = params;
+
+    const handleChange = (event) => {
+      props.onChangeCategory(id, event.target.value);
+
+      setCellModesModel((prevModel) => ({
+        ...prevModel,
+        [id]: {
+          ...prevModel[id],
+          [field]: { mode: GridCellModes.View },
+        },
+      }));
+    };
+
+    const handleRef = (element) => {
+      if (element) {
+        element.focus();
+      }
+    };
+
+    return (
+      <FormControl
+        className='myselect-container'
+        sx={{
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+
+        <Select
+          className='myselect'
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={find(categories, { label: params.value })?.value}
+          onChange={handleChange}
+          sx={{
+            width: '80%',
+            height: '80%',
+            border: 'none',
+          }}
+          ref={handleRef}
+        >
+          {map(categories, (status, index) => (
+            <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
+          ))}
+
+        </Select>
+      </FormControl>
+    );
+  }
+
   function getChipProps(params: GridRenderCellParams): ChipProps {
     const sx = { gap: '10px', padding: '10px' };
     const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
@@ -201,8 +262,22 @@ export default function MyDataGrid(props: Props) {
       sx,
     };
   }
+
   function renderStatusCell(params) {
     return (<Chip {...getChipProps(params)} />);
+  }
+
+  function renderCategoryCell(params) {
+    const sx = { gap: '10px', padding: '10px' };
+    const res = find(categories, (c) => c.label === params.value) || { label: 'Unknown', color: 'default' };
+
+    return (
+      <Chip
+        label={res.label}
+        color={res.color}
+        sx={sx}
+      />
+    );
   }
 
   const handleDelete = () => {
@@ -221,10 +296,10 @@ export default function MyDataGrid(props: Props) {
     {
       field: 'status',
       headerName: 'Status',
-      renderCell: (params) => renderStatusCell(params),
       width: 175,
       editable: true,
       renderEditCell: renderEditChip,
+      renderCell: (params) => renderStatusCell(params),
       cellClassName: (/* params: GridCellParams<number> */) => classNames('datagrid-cell'),
     },
     {
@@ -252,6 +327,9 @@ export default function MyDataGrid(props: Props) {
       headerName: 'Category',
       width: 250,
       editable: true,
+      renderEditCell: renderEditCategory,
+      renderCell: (params) => renderCategoryCell(params),
+      cellClassName: (/* params: GridCellParams<number> */) => classNames('datagrid-cell'),
     },
     {
       field: 'ORCID',

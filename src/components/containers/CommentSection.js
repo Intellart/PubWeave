@@ -1,35 +1,26 @@
 import { Chip } from '@mui/material';
 import {
-  get, includes, isEmpty, map,
+  get, includes, isEmpty, map, keyBy,
 } from 'lodash';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
 
 import Comment from './Comment';
 
-function CommentSection() {
-  const [tempComment, setTempComment] = React.useState({});
-  const [expandedComment, setExpandedComment] = React.useState(null);
-  const tempCommentRef = React.useRef(null);
-  const [newCommentContent, setNewCommentContent] = React.useState('');
+type Props = {
+  comments: { key: Object},
+  createComment: Function,
+  articleId: number,
+  authorId: number,
+};
 
-  const handleReply = (replyContent, parentId) => {
-    setTempComment({});
-    // eslint-disable-next-line
-    // eslint-disable-next-line no-console
-    console.log(replyContent);
-    setExpandedComment(parentId);
-    setTempComment({
-      id: 999,
-      key: 999,
-      content: '@' + replyContent.author + ' ',
-      rating: 0,
-      alreadyVoted: 0,
-      replyTo: replyContent.id,
-      newComment: true,
-      isTempComment: true,
-    });
-  };
+function CommentSection(props: Props): Node {
+  const [tempComment, setTempComment] = useState({});
+  const [expandedComment, setExpandedComment] = useState(null);
+  const tempCommentRef = useRef(null);
+  const [newCommentContent, setNewCommentContent] = useState('');
+
+  console.log('comments', props.comments);
 
   const refCallback = useCallback((node: T) => {
     if (node !== null) {
@@ -49,85 +40,35 @@ function CommentSection() {
     setTempComment({});
   };
 
-  let comments = [
-    {
-      id: 1,
-      content: 'I just read this article and I found it really interesting! The authors did a great job of explaining the research and the implications for the field.',
-      rating: 10,
-      username: 'johndoe',
-      alreadyVoted: 1,
-      replies: [
-        {
-          id: 2,
-          content: 'I agree, this was a well-written and thought-provoking article. I\'m looking forward to seeing more research in this area. I agree, this was a well-written and thought-provoking article. I\'m looking forward to seeing more research in this area.',
-          username: 'janedoe',
-          rating: 6,
-        },
-        {
-          id: 3,
-          content: 'I have a question about the methods used in the study. Could the authors provide more detail on the sample size and statistical analysis?',
-          username: 'maryjane',
-          rating: 2,
-          alreadyVoted: 1,
-        },
-        {
-          id: 4,
-          content: 'Thank you for your comments! In response to the question about the sample size, @maryjane we used a sample of 200 participants. For the statistical analysis, we used a two-tailed t-test to compare the results of the experimental group to the control group.',
-          username: 'author',
-          rating: 4,
-        },
+  const handleSaveReply = (replyContent, replyTo) => {
+    console.log('handleSaveReply', replyContent, replyTo);
+    props.createComment(props.articleId, replyTo, replyContent);
+  };
 
-      ],
-    },
-    {
-      id: 5,
-      content: 'I just read this article and I found it really interesting! The authors did a great job of explaining the research and the implications for the field.',
-      rating: 10,
-      username: 'johndoe',
-      alreadyVoted: 1,
-      replies: [
-        {
-          id: 6,
-          content: 'Thank you for your comments! In response to the question about the sample size, @maryjane we used a sample of 200 participants. For the statistical analysis, we used a two-tailed t-test to compare the results of the experimental group to the control group.',
-          username: 'author',
-          rating: 4,
-        },
-      ],
-    },
-    {
-      id: 7,
-      content: 'I just read this article and I found it really interesting! The authors did a great job of explaining the research and the implications for the field.',
-      rating: 10,
-      username: 'johndoe',
-      alreadyVoted: 1,
-      replies: [],
-    },
-  ];
+  const renderedComments = () => {
+    let rComments = {};
 
-  if (!isEmpty(tempComment)) {
-    const { replyTo } = tempComment;
+    if (!isEmpty(tempComment)) {
+      const { replyTo } = tempComment;
 
-    comments = map(comments, (comment) => {
-      if (comment.id === replyTo || includes(map(comment.replies, 'id'), replyTo)) {
-        return {
-          ...comment,
-          replies: [
-            ...comment.replies,
-            tempComment,
-          ],
-        };
-      }
+      rComments = keyBy(map(props.comments, (comment) => {
+        if (comment.id === replyTo || includes(map(comment.replies, 'id'), replyTo)) {
+          return {
+            ...comment,
+            replies: [
+              ...get(comment, 'replies', []),
+              tempComment,
+            ],
+          };
+        }
 
-      return comment;
-    });
-  }
+        return comment;
+      }), 'id');
 
-  const handleExpand = (id) => {
-    if (expandedComment === id) {
-      setExpandedComment(null);
-    } else {
-      setExpandedComment(id);
+      return rComments;
     }
+
+    return props.comments;
   };
 
   const users = [
@@ -199,20 +140,28 @@ function CommentSection() {
 
   };
 
-  const handleNewPost = () => {
+  const handleNewEmptyReply = (replyContent, parentId) => {
+    console.log('handleReply', replyContent);
     setTempComment({});
     // eslint-disable-next-line
     // eslint-disable-next-line no-console
-    comments.push({
+    setExpandedComment(parentId);
+    setTempComment({
       id: 999,
       key: 999,
-      content: newCommentContent,
+      content: '@' + replyContent.author + ' ',
       rating: 0,
       alreadyVoted: 0,
-      replyTo: null,
-      newComment: false,
-      isTempComment: false,
+      replyTo: replyContent.id,
+      newComment: true,
+      isTempComment: true,
     });
+  };
+
+  const handlePostNewComment = () => {
+    console.log('handlePostNewComment', newCommentContent);
+    setTempComment({});
+    props.createComment(props.articleId, props.authorId, newCommentContent);
   };
 
   return (
@@ -252,37 +201,38 @@ function CommentSection() {
         <button
           type="button"
           className="comment-section-new-comment-button"
-          onClick={handleNewPost}
+          onClick={handlePostNewComment}
         >
           Post
         </button>
       </div>
-      {map(comments, (comment) => (
+      {map(renderedComments(), (comment) => (
         <Comment
           newComment={comment.newComment}
           id={comment.id}
           key={comment.id}
-          onReply={(content) => handleReply(content, comment.id)}
+          onReply={(content) => handleNewEmptyReply(content, comment.id)}
           username={comment.username}
           onCancel={handleCancel}
           rating={comment.rating}
           alreadyVoted={comment.alreadyVoted}
-          content={comment.content}
-          hasReplies={comment.replies.length > 0}
+          content={comment.comment}
+          hasReplies={get(comment.replies, 'length') > 0}
           onExpand={() => handleExpand(comment.id)}
         >
-          {expandedComment === comment.id && map(comment.replies, (reply) => (
+          {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
             <Comment
               newComment={reply.newComment}
               onCancel={handleCancel}
               id={reply.id}
               username={reply.username}
               key={reply.id}
-              onReply={(content) => handleReply(content, comment.id)}
+              onReply={(content) => handleNewEmptyReply(content, comment.id)}
               rating={reply.rating}
               alreadyVoted={reply.alreadyVoted}
               content={reply.content}
               ref={get(reply, 'isTempComment') ? refCallback : null}
+              onSave={(content) => handleSaveReply(content, comment.id)}
             />
           ))}
         </Comment>

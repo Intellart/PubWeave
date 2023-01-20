@@ -12,11 +12,11 @@ import { actions as userActions } from './store/userStore';
 import { getItem } from './localStorage';
 import { actions as articleActions } from './store/articleStore';
 
-document.title = 'PubWeave';
-
 const _jwt = getItem('_jwt');
 if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
 store.dispatch(articleActions.fetchAllArticles());
+store.dispatch(articleActions.fetchCategories());
+store.dispatch(articleActions.fetchComments());
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>

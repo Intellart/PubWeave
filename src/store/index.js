@@ -103,6 +103,16 @@ function dispatchRecorder(dispatchedActions: ?Array<string>): any {
   };
 }
 
+const localUser: string|null = getItem('user');
+
+const initialReduxState: Object = {
+  ...(!isEmpty(localUser) && localUser && {
+    user: {
+      profile: JSON.parse(localUser),
+    },
+  }),
+};
+
 export const configureStore = (
   initialState: {} | ReduxState,
   actionChains: ?ActionChains,
@@ -130,16 +140,6 @@ export const configureStore = (
     initialState,
     middlewareApplier,
   );
-};
-
-const localUser: string|null = getItem('user');
-
-const initialReduxState: Object = {
-  ...(!isEmpty(localUser) && localUser && {
-    user: {
-      profile: JSON.parse(localUser),
-    },
-  }),
 };
 
 export const store: any = configureStore(initialReduxState);

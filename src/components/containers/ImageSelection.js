@@ -19,6 +19,8 @@ function ImageSelection (props: Props) {
   const ref = useRef(null);
   const selectedImageRef = useRef(null);
 
+  console.log(selectedImageIndex);
+
   useEffect(() => {
     if (selectedImageRef.current) {
       console.log('selectedImageRef.current', selectedImageRef.current);
@@ -98,7 +100,7 @@ function ImageSelection (props: Props) {
             className={classNames('editor-wrapper-image-selection-actions-select',
               { disabled: selectedImageIndex === props.oldSelectedImageIndex })}
             onClick={() => {
-              props.onImageSelection(selectedImageIndex);
+              props.onImageSelection(linkList[selectedImageIndex]);
             }}
           >
             Select thumbnail image

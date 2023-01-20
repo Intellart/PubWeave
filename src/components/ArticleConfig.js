@@ -8,38 +8,41 @@ import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
-import { map } from 'lodash';
+import { find, get, map } from 'lodash';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
+import {
+  Checkbox, FormControl, InputLabel, MenuItem, Select,
+} from '@mui/material';
+import type { Article } from '../store/articleStore';
 
 type Props = {
   id: number,
-  articleSettings: any,
   wordCount: number,
   lastSaved: number,
-  addTag: (any) => void,
-  // eslint-disable-next-line react/no-unused-prop-types
-  removeTag: (any) => void,
-  setCategory: (any) => void,
+  updateArticle: Function,
+  article: Article,
+  categories: { [number]: string },
 };
 
 function ArticleConfig(props: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isEditingTags, setIsEditingTags] = useState(false);
-  const [tags, setTags] = useState(props.articleSettings.tags || []);
-  const [category, setCategory] = useState(props.articleSettings.category || '');
+  const [tags, setTags] = useState(get(props.article, 'tags', []));
+  const [description, setDescription] = useState(get(props.article, 'description', ''));
+  const [star, setStar] = useState(get(props.article, 'star', false));
+
+  // eslint-disable-next-line no-unused-vars
 
   const SECOND_MS = 1000;
 
   useEffect(() => {
-    setTags(props.articleSettings.tags || []);
-  }, [props.articleSettings.tags]);
-
-  useEffect(() => {
-    setCategory(props.articleSettings.category || '');
-  }, [props.articleSettings.category]);
+    setTags(get(props.article, 'tags', []));
+    setDescription(get(props.article, 'description', ''));
+    setStar(get(props.article, 'star', false));
+  }, [props.article]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,17 +99,49 @@ function ArticleConfig(props: Props): Node {
         >
           <div className="article-config-group">
             <h5>Article Info</h5>
+            Bookmark
+            <Checkbox
+              aria-label="checkmark"
+              checked={star}
+              inputProps={{ 'aria-label': 'controlled' }}
+              onChange={(e) => {
+                props.updateArticle(props.id, { star: e.target.checked });
+              }}
+              icon={(
+                <FontAwesomeIcon
+                  icon={faBook}
+                  style={{ color: 'gray' }}
+                />
+              )}
+              checkedIcon={<FontAwesomeIcon icon={faBook} />}
+            />
+            <FormControl fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '')}
+                label="Category"
+                onChange={(e) => {
+                  props.updateArticle(props.id, { category_id: e.target.value });
+                }}
+              >
+                {map(props.categories, (c) => (
+                  <MenuItem key={c.id} value={c.id}>{c.category_name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <TextField
               id="standard-basic"
-              label="Category"
+              label="Description"
               variant="standard"
-              value={category}
+              value={description}
               onChange={(e) => {
-                setCategory(e.target.value);
+                setDescription(e.target.value);
               }}
               onBlur={(e) => {
-                setCategory(e.target.value);
-                props.setCategory(e.target.value);
+                setDescription(e.target.value);
+                props.updateArticle(props.id, { description });
               }}
 
             />
@@ -127,7 +162,7 @@ function ArticleConfig(props: Props): Node {
                   variant="contained"
                   onClick={() => {
                     setIsEditingTags(false);
-                    props.addTag(tags);
+                    props.updateArticle(props.id, { tags });
                     setTags('');
                   }}
                 >
@@ -148,8 +183,8 @@ function ArticleConfig(props: Props): Node {
               </div>
             )}
             <div className="all-chips">
-              {map(props.articleSettings.tags, (tag, index) => (
-                <Chip key={index} label={tag} onDelete={() => props.removeTag(tag)} />
+              {map(tags, (tag, index) => (
+                <Chip key={index} label={tag} onDelete={() => {}} />
               ))}
             </div>
 
@@ -175,16 +210,6 @@ function ArticleConfig(props: Props): Node {
           </div>
           <div className="article-config-group">
             <h5>Article Settings</h5>
-            {/* <div className="article-config-item">
-              <Switch
-                value={props.articleSettings.toggleSpellCheck ? 'checked' : 'unchecked'}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  props.onToggleSpellCheck(e.target.checked);
-                }}
-              />
-              <h6>Toggle browser spellcheck</h6>
-            </div> */}
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { get, isEqual, map } from 'lodash';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Footer from '../containers/Footer';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
@@ -19,8 +19,11 @@ const images = [Rocket, Space, Astronaut, Earth];
 
 function Blogs(): Node {
   const articles = useSelector((state) => articleSelectors.getPublishedArticles(state), isEqual);
+  const categories = useSelector((state) => articleSelectors.getCategories(state), isEqual);
 
-  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const filteredArticles = id ? articles.filter((a) => a.category === id) : articles;
 
   return (
     <main className="blogs-wrapper">
@@ -40,7 +43,7 @@ function Blogs(): Node {
               <div className="chip-content">Chip Content</div>
             </div>
           </div>
-          <h4>Category Name</h4>
+          <h4>{id || 'Technology'}</h4>
           <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
           <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
           <div className="author">
@@ -50,26 +53,25 @@ function Blogs(): Node {
         </div>
       </section>
       <section className="featured">
-        <h2 style={{ marginLeft: 100, marginTop: 20, marginBottom: 20 }}>Browse all categories</h2>
+        <Link
+          to="/blogs"
+        >
+          <h2 style={{ marginLeft: 100, marginTop: 20, marginBottom: 20 }}>Browse all categories</h2>
+        </Link>
         <div className='catgories-headlines'>
-          <div>
-            <p>Category name 1</p>
-            <p>Category name 2</p>
-          </div>
-          <div>
-            <p>Category name 3</p>
-            <p>Category name 4</p>
-          </div>
-          <div>
-            <p>Category name 5</p>
-            <p>Category name 6</p>
-          </div>
+          {map(categories, (c) => (
+            <Link key={c.id} className="category-headline" to={`/blogs/${c.category_name}`}>
+              <p>{c.category_name}
+              </p>
+            </Link>
+          ))}
         </div>
         <hr className="featured-divider" />
         <h2 style={{ marginLeft: 100 }}>Featured</h2>
         <div className='featured-cards'>
-          {map(articles.slice(0, 3), (a) => (
+          {map(filteredArticles.slice(0, 3), (a) => (
             <FeaturedCard
+              key={a.id}
               status={get(a, 'status', '')}
               img={images[a.id % 4]}
               id={a.id}
@@ -84,21 +86,10 @@ function Blogs(): Node {
         </div>
         <hr className="featured-divider" />
         <h2 style={{ marginLeft: 100, marginBottom: 20 }}>Latest Blog Posts</h2>
-        {map(articles, (a) => (
+        {map(filteredArticles, (a) => (
           <ArticleCard
-            status={get(a, 'status', '')}
-            img={images[a.id % 4]}
-            id={a.id}
             key={a.id}
-            title={a.title}
-            category={get(a, 'category', '')}
-            description={get(a, 'description', '')}
-            author={get(a, 'user.full_name', '')}
-            tags={get(a, 'tags', [])}
-            date={a.date}
-            published={() => {
-              navigate(`/singleblog/${a.id}`);
-            }}
+            article={a}
           />
         ))}
       </section>

@@ -24,7 +24,7 @@ function LoginPage(): Node {
   const handleSubmit = () => {
     loginUser({
       email: username,
-      password: password,
+      password,
       domain: 'Pubweave',
     });
   };

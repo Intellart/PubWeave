@@ -111,8 +111,8 @@ function Navbar(props: Props): Node {
         <NavLink to="/">Home</NavLink>
         <NavLink to="/blogs">Blogs </NavLink>
         {(props.isAuthorized || props.isAdmin) && <NavLink to="/Dashboard">Dashboard</NavLink>}
-        <Link to="/About">About</Link>
-        <Link to="/About">Contact Us</Link>
+        <NavLink to="/About">About</NavLink>
+        <NavLink to="/ContactUs">Contact Us</NavLink>
         {props.isAuthorized && <Link to="/submit-work" className='submit-work'>Submit your research</Link>}
         {(props.isAuthorized || props.isAdmin)
           ? (<BasicMenu />)

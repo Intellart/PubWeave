@@ -12,7 +12,7 @@ import {
 import Footer from '../containers/Footer';
 import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
 
-import { actions } from '../../store/articleStore';
+import { actions, selectors } from '../../store/articleStore';
 
 export const statuses = {
   published: {
@@ -43,13 +43,15 @@ export const statuses = {
 };
 
 function Dashboard(): Node {
-  const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const articles = useSelector((state) => selectors.getUsersArticles(state), isEqual);
+  const categories = useSelector((state) => selectors.getCategories(state), isEqual);
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
   const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
   const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
   const updateArticle = (id, payload) => dispatch(actions.updateArticle(id, payload));
+
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
@@ -75,12 +77,15 @@ function Dashboard(): Node {
   };
 
   const handleChangeStatus = (id, newStatus) => {
-    // console.log(`Publishing article ${id} with status ${newStatus}`, find(articles, { id }));
     publishArticle(id, newStatus);
   };
 
   const handleChangeTextField = (id, field, value) => {
     updateArticle(id, { [field]: value });
+  };
+
+  const handleChangeCategory = (id, value) => {
+    updateArticle(id, { category_id: value });
   };
 
   return (
@@ -91,6 +96,8 @@ function Dashboard(): Node {
           onDelete={onDeleteClick}
           onChangeStatus={handleChangeStatus}
           onChangeTextField={handleChangeTextField}
+          categories={categories}
+          onChangeCategory={handleChangeCategory}
         />
       </section>
       <Footer />

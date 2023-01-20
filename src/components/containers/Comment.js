@@ -24,25 +24,26 @@ type Props = {
   onReply?: Function,
   newComment?: boolean,
   onCancel?: Function,
+  onSave?: Function,
   onExpand?: Function,
   hasReplies?: boolean,
 };
 
 const Comment = React.forwardRef((props: Props, ref) => {
-  const [content, setContent] = React.useState(props.content);
+  const [content, setContent] = React.useState(props.content || '');
   const [editMode, setEditMode] = React.useState(false);
   const [editContent, setEditContent] = React.useState(props.content);
   const [rating, setRating] = React.useState(props.rating || 0);
   const [alreadyVoted, setAlreadyVoted] = React.useState(props.alreadyVoted || 0);
 
   useEffect(() => {
-    setContent(props.content);
+    setContent(props.content || '');
   }, [props.content]);
 
   const handleSave = () => {
     setEditMode(false);
     setContent(editContent);
-    props.onCancel();
+    props.onSave(editContent);
   };
 
   const formatText = (text) => {
@@ -81,12 +82,6 @@ const Comment = React.forwardRef((props: Props, ref) => {
         return word;
       }
     });
-  };
-
-  const renderContent = () => {
-    const newContent = content;
-
-    return formatText(newContent);
   };
 
   return (
@@ -137,7 +132,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
           ) : (
 
             <p>
-              {renderContent()}
+              {formatText(content)}
             </p>
           )}
         </div>

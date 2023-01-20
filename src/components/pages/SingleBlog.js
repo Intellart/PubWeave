@@ -66,23 +66,24 @@ function Blogs(): Node {
 
   store.getState();
 
-  const article = useSelector((state) => get(state, selectors.article), isEqual);
   // eslint-disable-next-line no-unused-vars
   const [thumbnailLink, setThumbnailLink] = useState('');
 
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
-  const blocks = useSelector((state) => get(state, selectors.blocks), isEqual);
+  const createComment = (articleId, userId, comment) => dispatch(actions.createComment(articleId, userId, comment));
+
+  const article = useSelector((state) => selectors.article(state), isEqual);
+  const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
 
   useEffect(() => {
     if (!article && id) {
       fetchArticle(id);
     } else if (article && id) {
-      setThumbnailLink(get(map(filter(blocks, (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), '[1]', SingleBlog));
+      setThumbnailLink(get(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), '[1]', SingleBlog));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);
-
-  // console.log(article);
 
   return (
     <main className="blogs-wrapper">
@@ -90,7 +91,7 @@ function Blogs(): Node {
         <div className="category-highlight-text">
           <div className="headline-category-chips-author">
             <div className="category-headline-chips">
-              <h4>Category Name</h4>
+              <h4>{get(article, 'category', 'Technology')}</h4>
               <h2>Sample Blog</h2>
               <div className="all-chips">
                 <div className="chip highlighted-chip">
@@ -139,7 +140,7 @@ function Blogs(): Node {
           if (editor) { editor.setAttribute('spellcheck', 'false'); }
         }}
         defaultValue={{
-          blocks: blocks || [],
+          blocks: get(articleContent, 'blocks', []),
         }}
         tools={EDITOR_JS_TOOLS}
       />
@@ -152,14 +153,19 @@ function Blogs(): Node {
           }}
           icon={faHeart}
         />
-        <p>56</p>
+        <p>{get(article, 'likes', 0)}</p>
         <FontAwesomeIcon
           style={{
             width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
           }}
           icon={faHeartBroken}
-        /><p>0</p>
-        <CommentModal />
+        /><p>{get(article, 'dislikes', 0)}</p>
+        <CommentModal
+          comments={get(article, 'blog_article_comments', {})}
+          createComment={createComment}
+          articleId={id}
+          authorId={get(article, 'user.id', 1)}
+        />
         <p>12</p>
       </div>
 

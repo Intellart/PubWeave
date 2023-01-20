@@ -34,7 +34,6 @@ const imageLink = myImage.toURL();
 
 class ImageWrapper extends Image {
   render() {
-    console.log(this.readOnly);
     if (this.readOnly) {
       const wrapper = this.ui.render(this.data);
       // remove div from wrapper

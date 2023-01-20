@@ -1,5 +1,4 @@
 // @flow
-/* eslint-disable react/prop-types */
 import React from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
@@ -10,55 +9,57 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import classNames from 'classnames';
+import type { Article } from '../../store/articleStore';
+import Rocket from '../../images/RocketLaunch.png';
+import Space from '../../images/SpaceImg.png';
+import Astronaut from '../../images/AstronautImg.png';
+import Earth from '../../images/EarthImg.png';
+
+const images = [Rocket, Space, Astronaut, Earth];
 
 type Props = {
-  img: string,
-  id: number,
-  title: string,
-  category: string,
-  description: string,
-  author: string,
-  date: string,
-  // eslint-disable-next-line react/no-unused-prop-types
-  tags?: Array<string>,
-  editable?: Function,
-  deleteable?: Function,
-  status?: string,
-  likeable?: boolean,
-  published?: Function,
+  article: Article,
+  onDelete?: (id: number) => void,
+  showPublishedChip?: boolean,
 };
 
 function ArticleCard(props : Props): Node {
-  const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
+  const navigate = useNavigate();
+  const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
+
+  const status = props.article.status ? props.article.status : 'draft';
+  const isPublished = status === 'published';
 
   const handleEditArticle = (e) => {
     e.stopPropagation();
-    if (props.editable) {
-      props.editable(props.id);
+    if (isPublished) {
+      navigate(`/submit-work/${props.article.id}`);
     }
   };
 
   const handleDeleteArticle = (e) => {
     e.stopPropagation();
-    if (props.deleteable) {
-      props.deleteable(props.id);
+    if (isPublished && props.onDelete) {
+      props.onDelete(props.article.id);
     }
   };
 
-  const handleTitleClick = (e) => {
+  const handleArticleClick = (e) => {
     e.preventDefault();
 
-    if (props.editable) {
-      props.editable(props.id);
-    }
-
-    if (props.published) {
-      props.published(props.id);
+    if (isPublished) {
+      navigate(`/singleblog/${props.article.id}`);
+    } else {
+      navigate(`/submit-work/${props.article.id}`);
     }
   };
 
+  console.log(isPublished);
+
   const chipParams = () => {
-    switch (props.status) {
+    switch (props.article.status) {
       case 'draft':
         return {
           color: 'info',
@@ -69,7 +70,10 @@ function ArticleCard(props : Props): Node {
         return {
           color: 'success',
           icon: <FontAwesomeIcon icon={faCheck} />,
-          variant: 'outlined',
+          variant: 'default',
+          sx: {
+            fontSize: '1.2rem',
+          },
         };
       case 'rejected':
         return {
@@ -94,34 +98,41 @@ function ArticleCard(props : Props): Node {
 
   return (
     <div
-      onClick={handleTitleClick}
+      onClick={handleArticleClick}
       className="article-card"
     >
-      <img src={props.img} className="article-card-img" alt="article" />
+      <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': isPublished && props.showPublishedChip })}>
+        <img
+          src={props.article.image || images[Math.floor(Math.random() * images.length)]}
+          className="article-card-img"
+          alt="article"
+        />
+        {isPublished && props.showPublishedChip && <Chip className="article-card-img-chip" label={status || 'Status'} {...chipParams()} />}
+      </div>
       <div className="article-right-side-content">
         <div className="article-card-side-content-upper-wrapper">
           <div className="article-card-side-content-title-wrapper">
-            <h4>{props.category || 'Category'}</h4>
-            <h2>{props.title} {props.id}</h2>
+            <h4>{props.article.category || 'Category'}</h4>
+            <h2>{props.article.title}</h2>
           </div>
           <div className="article-card-side-content-status-wrapper">
-            <Chip className="article-card-side-content-status-chip" label={props.status || 'Status'} {...chipParams()} />
+            {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
           </div>
         </div>
-        <p className="author">By {props.author || 'Authors Name'}</p>
+        <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
         <p className="article-card-description">{description}</p>
         <div className="date-social">
-          <p>Updated {props.date || 'Date'}</p>
+          <p>Updated {props.article.created_at || 'Date'}</p>
           <div className="article-icons-share-heart">
             <FontAwesomeIcon icon={faShare} />
-            {props.likeable && <FontAwesomeIcon icon={faHeart} />}
-            {props.editable && (
+            {props.article.star && <FontAwesomeIcon icon={faHeart} />}
+            {!isPublished && (
             <a
               onClick={(e) => handleEditArticle(e)}
             ><FontAwesomeIcon icon={faPenToSquare} />
             </a>
             )}
-            {props.deleteable && (
+            {!isPublished && (
             <a
               onClick={(e) => handleDeleteArticle(e)}
             ><FontAwesomeIcon icon={faXmark} />

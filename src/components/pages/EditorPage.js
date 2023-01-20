@@ -1,11 +1,12 @@
 /* eslint-disable no-console */ import React, {
   useEffect,
+  useState,
 } from 'react';
 import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  isEmpty, sum, words, get, filter, map, isEqual,
+  isEmpty, sum, words, get, map, isEqual,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -19,110 +20,60 @@ import 'bulma/css/bulma.min.css';
 import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
+// eslint-disable-next-line no-unused-vars
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 
 const ReactEditorJS = createReactEditorJS();
 
 function ReactEditor () {
-  // const editorRef = React.useRef(null);
-  // const [articleContent, setArticleContent] = React.useState(null);
-  const [titleFocus, setTitleFocus] = React.useState(false);
+  const [titleFocus, setTitleFocus] = useState(false);
   const titleRef = React.useRef(null);
   const { id } = useParams();
-  const defaultArticleSettings: ArticleContent = {
-    title: 'Undefined',
-    category: '',
-    description: '',
-    author: '',
-    // wordCount: 0,
-    spellCheck: false,
-    tags: [],
-  };
 
   // useSelector
-  const article = useSelector((state) => get(state, selectors.article), isEqual);
-  const articleContent = useSelector((state) => get(state, selectors.articleContent), isEqual);
-  const blocks = useSelector((state) => get(state, selectors.blocks), isEqual);
+  const article = useSelector((state) => selectors.article(state), isEqual);
+  const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+  const categories = useSelector((state) => selectors.getCategories(state), isEqual);
 
   // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
-  const updateArticle = (ind, as, ac) => dispatch(actions.updateArticle(ind, as, ac));
-  const [wordCount, setWordCount] = React.useState(0);
+  const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
+  const updateArticleContentSilently = (articleId, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
 
-  const [articleSettings, setArticleSettings] = React.useState(defaultArticleSettings);
-  const [stateReady, setStateReady] = React.useState(false);
-  const [inReadOnlyMode, setInReadOnlyMode] = React.useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [lastSaved, setLastSaved] = useState(0);
 
-  useEffect(() => {
-    if (!isEmpty(articleSettings) && stateReady) {
-      updateArticle(id, articleSettings);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [articleSettings]);
+  const [stateReady, setStateReady] = useState(false);
 
-  const handleArticleSettings = (action, e) => {
-    const newArticleSettings = { ...articleSettings };
-    switch (action) {
-      case 'add_tag':
-        console.log('add_tag', e);
-        newArticleSettings.tags = [...articleSettings.tags, e];
-        break;
-      case 'remove_tag':
-        console.log('remove_tag', e);
-        newArticleSettings.tags = filter(articleSettings.tags, (tag) => tag !== e);
-        break;
-      case 'toggle_spell_check':
-        newArticleSettings.spellCheck = e;
-        break;
-      // case 'word_count':
-      //   newArticleSettings.wordCount = e;
-      //   break;
-      case 'title':
-        newArticleSettings.title = e;
-        break;
-      case 'category':
-        newArticleSettings.category = e;
-        break;
-      default:
-        throw new Error('Invalid action');
-    }
-    setArticleSettings(newArticleSettings);
-  };
-
-  console.log(article);
+  const [articleTitle, setArticleTitle] = useState('');
 
   useEffect(() => {
-    console.log('State changed: ', store.getState());
     if (isEmpty(article)) {
       fetchArticle(id);
     } else if (!stateReady) {
-      console.log('Article already loaded');
+      console.log('Article loaded');
       setStateReady(true);
-      setArticleSettings({
-        title: get(article, 'title'),
-        category: get(article, 'article_content.category'),
-        description: get(article, 'article_content.description'),
-        tags: get(article, 'article_content.tags'),
-      });
-      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
+      setArticleTitle(get(article, 'title'));
+      setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
+      setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article]);
 
   useEffect(() => {
     if (titleRef.current) {
-      titleRef.current.style.width = `${(articleSettings.title.length * 12 + 60)}px`;
+      titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
     }
-  }, [titleRef, articleSettings.title]);
+  }, [titleRef, articleTitle]);
 
   const handleUploadEditorContent = (api) => {
-    api.saver.save().then((newArticleContent) => {
-      console.log('updating article content');
+    api.saver.save().then((newArticleContent: ArticleContent) => {
       console.log({ content: newArticleContent });
-      updateArticle(id, { content: newArticleContent });
+      updateArticleContentSilently(id, newArticleContent);
       setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
+      setLastSaved(newArticleContent.time);
     });
   };
 
@@ -135,42 +86,32 @@ function ReactEditor () {
         {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
         <input
           type="text"
-          placeholder="Title"
+          placeholder="Enter a title..."
           onFocus={() => setTitleFocus(true)}
           onBlur={() => {
             setTitleFocus(false);
-            updateArticle(id, articleSettings);
+            updateArticle(id, { title: articleTitle });
           }}
           ref={titleRef}
-          onChange={(e) => handleArticleSettings('title', e.target.value)}
-          value={articleSettings.title}
+          onChange={(e) => setArticleTitle(e.target.value)}
+          value={articleTitle}
           className={classNames('editor-title-input', { focus: titleFocus })}
         />
       </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleSettings.title })} />
+      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleTitle })} />
       <ArticleConfig
         id={id}
-        readOnly={inReadOnlyMode}
-        setReadOnly={(e) => setInReadOnlyMode(e)}
-        setCategory={(e) => handleArticleSettings('category', e)}
         wordCount={wordCount}
-        articleSettings={articleSettings}
-        lastSaved={get(articleContent, 'time', 0)}
-        onToggleSpellCheck={(e) => handleArticleSettings('toggle_spell_check', e)}
-        addTag={(e) => {
-          map(e.split(','), (tag) => {
-            handleArticleSettings('add_tag', tag);
-          });
-        }}
-        removeTag={(e) => {
-          handleArticleSettings('remove_tag', e);
-        }}
+        lastSaved={lastSaved}
+        updateArticle={updateArticle}
+        article={article}
+        categories={categories}
       />
       {stateReady && (
       <ReactEditorJS
         holder='editorjs'
         defaultValue={{
-          blocks: blocks || [],
+          blocks: get(articleContent, 'blocks', []),
         }}
         tools={EDITOR_JS_TOOLS}
         onChange={(api) => {

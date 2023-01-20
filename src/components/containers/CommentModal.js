@@ -27,7 +27,13 @@ const style = {
   p: 3,
 };
 
-export default function TransitionsModal() {
+type Props = {
+  comments: { key: Object},
+  createComment: Function,
+  articleId: number,
+  authorId: number,
+};
+export default function CommentModal(props: Props) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -54,7 +60,12 @@ export default function TransitionsModal() {
       >
         <Fade in={open}>
           <Box sx={style} className="comment-modal">
-            <CommentSection />
+            <CommentSection
+              comments={props.comments}
+              createComment={props.createComment}
+              articleId={props.articleId}
+              authorId={props.authorId}
+            />
           </Box>
         </Fade>
       </Modal>
