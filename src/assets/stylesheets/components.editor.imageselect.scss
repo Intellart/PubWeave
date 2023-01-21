@@ -6,6 +6,7 @@
   flex-direction: column;
   background-color: #11273F;
   margin: 20px 0;
+  position: relative;
 
   .editor-wrapper-image-selection-actions{
     height: 100px;
@@ -39,7 +40,7 @@
   .editor-wrapper-image-selection-arrow-left,
   .editor-wrapper-image-selection-arrow-right{
     position: absolute;
-    top: 50%;
+    top: 70%;
     transform: translateY(-100px);
     width: 50px;
     height: 50px;
@@ -75,7 +76,7 @@
     flex-direction: row;
     gap: 10px;
     margin: 20px 0;
-    padding: 0 20px;
+    padding: 0 210px;
     transition: all 0.3s ease;
     overflow-x: auto;
     position:relative;

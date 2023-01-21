@@ -28,8 +28,7 @@ html {
         width: 100%;
 
         // remove all link styles
-        a {
-          color: inherit;
+        a,button {
           text-decoration: none;
           cursor: pointer;
         }

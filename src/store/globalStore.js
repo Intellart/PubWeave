@@ -51,6 +51,9 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case articleTypes.ART_FETCH_CATEGORIES_FULFILLED:
       return updateLoading(state, action.type, 'DONE');
 
+    case articleTypes.ART_FETCH_TAGS_FULFILLED:
+      return updateLoading(state, action.type, 'DONE');
+
     default:
       return state || {};
   }

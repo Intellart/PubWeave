@@ -2,7 +2,7 @@
 // @flow
 // import React from 'react';
 import {
-  filter, keyBy, omit, get,
+  filter, keyBy, omit, get, map, sample,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -25,6 +25,20 @@ export type Comment = {
   replies: { [number]: Comment },
   reply_to: number,
 };
+
+export type Category = {
+  id: number,
+  category_name: string,
+};
+
+export type Tag = {
+  id: number,
+  tag: string,
+  category: Category,
+  created_at: string,
+  updated_at: string,
+};
+
 export type Article = {
   id: number,
   title: string,
@@ -47,7 +61,8 @@ export type State = {
   oneArticle: Article,
   allArticles: { [number]: Article },
   comments: { [number]: Comment },
-  categories: { [string]: string },
+  categories: { [string]: Category },
+  tags: { [number]: Tag },
 };
 
 export const types = {
@@ -101,6 +116,16 @@ export const types = {
   ART_CREATE_COMMENT_REJECTED: 'ART/CREATE_COMMENT_REJECTED',
   ART_CREATE_COMMENT_FULFILLED: 'ART/CREATE_COMMENT_FULFILLED',
 
+  ART_FETCH_TAGS: 'ART/FETCH_TAGS',
+  ART_FETCH_TAGS_PENDING: 'ART/FETCH_TAGS_PENDING',
+  ART_FETCH_TAGS_REJECTED: 'ART/FETCH_TAGS_REJECTED',
+  ART_FETCH_TAGS_FULFILLED: 'ART/FETCH_TAGS_FULFILLED',
+
+  ART_FLUSH_ARTICLE: 'ART/FLUSH_ARTICLE',
+  ART_FLUSH_ARTICLE_PENDING: 'ART/FLUSH_ARTICLE_PENDING',
+  ART_FLUSH_ARTICLE_REJECTED: 'ART/FLUSH_ARTICLE_REJECTED',
+  ART_FLUSH_ARTICLE_FULFILLED: 'ART/FLUSH_ARTICLE_FULFILLED',
+
 };
 
 export const selectors = {
@@ -109,6 +134,7 @@ export const selectors = {
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
+  getTags: (state: ReduxState): any => state.article.tags,
 };
 
 export const actions = {
@@ -124,9 +150,16 @@ export const actions = {
     type: types.ART_FETCH_COMMENTS,
     payload: API.getRequest('pubweave/blog_article_comments'),
   }),
+  flushArticle: (): ReduxAction => ({
+    type: types.ART_FLUSH_ARTICLE,
+  }),
   fetchCategories: (): ReduxAction => ({
     type: types.ART_FETCH_CATEGORIES,
     payload: API.getRequest('intellart/categories'),
+  }),
+  fetchTags: (): ReduxAction => ({
+    type: types.ART_FETCH_TAGS,
+    payload: API.getRequest('intellart/tags'),
   }),
   createComment: (articleId: number, userId: number, content: string): ReduxAction => ({
     type: types.ART_CREATE_COMMENT,
@@ -199,6 +232,11 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_FLUSH_ARTICLE_FULFILLED:
+      return {
+        ...state,
+        oneArticle: {},
+      };
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
       return {
@@ -269,6 +307,17 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         categories: keyBy(action.payload, 'id'),
+      };
+
+    case types.ART_FETCH_TAGS_FULFILLED:
+      console.log(`Fetched all tags: ${get(action.payload, 'length')} tags.`);
+
+      return {
+        ...state,
+        tags: keyBy(map(action.payload, (tag) => ({
+          ...tag,
+          category: sample(state.categories),
+        })), 'id'),
       };
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
