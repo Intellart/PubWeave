@@ -32,7 +32,7 @@ function ArticleConfig(props: Props): Node {
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [tags, setTags] = useState(get(props.article, 'tags', []));
   const [description, setDescription] = useState(get(props.article, 'description', ''));
-  const [star, setStar] = useState(get(props.article, 'star', false));
+  const [star, setStar] = useState(get(props.article, 'star', false) || false);
 
   // eslint-disable-next-line no-unused-vars
 
@@ -41,7 +41,7 @@ function ArticleConfig(props: Props): Node {
   useEffect(() => {
     setTags(get(props.article, 'tags', []));
     setDescription(get(props.article, 'description', ''));
-    setStar(get(props.article, 'star', false));
+    setStar(get(props.article, 'star', false) || false);
   }, [props.article]);
 
   useEffect(() => {
@@ -103,7 +103,6 @@ function ArticleConfig(props: Props): Node {
             <Checkbox
               aria-label="checkmark"
               checked={star}
-              inputProps={{ 'aria-label': 'controlled' }}
               onChange={(e) => {
                 props.updateArticle(props.id, { star: e.target.checked });
               }}
@@ -135,7 +134,7 @@ function ArticleConfig(props: Props): Node {
               id="standard-basic"
               label="Description"
               variant="standard"
-              value={description}
+              value={description || ''}
               onChange={(e) => {
                 setDescription(e.target.value);
               }}
@@ -149,7 +148,7 @@ function ArticleConfig(props: Props): Node {
               <div className='article-config-subgroup-tags'>
                 <TextField
                   className='article-config-subgroup-tags-input'
-                  value={tags}
+                  value={tags || ''}
                   onChange={(e) => {
                     setTags(e.target.value);
                   }}

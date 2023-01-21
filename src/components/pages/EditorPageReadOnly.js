@@ -103,7 +103,7 @@ function ReactEditor () {
         <div
           className={classNames('editor-wrapper-publish-button')}
           onClick={() => {
-            publishArticle(id, 'published', article);
+            publishArticle(id, 'requested', article);
             navigate('/submit-work');
           }}
         >

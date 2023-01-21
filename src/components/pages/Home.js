@@ -32,7 +32,15 @@ function Home(): Node {
               <h4>Fast, reliable & unlimited scientific projects.</h4>
               <div className="cta-buttons">
                 <Link to="/blogs"><button className='explore'>Explore</button></Link>
-                <button className='our-mission'>Our Mission</button>
+                <button
+                  onClick={() => {
+                    document.getElementsByClassName('team-section')[0].scrollIntoView({
+                      behavior: 'smooth',
+                    });
+                  }}
+                  className='our-mission'
+                >Our Mission
+                </button>
               </div>
             </div>
             <img

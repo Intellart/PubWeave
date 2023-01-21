@@ -25,7 +25,7 @@ function Navbar(props: Props): Node {
   const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
   const navigate = useNavigate();
 
-  const [searchParam, setSearchParam] = useState('author');
+  const [searchParam, setSearchParam] = useState('article');
   const [searchValue, setSearchValue] = useState('');
 
   const userItems = uniqBy(map(articles, (article) => ({
@@ -55,6 +55,7 @@ function Navbar(props: Props): Node {
           }}
           className="navbar-search"
           options={options}
+          isOptionEqualToValue={(option, value) => option.full_name === value.value}
           onChange={(event, newValue) => {
             if (searchParam === 'article') {
               navigate(`/singleblog/${newValue.id}`);
