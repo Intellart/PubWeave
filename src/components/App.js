@@ -3,7 +3,7 @@ import React from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { isEmpty, isEqual } from 'lodash';
 import Home from './pages/Home';
 import { useScrollTopEffect } from '../utils/hooks';
@@ -18,6 +18,7 @@ import Dashboard from './pages/Dashboard';
 import { selectors as userSelectors } from '../store/userStore';
 import { selectors as globalSelectors } from '../store/globalStore';
 import Loader from './containers/Loader';
+import { actions } from '../store/articleStore';
 
 import Navbar from './containers/Navbar';
 import CatchAllRoute from './pages/CatchAllRoute';
@@ -28,6 +29,9 @@ function App(): Node {
 
   const isAuthorized: boolean = useSelector((state) => !isEmpty(userSelectors.getUser(state)), isEqual);
   const isAdmin: boolean = useSelector((state) => !isEmpty(userSelectors.getAdmin(state)), isEqual);
+
+  const dispatch = useDispatch();
+  dispatch(actions.flushArticle());
 
   if (isLoading) {
     return (<Loader />);
@@ -51,7 +55,8 @@ function App(): Node {
           <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/singleblog/:id" element={<SingleBlog />} />
           <Route path="/blogs" element={<Blogs />} />
-          <Route path="/blogs/:id" element={<Blogs />} />
+          <Route path="/blogs/:cat" element={<Blogs />} />
+          <Route path="/blogs/:cat/:tag" element={<Blogs />} />
           <Route path="/about" element={<About />} />
 
           {isAuthorized && (

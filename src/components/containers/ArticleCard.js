@@ -5,7 +5,7 @@ import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faShare, faXmark,
+  faPencil, faPenToSquare, faShare, faWarning, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
@@ -32,6 +32,8 @@ function ArticleCard(props : Props): Node {
   const status = props.article.status ? props.article.status : 'draft';
   const isPublished = status === 'published';
 
+  const noImage = props.article.image === null;
+
   const handleEditArticle = (e) => {
     e.stopPropagation();
     if (isPublished) {
@@ -56,18 +58,27 @@ function ArticleCard(props : Props): Node {
     }
   };
 
-  console.log(isPublished);
+  const chipParams = (imageChip = false) => {
+    if (imageChip && !isPublished && noImage) {
+      return {
+        label: 'No image',
+        color: 'warning',
+        icon: <FontAwesomeIcon icon={faWarning} />,
+        variant: 'default',
+      };
+    }
 
-  const chipParams = () => {
     switch (props.article.status) {
       case 'draft':
         return {
+          label: 'Draft',
           color: 'info',
           icon: <FontAwesomeIcon icon={faPenToSquare} />,
           variant: 'outlined',
         };
       case 'published':
         return {
+          label: 'Published',
           color: 'success',
           icon: <FontAwesomeIcon icon={faCheck} />,
           variant: 'default',
@@ -77,18 +88,21 @@ function ArticleCard(props : Props): Node {
         };
       case 'rejected':
         return {
+          label: 'Rejected',
           color: 'error',
           icon: <FontAwesomeIcon icon={faXmark} />,
           variant: 'outlined',
         };
       case 'requested':
         return {
+          label: 'Requested',
           color: 'warning',
           icon: <FontAwesomeIcon icon={faPencil} />,
           variant: 'outlined',
         };
       default:
         return {
+          label: 'Draft',
           color: 'default',
           icon: <FontAwesomeIcon icon={faPencil} />,
           variant: 'outlined',
@@ -101,13 +115,18 @@ function ArticleCard(props : Props): Node {
       onClick={handleArticleClick}
       className="article-card"
     >
-      <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': isPublished && props.showPublishedChip })}>
+      <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
         <img
           src={props.article.image || images[Math.floor(Math.random() * images.length)]}
           className="article-card-img"
           alt="article"
         />
-        {isPublished && props.showPublishedChip && <Chip className="article-card-img-chip" label={status || 'Status'} {...chipParams()} />}
+        {props.showPublishedChip && (isPublished || noImage) && (
+        <Chip
+          className="article-card-img-chip"
+          {...chipParams(true)}
+        />
+        )}
       </div>
       <div className="article-right-side-content">
         <div className="article-card-side-content-upper-wrapper">

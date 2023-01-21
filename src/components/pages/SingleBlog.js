@@ -14,6 +14,7 @@ import {
   filter, get, isEmpty, isEqual, map,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
+import { Chip } from '@mui/material';
 import Footer from '../containers/Footer';
 import SingleBlog from '../../images/SingleBlog.png';
 import AvatarImg from '../../images/Avatar.png';
@@ -87,46 +88,42 @@ function Blogs(): Node {
 
   return (
     <main className="blogs-wrapper">
-      <section className="category-highlight">
-        <div className="category-highlight-text">
-          <div className="headline-category-chips-author">
-            <div className="category-headline-chips">
-              <h4>{get(article, 'category', 'Technology')}</h4>
-              <h2>Sample Blog</h2>
-              <div className="all-chips">
-                <div className="chip highlighted-chip">
-                  <div className="chip-content">Technology</div>
-                </div>
-                <div className="chip">
-                  <div className="chip-content">Science</div>
-                </div>
-                <div className="chip">
-                  <div className="chip-content">Business</div>
-                </div>
-                <div className="chip">
-                  <div className="chip-content">Chip Content</div>
-                </div>
-              </div>
+      <section className="blogs-category-highlight single-page">
+        <div className="category-highlight-single-page-text">
+          <div className="category-highlight-single-page-text-left">
+            <h1 className="category-highlight-category">category</h1>
+            <h2 className="category-highlight-title">title</h2>
+            <div className="category-highlight-single-page-text-left-tags">
+              <Chip
+                label="tag"
+                variant="outlined"
+                style={{
+                  backgroundColor: '#11273F', color: '#fff', marginRight: 10,
+                }}
+              />
+              <Chip
+                label="tag"
+                variant="outlined"
+                style={{
+                  backgroundColor: '#11273F', color: '#fff', marginRight: 10,
+                }}
+              />
             </div>
-            <div className='social-author-info-box'>
-              <div className="social">
-                <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
-                <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
-                <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
-              </div>
-              <div className='author-info-box'>
-                <Avatar alt="Remy Sharp" src={AvatarImg} />
-                <div className='author-name-date'>
-                  <p className='author-name'>Joe Doe</p>
-                  <p className="published-date">Jan 1, 2022</p>
-                </div>
+          </div>
+          <div className="category-highlight-single-page-text-right">
+            <div className="category-highlight-single-page-text-right-social-icons">
+              <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
+              <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
+              <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
+            </div>
+            <div className="category-highlight-single-page-text-right-author">
+              <Avatar alt="Remy Sharp" src={AvatarImg} />
+              <div className="category-highlight-single-page-text-right-author-text">
+                <p className="category-highlight-single-page-text-right-author-text-name">Author</p>
+                <p className="category-highlight-single-page-text-right-author-text-date">date</p>
               </div>
             </div>
           </div>
-          <div />
-          <div />
-          <div />
-          <div />
         </div>
       </section>
       <img src={thumbnailLink} className="single-blog-img" alt="single blog" />
