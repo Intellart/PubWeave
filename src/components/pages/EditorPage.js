@@ -35,12 +35,15 @@ function ReactEditor () {
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
+  const tags = useSelector((state) => selectors.getTags(state), isEqual);
 
   // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
   const updateArticleContentSilently = (articleId, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
+  const addTag = (articleId, tagId) => dispatch(actions.addTag(articleId, tagId));
+  const removeTag = (articleTagId) => dispatch(actions.removeTag(articleTagId));
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -106,6 +109,9 @@ function ReactEditor () {
         updateArticle={updateArticle}
         article={article}
         categories={categories}
+        tags={tags}
+        addTag={addTag}
+        removeTag={removeTag}
       />
       {stateReady && (
       <ReactEditorJS
