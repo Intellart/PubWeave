@@ -2,7 +2,7 @@
 // @flow
 // import React from 'react';
 import {
-  filter, keyBy, omit, get, map, sample,
+  filter, keyBy, omit, get, map,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -54,7 +54,7 @@ export type Article = {
   created_at: string,
   updated_at: string,
   blog_article_comments: { [number]: Comment },
-  tags: Array<string>,
+  tags: Array<any>,
 };
 
 export type State = {
@@ -126,6 +126,16 @@ export const types = {
   ART_FLUSH_ARTICLE_REJECTED: 'ART/FLUSH_ARTICLE_REJECTED',
   ART_FLUSH_ARTICLE_FULFILLED: 'ART/FLUSH_ARTICLE_FULFILLED',
 
+  ART_ADD_TAG: 'ART/ADD_TAG',
+  ART_ADD_TAG_PENDING: 'ART/ADD_TAG_PENDING',
+  ART_ADD_TAG_REJECTED: 'ART/ADD_TAG_REJECTED',
+  ART_ADD_TAG_FULFILLED: 'ART/ADD_TAG_FULFILLED',
+
+  ART_REMOVE_TAG: 'ART/REMOVE_TAG',
+  ART_REMOVE_TAG_PENDING: 'ART/REMOVE_TAG_PENDING',
+  ART_REMOVE_TAG_REJECTED: 'ART/REMOVE_TAG_REJECTED',
+  ART_REMOVE_TAG_FULFILLED: 'ART/REMOVE_TAG_FULFILLED',
+
 };
 
 export const selectors = {
@@ -155,11 +165,24 @@ export const actions = {
   }),
   fetchCategories: (): ReduxAction => ({
     type: types.ART_FETCH_CATEGORIES,
-    payload: API.getRequest('intellart/categories'),
+    payload: API.getRequest('categories'),
+  }),
+  addTag: (articleId: number, tagId: number): ReduxAction => ({
+    type: types.ART_ADD_TAG,
+    payload: API.postRequest('pubweave/blog_article_tags', {
+      blog_article_tag: {
+        blog_article_id: articleId,
+        tag_id: tagId,
+      },
+    }),
+  }),
+  removeTag: (articleTagId: number): ReduxAction => ({
+    type: types.ART_REMOVE_TAG,
+    payload: API.deleteRequest(`pubweave/blog_article_tags/${articleTagId}`),
   }),
   fetchTags: (): ReduxAction => ({
     type: types.ART_FETCH_TAGS,
-    payload: API.getRequest('intellart/tags'),
+    payload: API.getRequest('tags'),
   }),
   createComment: (articleId: number, userId: number, content: string): ReduxAction => ({
     type: types.ART_CREATE_COMMENT,
@@ -237,7 +260,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {},
       };
+
     case types.ART_FETCH_ARTICLE_FULFILLED:
+
+      console.log(action.payload);
 
       return {
         ...state,
@@ -256,6 +282,9 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         allArticles: keyBy(action.payload, 'id'),
       };
 
+      // COMMENTS ---------------------------------------------------------
+      // ------------------------------------------------------------------
+
     case types.ART_CREATE_COMMENT_FULFILLED:
       toast.success('Comment created successfully!');
 
@@ -270,36 +299,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         },
       };
 
-      // case types.ART_FETCH_COMMENTS_FULFILLED:
-      //   console.log(`Fetched all comments: ${get(action.payload, 'length')} comments.`);
-
-      //   console.log('new_comments: ', map(state.allArticles, (article) => ({
-      //     ...article,
-      //     blog_article_comments: map(filter(action.payload, (c) => c.blog_article_id === article.id),
-      //       (comment) => ({
-      //         ...comment,
-      //         commenter_id: action.payload.commenter.id,
-      //         commenter_name: action.payload.commenter.full_name,
-      //         reply_to: action.payload.reply_to,
-      //       }),
-      //     ),
-      //   })));
-
-      //   return {
-      //     ...state,
-      //     comments: keyBy(action.payload, 'id'),
-      //     allArticles: keyBy(map(state.allArticles, (article) => ({
-      //       ...article,
-      //       blog_article_comments: map(filter(action.payload, (c) => c.blog_article_id === article.id),
-      //         (comment) => ({
-      //           ...comment,
-      //           commenter_id: action.payload.commenter.id,
-      //           commenter_name: action.payload.commenter.full_name,
-      //           reply_to: action.payload.reply_to,
-      //         }),
-      //       ),
-      //     })), 'id'),
-      //   };
+      // CATEGORIES ---------------------------------------------------------
+      // --------------------------------------------------------------------
 
     case types.ART_FETCH_CATEGORIES_FULFILLED:
       console.log(`Fetched all categories: ${get(action.payload, 'length')} categories.`);
@@ -309,16 +310,60 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         categories: keyBy(action.payload, 'id'),
       };
 
+      // TAGS ---------------------------------------------------------------
+      // --------------------------------------------------------------------
+
     case types.ART_FETCH_TAGS_FULFILLED:
       console.log(`Fetched all tags: ${get(action.payload, 'length')} tags.`);
+
+      // console.log(action.payload);
 
       return {
         ...state,
         tags: keyBy(map(action.payload, (tag) => ({
-          ...tag,
-          category: sample(state.categories),
+          tag: tag.tag,
+          category_id: tag.category_id,
+          id: tag.id,
         })), 'id'),
       };
+
+    case types.ART_FETCH_TAGS_REJECTED:
+      toast.error('Error while fetching tags!');
+
+      return state;
+
+    case types.ART_ADD_TAG_FULFILLED:
+      toast.success('Tag added successfully!');
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          tags: [
+            ...state.oneArticle.tags,
+            {
+              id: action.payload.tag.id,
+              tag_name: action.payload.tag.tag,
+              category_id: action.payload.tag.category_id,
+              blog_article_id: action.payload.id,
+            },
+          ],
+        },
+      };
+
+    case types.ART_REMOVE_TAG_FULFILLED:
+      toast.success('Tag removed successfully!');
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          tags: filter(state.oneArticle.tags, (tag) => tag.id !== action.payload.id),
+        },
+      };
+
+      // ARTICLE ------------------------------------------------------------
+      // --------------------------------------------------------------------
 
     case types.ART_UPDATE_ARTICLE_FULFILLED:
       toast.success(`Changed article ${action.payload.title} successfully!`);
@@ -337,22 +382,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             ...action.payload,
           },
         },
-      };
-
-    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
-      return {
-        ...state,
-        oneArticle: {
-          content: JSON.parse(get(action.payload, 'content', '{}')),
-          ...state.oneArticle,
-        },
-      };
-
-    case types.ART_UPDATE_ARTICLE_REJECTED:
-      toast.error('Error while updating article!');
-
-      return {
-        ...state,
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
@@ -390,6 +419,24 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             ...state.allArticles[action.payload.id],
             ...action.payload,
           },
+        },
+      };
+
+    case types.ART_UPDATE_ARTICLE_REJECTED:
+      toast.error('Error while updating article!');
+
+      return {
+        ...state,
+      };
+
+      // ARTICLE CONTENT ----------------------------------------------------
+      // --------------------------------------------------------------------
+    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
+      return {
+        ...state,
+        oneArticle: {
+          content: JSON.parse(get(action.payload, 'content', '{}')),
+          ...state.oneArticle,
         },
       };
 

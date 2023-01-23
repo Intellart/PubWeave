@@ -8,10 +8,10 @@ import { faHeart, faHeartBroken } from '@fortawesome/free-solid-svg-icons';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import Avatar from '@mui/material/Avatar';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  filter, get, isEmpty, isEqual, map,
+  filter, find, get, isEmpty, isEqual, map,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip } from '@mui/material';
@@ -76,6 +76,7 @@ function Blogs(): Node {
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+  const categories = useSelector((state) => selectors.getCategories(state), isEqual);
 
   useEffect(() => {
     if (!article && id) {
@@ -86,28 +87,32 @@ function Blogs(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);
 
+  console.log(article);
+
+  const getRoute = (catId) => find(categories, (cat) => cat.id === catId).category_name;
+
   return (
     <main className="blogs-wrapper">
       <section className="blogs-category-highlight single-page">
         <div className="category-highlight-single-page-text">
           <div className="category-highlight-single-page-text-left">
-            <h1 className="category-highlight-category">category</h1>
+            <h1 className="category-highlight-category">{get(article, 'category', '')}</h1>
             <h2 className="category-highlight-title">title</h2>
             <div className="category-highlight-single-page-text-left-tags">
-              <Chip
-                label="tag"
-                variant="outlined"
-                style={{
-                  backgroundColor: '#11273F', color: '#fff', marginRight: 10,
-                }}
-              />
-              <Chip
-                label="tag"
-                variant="outlined"
-                style={{
-                  backgroundColor: '#11273F', color: '#fff', marginRight: 10,
-                }}
-              />
+              {map(get(article, 'tags', []), (tag) => (
+                <Link
+                  key={tag.id}
+                  to={`/blogs/${getRoute(tag.category_id)}/${tag.tag_name}`}
+                >
+                  <Chip
+                    variant='outlined'
+                    key={tag.id}
+                    sx={{ color: 'white', borderColor: 'white', marginRight: 1 }}
+                    label={tag.tag_name}
+                    className="category-highlight-single-page-text-left-tags-chip"
+                  />
+                </Link>
+              ))}
             </div>
           </div>
           <div className="category-highlight-single-page-text-right">

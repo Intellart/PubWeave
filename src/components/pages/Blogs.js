@@ -4,7 +4,7 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import {
   filter,
-  get, isEqual, map, sampleSize,
+  get, isEqual, map,
 } from 'lodash';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
@@ -32,49 +32,20 @@ function Blogs(): Node {
   // console.log(cat, tag);
 
   const filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
-  const categoryTags = cat ? filter(tags, (t) => t.category.category_name === cat) : sampleSize(tags, 6);
+  const categoryTags = cat ? filter(tags, (t) => get(categories, [t.category_id, 'category_name']) === cat) : [];
 
   return (
     <main className="blogs-wrapper">
-      <section className="blogs-category-highlight">
-        <div className="category-highlight-text">
-          <div className="all-chips">
-            {map(categoryTags, (t) => (
-              <Link
-                key={t.id}
-                className="chip"
-                to={`/blogs/${t.category.category_name}/${t.tag}`}
-              >
-                <Chip
-                  id={t.id}
-                  label={t.tag}
-                  variant={tag === t.tag ? 'default' : 'outlined'}
-                  sx={{
-                    backgroundColor: tag === t.tag ? 'primary.main' : 'transparent',
-                    color: 'white',
-                  }}
-                />
-              </Link>
-            ))}
-          </div>
-          {cat && <h4>{cat}</h4> }
-          <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
-          <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
-          <div className="author">
-            <h6>John Doe, Jane Doe...</h6><br />
-            <h6>Updated Jan 1, 2022</h6>
-          </div>
-        </div>
-      </section>
-      <section className="blogs-featured">
-        {cat && (
-        <Link
-          to="/blogs"
-        >
-          <h2 className='blogs-featured-categories-list-browse-all'>Browse all categories</h2>
-        </Link>
-        ) }
+      <section className="blogs-categories">
+
         <div className='blogs-featured-categories-list'>
+          {cat && (
+          <Link
+            to="/blogs"
+          >
+            <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
+          </Link>
+          ) }
           {map(categories, (c) => (
             <Link
               key={c.id}
@@ -87,7 +58,40 @@ function Blogs(): Node {
             </Link>
           ))}
         </div>
-        <hr className="blogs-featured-divider" />
+
+      </section>
+      <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
+        <div className="category-highlight-text">
+          {cat && <h4>{cat}</h4> }
+          <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
+          <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
+          <div className="all-chips">
+            {map(categoryTags, (t) => {
+              const catName = get(categories, [t.category_id, 'category_name']);
+
+              return (
+                <Link
+                  key={t.id}
+                  className="chip"
+                  to={`/blogs/${catName}/${t.tag}`}
+                >
+                  <Chip
+                    id={t.id}
+                    label={t.tag}
+                    variant={tag === t.tag ? 'default' : 'outlined'}
+                    sx={{
+                      backgroundColor: tag === t.tag ? 'primary.main' : 'transparent',
+                      color: 'white',
+                    }}
+                  />
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+      <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
+        {/* <hr className="blogs-featured-divider" /> */}
         <h2 className="blogs-featured-subtitle">Featured</h2>
         <div className='blogs-featured-cards'>
           {map(filteredArticles.slice(0, 3), (a) => (
