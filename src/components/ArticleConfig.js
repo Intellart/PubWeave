@@ -9,9 +9,10 @@ import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
-  find, get, map, values,
+  find, get, map,
   isEqual,
-  difference,
+  includes,
+  differenceBy,
 } from 'lodash';
 // import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
@@ -39,11 +40,9 @@ function ArticleConfig(props: Props): Node {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { tags: allTags } = props;
   const [/* newTag */, setNewTag] = useState('');
-  const [tags, setTags] = useState(map(get(props.article, 'tags', []), (tag) => ({
-    id: get(find(allTags, { tag: tag.tag_name }), 'id', 0),
-    article_tag_id: tag.id,
-    tag: tag.tag_name,
-    category_id: tag.category_id,
+  const [tags, setTags] = useState(map(get(props.article, 'tags', []), (t) => ({
+    ...t,
+    id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
   })));
   const [description, setDescription] = useState(get(props.article, 'description', ''));
   const [/* star */, setStar] = useState(get(props.article, 'star', false) || false);
@@ -51,17 +50,13 @@ function ArticleConfig(props: Props): Node {
   const SECOND_MS = 1000;
 
   useEffect(() => {
-    setTags(map(get(props.article, 'tags', []), (tag) => ({
-      id: get(find(allTags, { tag: tag.tag_name }), 'id', 0),
-      article_tag_id: tag.id,
-      tag: tag.tag_name,
-      category_id: tag.category_id,
+    setTags(map(get(props.article, 'tags', []), (t) => ({
+      ...t,
+      id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
     })) || []);
     setDescription(get(props.article, 'description', ''));
     setStar(get(props.article, 'star', false) || false);
-
-    console.log(props.article);
-  }, [props.article]);
+  }, [props.article, props.tags]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -88,9 +83,48 @@ function ArticleConfig(props: Props): Node {
     return `${Math.floor(dif / 86400)} days ago`;
   };
 
-  const articleTagIds = map(get(props.article, 'tags', []), 'id');
-  const tagIds = map(tags, 'article_tag_id');
+  const handleResetTags = () => {
+    setTags(map(get(props.article, 'tags', []), (t) => ({
+      ...t,
+      id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
+    })));
+  };
+
+  const articleTagIds = map(get(props.article, 'tags', []), 'tag_name');
+  const tagIds = map(tags, 'tag_name');
+
   const tagsChanged = !isEqual(articleTagIds, tagIds);
+  console.log(articleTagIds, tagIds, tagsChanged);
+
+  const handleSaveTags = () => {
+    const diff = differenceBy(get(props.article, 'tags', []), tags, 'tag_name');
+    const diff2 = differenceBy(tags, get(props.article, 'tags', []), 'tag_name');
+
+    console.log('to remove', diff);
+    console.log('to add', diff2);
+
+    map(diff, (tag) => {
+      props.removeTag(tag.article_tag_link);
+    });
+
+    map(diff2, (tag) => {
+      props.addTag(props.id, tag.id);
+    });
+  };
+
+  const onNewTagClick = (value) => {
+    setTags(map(value, (t) => ({
+      ...t,
+      article_tag_link: includes(map(get(props.article, 'tags'), 'tag_name'), t.tag_name) ? get(find(get(props.article, 'tags'), { tag_name: t.tag_name }), 'article_tag_link') : null,
+    })));
+  };
+
+  const onNewTagInput = (value) => {
+    setNewTag(value);
+    console.log(value);
+  };
+
+  const category = get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '');
 
   return (
     <ClickAwayListener
@@ -146,7 +180,7 @@ function ArticleConfig(props: Props): Node {
                 sx={{ height: 40 }}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '')}
+                value={category}
                 label="Category"
                 onChange={(e) => {
                   props.updateArticle(props.id, { category_id: e.target.value });
@@ -177,7 +211,7 @@ function ArticleConfig(props: Props): Node {
             />
           </div>
 
-          <Alert severity="info">To use tags, add category first.</Alert>
+          {!category && <Alert severity="info">To use tags, add category first.</Alert>}
           <div className='article-config-item'>
             <FontAwesomeIcon className='article-config-icon' icon={faBook} />
             <div className='article-config-item-tags'>
@@ -186,19 +220,15 @@ function ArticleConfig(props: Props): Node {
                 multiple
                 limitTags={2}
                 id="combo-box-demo"
-                onChange={(e, value) => {
-                  setTags(value);
-                  console.log(value);
-                }}
-                onInputChange={(e, value) => {
-                  setNewTag(value);
-                  console.log(value);
-                }}
+                onChange={(e, value) => onNewTagClick(value)}
+                onInputChange={(e, value) => onNewTagInput(value)}
                 value={tags}
-                getOptionLabel={(option) => option.tag}
+                getOptionLabel={(option) => option.tag_name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                options={values(props.tags)}
-                // defaultValue={tags}
+                options={map(get(props, 'tags', []), (t) => ({
+                  ...t,
+                  article_tag_link: null,
+                }))}
                 sx={{
                   minWidth: 200, display: 'flex', alignItems: 'center',
                 }}
@@ -225,13 +255,7 @@ function ArticleConfig(props: Props): Node {
                 {tagsChanged && (
                 <div
                   className='article-config-item-ok'
-                  onClick={() => {
-                    setTags(map(get(props.article, 'tags', []), (tag) => ({
-                      id: tag.id,
-                      tag: tag.tag_name,
-                      category_id: tag.category_id,
-                    })));
-                  }}
+                  onClick={() => handleResetTags()}
                 >
                   Reset
                 </div>
@@ -241,26 +265,7 @@ function ArticleConfig(props: Props): Node {
                 {tagsChanged && (
                 <div
                   className='article-config-item-ok'
-                  onClick={() => {
-                    const diff = difference(articleTagIds, tagIds);
-                    const diff2 = difference(tagIds, articleTagIds);
-
-                    console.log('all tags', props.tags);
-                    console.log('article tags', articleTagIds);
-                    console.log('new tags', tagIds);
-
-                    console.log('to remove', diff);
-                    console.log('to add', diff2);
-
-                    // map(diff, (tag) => {
-                    //   console.log('removing', tag);
-                    //   props.removeTag(tag.id);
-                    // });
-
-                    // map(diff2, (tag) => {
-                    //   props.addTag(props.id, tag.id);
-                    // });
-                  }}
+                  onClick={() => handleSaveTags()}
                 >
                   Save tag changes
                 </div>

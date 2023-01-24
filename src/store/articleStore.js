@@ -184,7 +184,7 @@ export const actions = {
     type: types.ART_FETCH_TAGS,
     payload: API.getRequest('tags'),
   }),
-  createComment: (articleId: number, userId: number, content: string): ReduxAction => ({
+  createComment: (articleId: number, userId: number, content: string, replyTo: number): ReduxAction => ({
     type: types.ART_CREATE_COMMENT,
     payload: API.postRequest('pubweave/blog_article_comments',
       {
@@ -192,6 +192,7 @@ export const actions = {
           blog_article_id: articleId,
           commenter_id: userId,
           comment: content,
+          reply_to_id: replyTo,
         },
       }),
   }),
@@ -271,6 +272,13 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...action.payload,
           content: JSON.parse(get(action.payload, 'content', '{}')),
           blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
+          tags: map(get(action.payload, 'tags', []), (t) => ({
+            blog_article_id: t.blog_article_id,
+            category_id: t.category_id,
+            id: null,
+            article_tag_link: t.id,
+            tag_name: t.tag_name,
+          })),
         },
       };
 
@@ -316,12 +324,16 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_FETCH_TAGS_FULFILLED:
       console.log(`Fetched all tags: ${get(action.payload, 'length')} tags.`);
 
-      // console.log(action.payload);
+      // console.log(keyBy(map(action.payload, (tag) => ({
+      //   tag_name: tag.tag,
+      //   category_id: tag.category_id,
+      //   id: tag.id,
+      // })), 'id'));
 
       return {
         ...state,
         tags: keyBy(map(action.payload, (tag) => ({
-          tag: tag.tag,
+          tag_name: tag.tag,
           category_id: tag.category_id,
           id: tag.id,
         })), 'id'),
@@ -343,9 +355,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             ...state.oneArticle.tags,
             {
               id: action.payload.tag.id,
-              tag_name: action.payload.tag.tag,
-              category_id: action.payload.tag.category_id,
-              blog_article_id: action.payload.id,
+              article_tag_link: action.payload.id,
+              tag_name: action.payload.tag_name,
+              category_id: action.payload.category_id,
+              blog_article_id: action.payload.blog_article_id,
             },
           ],
         },
