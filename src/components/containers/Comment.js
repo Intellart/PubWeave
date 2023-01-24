@@ -5,45 +5,37 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
 import { faComment, faHandsClapping, faReply } from '@fortawesome/free-solid-svg-icons';
 
-import TextareaAutosize from '@mui/base/TextareaAutosize';
 import classNames from 'classnames';
+import { Mention, MentionsInput } from 'react-mentions';
+import { Chip } from '@mui/material';
+import { get } from 'lodash';
 
 type Props = {
   id?: number,
-  content: string,
-  username?: string,
-  time?: string,
-  isReply?: boolean,
-  authorImage?: any,
-  rating?: number,
-  alreadyVoted?: number,
-  editComment?: Function,
-  deleteComment?: Function,
-  replyComment?: Function,
   children?: React.Node,
   onReply?: Function,
-  newComment?: boolean,
   onCancel?: Function,
   onSave?: Function,
   onExpand?: Function,
-  hasReplies?: boolean,
+  comment: Object,
+  isReply?: boolean,
 };
 
 const Comment = React.forwardRef((props: Props, ref) => {
-  const [content, setContent] = React.useState(props.content || '');
+  const [content, setContent] = React.useState(props.comment.comment || '');
   const [editMode, setEditMode] = React.useState(false);
-  const [editContent, setEditContent] = React.useState(props.content);
-  const [rating, setRating] = React.useState(props.rating || 0);
-  const [alreadyVoted, setAlreadyVoted] = React.useState(props.alreadyVoted || 0);
+  const [rating, setRating] = React.useState(props.comment.rating || 0);
+  const [alreadyVoted, setAlreadyVoted] = React.useState(props.comment.alreadyVoted || 0);
+
+  // console.log('Comment props', props.comment);
 
   useEffect(() => {
-    setContent(props.content || '');
-  }, [props.content]);
+    setContent(props.comment.comment || '');
+  }, [props.comment.comment]);
 
   const handleSave = () => {
     setEditMode(false);
-    setContent(editContent);
-    props.onSave(editContent);
+    props.onSave(content);
   };
 
   const formatText = (text) => {
@@ -84,6 +76,75 @@ const Comment = React.forwardRef((props: Props, ref) => {
     });
   };
 
+  const users = [
+    {
+      id: 'test',
+      display: 'test@test.com',
+    },
+    {
+      id: 'sam',
+      display: 'Sam Victor',
+    },
+    {
+      id: 'emma',
+      display: 'emmanuel@nobody.com',
+    },
+  ];
+
+  const mentionsInputStyle = {
+    control: {
+      backgroundColor: '#fff',
+      fontSize: 16,
+    // fontWeight: 'normal',
+    },
+    '&multiLine': {
+      control: {
+        fontFamily: 'monospace',
+        minHeight: 63,
+      },
+      highlighter: {
+        padding: 9,
+        border: '1px solid transparent',
+      },
+      input: {
+        padding: 9,
+        border: '1px solid silver',
+        borderRadius: 8,
+      },
+    },
+    '&singleLine': {
+      display: 'inline-block',
+      width: 180,
+      highlighter: {
+        padding: 1,
+        border: '2px inset transparent',
+      },
+      input: {
+        padding: 1,
+        border: '2px inset',
+      },
+    },
+    suggestions: {
+      list: {
+        backgroundColor: 'white',
+        border: '1px solid rgba(0,0,0,0.15)',
+        fontSize: 16,
+      },
+      item: {
+        padding: '5px 15px',
+        borderBottom: '1px solid rgba(0,0,0,0.15)',
+        '&focused': {
+          backgroundColor: '#cee4e5',
+        },
+      },
+    },
+  };
+
+  const mentionsStyle = {
+    backgroundColor: '#cee4e5',
+
+  };
+
   return (
     <div className="comment-wrapper">
       <div ref={ref} className="comment">
@@ -94,23 +155,50 @@ const Comment = React.forwardRef((props: Props, ref) => {
             </div>
             <div className="comment-content-upper-user-text">
               <div className="comment-content-upper-user-text-upper">
-                <p className='comment-content-upper-user-text-username'>{props.username}</p>
+                <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.email', 'No Name')}</p>
                 <p className='comment-content-upper-user-text-tag'>You</p>
               </div>
               <div className="comment-content-upper-user-text-lower">
-                <p>1 hour ago</p>
+                <p>ID: {get(props.comment, 'id')} || ReplyTo: {get(props.comment, 'reply_to.id')}</p>
               </div>
             </div>
           </div>
         </div>
         <div className="comment-content-middle">
-          {(props.newComment || editMode) ? (
+          {(props.comment.newComment || editMode) ? (
             <>
-              <TextareaAutosize
-                className="comment-content-body-textarea"
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-              />
+              <MentionsInput
+                style={mentionsInputStyle}
+                className="comment-section-new-comment"
+                value={content}
+                onChange={(e) => {
+                  setContent(e.target.value);
+                }}
+              >
+                <Mention
+                  trigger="@"
+                  displayTransform={(id) => `@${id}`}
+                  style={mentionsStyle}
+                  data={users}
+                  renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
+                    <div
+                      className={focused ? 'focused' : ''}
+                      key={id}
+                      style={{ backgroundColor: focused ? '#cee4e5' : 'transparent' }}
+                    >
+                      {display} ({id})
+                      <Chip
+                        sx={{
+                          ml: 1, height: 20, padding: 0, fontSize: 12,
+                        }}
+                        variant="outlined"
+                        label="Author"
+                        color='primary'
+                      />
+                    </div>
+                  )}
+                />
+              </MentionsInput>
               <div className="comment-content-body-buttons">
                 <button
                   className="comment-content-body-buttons-cancel"
@@ -136,7 +224,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
             </p>
           )}
         </div>
-        {!props.newComment && (
+        {!props.comment.newComment && (
         <div className="comment-content-lower">
           <div className="comment-content-lower-left">
             <FontAwesomeIcon
@@ -156,7 +244,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
               icon={faHandsClapping}
             />
             <p>{rating}</p>
-            {props.hasReplies && (
+            {props.comment.hasReplies && (
             <FontAwesomeIcon
               className="comment-content-lower-reply"
               onClick={() => props.onExpand()}
@@ -166,11 +254,14 @@ const Comment = React.forwardRef((props: Props, ref) => {
             }
           </div>
           <div
-            onClick={() => props.onReply({
-              content,
-              author: props.username,
-              id: props.id,
-            })
+            onClick={() => {
+              props.onReply({
+                content: props.comment.content,
+                author: props.comment.commenter.first_name,
+                id: props.comment.id,
+              });
+            }
+
         }
             className="comment-content-lower-right"
           >

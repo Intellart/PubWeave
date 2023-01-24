@@ -72,7 +72,7 @@ function Blogs(): Node {
 
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
-  const createComment = (articleId, userId, comment) => dispatch(actions.createComment(articleId, userId, comment));
+  const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
@@ -89,7 +89,7 @@ function Blogs(): Node {
 
   console.log(article);
 
-  const getRoute = (catId) => find(categories, (cat) => cat.id === catId).category_name;
+  const getRoute = (catId) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
   return (
     <main className="blogs-wrapper">
@@ -99,9 +99,9 @@ function Blogs(): Node {
             <h1 className="category-highlight-category">{get(article, 'category', '')}</h1>
             <h2 className="category-highlight-title">title</h2>
             <div className="category-highlight-single-page-text-left-tags">
-              {map(get(article, 'tags', []), (tag) => (
+              {map(get(article, 'tags', []), (tag, index) => (
                 <Link
-                  key={tag.id}
+                  key={index}
                   to={`/blogs/${getRoute(tag.category_id)}/${tag.tag_name}`}
                 >
                   <Chip
@@ -132,22 +132,6 @@ function Blogs(): Node {
         </div>
       </section>
       <img src={thumbnailLink} className="single-blog-img" alt="single blog" />
-      {!id && sampleBlog()}
-      {!isEmpty(article) && id && (
-      <ReactEditorJS
-        holder='editorjs'
-        readOnly
-        onReady={() => {
-          const editor = document.getElementById('editorjs');
-          if (editor) { editor.setAttribute('spellcheck', 'false'); }
-        }}
-        defaultValue={{
-          blocks: get(articleContent, 'blocks', []),
-        }}
-        tools={EDITOR_JS_TOOLS}
-      />
-      )}
-
       <div className="reaction-icons">
         <FontAwesomeIcon
           style={{
@@ -170,6 +154,22 @@ function Blogs(): Node {
         />
         <p>12</p>
       </div>
+      <hr className="single-blog-content-divider" />
+      {!id && sampleBlog()}
+      {!isEmpty(article) && id && (
+      <ReactEditorJS
+        holder='editorjs'
+        readOnly
+        onReady={() => {
+          const editor = document.getElementById('editorjs');
+          if (editor) { editor.setAttribute('spellcheck', 'false'); }
+        }}
+        defaultValue={{
+          blocks: get(articleContent, 'blocks', []),
+        }}
+        tools={EDITOR_JS_TOOLS}
+      />
+      )}
 
       <Footer />
     </main>

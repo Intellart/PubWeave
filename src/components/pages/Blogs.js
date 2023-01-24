@@ -46,9 +46,9 @@ function Blogs(): Node {
             <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
           </Link>
           ) }
-          {map(categories, (c) => (
+          {map(categories, (c, index) => (
             <Link
-              key={c.id}
+              key={index}
               className={classNames('blogs-featured-categories-list-item',
                 { 'blogs-featured-categories-list-item-active': c.category_name === cat })}
               to={`/blogs/${c.category_name}`}
@@ -66,21 +66,21 @@ function Blogs(): Node {
           <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
           <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
           <div className="all-chips">
-            {map(categoryTags, (t) => {
+            {map(categoryTags, (t, index) => {
               const catName = get(categories, [t.category_id, 'category_name']);
 
               return (
                 <Link
-                  key={t.id}
+                  key={index}
                   className="chip"
-                  to={`/blogs/${catName}/${t.tag}`}
+                  to={`/blogs/${catName}/${t.tag_name}`}
                 >
                   <Chip
-                    id={t.id}
-                    label={t.tag}
-                    variant={tag === t.tag ? 'default' : 'outlined'}
+                    id={t.tag_name}
+                    label={t.tag_name}
+                    variant={tag === t.tag_name ? 'default' : 'outlined'}
                     sx={{
-                      backgroundColor: tag === t.tag ? 'primary.main' : 'transparent',
+                      backgroundColor: tag === t.tag_name ? 'primary.main' : 'transparent',
                       color: 'white',
                     }}
                   />
@@ -94,9 +94,9 @@ function Blogs(): Node {
         {/* <hr className="blogs-featured-divider" /> */}
         <h2 className="blogs-featured-subtitle">Featured</h2>
         <div className='blogs-featured-cards'>
-          {map(filteredArticles.slice(0, 3), (a) => (
+          {map(filteredArticles.slice(0, 3), (a, index) => (
             <FeaturedCard
-              key={a.id}
+              key={index}
               status={get(a, 'status', '')}
               img={images[a.id % 4]}
               id={a.id}
@@ -112,9 +112,9 @@ function Blogs(): Node {
         <hr className="blogs-featured-divider" />
         <h2 className="blogs-featured-subtitle">Latest Blog Posts</h2>
         <div className='blogs-other-cards'>
-          {map(filteredArticles, (a) => (
+          {map(filteredArticles, (a, index) => (
             <ArticleCard
-              key={a.id}
+              key={index}
               article={a}
             />
           ))}

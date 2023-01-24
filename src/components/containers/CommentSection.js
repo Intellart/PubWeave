@@ -1,6 +1,7 @@
 import { Chip } from '@mui/material';
 import {
-  get, includes, isEmpty, map, keyBy,
+  filter,
+  get, includes, map,
 } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
@@ -41,35 +42,24 @@ function CommentSection(props: Props): Node {
   };
 
   const handleSaveReply = (replyContent, replyTo) => {
-    console.log('handleSaveReply', replyContent, replyTo);
-    props.createComment(props.articleId, replyTo, replyContent);
+    console.log('handleSaveReply', props.articleId, props.authorId, replyContent, replyTo);
+    props.createComment(props.articleId, props.authorId, replyContent, replyTo);
+    setTempComment({});
   };
 
-  const renderedComments = () => {
-    let rComments = {};
+  const renderedComments = () => filter(map(props.comments, (comment) => {
+    const { id } = comment;
+    const replies = filter(props.comments, (reply) => get(reply.reply_to, 'id') === id);
+    const renderTempComment = (id === tempComment.replyTo || includes(map(replies, 'id'), tempComment.replyTo));
 
-    if (!isEmpty(tempComment)) {
-      const { replyTo } = tempComment;
-
-      rComments = keyBy(map(props.comments, (comment) => {
-        if (comment.id === replyTo || includes(map(comment.replies, 'id'), replyTo)) {
-          return {
-            ...comment,
-            replies: [
-              ...get(comment, 'replies', []),
-              tempComment,
-            ],
-          };
-        }
-
-        return comment;
-      }), 'id');
-
-      return rComments;
-    }
-
-    return props.comments;
-  };
+    return {
+      ...comment,
+      replies: [
+        ...replies,
+        ...renderTempComment ? [tempComment] : [],
+      ],
+    };
+  }), (comment) => !get(comment, 'reply_to.id'));
 
   const users = [
     {
@@ -142,14 +132,12 @@ function CommentSection(props: Props): Node {
 
   const handleNewEmptyReply = (replyContent, parentId) => {
     console.log('handleReply', replyContent);
-    setTempComment({});
-    // eslint-disable-next-line
-    // eslint-disable-next-line no-console
     setExpandedComment(parentId);
+    console.log(replyContent);
     setTempComment({
       id: 999,
       key: 999,
-      content: '@' + replyContent.author + ' ',
+      comment: '@[test@test.com](test) ', // '@' + replyContent.author + ' ',
       rating: 0,
       alreadyVoted: 0,
       replyTo: replyContent.id,
@@ -208,30 +196,20 @@ function CommentSection(props: Props): Node {
       </div>
       {map(renderedComments(), (comment) => (
         <Comment
-          newComment={comment.newComment}
-          id={comment.id}
+          comment={comment}
           key={comment.id}
           onReply={(content) => handleNewEmptyReply(content, comment.id)}
-          username={comment.username}
           onCancel={handleCancel}
-          rating={comment.rating}
-          alreadyVoted={comment.alreadyVoted}
-          content={comment.comment}
-          hasReplies={get(comment.replies, 'length') > 0}
           onExpand={() => handleExpand(comment.id)}
         >
           {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
             <Comment
-              newComment={reply.newComment}
-              onCancel={handleCancel}
-              id={reply.id}
-              username={reply.username}
+              isReply
+              ref={get(reply, 'isTempComment') ? refCallback : null}
+              comment={reply}
               key={reply.id}
               onReply={(content) => handleNewEmptyReply(content, comment.id)}
-              rating={reply.rating}
-              alreadyVoted={reply.alreadyVoted}
-              content={reply.content}
-              ref={get(reply, 'isTempComment') ? refCallback : null}
+              onCancel={handleCancel}
               onSave={(content) => handleSaveReply(content, comment.id)}
             />
           ))}
