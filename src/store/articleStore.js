@@ -142,6 +142,7 @@ export const selectors = {
   article: (state: ReduxState): any => state.article.oneArticle,
   articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
+  getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
   getTags: (state: ReduxState): any => state.article.tags,
@@ -257,6 +258,8 @@ export const actions = {
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
     case types.ART_FLUSH_ARTICLE_FULFILLED:
+      toast.success('Article flushed.');
+
       return {
         ...state,
         oneArticle: {},
@@ -414,8 +417,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.success(`Deleted article ${action.payload.title} successfully!`);
 
       return {
-        allArticles: omit(state.allArticles, action.payload.id),
         ...state,
+        allArticles: omit(state.allArticles, action.payload.id),
       };
 
     case types.ART_PUBLISH_ARTICLE_FULFILLED:
@@ -449,8 +452,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         oneArticle: {
-          content: JSON.parse(get(action.payload, 'content', '{}')),
           ...state.oneArticle,
+          content: JSON.parse(get(action.payload, 'content', '{}')),
         },
       };
 
