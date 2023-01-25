@@ -5,6 +5,7 @@
   justify-content: center;
 
   .reaction-icons {
+    transform: translateY(-70px);
     display: flex;
     align-items: center;
     justify-content: left;
@@ -19,6 +20,7 @@
 
 
   #editorjs {
+    transform: translateY(-50px);
     min-height: calc(80vh - 210px);
     
     .codex-editor{
@@ -321,10 +323,12 @@
   .single-blog-img {
     width: calc(100% - 200px);
     max-width: 1000px;
-    height: 100%;
+    height: 350px;
     object-fit: cover;
+    border-radius: 10px;
     object-position: center;
     transform: translateY(-100px);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 
   .blogs-featured{

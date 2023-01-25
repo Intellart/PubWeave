@@ -13,12 +13,14 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
 import {
+  faLink,
   faPencil,
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import {
   map, get, find,
 } from 'lodash';
+import { Link } from 'react-router-dom';
 import { statuses } from '../../pages/Dashboard';
 // import { toast } from 'react-toastify';
 
@@ -46,6 +48,10 @@ export default function MyDataGrid(props: Props) {
     if (params.field === '__check__') {
       return;
     }
+    if (!params.colDef.editable) {
+      return;
+    }
+
     setCellModesModel((prevModel) => ({
       // Revert the mode of the other cells from other rows
       ...Object.keys(prevModel).reduce(
@@ -292,7 +298,27 @@ export default function MyDataGrid(props: Props) {
   };
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'id', headerName: 'ID', width: 30 },
+    {
+      field: 'published_link',
+      headerName: 'Link',
+      width: 30,
+      editable: false,
+      renderCell: (params) => {
+        console.log(params);
+        if (get(params, 'row.status.value') === 'published') {
+          return (
+            <Link
+              to={`/singleblog/${params.row.id}`}
+            >
+              <FontAwesomeIcon icon={faLink} />
+            </Link>
+          );
+        }
+
+        return null;
+      },
+    },
     {
       field: 'status',
       headerName: 'Status',
@@ -335,7 +361,7 @@ export default function MyDataGrid(props: Props) {
       field: 'ORCID',
       headerName: 'ORCID',
       width: 250,
-      editable: true,
+      editable: false,
     },
     {
       field: 'registeredOn',

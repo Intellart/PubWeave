@@ -37,6 +37,14 @@ function CommentSection(props: Props): Node {
     }
   }, []);
 
+  const handleExpand = (id) => {
+    if (expandedComment === id) {
+      setExpandedComment(null);
+    } else {
+      setExpandedComment(id);
+    }
+  };
+
   const handleCancel = () => {
     setTempComment({});
   };
@@ -201,6 +209,7 @@ function CommentSection(props: Props): Node {
           onReply={(content) => handleNewEmptyReply(content, comment.id)}
           onCancel={handleCancel}
           onExpand={() => handleExpand(comment.id)}
+          replyCount={get(comment, 'replies', []).length}
         >
           {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
             <Comment

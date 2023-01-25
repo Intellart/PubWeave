@@ -43,7 +43,8 @@ export const statuses = {
 };
 
 function Dashboard(): Node {
-  const articles = useSelector((state) => selectors.getUsersArticles(state), isEqual);
+  // const articles = useSelector((state) => selectors.getUsersArticles(state), isEqual);
+  const articles = useSelector((state) => selectors.getAllArticles(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
 
   const dispatch = useDispatch();

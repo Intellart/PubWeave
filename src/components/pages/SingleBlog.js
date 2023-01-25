@@ -11,7 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  filter, find, get, isEmpty, isEqual, map,
+  find, get, isEmpty, isEqual, map, size,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip } from '@mui/material';
@@ -79,15 +79,15 @@ function Blogs(): Node {
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
 
   useEffect(() => {
-    if (!article && id) {
+    if ((!article && id)) {
       fetchArticle(id);
     } else if (article && id) {
-      setThumbnailLink(get(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), '[1]', SingleBlog));
+      setThumbnailLink(get(article, 'image', SingleBlog));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);
 
-  console.log(article);
+  console.log('article', article);
 
   const getRoute = (catId) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
@@ -97,7 +97,7 @@ function Blogs(): Node {
         <div className="category-highlight-single-page-text">
           <div className="category-highlight-single-page-text-left">
             <h1 className="category-highlight-category">{get(article, 'category', '')}</h1>
-            <h2 className="category-highlight-title">title</h2>
+            <h2 className="category-highlight-title">{get(article, 'title', 'No title')}</h2>
             <div className="category-highlight-single-page-text-left-tags">
               {map(get(article, 'tags', []), (tag, index) => (
                 <Link
@@ -132,29 +132,7 @@ function Blogs(): Node {
         </div>
       </section>
       <img src={thumbnailLink} className="single-blog-img" alt="single blog" />
-      <div className="reaction-icons">
-        <FontAwesomeIcon
-          style={{
-            width: 28, height: 28, color: '#11273F', marginRight: 6,
-          }}
-          icon={faHeart}
-        />
-        <p>{get(article, 'likes', 0)}</p>
-        <FontAwesomeIcon
-          style={{
-            width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
-          }}
-          icon={faHeartBroken}
-        /><p>{get(article, 'dislikes', 0)}</p>
-        <CommentModal
-          comments={get(article, 'blog_article_comments', {})}
-          createComment={createComment}
-          articleId={id}
-          authorId={get(article, 'user.id', 1)}
-        />
-        <p>12</p>
-      </div>
-      <hr className="single-blog-content-divider" />
+      {/* <hr className="single-blog-content-divider" /> */}
       {!id && sampleBlog()}
       {!isEmpty(article) && id && (
       <ReactEditorJS
@@ -170,6 +148,28 @@ function Blogs(): Node {
         tools={EDITOR_JS_TOOLS}
       />
       )}
+      <div className="reaction-icons">
+        <FontAwesomeIcon
+          style={{
+            width: 28, height: 28, color: '#11273F', marginRight: 6,
+          }}
+          icon={faHeart}
+        />
+        <p>{get(article, 'likes', 0)}</p>
+        <FontAwesomeIcon
+          style={{
+            width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
+          }}
+          icon={faHeartBroken}
+        /><p>{get(article, 'dislikes', 0)}</p>
+        <CommentModal
+          comments={get(article, 'blog_article_comments', [])}
+          createComment={createComment}
+          articleId={id}
+          authorId={get(article, 'user.id', 1)}
+        />
+        <p>{size(get(article, 'blog_article_comments', []))}</p>
+      </div>
 
       <Footer />
     </main>

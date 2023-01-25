@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Chip } from '@mui/material';
 import { get } from 'lodash';
+import { Link } from 'react-router-dom';
 
 type Props = {
   id?: number,
@@ -19,6 +20,7 @@ type Props = {
   onExpand?: Function,
   comment: Object,
   isReply?: boolean,
+  replyCount?: number,
 };
 
 const Comment = React.forwardRef((props: Props, ref) => {
@@ -39,9 +41,10 @@ const Comment = React.forwardRef((props: Props, ref) => {
   };
 
   const formatText = (text) => {
-    const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
+    console.log('formatText', text);
+    // const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
+    const newContent = text.split(/(@\[.*\]\(.*\))/);
     let hashtag;
-    let username;
 
     return newContent.map((word) => {
       if (word.startsWith('#')) {
@@ -57,16 +60,19 @@ const Comment = React.forwardRef((props: Props, ref) => {
           </a>
         );
       } else if (word.startsWith('@')) {
-        username = word.replace('@', '');
+        // console.log('word', word);
+
+        const email = word.replace(/(@\[(.*)\]\(.*\))/, '$2');
+        const name = word.replace(/(@\[.*\]\((.*)\))/, '$2');
 
         return (
-          <a
-            key={word}
-            href={`/profile/${username}`}
+          <Link
+            key={email}
+            to={`/profile/${email}`}
             className="text-cyanBlue/80 hover:text-cyanBlue"
           >
-            {word}
-          </a>
+            {'@' + name}
+          </Link>
         );
       } else if (word.includes('http')) {
         return <a target="_blank" href={word} className="text-cyanBlue/80 hover:text-cyanBlue">{word}</a>;
@@ -169,7 +175,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
             <>
               <MentionsInput
                 style={mentionsInputStyle}
-                className="comment-section-new-comment"
+                className="comment-content-body-textarea"
                 value={content}
                 onChange={(e) => {
                   setContent(e.target.value);
@@ -244,12 +250,15 @@ const Comment = React.forwardRef((props: Props, ref) => {
               icon={faHandsClapping}
             />
             <p>{rating}</p>
-            {props.comment.hasReplies && (
-            <FontAwesomeIcon
-              className="comment-content-lower-reply"
-              onClick={() => props.onExpand()}
-              icon={faComment}
-            />
+            {props.onExpand && (
+              <>
+                <FontAwesomeIcon
+                  className="comment-content-lower-reply"
+                  onClick={() => props.onExpand()}
+                  icon={faComment}
+                />
+                <p>{props.replyCount}</p>
+              </>
             )
             }
           </div>
