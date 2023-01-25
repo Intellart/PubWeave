@@ -14,19 +14,36 @@ type User = {
   domain: string,
 }
 
-function LoginPage(): Node {
-  const [username, setUserName] = useState('');
-  const [password, setPassword] = useState('');
+type Props = {
+  forAdmin?: boolean,
+}
+
+function LoginPage({ forAdmin }: Props): Node {
+  const [username, setUserName] = useState(forAdmin ? 'a@a.com' : 'test@test.com');
+  const [password, setPassword] = useState('123456');
 
   const dispatch = useDispatch();
   const loginUser = (user: User) => dispatch(actions.loginUser(user));
+  const loginAdmin = (admin: User) => dispatch(actions.loginAdmin(admin));
 
   const handleSubmit = () => {
-    loginUser({
-      email: username,
-      password,
-      domain: 'Pubweave',
-    });
+    if (!username || !password) {
+      return;
+    }
+
+    if (forAdmin) {
+      loginAdmin({
+        email: username,
+        password,
+        domain: 'Pubweave',
+      });
+    } else {
+      loginUser({
+        email: username,
+        password,
+        domain: 'Pubweave',
+      });
+    }
   };
 
   return (
@@ -45,7 +62,7 @@ function LoginPage(): Node {
             <img src={logoImg} alt="PubWeave Logo" className="login-image" width="40px" />
           </div>
           <div className="login-name">
-            <h1 className="login-name-title">PubWeave</h1>
+            <h1 className="login-name-title">PubWeave {forAdmin ? 'Admin' : ''} Login</h1>
           </div>
           <div className="login-email">
             <label htmlFor="email" className="login-email-label">
@@ -85,13 +102,15 @@ function LoginPage(): Node {
             type="button"
             className="login-button"
           >
-            Login
+            {forAdmin && 'Admin'} Login
           </button>
+          {!forAdmin && (
           <div className="login-signup">
             <p className="login-signup__text">
               Don&apos;t have an account? <a href="/signup">Sign up</a>
             </p>
           </div>
+          )}
         </div>
       </section>
 

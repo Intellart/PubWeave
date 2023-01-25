@@ -20,6 +20,7 @@ import BasicMenu from './UserDropdownMenu';
 type Props = {
   isAuthorized: boolean,
   isAdmin: boolean,
+  user?: any,
 };
 function Navbar(props: Props): Node {
   const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
@@ -49,6 +50,7 @@ function Navbar(props: Props): Node {
 
         <Autocomplete
           disablePortal
+          size="small"
           value={searchValue}
           onInputChange={(event, newInputValue) => {
             setSearchValue(newInputValue);
@@ -111,12 +113,12 @@ function Navbar(props: Props): Node {
       <div className="navigation">
         <NavLink to="/">Home</NavLink>
         <NavLink to="/blogs">Blogs </NavLink>
-        {(props.isAuthorized || props.isAdmin) && <NavLink to="/Dashboard">Dashboard</NavLink>}
+        {(props.isAdmin) && <NavLink to="/Dashboard">Dashboard</NavLink>}
         <NavLink to="/About">About</NavLink>
         <NavLink to="/ContactUs">Contact Us</NavLink>
         {props.isAuthorized && <Link to="/submit-work" className='submit-work'>Submit your research</Link>}
         {(props.isAuthorized || props.isAdmin)
-          ? (<BasicMenu />)
+          ? (<BasicMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} />)
           : (
             <Link
               className="login-button"

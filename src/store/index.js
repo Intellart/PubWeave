@@ -4,21 +4,23 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import {
-  concat, forEach, get, isString, includes, isEmpty,
+  concat, forEach, get, isString, includes,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import { isPromise } from '../utils';
 import { reducer as globalStoreReducer } from './globalStore';
-import { reducer as userStoreReducer } from './userStore';
-import { reducer as articleStoreReducer } from './articleStore';
+import { reducer as userStoreReducer, types as userTypes } from './userStore';
+import { reducer as articleStoreReducer, types as articleTypes } from './articleStore';
 import ErrorMessage from '../components/errors/ErrorMessage';
+import { localStorageKeys } from '../tokens';
+import { getItem } from '../localStorage';
+
 import type {
   ReduxAction,
   ReduxState,
   ReduxMiddlewareArgument,
   ActionChains,
 } from '../types';
-import { getItem } from '../localStorage';
 
 const ignoreErrors = [];
 
@@ -103,14 +105,17 @@ function dispatchRecorder(dispatchedActions: ?Array<string>): any {
   };
 }
 
-const localUser: string|null = getItem('user');
-
-const initialReduxState: Object = {
-  ...(!isEmpty(localUser) && localUser && {
-    user: {
-      profile: JSON.parse(localUser),
-    },
-  }),
+const initialReduxState = {
+  global: {
+    loading:
+     {
+       [articleTypes.ART_FETCH_ALL_ARTICLES]: 'PENDING',
+       [articleTypes.ART_FETCH_COMMENTS]: 'PENDING',
+       [articleTypes.ART_FETCH_CATEGORIES]: 'PENDING',
+       [articleTypes.ART_FETCH_TAGS]: 'PENDING',
+       [userTypes.USR_VALIDATE_USER]: getItem(localStorageKeys.jwt) ? 'PENDING' : 'DONE',
+     },
+  },
 };
 
 export const configureStore = (

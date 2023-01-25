@@ -33,6 +33,11 @@ apiClient.interceptors.request.use((config: any) => {
 }, (error) => Promise.reject(error));
 
 apiClient.interceptors.response.use((response: any) => {
+  if (has(response, `data.${localStorageKeys.isAdmin}`)) {
+    const isAdmin = get(response, `data.${localStorageKeys.isAdmin}`);
+    console.log('response.data', isAdmin);
+    setItem(localStorageKeys.isAdmin, isAdmin ? 'true' : 'false');
+  }
   if (has(response, `headers.${localStorageKeys.jwt}`)) {
     const _jwt = get(response, `headers.${localStorageKeys.jwt}`);
     // localStorage.setItem(localStorageKeys.jwt, JSON.stringify(jwt));

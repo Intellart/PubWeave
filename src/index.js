@@ -11,9 +11,11 @@ import reportWebVitals from './reportWebVitals';
 import { actions as userActions } from './store/userStore';
 import { getItem } from './localStorage';
 import { actions as articleActions } from './store/articleStore';
+import { localStorageKeys } from './tokens';
 
-const _jwt = getItem('_jwt');
+const _jwt = getItem(localStorageKeys.jwt);
 if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
+
 store.dispatch(articleActions.fetchAllArticles());
 store.dispatch(articleActions.fetchCategories());
 store.dispatch(articleActions.fetchComments());

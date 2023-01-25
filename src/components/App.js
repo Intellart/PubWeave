@@ -3,7 +3,7 @@ import React from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { isEmpty, isEqual } from 'lodash';
 import Home from './pages/Home';
 import { useScrollTopEffect } from '../utils/hooks';
@@ -18,20 +18,27 @@ import Dashboard from './pages/Dashboard';
 import { selectors as userSelectors } from '../store/userStore';
 import { selectors as globalSelectors } from '../store/globalStore';
 import Loader from './containers/Loader';
-import { actions } from '../store/articleStore';
 
 import Navbar from './containers/Navbar';
 import CatchAllRoute from './pages/CatchAllRoute';
+import UserPage from './pages/UserPage';
 
 function App(): Node {
   useScrollTopEffect();
   const isLoading = useSelector((state) => globalSelectors.checkIsLoading(state), isEqual);
 
-  const isAuthorized: boolean = useSelector((state) => !isEmpty(userSelectors.getUser(state)), isEqual);
-  const isAdmin: boolean = useSelector((state) => !isEmpty(userSelectors.getAdmin(state)), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
 
-  const dispatch = useDispatch();
-  dispatch(actions.flushArticle());
+  const isUser: boolean = !isEmpty(user);
+  const isAdmin: boolean = !isEmpty(admin);
+
+  console.log('App > isUser', isUser);
+  console.log('App > isAdmin', isAdmin);
+
+  const isAuthorized = isUser || isAdmin;
+
+  console.log('App > isAuthorized', isAuthorized);
 
   if (isLoading) {
     return (<Loader />);
@@ -47,11 +54,15 @@ function App(): Node {
         rtl={false}
       />
       <div className="application-wrapper">
-        <Navbar isAuthorized={isAuthorized} isAdmin={isAdmin} />
+        <Navbar
+          user={isUser ? user : admin}
+          isAuthorized={isUser}
+          isAdmin={isAdmin}
+        />
         <Routes>
           {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
+          {!isAuthorized && <Route path="/admin-login" element={<LoginPage forAdmin />} /> }
           <Route index element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/singleblog/:id" element={<SingleBlog />} />
           <Route path="/blogs" element={<Blogs />} />
@@ -61,12 +72,16 @@ function App(): Node {
 
           {isAuthorized && (
             <>
+              <Route path="/user/:id" element={<UserPage />} />
               <Route path="/submit-work" element={<MyArticles />} />
               <Route path="/submit-work/:id" element={<EditorPage />} />
               <Route path="/publish/:id" element={<EditorPageReadOnly />} />
             </>
           )}
-          <Route path="*" element={<CatchAllRoute isAuthorized={isAuthorized} isAdmin={isAdmin} />} />
+          {isAdmin && (
+            <Route path="/dashboard" element={<Dashboard />} />
+          )}
+          <Route path="*" element={<CatchAllRoute isUser={isUser} isAdmin={isAdmin} />} />
         </Routes>
       </div>
     </div>

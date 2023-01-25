@@ -4,6 +4,7 @@ import {
 } from 'lodash';
 import type { ReduxState, ReduxActionWithPayload } from '../types';
 import { types as articleTypes } from './articleStore';
+import { types as userTypes } from './userStore';
 
 type Loading = {
   [string]: string
@@ -41,6 +42,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     // case userTypes.USR_FETCH_ALL_USERS_REJECTED:
     //   return updateLoading(state, action.type, 'FAIL');
+
+    case userTypes.USR_VALIDATE_USER_FULFILLED:
+      return updateLoading(state, action.type, 'DONE');
+
+    case userTypes.USR_VALIDATE_USER_REJECTED:
+      return updateLoading(state, action.type, 'DONE');
 
     case articleTypes.ART_FETCH_ALL_ARTICLES_FULFILLED:
       return updateLoading(state, action.type, 'DONE');

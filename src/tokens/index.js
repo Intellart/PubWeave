@@ -4,5 +4,5 @@ export const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const localStorageKeys = {
   jwt: '_jwt',
-  user: 'user',
+  isAdmin: 'is_admin',
 };

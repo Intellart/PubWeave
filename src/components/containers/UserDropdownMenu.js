@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 import { store } from '../../store';
 import { actions } from '../../store/userStore';
 
-export default function BasicMenu() {
+type Props = {
+  isAdmin: boolean,
+  userId?: number,
+};
+
+export default function BasicMenu(props: Props): Node {
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
   const open = Boolean(anchorEl);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -18,6 +24,11 @@ export default function BasicMenu() {
     setAnchorEl(null);
   };
 
+  const handleProfile = () => {
+    setAnchorEl(null);
+    navigate(`/user/${props.userId}`);
+  };
+
   const handleLogout = () => {
     setAnchorEl(null);
     store.dispatch(actions.logoutUser());
@@ -25,27 +36,23 @@ export default function BasicMenu() {
 
   return (
     <div>
-      <Button
-        id="basic-button"
+      <div
+        className='navbar-user'
         aria-controls={open ? 'basic-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        sx={{
-          borderRadius: '50%',
-          width: '2rem',
-          aspectRatio: '1/1',
-        }}
       >
         <FontAwesomeIcon
-          icon={faUserCircle}
+          className='navbar-user-icon'
+          icon={props.isAdmin ? faLock : faUserCircle}
           style={{
             fontSize: '2rem',
             width: '2rem',
             height: '2rem',
           }}
         />
-      </Button>
+      </div>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -55,8 +62,8 @@ export default function BasicMenu() {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem disabled onClick={handleClose}>Profile</MenuItem>
-        <MenuItem disabled onClick={handleClose}>My account</MenuItem>
+        {props.isAdmin && <MenuItem disabled>ADMIN</MenuItem> }
+        <MenuItem onClick={handleProfile}>Profile</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </div>

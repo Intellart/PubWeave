@@ -2,7 +2,7 @@
 import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
-import { removeItem } from '../localStorage';
+import { setItem, removeItem } from '../localStorage';
 import { localStorageKeys } from '../tokens';
 
 export type User = {
@@ -40,6 +40,11 @@ export const types = {
   USR_LOGIN_USER_REJECTED: 'USR/LOGIN_USER_REJECTED',
   USR_LOGIN_USER_FULFILLED: 'USR/LOGIN_USER_FULFILLED',
 
+  USER_LOGIN_ADMIN: 'USR/LOGIN_ADMIN',
+  USER_LOGIN_ADMIN_PENDING: 'USR/LOGIN_ADMIN_PENDING',
+  USER_LOGIN_ADMIN_REJECTED: 'USR/LOGIN_ADMIN_REJECTED',
+  USER_LOGIN_ADMIN_FULFILLED: 'USR/LOGIN_ADMIN_FULFILLED',
+
   USR_LOGOUT_USER: 'USR/LOGOUT_USER',
   USR_LOGOUT_USER_PENDING: 'USR/LOGOUT_USER_PENDING',
   USR_LOGOUT_USER_REJECTED: 'USR/LOGOUT_USER_REJECTED',
@@ -64,6 +69,10 @@ export const actions = {
     type: types.USR_LOGIN_USER,
     payload: API.postRequest('auth/session', { user: payload }),
   }),
+  loginAdmin: (payload: LoginCredentials): ReduxAction => ({
+    type: types.USER_LOGIN_ADMIN,
+    payload: API.postRequest('admin/session', { admin: payload }),
+  }),
   logoutUser: (): ReduxAction => ({
     type: types.USR_LOGOUT_USER,
     payload: API.deleteRequest('auth/session'),
@@ -79,7 +88,7 @@ export const actions = {
 
 const logoutUser = (): State => {
   removeItem(localStorageKeys.jwt);
-  removeItem(localStorageKeys.user);
+  removeItem(localStorageKeys.isAdmin);
 
   return {};
 };
@@ -91,7 +100,22 @@ const logoutUser = (): State => {
 //   return {};
 // };
 
-const handleSilentLogin = (state: State, payload): State => ({ ...state, profile: payload.user });
+const handleSilentLogin = (state: State, payload): State => {
+  console.log('payload', payload.user);
+  if (payload.is_admin) {
+    return {
+      ...state,
+      profile: null,
+      currentAdmin: payload.user,
+    };
+  }
+
+  return {
+    ...state,
+    profile: payload.user,
+    currentAdmin: null,
+  };
+};
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
@@ -101,9 +125,20 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.USR_LOGIN_USER_FULFILLED:
       toast.success('User successfully logged in!');
-      localStorage.setItem('user', JSON.stringify(action.payload));
+      setItem(localStorageKeys.isAdmin, 'false');
 
-      return { ...state, ...{ profile: action.payload, currentAdmin: null } };
+      return {
+        ...state,
+        profile: action.payload,
+        currentAdmin: null,
+      };
+
+    case types.USER_LOGIN_ADMIN_FULFILLED:
+      toast.success('Admin successfully logged in!');
+      setItem(localStorageKeys.isAdmin, 'true');
+      console.log('action.payload', action.payload);
+
+      return { ...state, ...{ profile: null, currentAdmin: action.payload.admin } };
 
     case types.USR_LOGOUT_USER_FULFILLED:
       toast.success('User successfully logged out!');
