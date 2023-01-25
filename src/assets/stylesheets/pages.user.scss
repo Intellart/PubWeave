@@ -1,0 +1,195 @@
+.user-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  align-items: center;
+  justify-content: space-between;
+
+  .user-page{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    .user-page-wrapper-right,
+    .user-page-wrapper-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      height: 100%;
+      gap: 20px;
+  
+      .user-page-hero{
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 500px;
+        background: #11273F;
+        border-radius: 10px;
+        box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
+        gap: 20px;
+        padding-bottom: 20px;
+    
+        hr{
+          width: 50%;
+          border: 1px solid rgba(55, 55, 55, 0.763);
+    
+        }
+        
+    
+        .user-page-header{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          background: #fff;
+          width: 100%;
+          border-radius: 10px 10px 0 0;
+          padding: 10px;
+    
+          .user-page-header-title{
+            font-size: 20px;
+            font-weight: 600;
+            color: #11273F;
+          }
+        }
+    
+        .user-page-info{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          padding: 10px;
+    
+          .user-page-info-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+    
+          .user-page-info-text{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: fit-content;
+    
+            .user-page-header-info-name{
+              font-size: 20px;
+              font-weight: 600;
+              color: #fff;
+            }
+    
+            .user-page-header-info-email{
+              font-size: 14px;
+              font-weight: 400;
+              color: #fff;
+            }
+          }
+        }
+    
+        .user-page-password-change{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: fit-content;
+    
+          .user-page-password-change-input{
+            width: 100%;
+            height: 40px;
+            border-radius: 5px;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #000;
+            background: #fff;
+    
+            input{
+              &::placeholder{
+                color: rgba(0, 0, 0, 0.322);
+              }
+            }
+    
+          }
+    
+          .user-page-password-change-submit {
+            width: 100%;
+            height: 40px;
+            border-radius: 5px;
+            border: none;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 400;
+            color: #11273F;
+            background: #fff;
+            cursor: pointer;
+    
+            &:hover{
+              background: #11273F;
+              color: #fff;
+              border: 1px solid #fff;
+    
+            }
+          }
+        }
+    
+        .user-page-other-info{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: fit-content;
+          gap: 20px;
+    
+          .user-page-other-info-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            gap: 10px;
+            padding: 10px;
+            color: #11273F;
+            border-radius: 5px;
+    
+            .user-page-other-info-item-title{
+              font-size: 14px;
+              width: 150px;
+              font-weight: 400;  
+    
+            }
+    
+            .user-page-other-info-item-value{
+              font-size: 14px;
+              font-weight: 400;
+              width: 150px;
+            }
+          }
+        }
+    
+      }
+    }
+  }
+
+
+
+
+
+
+}
