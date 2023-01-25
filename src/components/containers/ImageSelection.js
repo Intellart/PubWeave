@@ -98,9 +98,9 @@ function ImageSelection (props: Props) {
         {(!isEmpty(props.linkList) || alternateLinkImage) ? (
           <div
             className={classNames('editor-wrapper-image-selection-actions-select',
-              { disabled: selectedImageIndex === props.oldSelectedImageIndex })}
+              { disabled: selectedImageIndex === props.oldSelectedImageIndex && selectedImageIndex !== -1 })}
             onClick={() => {
-              props.onImageSelection(linkList[selectedImageIndex]);
+              if (selectedImageIndex !== -1) { props.onImageSelection(linkList[selectedImageIndex]); }
             }}
           >
             Select thumbnail image

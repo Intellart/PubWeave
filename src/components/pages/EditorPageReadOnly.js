@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { Alert, Button } from '@mui/material';
+import { Alert } from '@mui/material';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
@@ -94,22 +94,37 @@ function ReactEditor () {
         />
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleTitle })} />
-      <div className="editor-buttons">
-        <Link to={`/submit-work/${id}`}>
-          <Button variant="contained" color="primary" sx={{ ml: 2 }}>
-            Back to editor
-          </Button>
-        </Link>
-        <div
-          className={classNames('editor-wrapper-publish-button')}
-          onClick={() => {
-            publishArticle(id, 'requested', article);
-            navigate('/submit-work');
-          }}
-        >
-          Publish article
+      <div className="editor-buttons-wrapper">
+        <div className="editor-buttons">
+          <Link
+            to={`/submit-work/${id}`}
+          >
+            <div
+              className='editor-buttons-back-button'
+              color="primary"
+            >
+              Back to editor
+            </div>
+          </Link>
+          <div
+            className={classNames('editor-wrapper-publish-button')}
+            onClick={() => {
+              publishArticle(id, 'requested', article);
+              navigate('/submit-work');
+            }}
+          >
+            Publish article
+          </div>
         </div>
       </div>
+      <ImageSelection
+        linkList={map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url'))}
+        onImageSelection={(href) => {
+          console.log('Image selected' + href);
+          updateArticle(id, { image: href });
+        }}
+        oldSelectedImageIndex={indexOf(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), get(article, 'image', ''))}
+      />
       <div
         style={{
           display: 'flex',
@@ -126,14 +141,6 @@ function ReactEditor () {
           You are in read only mode and can only view the article. To edit the article, click on the Back button.
         </Alert>
       </div>
-      <ImageSelection
-        linkList={map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url'))}
-        onImageSelection={(href) => {
-          console.log('Image selected' + href);
-          updateArticle(id, { image: href });
-        }}
-        oldSelectedImageIndex={indexOf(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), get(article, 'image', ''))}
-      />
 
       <ArticleConfig
         id={id}

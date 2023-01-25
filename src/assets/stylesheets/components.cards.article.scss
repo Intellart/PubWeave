@@ -43,8 +43,9 @@
 
         .article-card-img {
             height: 100%;
-            aspect-ratio: 16/9;
+            width: 100%;
             border-radius: 12px;
+            object-fit: cover;
             
         }
     }

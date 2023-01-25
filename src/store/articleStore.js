@@ -365,13 +365,14 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_REMOVE_TAG_FULFILLED:
+      const removedId: number = action.payload;
       toast.success('Tag removed successfully!');
 
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          tags: filter(state.oneArticle.tags, (tag) => tag.id !== action.payload.id),
+          tags: filter(state.oneArticle.tags, (tag) => tag.article_tag_link !== removedId),
         },
       };
 

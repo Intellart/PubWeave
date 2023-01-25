@@ -13,6 +13,7 @@ import {
   isEqual,
   includes,
   differenceBy,
+  filter,
 } from 'lodash';
 // import Chip from '@mui/material/Chip';
 import { Link } from 'react-router-dom';
@@ -56,7 +57,7 @@ function ArticleConfig(props: Props): Node {
     })) || []);
     setDescription(get(props.article, 'description', ''));
     setStar(get(props.article, 'star', false) || false);
-  }, [props.article, props.tags]);
+  }, [props.article, allTags]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -94,14 +95,13 @@ function ArticleConfig(props: Props): Node {
   const tagIds = map(tags, 'tag_name');
 
   const tagsChanged = !isEqual(articleTagIds, tagIds);
-  console.log(articleTagIds, tagIds, tagsChanged);
 
   const handleSaveTags = () => {
     const diff = differenceBy(get(props.article, 'tags', []), tags, 'tag_name');
     const diff2 = differenceBy(tags, get(props.article, 'tags', []), 'tag_name');
 
-    console.log('to remove', diff);
-    console.log('to add', diff2);
+    // console.log('to remove', diff);
+    // console.log('to add', diff2);
 
     map(diff, (tag) => {
       props.removeTag(tag.article_tag_link);
@@ -124,7 +124,12 @@ function ArticleConfig(props: Props): Node {
     console.log(value);
   };
 
-  const category = get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '');
+  const category: number = get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '');
+
+  const tagOptionsToShow = map(filter(get(props, 'tags', []), (tag) => tag.category_id === category), (t) => ({
+    ...t,
+    article_tag_link: null,
+  }));
 
   return (
     <ClickAwayListener
@@ -217,6 +222,7 @@ function ArticleConfig(props: Props): Node {
             <div className='article-config-item-tags'>
               <Autocomplete
                 disablePortal
+                disabled={!category}
                 multiple
                 limitTags={2}
                 id="combo-box-demo"
@@ -225,10 +231,7 @@ function ArticleConfig(props: Props): Node {
                 value={tags}
                 getOptionLabel={(option) => option.tag_name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                options={map(get(props, 'tags', []), (t) => ({
-                  ...t,
-                  article_tag_link: null,
-                }))}
+                options={tagOptionsToShow}
                 sx={{
                   minWidth: 200, display: 'flex', alignItems: 'center',
                 }}
