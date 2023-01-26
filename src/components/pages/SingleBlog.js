@@ -15,12 +15,14 @@ import {
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip } from '@mui/material';
+import classNames from 'classnames';
 import Footer from '../containers/Footer';
 import SingleBlog from '../../images/SingleBlog.png';
 import AvatarImg from '../../images/Avatar.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 const sampleBlog = () => (
@@ -73,10 +75,12 @@ function Blogs(): Node {
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
   const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
+  const likeArticle = (articleId, userId) => dispatch(actions.likeArticle(articleId, userId));
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   useEffect(() => {
     if ((!article && id)) {
@@ -90,6 +94,8 @@ function Blogs(): Node {
   console.log('article', article);
 
   const getRoute = (catId) => get(find(categories, (cat) => cat.id === catId), 'category_name');
+
+  const userAlreadyLiked = find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', ''));
 
   return (
     <main className="blogs-wrapper">
@@ -150,23 +156,28 @@ function Blogs(): Node {
       )}
       <div className="reaction-icons">
         <FontAwesomeIcon
-          style={{
-            width: 28, height: 28, color: '#11273F', marginRight: 6,
-          }}
+          className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
+          onClick={() => likeArticle(id, user.id)}
           icon={faHeart}
+          style={{
+            color: userAlreadyLiked ? '#FF0000' : '#11273F',
+          }}
         />
-        <p>{get(article, 'likes', 0)}</p>
+        <p>{size(get(article, 'likes', 0))}</p>
         <FontAwesomeIcon
+          className="reaction-icon reaction-icon-dislike"
           style={{
             width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
           }}
           icon={faHeartBroken}
         /><p>{get(article, 'dislikes', 0)}</p>
         <CommentModal
+          className="reaction-icon reaction-icon-comment"
           comments={get(article, 'blog_article_comments', [])}
           createComment={createComment}
           articleId={id}
           authorId={get(article, 'user.id', 1)}
+          currentUserId={get(user, 'id', 1)}
         />
         <p>{size(get(article, 'blog_article_comments', []))}</p>
       </div>

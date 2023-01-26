@@ -13,6 +13,7 @@ type Props = {
   createComment: Function,
   articleId: number,
   authorId: number,
+  currentUserId: number,
 };
 
 function CommentSection(props: Props): Node {
@@ -21,7 +22,7 @@ function CommentSection(props: Props): Node {
   const tempCommentRef = useRef(null);
   const [newCommentContent, setNewCommentContent] = useState('');
 
-  console.log('comments', props.comments);
+  // console.log('comments', props.comments);
 
   const refCallback = useCallback((node: T) => {
     if (node !== null) {
@@ -210,6 +211,8 @@ function CommentSection(props: Props): Node {
           onCancel={handleCancel}
           onExpand={() => handleExpand(comment.id)}
           replyCount={get(comment, 'replies', []).length}
+          currentUserId={props.currentUserId}
+          authorId={props.authorId}
         >
           {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
             <Comment
@@ -220,6 +223,8 @@ function CommentSection(props: Props): Node {
               onReply={(content) => handleNewEmptyReply(content, comment.id)}
               onCancel={handleCancel}
               onSave={(content) => handleSaveReply(content, comment.id)}
+              currentUserId={props.currentUserId}
+              authorId={props.authorId}
             />
           ))}
         </Comment>

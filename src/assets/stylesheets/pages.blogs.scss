@@ -11,6 +11,12 @@
     justify-content: left;
     margin-top: 20px;
     margin-bottom: 60px;
+    gap: 10px;
+
+    .reaction-icon-like{
+      width: 28px;
+      height: 28px;
+    }
 }
 
   .all-chips {

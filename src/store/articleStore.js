@@ -45,7 +45,7 @@ export type Article = {
   subtitle: string,
   content: ArticleContent,
   user: User,
-  likes: number,
+  likes: Array<Object>,
   status: string,
   description: string,
   image: string,
@@ -136,6 +136,11 @@ export const types = {
   ART_REMOVE_TAG_REJECTED: 'ART/REMOVE_TAG_REJECTED',
   ART_REMOVE_TAG_FULFILLED: 'ART/REMOVE_TAG_FULFILLED',
 
+  ART_LIKE_ARTICLE: 'ART/LIKE_ARTICLE',
+  ART_LIKE_ARTICLE_PENDING: 'ART/LIKE_ARTICLE_PENDING',
+  ART_LIKE_ARTICLE_REJECTED: 'ART/LIKE_ARTICLE_REJECTED',
+  ART_LIKE_ARTICLE_FULFILLED: 'ART/LIKE_ARTICLE_FULFILLED',
+
 };
 
 export const selectors = {
@@ -216,6 +221,16 @@ export const actions = {
             },
           ],
         }),
+      }),
+  }),
+  likeArticle: (articleId: number, userId: number): ReduxAction => ({
+    type: types.ART_LIKE_ARTICLE,
+    payload: API.postRequest('pubweave/blog_article_likes',
+      {
+        like: {
+          user_id: userId,
+          blog_article_id: articleId,
+        },
       }),
   }),
   updateArticle: (id: number, payload: any): ReduxAction => ({
@@ -307,6 +322,23 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             ...state.oneArticle.blog_article_comments,
             [action.payload.id]: action.payload,
           },
+        },
+      };
+
+      // LIKES -------------------------------------------------------------
+      // --------------------------------------------------------------------
+
+    case types.ART_LIKE_ARTICLE_FULFILLED:
+      toast.success('Article liked successfully!');
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          likes: [
+            ...state.oneArticle.likes,
+            action.payload,
+          ],
         },
       };
 

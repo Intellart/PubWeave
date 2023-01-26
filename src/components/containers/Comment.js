@@ -1,5 +1,8 @@
-/* eslint-disable react/no-unused-prop-types */
-import React, { useEffect } from 'react';
+/* eslint-disable react/no-unused-prop-types */ import React, {
+  forwardRef,
+  useEffect,
+  useState,
+} from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
@@ -8,11 +11,10 @@ import { faComment, faHandsClapping, faReply } from '@fortawesome/free-solid-svg
 import classNames from 'classnames';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Chip } from '@mui/material';
-import { get } from 'lodash';
+import { find, get, size } from 'lodash';
 import { Link } from 'react-router-dom';
 
 type Props = {
-  id?: number,
   children?: React.Node,
   onReply?: Function,
   onCancel?: Function,
@@ -21,15 +23,15 @@ type Props = {
   comment: Object,
   isReply?: boolean,
   replyCount?: number,
+  currentUserId?: number,
+  authorId?: number,
 };
 
-const Comment = React.forwardRef((props: Props, ref) => {
-  const [content, setContent] = React.useState(props.comment.comment || '');
-  const [editMode, setEditMode] = React.useState(false);
-  const [rating, setRating] = React.useState(props.comment.rating || 0);
-  const [alreadyVoted, setAlreadyVoted] = React.useState(props.comment.alreadyVoted || 0);
-
-  // console.log('Comment props', props.comment);
+const Comment = forwardRef((props: Props, ref) => {
+  const [content, setContent] = useState(props.comment.comment || '');
+  const [editMode, setEditMode] = useState(false);
+  const rating = useState(size(props.comment.likes) || 0);
+  const alreadyVoted = !!find(props.comment.likes, { user_id: props.currentUserId });
 
   useEffect(() => {
     setContent(props.comment.comment || '');
@@ -41,7 +43,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
   };
 
   const formatText = (text) => {
-    console.log('formatText', text);
+    // console.log('formatText', text);
     // const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
     const newContent = text.split(/(@\[.*\]\(.*\))/);
     let hashtag;
@@ -162,7 +164,7 @@ const Comment = React.forwardRef((props: Props, ref) => {
             <div className="comment-content-upper-user-text">
               <div className="comment-content-upper-user-text-upper">
                 <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.email', 'No Name')}</p>
-                <p className='comment-content-upper-user-text-tag'>You</p>
+                {props.currentUserId === props.authorId && <p className='comment-content-upper-user-text-tag'>You</p>}
               </div>
               <div className="comment-content-upper-user-text-lower">
                 <p>ID: {get(props.comment, 'id')} || ReplyTo: {get(props.comment, 'reply_to.id')}</p>
@@ -235,15 +237,13 @@ const Comment = React.forwardRef((props: Props, ref) => {
           <div className="comment-content-lower-left">
             <FontAwesomeIcon
               className={classNames('comment-content-lower-vote', {
-                'comment-content-lower-vote-active': alreadyVoted === 1,
+                'comment-content-lower-vote-active': alreadyVoted,
               })}
               onClick={() => {
-                if (alreadyVoted === 1) {
-                  setRating(rating - 1);
-                  setAlreadyVoted(0);
+                if (alreadyVoted) {
+                  // need to add a delete vote function
                 } else {
-                  setRating(rating + 1);
-                  setAlreadyVoted(1);
+                  // props.onVote(props.comment.id);
                 }
               }
             }

@@ -33,12 +33,12 @@ function App(): Node {
   const isUser: boolean = !isEmpty(user);
   const isAdmin: boolean = !isEmpty(admin);
 
-  console.log('App > isUser', isUser);
-  console.log('App > isAdmin', isAdmin);
+  // console.log('App > isUser', isUser);
+  // console.log('App > isAdmin', isAdmin);
 
   const isAuthorized = isUser || isAdmin;
 
-  console.log('App > isAuthorized', isAuthorized);
+  // console.log('App > isAuthorized', isAuthorized);
 
   if (isLoading) {
     return (<Loader />);

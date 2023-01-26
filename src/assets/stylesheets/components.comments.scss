@@ -356,12 +356,55 @@
           justify-content: flex-start;
           gap: 10px;
 
+          .comment-content-lower-reply{
+            cursor: pointer;
+            color: gray;
+            &:hover{
+              color: #11273F;
+              animation: pulse 0.5s;
+              animation-iteration-count: infinite;
+            }
+          }
+
           .comment-content-lower-vote{
+            cursor: pointer;
             color: gray;
             &.comment-content-lower-vote-active{
               color: #11273F;
             }
+
+            &:hover{
+              color: #11273F;
+              animation: pulse 0.5s;
+              animation-iteration-count: infinite;
+
+
+              @keyframes pulse {
+                0% {
+                  transform: scale(1);
+                }
+                50% {
+                  transform: scale(1.1);
+                }
+                100% {
+                  transform: scale(1);
+                }
+              }
+
+              
+            }
           }
+        }
+        .comment-content-lower-right{
+          
+          cursor: pointer;
+          color: gray;
+          &:hover{
+            color: #11273F;
+            animation: pulse 0.5s;
+            animation-iteration-count: infinite;
+          }
+          
         }
       }
     }
