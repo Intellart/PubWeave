@@ -101,7 +101,6 @@ const logoutUser = (): State => {
 // };
 
 const handleSilentLogin = (state: State, payload): State => {
-  console.log('payload', payload.user);
   if (payload.is_admin) {
     return {
       ...state,
@@ -138,7 +137,13 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       setItem(localStorageKeys.isAdmin, 'true');
       console.log('action.payload', action.payload);
 
-      return { ...state, ...{ profile: null, currentAdmin: action.payload.admin } };
+      return {
+        ...state,
+        ...{
+          profile: null,
+          currentAdmin: action.payload,
+        },
+      };
 
     case types.USR_LOGOUT_USER_FULFILLED:
       toast.success('User successfully logged out!');
