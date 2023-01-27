@@ -61,7 +61,11 @@ function Navbar(props: Props): Node {
           onChange={(event, newValue) => {
             if (searchParam === 'article') {
               navigate(`/singleblog/${newValue.id}`);
+            } else {
+              navigate(`/blogs/user/${newValue.id}`);
             }
+
+            setSearchValue('');
           }}
           groupBy={(option) => option.category}
           sx={{

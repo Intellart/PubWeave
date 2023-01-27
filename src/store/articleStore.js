@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 // import React from 'react';
 import {
@@ -141,6 +140,26 @@ export const types = {
   ART_LIKE_ARTICLE_REJECTED: 'ART/LIKE_ARTICLE_REJECTED',
   ART_LIKE_ARTICLE_FULFILLED: 'ART/LIKE_ARTICLE_FULFILLED',
 
+  ART_LIKE_ARTICLE_REMOVAL: 'ART/LIKE_ARTICLE_REMOVAL',
+  ART_LIKE_ARTICLE_REMOVAL_PENDING: 'ART/LIKE_ARTICLE_REMOVAL_PENDING',
+  ART_LIKE_ARTICLE_REMOVAL_REJECTED: 'ART/LIKE_ARTICLE_REMOVAL_REJECTED',
+  ART_LIKE_ARTICLE_REMOVAL_FULFILLED: 'ART/LIKE_ARTICLE_REMOVAL_FULFILLED',
+
+  ART_LIKE_COMMENT: 'ART/LIKE_COMMENT',
+  ART_LIKE_COMMENT_PENDING: 'ART/LIKE_COMMENT_PENDING',
+  ART_LIKE_COMMENT_REJECTED: 'ART/LIKE_COMMENT_REJECTED',
+  ART_LIKE_COMMENT_FULFILLED: 'ART/LIKE_COMMENT_FULFILLED',
+
+  ART_UNLIKE_COMMENT: 'ART/UNLIKE_COMMENT',
+  ART_UNLIKE_COMMENT_PENDING: 'ART/UNLIKE_COMMENT_PENDING',
+  ART_UNLIKE_COMMENT_REJECTED: 'ART/UNLIKE_COMMENT_REJECTED',
+  ART_UNLIKE_COMMENT_FULFILLED: 'ART/UNLIKE_COMMENT_FULFILLED',
+
+  ART_DELETE_COMMENT: 'ART/DELETE_COMMENT',
+  ART_DELETE_COMMENT_PENDING: 'ART/DELETE_COMMENT_PENDING',
+  ART_DELETE_COMMENT_REJECTED: 'ART/DELETE_COMMENT_REJECTED',
+  ART_DELETE_COMMENT_FULFILLED: 'ART/DELETE_COMMENT_FULFILLED',
+
 };
 
 export const selectors = {
@@ -165,6 +184,23 @@ export const actions = {
   fetchComments: (): ReduxAction => ({
     type: types.ART_FETCH_COMMENTS,
     payload: API.getRequest('pubweave/blog_article_comments'),
+  }),
+  likeComment: (commentId: number, userId: number): ReduxAction => ({
+    type: types.ART_LIKE_COMMENT,
+    payload: API.postRequest('pubweave/blog_article_comment_likes', {
+      like: {
+        blog_article_comment_id: commentId,
+        user_id: userId,
+      },
+    }),
+  }),
+  deleteComment: (commentId: number): ReduxAction => ({
+    type: types.ART_DELETE_COMMENT,
+    payload: API.deleteRequest(`pubweave/blog_article_comments/${commentId}`),
+  }),
+  unlikeComment: (commentId: number): ReduxAction => ({
+    type: types.ART_UNLIKE_COMMENT,
+    payload: API.deleteRequest(`pubweave/blog_article_comment_likes/${commentId}`),
   }),
   flushArticle: (): ReduxAction => ({
     type: types.ART_FLUSH_ARTICLE,
@@ -233,6 +269,10 @@ export const actions = {
         },
       }),
   }),
+  likeArticleRemoval: (likeArticleLink: number): ReduxAction => ({
+    type: types.ART_LIKE_ARTICLE_REMOVAL,
+    payload: API.deleteRequest(`pubweave/blog_article_likes/${likeArticleLink}`),
+  }),
   updateArticle: (id: number, payload: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
     payload: API.putRequest(`pubweave/blog_articles/${id}`,
@@ -282,8 +322,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
-      console.log(action.payload);
-
       return {
         ...state,
         oneArticle: {
@@ -301,6 +339,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
+      // eslint-disable-next-line no-console
       console.log(`Fetched all articles: ${get(action.payload, 'length')} articles.`);
 
       return {
@@ -325,20 +364,81 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         },
       };
 
-      // LIKES -------------------------------------------------------------
-      // --------------------------------------------------------------------
-
-    case types.ART_LIKE_ARTICLE_FULFILLED:
-      toast.success('Article liked successfully!');
+    case types.ART_DELETE_COMMENT_FULFILLED:
+      toast.success('Comment deleted successfully!');
+      console.log('delete', action.payload);
 
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          likes: [
-            ...state.oneArticle.likes,
-            action.payload,
-          ],
+          blog_article_comments: omit(state.oneArticle.blog_article_comments, action.payload),
+        },
+      };
+
+      // COMMENT LIKES ------------------------------------------------------
+      // --------------------------------------------------------------------
+
+    case types.ART_LIKE_COMMENT_FULFILLED:
+      toast.success('Comment liked successfully!');
+      console.log('like', action.payload);
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          blog_article_comments: {
+            ...state.oneArticle.blog_article_comments,
+            [action.payload.id]: {
+              ...state.oneArticle.blog_article_comments[action.payload.id],
+              likes: action.payload.likes,
+            },
+          },
+        },
+      };
+
+    case types.ART_UNLIKE_COMMENT_FULFILLED:
+      toast.success('Comment unliked successfully!');
+      console.log('unlike', action.payload);
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          blog_article_comments: {
+            ...state.oneArticle.blog_article_comments,
+            [action.payload.id]: {
+              ...state.oneArticle.blog_article_comments[action.payload.id],
+              likes: action.payload.likes,
+            },
+          },
+        },
+      };
+
+      // LIKES --------------------------------------------------------------
+      // --------------------------------------------------------------------
+
+    case types.ART_LIKE_ARTICLE_FULFILLED:
+      toast.success('Article liked successfully!');
+      console.log('like', action.payload);
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          likes: action.payload.likes,
+        },
+      };
+
+    case types.ART_LIKE_ARTICLE_REMOVAL_FULFILLED:
+      toast.success('Article unliked successfully!');
+      console.log('unlike', action.payload);
+
+      return {
+        ...state,
+        oneArticle: {
+          ...state.oneArticle,
+          likes: action.payload.likes,
         },
       };
 
@@ -346,6 +446,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       // --------------------------------------------------------------------
 
     case types.ART_FETCH_CATEGORIES_FULFILLED:
+      // eslint-disable-next-line no-console
       console.log(`Fetched all categories: ${get(action.payload, 'length')} categories.`);
 
       return {
@@ -357,6 +458,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       // --------------------------------------------------------------------
 
     case types.ART_FETCH_TAGS_FULFILLED:
+      // eslint-disable-next-line no-console
       console.log(`Fetched all tags: ${get(action.payload, 'length')} tags.`);
 
       // console.log(keyBy(map(action.payload, (tag) => ({
@@ -422,7 +524,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         oneArticle: {
           ...state.oneArticle,
           ...action.payload,
-          content: state.oneArticle.content,
+          content: get(state.oneArticle, 'content'),
         },
         allArticles: {
           ...state.allArticles,
@@ -485,7 +587,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: JSON.parse(get(action.payload, 'content', '{}')),
+          content: JSON.parse(get(action.payload, 'content', '{}') || '{}'),
         },
       };
 

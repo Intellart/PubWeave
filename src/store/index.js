@@ -68,6 +68,8 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
           if (includes(ignoreErrors, action.type)) return;
 
           toast.error(<ErrorMessage error={e} />);
+          // eslint-disable-next-line no-console
+          console.error('error', e);
         });
 
       return dispatch({ type: `${action.type}_PENDING` });

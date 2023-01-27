@@ -349,6 +349,12 @@
       }
 
       .comment-content-lower{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 20px;
+
         .comment-content-lower-left{
           display: flex;
           flex-direction: row;

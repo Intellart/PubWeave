@@ -11,13 +11,12 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  find, get, isEmpty, isEqual, map, size,
+  find, get, isEmpty, isEqual, map, size, toInteger,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
 import Footer from '../containers/Footer';
-import SingleBlog from '../../images/SingleBlog.png';
 import AvatarImg from '../../images/Avatar.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
@@ -70,32 +69,43 @@ function Blogs(): Node {
   store.getState();
 
   // eslint-disable-next-line no-unused-vars
-  const [thumbnailLink, setThumbnailLink] = useState('');
 
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
   const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
   const likeArticle = (articleId, userId) => dispatch(actions.likeArticle(articleId, userId));
+  const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
   useEffect(() => {
-    if ((!article && id)) {
-      fetchArticle(id);
-    } else if (article && id) {
-      setThumbnailLink(get(article, 'image', SingleBlog));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   }, [article, id]);
 
-  console.log('article', article);
+  useEffect(() => {
+    if (!isReady) {
+      fetchArticle(id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article, id, isReady]);
 
   const getRoute = (catId) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
-  const userAlreadyLiked = find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', ''));
+  const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
+
+  useEffect(() => {
+    setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
+  }, [article, user]);
+
+  const handleRemoveArticleLike = () => {
+    removeArticleLike(get(userAlreadyLiked, 'id', ''));
+  };
+
+  console.log('article', article);
 
   return (
     <main className="blogs-wrapper">
@@ -130,17 +140,17 @@ function Blogs(): Node {
             <div className="category-highlight-single-page-text-right-author">
               <Avatar alt="Remy Sharp" src={AvatarImg} />
               <div className="category-highlight-single-page-text-right-author-text">
-                <p className="category-highlight-single-page-text-right-author-text-name">Author</p>
-                <p className="category-highlight-single-page-text-right-author-text-date">date</p>
+                <p className="category-highlight-single-page-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
+                <p className="category-highlight-single-page-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
-      <img src={thumbnailLink} className="single-blog-img" alt="single blog" />
+      <img src={get(article, 'image')} className="single-blog-img" alt="single blog" />
       {/* <hr className="single-blog-content-divider" /> */}
       {!id && sampleBlog()}
-      {!isEmpty(article) && id && (
+      {isReady && (
       <ReactEditorJS
         holder='editorjs'
         readOnly
@@ -152,25 +162,26 @@ function Blogs(): Node {
           blocks: get(articleContent, 'blocks', []),
         }}
         tools={EDITOR_JS_TOOLS}
+        minHeight={0}
       />
       )}
       <div className="reaction-icons">
         <FontAwesomeIcon
           className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
-          onClick={() => likeArticle(id, user.id)}
+          onClick={() => (userAlreadyLiked ? handleRemoveArticleLike() : likeArticle(id, user.id))}
           icon={faHeart}
           style={{
             color: userAlreadyLiked ? '#FF0000' : '#11273F',
           }}
         />
         <p>{size(get(article, 'likes', 0))}</p>
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           className="reaction-icon reaction-icon-dislike"
           style={{
             width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
           }}
           icon={faHeartBroken}
-        /><p>{get(article, 'dislikes', 0)}</p>
+        /><p>{get(article, 'dislikes', 0)}</p> */}
         <CommentModal
           className="reaction-icon reaction-icon-comment"
           comments={get(article, 'blog_article_comments', [])}
@@ -178,10 +189,11 @@ function Blogs(): Node {
           articleId={id}
           authorId={get(article, 'user.id', 1)}
           currentUserId={get(user, 'id', 1)}
+          author={get(article, 'user')}
+          currentUser={user}
         />
         <p>{size(get(article, 'blog_article_comments', []))}</p>
       </div>
-
       <Footer />
     </main>
   );

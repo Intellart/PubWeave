@@ -10,6 +10,27 @@
     justify-content: flex-start;
     color: #4a4a4a;
 
+    &:hover{
+      transition: 0.8s;
+      transform: scale(1.03);
+
+
+      .eatured-card-img{
+          transition: 0.8s;
+          transform: scale(1.05);
+      }
+  }
+
+  &:not(:hover){
+      transition: 0.8s;
+      transform: scale(1);
+
+      .eatured-card-img{
+          transition: 0.8s;
+          transform: scale(1);
+      }
+  }
+
 
     .categoryname-share-like {
         color: rgba(74, 125, 173, 1);

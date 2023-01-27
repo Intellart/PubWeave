@@ -5,6 +5,7 @@ import 'bulma/css/bulma.min.css';
 import {
   filter,
   get, isEqual, map,
+  isEmpty,
 } from 'lodash';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
@@ -27,17 +28,25 @@ function Blogs(): Node {
   const categories = useSelector((state) => articleSelectors.getCategories(state), isEqual);
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
 
-  const { cat, tag } = useParams();
+  const { cat, tag, userId } = useParams();
 
-  // console.log(cat, tag);
+  console.log(cat, tag, userId);
 
-  const filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
+  let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
+  filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
+
   const categoryTags = cat ? filter(tags, (t) => get(categories, [t.category_id, 'category_name']) === cat) : [];
+
+  const featuredArticles = filteredArticles.filter((a) => a.star);
+
+  if (userId) {
+    filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
+  }
 
   return (
     <main className="blogs-wrapper">
+      {!userId && (
       <section className="blogs-categories">
-
         <div className='blogs-featured-categories-list'>
           {cat && (
           <Link
@@ -60,6 +69,7 @@ function Blogs(): Node {
         </div>
 
       </section>
+      ) }
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
         <div className="category-highlight-text">
           {cat && <h4>{cat}</h4> }
@@ -90,36 +100,43 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
-        {/* <hr className="blogs-featured-divider" /> */}
-        <h2 className="blogs-featured-subtitle">Featured</h2>
-        <div className='blogs-featured-cards'>
-          {map(filteredArticles.slice(0, 3), (a, index) => (
-            <FeaturedCard
-              key={index}
-              status={get(a, 'status', '')}
-              img={images[a.id % 4]}
-              id={a.id}
-              title={a.title}
-              category={get(a, 'category', '')}
-              description={get(a, 'description', '')}
-              author={get(a, 'user.full_name', '')}
-              tags={get(a, 'tags', [])}
-              date={a.date}
-            />
-          ))}
-        </div>
-        <hr className="blogs-featured-divider" />
-        <h2 className="blogs-featured-subtitle">Latest Blog Posts</h2>
-        <div className='blogs-other-cards'>
-          {map(filteredArticles, (a, index) => (
-            <ArticleCard
-              key={index}
-              article={a}
-            />
-          ))}
-        </div>
-      </section>
+      {!isEmpty(filteredArticles) ? (
+        <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
+          {/* <hr className="blogs-featured-divider" /> */}
+          {!userId && (
+          <><h2 className="blogs-featured-subtitle">Featured</h2>
+            <div className='blogs-featured-cards'>
+              {map(featuredArticles.slice(0, 3), (a, index) => (
+                <FeaturedCard
+                  key={index}
+                  status={get(a, 'status', '')}
+                  img={images[a.id % 4]}
+                  id={a.id}
+                  title={a.title}
+                  category={get(a, 'category', '')}
+                  description={get(a, 'description', '')}
+                  author={get(a, 'user.full_name', '')}
+                  tags={get(a, 'tags', [])}
+                  date={a.date}
+                />
+              ))}
+            </div>
+            <hr className="blogs-featured-divider" />
+          </>
+          )}
+          <h2 className="blogs-featured-subtitle">Latest Blog Posts</h2>
+          <div className='blogs-other-cards'>
+            {map(filteredArticles, (a, index) => (
+              <ArticleCard
+                key={index}
+                article={a}
+              />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <p className="blogs-no-articles">No articles found</p>
+      )}
       <Footer />
     </main>
   );

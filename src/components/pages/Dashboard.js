@@ -55,6 +55,10 @@ function Dashboard(): Node {
 
   const [rows, setRows] = useState([]);
 
+  const handleSetStar = (id, value) => {
+    updateArticle(id, { star: value });
+  };
+
   useEffect(() => {
     if (!articles) {
       fetchAllArticles();
@@ -68,6 +72,7 @@ function Dashboard(): Node {
         ORCID: get(article, 'user.orcid_id', ''),
         registeredOn: get(article, 'user.created_at', ''),
         category: get(article, 'category', ''),
+        star: get(article, 'star', false) || false,
       })));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,6 +104,8 @@ function Dashboard(): Node {
           onChangeTextField={handleChangeTextField}
           categories={categories}
           onChangeCategory={handleChangeCategory}
+          setStar={handleSetStar}
+          onDeleteArticle={deleteArticle}
         />
       </section>
       <Footer />

@@ -35,7 +35,7 @@ apiClient.interceptors.request.use((config: any) => {
 apiClient.interceptors.response.use((response: any) => {
   if (has(response, `data.${localStorageKeys.isAdmin}`)) {
     const isAdmin = get(response, `data.${localStorageKeys.isAdmin}`);
-    console.log('response.data', isAdmin);
+    // console.log('response.data', isAdmin);
     setItem(localStorageKeys.isAdmin, isAdmin ? 'true' : 'false');
   }
   if (has(response, `headers.${localStorageKeys.jwt}`)) {

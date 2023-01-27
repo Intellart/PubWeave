@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
 import type { Node } from 'react';
@@ -15,7 +14,7 @@ function UserPage(): Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
-  console.log(user);
+  // console.log(user);
 
   // const dispatch = useDispatch();
   // const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
@@ -57,20 +56,6 @@ function UserPage(): Node {
             </div>
             <div className="user-page-content" />
           </section>
-          <section className='user-page-hero'>
-            <div className="user-page-header">
-              <p className='user-page-header-title'>Change password</p>
-            </div>
-            <div className="user-page-password-change">
-              <div className="user-page-password-change-input">
-                <input type="password" placeholder="New password" />
-              </div>
-              <div className="user-page-password-change-input">
-                <input type="password" placeholder="Confirm new password" />
-              </div>
-              <div type="button" className="user-page-password-change-submit">Change password</div>
-            </div>
-          </section>
         </div>
         <div className="user-page-wrapper-right">
           <section className='user-page-hero'>
@@ -86,6 +71,20 @@ function UserPage(): Node {
                 <p className="user-page-other-info-item-title">Likes</p>
                 <p className="user-page-other-info-item-value">0</p>
               </div>
+            </div>
+          </section>
+          <section className='user-page-hero'>
+            <div className="user-page-header">
+              <p className='user-page-header-title'>Change password</p>
+            </div>
+            <div className="user-page-password-change">
+              <div className="user-page-password-change-input">
+                <input type="password" placeholder="New password" />
+              </div>
+              <div className="user-page-password-change-input">
+                <input type="password" placeholder="Confirm new password" />
+              </div>
+              <div type="button" className="user-page-password-change-submit">Change password</div>
             </div>
           </section>
         </div>

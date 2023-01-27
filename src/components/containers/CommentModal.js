@@ -33,6 +33,8 @@ type Props = {
   articleId: number,
   authorId: number,
   currentUserId: number,
+  author: Object,
+  currentUser: Object,
 };
 export default function CommentModal(props: Props) {
   const [open, setOpen] = React.useState(false);
@@ -67,6 +69,8 @@ export default function CommentModal(props: Props) {
               articleId={props.articleId}
               authorId={props.authorId}
               currentUserId={props.currentUserId}
+              author={props.author}
+              currentUser={props.currentUser}
             />
           </Box>
         </Fade>

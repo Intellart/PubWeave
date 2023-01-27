@@ -1,16 +1,16 @@
 .blogs-wrapper{
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 20px;
 
   .reaction-icons {
-    transform: translateY(-70px);
+    // transform: translateY(-70px);
     display: flex;
     align-items: center;
     justify-content: left;
-    margin-top: 20px;
-    margin-bottom: 60px;
     gap: 10px;
 
     .reaction-icon-like{
@@ -27,7 +27,7 @@
 
   #editorjs {
     transform: translateY(-50px);
-    min-height: calc(80vh - 210px);
+    // min-height: calc(80vh - 210px);
     
     .codex-editor{
       caret-color: transparent !important;

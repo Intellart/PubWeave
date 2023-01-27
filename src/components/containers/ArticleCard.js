@@ -139,7 +139,7 @@ function ArticleCard(props : Props): Node {
           </div>
         </div>
         <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
-        <p className="article-card-description">{description}</p>
+        <p className="article-card-description">{description.substring(0, 200)}...</p>
         <div className="date-social">
           <p>Updated {props.article.created_at || 'Date'}</p>
           <div className="article-icons-share-heart">

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */ import React, {
+import React, {
   useEffect,
   useState,
 } from 'react';
@@ -6,7 +6,7 @@ import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  isEmpty, sum, words, get, map, isEqual,
+  sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -47,23 +47,30 @@ function ReactEditor () {
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
-
-  const [stateReady, setStateReady] = useState(false);
-
   const [articleTitle, setArticleTitle] = useState('');
 
+  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+
   useEffect(() => {
-    if (isEmpty(article)) {
+    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  }, [article, id]);
+
+  useEffect(() => {
+    if (!isReady) {
       fetchArticle(id);
-    } else if (!stateReady) {
-      console.log('Article loaded');
-      setStateReady(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article, id, isReady]);
+
+  useEffect(() => {
+    if (isReady) {
+      // console.log('Article loaded');
       setArticleTitle(get(article, 'title'));
       setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article]);
+  }, [article, isReady]);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -73,7 +80,7 @@ function ReactEditor () {
 
   const handleUploadEditorContent = (api) => {
     api.saver.save().then((newArticleContent: ArticleContent) => {
-      console.log({ content: newArticleContent });
+      // console.log({ content: newArticleContent });
       updateArticleContentSilently(id, newArticleContent);
       setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(newArticleContent.time);
@@ -113,7 +120,7 @@ function ReactEditor () {
         addTag={addTag}
         removeTag={removeTag}
       />
-      {stateReady && (
+      {isReady && (
       <ReactEditorJS
         holder='editorjs'
         defaultValue={{

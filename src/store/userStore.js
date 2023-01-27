@@ -135,7 +135,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.USER_LOGIN_ADMIN_FULFILLED:
       toast.success('Admin successfully logged in!');
       setItem(localStorageKeys.isAdmin, 'true');
-      console.log('action.payload', action.payload);
 
       return {
         ...state,

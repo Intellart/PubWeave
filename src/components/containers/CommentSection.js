@@ -1,7 +1,8 @@
 import { Chip } from '@mui/material';
 import {
   filter,
-  get, includes, map,
+  find,
+  get, includes, isEmpty, map, uniqBy,
 } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
@@ -14,6 +15,8 @@ type Props = {
   articleId: number,
   authorId: number,
   currentUserId: number,
+  author: Object,
+  currentUser: Object,
 };
 
 function CommentSection(props: Props): Node {
@@ -51,8 +54,7 @@ function CommentSection(props: Props): Node {
   };
 
   const handleSaveReply = (replyContent, replyTo) => {
-    console.log('handleSaveReply', props.articleId, props.authorId, replyContent, replyTo);
-    props.createComment(props.articleId, props.authorId, replyContent, replyTo);
+    props.createComment(props.articleId, props.currentUserId, replyContent, replyTo);
     setTempComment({});
   };
 
@@ -70,20 +72,25 @@ function CommentSection(props: Props): Node {
     };
   }), (comment) => !get(comment, 'reply_to.id'));
 
-  const users = [
+  const commenters = uniqBy([
+    ...map(props.comments, (comment) => ({
+      user_id: comment.commenter.id,
+      id: comment.commenter.first_name + ' ' + comment.commenter.last_name,
+      display: comment.commenter.first_name + ' ' + comment.commenter.last_name,
+    })),
     {
-      id: 'isaac',
-      display: 'Isaac Newton',
+      user_id: get(props.author, 'id'),
+      id: get(props.author, 'full_name'),
+      display: get(props.author, 'full_name'),
     },
-    {
-      id: 'sam',
-      display: 'Sam Victor',
-    },
-    {
-      id: 'emma',
-      display: 'emmanuel@nobody.com',
-    },
-  ];
+    ...!isEmpty(tempComment) ? [{
+      user_id: get(tempComment, 'commenter.id'),
+      id: get(tempComment, 'commenter.first_name') + ' ' + get(tempComment, 'commenter.last_name'),
+      display: get(tempComment, 'commenter.first_name') + ' ' + get(tempComment, 'commenter.last_name'),
+    }] : [],
+  ], 'user_id');
+
+  console.log('commenters', commenters);
 
   const mentionsInputStyle = {
     control: {
@@ -140,25 +147,34 @@ function CommentSection(props: Props): Node {
   };
 
   const handleNewEmptyReply = (replyContent, parentId) => {
-    console.log('handleReply', replyContent);
+    // console.log('handleReply', replyContent);
     setExpandedComment(parentId);
-    console.log(replyContent);
+    // console.log(replyContent);
+
+    const parentComment = find(props.comments, { id: parentId });
+
     setTempComment({
       id: 999,
       key: 999,
-      comment: '@[test@test.com](test) ', // '@' + replyContent.author + ' ',
+      comment: `@[${parentComment.commenter.first_name} ${parentComment.commenter.last_name}](${parentComment.commenter.first_name} ${parentComment.commenter.last_name}) `,
       rating: 0,
       alreadyVoted: 0,
       replyTo: replyContent.id,
       newComment: true,
       isTempComment: true,
+      commenter: {
+        id: props.currentUserId,
+        email: props.currentUser.email,
+        first_name: props.currentUser.first_name,
+        last_name: props.currentUser.last_name,
+      },
     });
   };
 
   const handlePostNewComment = () => {
-    console.log('handlePostNewComment', newCommentContent);
     setTempComment({});
-    props.createComment(props.articleId, props.authorId, newCommentContent);
+    props.createComment(props.articleId, props.currentUserId, newCommentContent);
+    setNewCommentContent('');
   };
 
   return (
@@ -174,7 +190,7 @@ function CommentSection(props: Props): Node {
             trigger="@"
             displayTransform={(id) => `@${id}`}
             style={mentionsStyle}
-            data={users}
+            data={commenters}
             renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
               <div
                 className={focused ? 'focused' : ''}
@@ -213,6 +229,7 @@ function CommentSection(props: Props): Node {
           replyCount={get(comment, 'replies', []).length}
           currentUserId={props.currentUserId}
           authorId={props.authorId}
+          commenters={commenters}
         >
           {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
             <Comment
@@ -225,6 +242,7 @@ function CommentSection(props: Props): Node {
               onSave={(content) => handleSaveReply(content, comment.id)}
               currentUserId={props.currentUserId}
               authorId={props.authorId}
+              commenters={commenters}
             />
           ))}
         </Comment>

@@ -1,4 +1,4 @@
-/* eslint-disable no-console */ import React, {
+import React, {
   useState,
 } from 'react';
 import Box from '@mui/material/Box';
@@ -11,10 +11,11 @@ import {
   Chip, FormControl, MenuItem, Select,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave } from '@fortawesome/free-regular-svg-icons';
+import { faSave, faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
   faLink,
   faPencil,
+  faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import {
@@ -29,7 +30,9 @@ type Props = {
   onChangeStatus: Function,
   onChangeTextField: Function,
   onChangeCategory: Function,
+  onDeleteArticle: Function,
   categories: { key: Object },
+  setStar(id: number, star: boolean): void,
   rows: any[],
 };
 
@@ -290,11 +293,14 @@ export default function MyDataGrid(props: Props) {
     // eslint-disable-next-line
     console.log('delete', selectionModel);
 
+    // eslint-disable-next-line no-alert, no-restricted-globals
+    if (confirm(`Are you sure you want to delete articles with id's ${selectionModel.join(', ')}?`)) {
+      map(selectionModel, (id) => {
+        props.onDeleteArticle(id);
+      });
+    }
+
     setSelectionModel([]);
-    // setRows(filter(rows, (row) => !includes(selectedIds, row.id)));
-    // if (selectedIds.length === 1) {
-    //   props.onDelete(selectedIds[0]);
-    // }
   };
 
   const columns: GridColDef[] = [
@@ -305,7 +311,7 @@ export default function MyDataGrid(props: Props) {
       width: 30,
       editable: false,
       renderCell: (params) => {
-        console.log(params);
+        // console.log(params);
         if (get(params, 'row.status.value') === 'published') {
           return (
             <Link
@@ -327,6 +333,27 @@ export default function MyDataGrid(props: Props) {
       renderEditCell: renderEditChip,
       renderCell: (params) => renderStatusCell(params),
       cellClassName: (/* params: GridCellParams<number> */) => classNames('datagrid-cell'),
+    },
+    {
+      field: 'star',
+      headerName: 'Star',
+      width: 30,
+      editable: false,
+      renderCell: (params) => {
+        const onClick = () => {
+          props.setStar(params.row.id, !get(params, 'row.star'));
+        };
+
+        return (
+          <div
+            onClick={onClick}
+            className='datagrid-cell star'
+          >
+            {get(params, 'row.star') && <FontAwesomeIcon className='star-icon' icon={faStar} /> }
+            {!get(params, 'row.star') && <FontAwesomeIcon className='star-icon' icon={faStarRegular} /> }
+          </div>
+        );
+      },
     },
     {
       field: 'title',

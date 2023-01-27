@@ -19,6 +19,12 @@
     gap: 20px;
     width: 100%;
 
+    .article-card{
+      .article-card-img-wrapper{
+        width: 272px;
+      }
+    }
+
     .articles-title{
       display: flex;
       flex-direction: row;

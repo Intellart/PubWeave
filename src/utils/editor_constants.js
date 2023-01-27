@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-console */
 // eslint-disable-next-line max-classes-per-file
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
@@ -18,19 +16,19 @@ import Image from '@editorjs/image';
 
 import Tooltip from 'editorjs-tooltip';
 import { words } from 'lodash';
-import { Cloudinary } from '@cloudinary/url-gen';
-import { AdvancedImage } from '@cloudinary/react';
+// import { Cloudinary } from '@cloudinary/url-gen';
+// import { AdvancedImage } from '@cloudinary/react';
 import LatexPlugin from './latex_plugin';
 
-const cld = new Cloudinary({
-  cloud: {
-    cloudName: 'demo',
-  },
-});
+// const cld = new Cloudinary({
+//   cloud: {
+//     cloudName: 'demo',
+//   },
+// });
 
 // cld.image returns a CloudinaryImage with the configuration set.
-const myImage = cld.image('sample');
-const imageLink = myImage.toURL();
+// const myImage = cld.image('sample');
+// const imageLink = myImage.toURL();
 
 class ImageWrapper extends Image {
   render() {
@@ -122,7 +120,7 @@ class WordCounter {
 
     const termWrapper = this.api.selection.findParentTag(this.tag, Marker.CSS);
 
-    console.log('termWrapper', termWrapper);
+    // console.log('termWrapper', termWrapper);
 
     /**
      * If start or end of selection is in the highlighted block
@@ -266,7 +264,7 @@ export const EDITOR_JS_TOOLS = {
 
         uploadByFile(file) {
         // your own uploading logic here
-          console.log('uploadByFile', file);
+          // console.log('uploadByFile', file);
 
           const data = new FormData();
           data.append('file', file);
@@ -277,23 +275,19 @@ export const EDITOR_JS_TOOLS = {
             method: 'post',
             body: data,
           }).then((res) => res.json())
-            .then((d) => {
-              console.log('data', d);
-
-              return {
-                success: 1,
-                file: {
-                  url: d.url,
-                },
-              };
-            })
-            .catch((err) => {
-              console.log('err', err);
+            .then((d) => ({
+              success: 1,
+              file: {
+                url: d.url,
+              },
+            }))
+            .catch((/* err */) => {
+              // console.log('err', err);
             });
         },
 
         uploadByUrl(url) {
-          console.log('uploadByUrl', url);
+          // console.log('uploadByUrl', url);
 
           return new Promise((resolve) => {
             resolve({

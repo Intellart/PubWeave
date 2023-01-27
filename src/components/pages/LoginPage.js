@@ -21,17 +21,31 @@ type Props = {
 function LoginPage({ forAdmin }: Props): Node {
   const [username, setUserName] = useState(forAdmin ? 'a@a.com' : 'test@test.com');
   const [password, setPassword] = useState('123456');
+  const [confirmedPassword, setConfirmedPassword] = useState('');
+
+  const [register, setRegister] = useState(false);
 
   const dispatch = useDispatch();
   const loginUser = (user: User) => dispatch(actions.loginUser(user));
   const loginAdmin = (admin: User) => dispatch(actions.loginAdmin(admin));
+  const registerUser = (user: User) => dispatch(actions.loginUser(user));
 
   const handleSubmit = () => {
     if (!username || !password) {
       return;
     }
 
-    if (forAdmin) {
+    if (register) {
+      if (password !== confirmedPassword) {
+        return;
+      }
+
+      registerUser({
+        email: username,
+        password,
+        domain: 'Pubweave',
+      });
+    } else if (forAdmin) {
       loginAdmin({
         email: username,
         password,
@@ -92,6 +106,22 @@ function LoginPage({ forAdmin }: Props): Node {
               />
             </div>
           </div>
+          {register && (
+          <div className="login-password">
+            <label htmlFor="password" className="login-password-label">
+              Confirm Password
+            </label>
+            <div className='login-password-input-wrapper'>
+              <input
+                type="password"
+                placeholder="Password"
+                className="login-password-input"
+                value={password}
+                onChange={e => setConfirmedPassword(e.target.value)}
+              />
+            </div>
+          </div>
+          ) }
           <div className="login-forget">
             <a href="/forget" className="login-forget-link">
               Forget Password?
@@ -102,13 +132,28 @@ function LoginPage({ forAdmin }: Props): Node {
             type="button"
             className="login-button"
           >
-            {forAdmin && 'Admin'} Login
+            {register && 'Register'}
+            {forAdmin && !register && 'Admin Login'}
+            {!forAdmin && !register && 'Login'}
           </button>
           {!forAdmin && (
-          <div className="login-signup">
-            <p className="login-signup__text">
-              Don&apos;t have an account? <a href="/signup">Sign up</a>
-            </p>
+          <div
+            onClick={() => setRegister(!register)}
+            className="login-signup"
+          >
+            {!register
+              ? (
+                <p className="login-signup-text">
+                  Don&apos;t have an account?
+
+                  Sign Up
+                </p>
+              ) : (
+                <p className="login-signup-text">
+                  Sign in
+                </p>
+              )}
+
           </div>
           )}
         </div>

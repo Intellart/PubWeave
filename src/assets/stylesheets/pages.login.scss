@@ -57,6 +57,27 @@
       position: relative;
       padding: 80px 50px 50px 50px;
       gap: 20px;
+
+      .login-signup{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 15px;
+        font-weight: 500;
+        color: #11273F;
+        .login-signup-text{
+          font-size: 15px;
+          font-weight: 600;
+          color: #11273F;
+          margin-left: 5px;
+
+          &:hover{
+            cursor: pointer;
+            text-decoration: underline;
+          }
+        }
+        
+      }
     
       .login-image-wrapper{
         position: absolute;

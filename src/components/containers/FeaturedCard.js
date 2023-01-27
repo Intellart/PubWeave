@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
+// import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 
 type Props = {
@@ -37,11 +37,11 @@ function FeaturedCard(props : Props): Node {
           <h4>{props.category || 'Category'}</h4>
           <div className="icons-share-heart">
             <FontAwesomeIcon icon={faShare} />
-            <FontAwesomeIcon icon={faHeart} />
+            {/* <FontAwesomeIcon icon={faHeart} /> */}
           </div>
         </div>
         <hr className="featured-card-divider" />
-        <p className="featured-card-description">{description}</p>
+        <p className="featured-card-description">{description.substring(0, 70)}...</p>
         <div className="author-date">
           <p>By {props.author}</p>
           <p>{props.date}</p>

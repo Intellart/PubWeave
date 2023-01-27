@@ -1,4 +1,4 @@
-/* eslint-disable no-console */ import React, {
+import React, {
   useEffect, useState,
 } from 'react';
 import { createReactEditorJS } from 'react-editor-js';
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import {
   isEmpty, sum, words, get, filter, map, isEqual, indexOf,
+  toInteger,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -44,19 +45,27 @@ function ReactEditor () {
   const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
   const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
 
+  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+
+  useEffect(() => {
+    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  }, [article, id]);
+
+  useEffect(() => {
+    if (!isReady) {
+      fetchArticle(id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [article, id, isReady]);
+
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
-
-  const [stateReady, setStateReady] = useState(false);
 
   const [articleTitle, setArticleTitle] = useState('');
 
   useEffect(() => {
-    if (isEmpty(article)) {
-      fetchArticle(id);
-    } else if (!stateReady) {
-      console.log('Article loaded');
-      setStateReady(true);
+    if (isReady) {
+      // console.log('Article loaded');
       setArticleTitle(get(article, 'title'));
       setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(get(articleContent, 'time'));
@@ -70,7 +79,7 @@ function ReactEditor () {
     }
   }, [titleRef, articleTitle]);
 
-  console.log(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')));
+  // console.log(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')));
 
   return (
     <main className="editor-wrapper">
@@ -120,7 +129,7 @@ function ReactEditor () {
       <ImageSelection
         linkList={map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url'))}
         onImageSelection={(href) => {
-          console.log('Image selected' + href);
+          // console.log('Image selected' + href);
           updateArticle(id, { image: href });
         }}
         oldSelectedImageIndex={indexOf(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), get(article, 'image', ''))}
@@ -150,7 +159,7 @@ function ReactEditor () {
         article={article}
         categories={categories}
       />
-      {stateReady && (
+      {isReady && (
       <ReactEditorJS
         holder='editorjs'
         readOnly

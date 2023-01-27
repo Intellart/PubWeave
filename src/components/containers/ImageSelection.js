@@ -1,4 +1,4 @@
-/* eslint-disable no-console */ import React, {
+import React, {
   useEffect,
   useRef,
 } from 'react';
@@ -19,11 +19,11 @@ function ImageSelection (props: Props) {
   const ref = useRef(null);
   const selectedImageRef = useRef(null);
 
-  console.log(selectedImageIndex);
+  // console.log(selectedImageIndex);
 
   useEffect(() => {
     if (selectedImageRef.current) {
-      console.log('selectedImageRef.current', selectedImageRef.current);
+      // console.log('selectedImageRef.current', selectedImageRef.current);
     }
   }, [selectedImageRef]);
 

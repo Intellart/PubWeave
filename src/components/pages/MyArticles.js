@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React, { useState } from 'react';
 import type { Node } from 'react';

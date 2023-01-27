@@ -68,6 +68,7 @@ function App(): Node {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogs/:cat" element={<Blogs />} />
           <Route path="/blogs/:cat/:tag" element={<Blogs />} />
+          <Route path="/blogs/user/:userId" element={<Blogs />} />
           <Route path="/about" element={<About />} />
 
           {isAuthorized && (

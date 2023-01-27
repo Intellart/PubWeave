@@ -6,13 +6,17 @@
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
-import { faComment, faHandsClapping, faReply } from '@fortawesome/free-solid-svg-icons';
+import {
+  faComment, faHandsClapping, faReply, faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 
 import classNames from 'classnames';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Chip } from '@mui/material';
 import { find, get, size } from 'lodash';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { actions } from '../../store/articleStore';
 
 type Props = {
   children?: React.Node,
@@ -25,13 +29,22 @@ type Props = {
   replyCount?: number,
   currentUserId?: number,
   authorId?: number,
+  commenters?: Array<Object>,
 };
 
 const Comment = forwardRef((props: Props, ref) => {
   const [content, setContent] = useState(props.comment.comment || '');
   const [editMode, setEditMode] = useState(false);
-  const rating = useState(size(props.comment.likes) || 0);
-  const alreadyVoted = !!find(props.comment.likes, { user_id: props.currentUserId });
+  const [alreadyVoted, setAlreadyVoted] = useState(!!find(props.comment.likes, { user_id: props.currentUserId }));
+
+  const dispatch = useDispatch();
+  const likeComment = (commentId, userId) => dispatch(actions.likeComment(commentId, userId));
+  // eslint-disable-next-line no-unused-vars
+  const unlikeComment = (commentId, userId) => dispatch(actions.unlikeComment(commentId, userId));
+  const deleteComment = (commentId) => dispatch(actions.deleteComment(commentId));
+  // const unlikeComment = (commentId) => dispatch(props.unlikeComment(commentId));
+  // const dislikeComment = (commentId) => dispatch(props.dislikeComment(commentId));
+  // const undislikeComment = (commentId) => dispatch(props.undislikeComment(commentId));
 
   useEffect(() => {
     setContent(props.comment.comment || '');
@@ -41,6 +54,10 @@ const Comment = forwardRef((props: Props, ref) => {
     setEditMode(false);
     props.onSave(content);
   };
+
+  useEffect(() => {
+    setAlreadyVoted(!!find(props.comment.likes, { user_id: props.currentUserId }));
+  }, [props.comment.likes, props.currentUserId]);
 
   const formatText = (text) => {
     // console.log('formatText', text);
@@ -64,13 +81,15 @@ const Comment = forwardRef((props: Props, ref) => {
       } else if (word.startsWith('@')) {
         // console.log('word', word);
 
-        const email = word.replace(/(@\[(.*)\]\(.*\))/, '$2');
+        const key = word.replace(/(@\[(.*)\]\(.*\))/, '$2');
         const name = word.replace(/(@\[.*\]\((.*)\))/, '$2');
+
+        const userId = get(find(props.commenters, { id: key }), 'user_id', null);
 
         return (
           <Link
-            key={email}
-            to={`/profile/${email}`}
+            key={userId}
+            to={`/blogs/user/${userId}`}
             className="text-cyanBlue/80 hover:text-cyanBlue"
           >
             {'@' + name}
@@ -83,21 +102,6 @@ const Comment = forwardRef((props: Props, ref) => {
       }
     });
   };
-
-  const users = [
-    {
-      id: 'test',
-      display: 'test@test.com',
-    },
-    {
-      id: 'sam',
-      display: 'Sam Victor',
-    },
-    {
-      id: 'emma',
-      display: 'emmanuel@nobody.com',
-    },
-  ];
 
   const mentionsInputStyle = {
     control: {
@@ -153,6 +157,8 @@ const Comment = forwardRef((props: Props, ref) => {
 
   };
 
+  console.log(props.comment);
+
   return (
     <div className="comment-wrapper">
       <div ref={ref} className="comment">
@@ -164,10 +170,11 @@ const Comment = forwardRef((props: Props, ref) => {
             <div className="comment-content-upper-user-text">
               <div className="comment-content-upper-user-text-upper">
                 <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.email', 'No Name')}</p>
-                {props.currentUserId === props.authorId && <p className='comment-content-upper-user-text-tag'>You</p>}
+                {props.currentUserId === get(props.comment, 'commenter.id') && <p className='comment-content-upper-user-text-tag'>You</p>}
               </div>
               <div className="comment-content-upper-user-text-lower">
-                <p>ID: {get(props.comment, 'id')} || ReplyTo: {get(props.comment, 'reply_to.id')}</p>
+                {/* <p>ID: {get(props.comment, 'id')} || ReplyTo: {get(props.comment, 'reply_to.id')}</p> */}
+                <p>{new Date(get(props.comment, 'updated_at')).toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -187,7 +194,7 @@ const Comment = forwardRef((props: Props, ref) => {
                   trigger="@"
                   displayTransform={(id) => `@${id}`}
                   style={mentionsStyle}
-                  data={users}
+                  data={props.commenters}
                   renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
                     <div
                       className={focused ? 'focused' : ''}
@@ -241,15 +248,18 @@ const Comment = forwardRef((props: Props, ref) => {
               })}
               onClick={() => {
                 if (alreadyVoted) {
-                  // need to add a delete vote function
+                  const likeId = find(props.comment.likes, { user_id: props.currentUserId }).id;
+
+                  unlikeComment(likeId);
                 } else {
                   // props.onVote(props.comment.id);
+                  likeComment(props.comment.id, props.currentUserId);
                 }
               }
             }
               icon={faHandsClapping}
             />
-            <p>{rating}</p>
+            <p>{size(props.comment.likes) || 0}</p>
             {props.onExpand && (
               <>
                 <FontAwesomeIcon
@@ -262,6 +272,30 @@ const Comment = forwardRef((props: Props, ref) => {
             )
             }
           </div>
+          {props.currentUserId === props.comment.commenter.id && (
+          <div
+            onClick={() => {
+              if (editMode) return;
+              if (props.replyCount > 0) {
+                // eslint-disable-next-line no-alert
+                alert('You cannot delete a comment that has replies.');
+
+                return;
+              }
+
+              deleteComment(props.comment.id);
+            }
+
+        }
+            className="comment-content-lower-right"
+          >
+            <FontAwesomeIcon
+              className="comment-content-lower-reply"
+              icon={faTrash}
+            />
+            &nbsp;Delete comment
+          </div>
+          )}
           <div
             onClick={() => {
               props.onReply({
