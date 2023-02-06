@@ -80,7 +80,6 @@ export default class LatexPlugin {
       html: data.html || '',
     };
 
-    this.textarea = null;
     this.resizeDebounce = null;
   }
 
@@ -94,33 +93,34 @@ export default class LatexPlugin {
     const wrapper = document.createElement('div');
     const renderingTime = 100;
 
-    this.textarea = document.createElement('math-field');
-    this.textarea.id = 'mf';
-    // this.textarea.addEventListener('keydown', (evt) => {
-    //   evt.preventDefault();
+    this.mfe.addEventListener('keydown', (evt) => {
+      // prevent default behavior if arrow keys are pressed
+      if (evt.key.startsWith('Arrow')) {
+        evt.preventDefault();
+      }
 
-    //   return { capture: true };
-    // });
-    this.textarea.setOptions({
+      return { capture: true };
+    });
+    this.mfe.setOptions({
       virtualKeyboardMode: 'manual',
-      virtualKeyboards: 'numeric symbols',
+      virtualKeyboards: 'numeric symbols functions roman greek',
     });
 
     wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
 
-    this.textarea.classList.add(this.CSS.textarea, this.CSS.input);
-    this.textarea.textContent = this.data.html;
-    this.textarea.placeholder = this.placeholder;
+    this.mfe.classList.add(this.CSS.textarea, this.CSS.input);
+    this.mfe.textContent = this.data.html;
+    this.mfe.placeholder = this.placeholder;
 
     if (this.readOnly) {
-      this.textarea.disabled = true;
+      this.mfe.disabled = true;
     } else {
-      this.textarea.addEventListener('input', () => {
+      this.mfe.addEventListener('input', () => {
         this.onInput();
       });
     }
 
-    wrapper.appendChild(this.textarea);
+    wrapper.appendChild(this.mfe);
 
     setTimeout(() => {
       this.resize();
@@ -182,7 +182,7 @@ export default class LatexPlugin {
      * @returns {void}
      */
   resize() {
-    this.textarea.style.height = 'auto';
-    this.textarea.style.height = this.textarea.scrollHeight + 'px';
+    this.mfe.style.height = 'auto';
+    this.mfe.style.height = this.mfe.scrollHeight + 'px';
   }
 }
