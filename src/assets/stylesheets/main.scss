@@ -14,6 +14,12 @@ html {
     height: 100%;
     width: 100%;
 
+    // &.preload *{
+    //   animation-duration: 0s !important;
+    //   -webkit-animation-duration: 0s !important;
+    //   transition:background-color 0s, opacity 0s, color 0s, width 0s, height 0s, padding 0s, margin 0s !important;
+    // }
+
     #root,
     .App {
       display: flex;
@@ -26,6 +32,7 @@ html {
         height: fit-content;
         position: relative;
         width: 100%;
+        position: relative;
 
         // remove all link styles
         a,button {

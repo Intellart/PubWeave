@@ -1,3 +1,6 @@
+@import 'variables';
+@import 'colors';
+
 .login-page-wrapper {
   display: flex;
   flex-direction: column;
@@ -5,6 +8,10 @@
   height: 100vh;
   align-items: center;
   justify-content: space-between;
+
+  @media screen and (max-width: $mobile_breakpoint) {
+    height: 100%;
+  }
 
   .login-section {
     display: flex;
@@ -17,6 +24,12 @@
     padding: 0 300px;
     gap: 50px;
 
+
+    @media screen and (max-width: $mobile_breakpoint) {
+      flex-direction: column;
+      padding: 0 20px;
+    }
+
     .login-section-left{
       display: flex;
       flex-direction: column;
@@ -24,6 +37,12 @@
       align-items: flex-start;
       width: 40vw;
       color: white;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        width: 100%;
+        align-items: center;
+        padding: 20px;
+      }
 
       .login-section-left-title {
         display: flex;

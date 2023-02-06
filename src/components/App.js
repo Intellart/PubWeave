@@ -6,7 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import { isEmpty, isEqual } from 'lodash';
 import Home from './pages/Home';
-import { useScrollTopEffect } from '../utils/hooks';
+import { useScreenSize, useScrollTopEffect } from '../utils/hooks';
 import EditorPage from './pages/EditorPage';
 import EditorPageReadOnly from './pages/EditorPageReadOnly';
 import Blogs from './pages/Blogs';
@@ -34,12 +34,19 @@ function App(): Node {
   const isUser: boolean = !isEmpty(user);
   const isAdmin: boolean = !isEmpty(admin);
 
-  // console.log('App > isUser', isUser);
-  // console.log('App > isAdmin', isAdmin);
+  const { isMobile } = useScreenSize();
 
   const isAuthorized = isUser || isAdmin;
 
   // console.log('App > isAuthorized', isAuthorized);
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     if (document.body) {
+  //       document.body.classList.remove('preload');
+  //     }
+  //   }, 500);
+  // }, []);
 
   if (isLoading) {
     return (<Loader />);
@@ -51,7 +58,7 @@ function App(): Node {
         closeOnClick
         newestOnTop={false}
         pauseOnHover
-        position="bottom-left"
+        position={isMobile ? 'top-left' : 'bottom-left'}
         rtl={false}
       />
       <div className="application-wrapper">

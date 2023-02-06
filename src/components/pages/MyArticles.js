@@ -10,8 +10,10 @@ import { Chip } from '@mui/material';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
+import { useScrollTopEffect } from '../../utils/hooks';
 
 function MyArticles(): Node {
+  useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 

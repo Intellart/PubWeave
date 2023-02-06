@@ -1,3 +1,6 @@
+@import './variables';
+@import './colors';
+
 .article-card {
     display: flex;
     flex-direction: row;
@@ -36,6 +39,10 @@
         padding: 0;
         position: relative;
         aspect-ratio: 16/9;
+
+        @media screen and (max-width: $mobile_breakpoint) {
+            width: 150px;
+        }
 
         .article-card-img-chip{
             display: flex;

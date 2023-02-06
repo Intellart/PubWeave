@@ -6,6 +6,7 @@ import {
   filter,
   get, isEqual, map,
   isEmpty,
+  omit,
 } from 'lodash';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
@@ -19,10 +20,12 @@ import Space from '../../images/SpaceImg.png';
 import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
+import { useScrollTopEffect } from '../../utils/hooks';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
 function Blogs(): Node {
+  useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getPublishedArticles(state), isEqual);
   const categories = useSelector((state) => articleSelectors.getCategories(state), isEqual);
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
@@ -54,7 +57,7 @@ function Blogs(): Node {
             <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
           </Link>
           ) }
-          {map(categories, (c, index) => (
+          {map(omit(categories, [12]), (c, index) => (
             <Link
               key={index}
               className={classNames('blogs-featured-categories-list-item',

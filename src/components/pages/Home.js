@@ -8,9 +8,10 @@ import AboutImg from '../../images/About.png';
 import TeamImg from '../../images/Teamwork.png';
 import stars from '../../images/stars.png';
 import MuiTimeline from '../containers/MuiTimeline';
-import MultipleObserver from '../../utils/hooks';
+import MultipleObserver, { useScrollTopEffect } from '../../utils/hooks';
 
 function Home(): Node {
+  useScrollTopEffect();
   const [currentSection, setCurrentSection] = React.useState('Home');
 
   return (
