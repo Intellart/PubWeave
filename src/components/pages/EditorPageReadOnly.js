@@ -18,7 +18,6 @@ import { Alert } from '@mui/material';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
-import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 // eslint-disable-next-line no-unused-vars
 import { store } from '../../store';
@@ -171,7 +170,6 @@ function ReactEditor () {
         placeholder='Start your article here!'
       />
       )}
-      <Footer />
     </main>
   );
 }

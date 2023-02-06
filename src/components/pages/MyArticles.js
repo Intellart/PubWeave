@@ -7,7 +7,6 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { filter, isEqual, map } from 'lodash';
 import { Chip } from '@mui/material';
-import Footer from '../containers/Footer';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
@@ -70,7 +69,6 @@ function MyArticles(): Node {
         </div>
       </section>
       {/* --------------------------------- */}
-      <Footer />
     </main>
   );
 }

@@ -488,7 +488,7 @@ export default function MyDataGrid(props: Props) {
         >
           Delete
         </button>
-        <Select
+        {/* <Select
           className='datagrid-selected-rows-select-status'
           labelId="demo-simple-select-label"
         >
@@ -496,7 +496,7 @@ export default function MyDataGrid(props: Props) {
             <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
           ))}
 
-        </Select>
+        </Select> */}
       </div>
 
       )}

@@ -16,7 +16,6 @@ import {
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
-import Footer from '../containers/Footer';
 import AvatarImg from '../../images/Avatar.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
@@ -194,7 +193,6 @@ function Blogs(): Node {
         />
         <p>{size(get(article, 'blog_article_comments', []))}</p>
       </div>
-      <Footer />
     </main>
   );
 }

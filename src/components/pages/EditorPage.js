@@ -17,7 +17,6 @@ import { useParams } from 'react-router-dom';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
-import Footer from '../containers/Footer';
 import ArticleConfig from '../ArticleConfig';
 import type { ArticleContent } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
@@ -134,7 +133,6 @@ function ReactEditor () {
         placeholder='Start your article here!'
       />
       )}
-      <Footer />
     </main>
   );
 }

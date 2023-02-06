@@ -6,7 +6,6 @@ import { /* useDispatch */ useSelector } from 'react-redux';
 import { get, isEqual } from 'lodash';
 import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Footer from '../containers/Footer';
 // import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 
@@ -89,7 +88,6 @@ function UserPage(): Node {
           </section>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

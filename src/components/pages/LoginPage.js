@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { useDispatch } from 'react-redux';
-import Footer from '../containers/Footer';
 // import MyTable from '../containers/MyTable';
 import logoImg from '../../images/LogoPubWeave.png';
 import { actions } from '../../store/userStore';
@@ -158,8 +157,6 @@ function LoginPage({ forAdmin }: Props): Node {
           )}
         </div>
       </section>
-
-      <Footer />
     </main>
   );
 }

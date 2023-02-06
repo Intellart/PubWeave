@@ -22,6 +22,7 @@ import Loader from './containers/Loader';
 import Navbar from './containers/Navbar';
 import CatchAllRoute from './pages/CatchAllRoute';
 import UserPage from './pages/UserPage';
+import Footer from './containers/Footer';
 
 function App(): Node {
   useScrollTopEffect();
@@ -84,6 +85,7 @@ function App(): Node {
           )}
           <Route path="*" element={<CatchAllRoute isUser={isUser} isAdmin={isAdmin} />} />
         </Routes>
+        <Footer />
       </div>
     </div>
   );

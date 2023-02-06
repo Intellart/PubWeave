@@ -1,10 +1,10 @@
 .blogs-wrapper{
-  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  padding-bottom: 20px;
 
   .reaction-icons {
     // transform: translateY(-70px);

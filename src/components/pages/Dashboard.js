@@ -9,7 +9,6 @@ import {
 import {
   faCheck, faPaperPlane, faRotateRight, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import Footer from '../containers/Footer';
 import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
 
 import { actions, selectors } from '../../store/articleStore';
@@ -108,7 +107,6 @@ function Dashboard(): Node {
           onDeleteArticle={deleteArticle}
         />
       </section>
-      <Footer />
     </main>
   );
 }

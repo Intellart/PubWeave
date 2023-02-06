@@ -11,7 +11,6 @@ import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip } from '@mui/material';
-import Footer from '../containers/Footer';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
@@ -30,7 +29,7 @@ function Blogs(): Node {
 
   const { cat, tag, userId } = useParams();
 
-  console.log(cat, tag, userId);
+  // console.log(cat, tag, userId);
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
   filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
@@ -137,7 +136,6 @@ function Blogs(): Node {
       ) : (
         <p className="blogs-no-articles">No articles found</p>
       )}
-      <Footer />
     </main>
   );
 }
