@@ -3,7 +3,9 @@ import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faHeartBroken } from '@fortawesome/free-solid-svg-icons';
+import {
+  faClipboard, faCopy, faHeart, faHeartBroken,
+} from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -14,7 +16,7 @@ import {
   find, get, isEmpty, isEqual, map, size, toInteger,
 } from 'lodash';
 import { createReactEditorJS } from 'react-editor-js';
-import { Chip } from '@mui/material';
+import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
 import AvatarImg from '../../images/Avatar.png';
 import CommentModal from '../containers/CommentModal';
@@ -22,6 +24,7 @@ import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
+import { useScrollTopEffect } from '../../utils/hooks';
 
 const sampleBlog = () => (
   <section className="single-blog-content">
@@ -63,6 +66,7 @@ const sampleBlog = () => (
 const ReactEditorJS = createReactEditorJS();
 
 function Blogs(): Node {
+  useScrollTopEffect();
   const { id } = useParams();
 
   store.getState();
@@ -74,6 +78,13 @@ function Blogs(): Node {
   const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
   const likeArticle = (articleId, userId) => dispatch(actions.likeArticle(articleId, userId));
   const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
+
+  const [contextMenu, setContextMenu] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+    selection: '',
+  });
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
@@ -104,10 +115,49 @@ function Blogs(): Node {
     removeArticleLike(get(userAlreadyLiked, 'id', ''));
   };
 
-  console.log('article', article);
+  const onRightClick = (e) => {
+    console.log(e);
+    e.preventDefault();
+    setContextMenu({
+      show: true,
+      x: e.clientX,
+      y: e.clientY,
+      selection: window.getSelection().toString(),
+    });
+  };
+
+  const copySelectedToClipboard = () => {
+    navigator.clipboard.writeText(contextMenu.selection);
+    setContextMenu({
+      show: false,
+      x: 0,
+      y: 0,
+      selection: '',
+    });
+  };
+
+  const referenceSelectedText = () => {
+    const text = contextMenu.selection;
+    const url = window.location.href;
+    const reference = `${text} (${url})`;
+    navigator.clipboard.writeText(reference);
+    setContextMenu({
+      show: false,
+      x: 0,
+      y: 0,
+      selection: '',
+    });
+  };
+
+  const onEditorKeyDown = (e) => {
+    e.preventDefault();
+  };
 
   return (
-    <main className="blogs-wrapper">
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    <main
+      className="blogs-wrapper"
+    >
       <section className="blogs-category-highlight single-page">
         <div className="category-highlight-single-page-text">
           <div className="category-highlight-single-page-text-left">
@@ -150,19 +200,59 @@ function Blogs(): Node {
       {/* <hr className="single-blog-content-divider" /> */}
       {!id && sampleBlog()}
       {isReady && (
-      <ReactEditorJS
-        holder='editorjs'
-        readOnly
-        onReady={() => {
-          const editor = document.getElementById('editorjs');
-          if (editor) { editor.setAttribute('spellcheck', 'false'); }
-        }}
-        defaultValue={{
-          blocks: get(articleContent, 'blocks', []),
-        }}
-        tools={EDITOR_JS_TOOLS}
-        minHeight={0}
-      />
+        <div
+          onKeyDown={(event) => onEditorKeyDown(event)}
+          onContextMenu={(event) => onRightClick(event)}
+          className="editorjs-wrapper"
+        >
+          <ReactEditorJS
+            holder='editorjs'
+            readOnly
+            onReady={() => {
+              const editor = document.getElementById('editorjs');
+              if (editor) { editor.setAttribute('spellcheck', 'false'); }
+            }}
+            defaultValue={{
+              blocks: get(articleContent, 'blocks', []),
+            }}
+            tools={EDITOR_JS_TOOLS}
+            minHeight={0}
+          />
+          <Popover
+            className='editorjs-context-menu-popover'
+            open={contextMenu.show}
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: contextMenu.y, left: contextMenu.x }}
+            onClose={() => setContextMenu({
+              show: false, x: 0, y: 0, selection: '',
+            })}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+          >
+            <div className="editorjs-context-menu">
+              <div
+                onClick={() => {
+                  copySelectedToClipboard();
+                }}
+                className="editorjs-context-menu-item"
+              >
+                <FontAwesomeIcon icon={faCopy} style={{ width: 20, height: 20, marginRight: 10 }} />
+                <p>Copy</p>
+              </div>
+              <div
+                onClick={() => {
+                  referenceSelectedText();
+                }}
+                className="editorjs-context-menu-item"
+              >
+                <FontAwesomeIcon icon={faClipboard} style={{ width: 20, height: 20, marginRight: 10 }} />
+                <p>Reference</p>
+              </div>
+            </div>
+          </Popover>
+        </div>
       )}
       <div className="reaction-icons">
         <FontAwesomeIcon
