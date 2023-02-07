@@ -1,0 +1,134 @@
+@import "colors";
+@import "variables";
+
+.share-modal{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 500px;
+  // height: 500px;
+  background-color: $white;
+  border-radius: 10px;
+  padding:20px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  .share-modal-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0 10px;
+
+    .icon{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      padding: 10px;
+      border-radius: 10px;
+
+      &:hover{
+        background-color: $pubWeaveBlue;
+        color: $white;
+      }
+    }
+  }
+
+  hr{
+    width: 100%;
+    border: 1px solid #e6e6e6;
+    margin: 10px 0;
+  }
+
+  .share-modal-subtitle{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .share-modal-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    gap: 10px;
+
+    .icon{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: rgba($pubWeaveBlue, 0.4) 1px solid;
+      border: 1px solid #e6e6e6;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      padding: 10px;
+
+      &:hover{
+        background-color: $pubWeaveBlue;
+        color: $white;
+      }
+
+      .icon-image{
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .share-modal-copy-link{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+    gap: 10px;
+    border: 1px solid rgba($pubWeaveBlue, 0.4);
+    border-radius: 5px;
+
+    .icon{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin: 0 10px;
+    }
+
+    .copy-button{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 150px;
+      height: 40px;
+      border-radius: 5px;
+      background-color: rgba($pubWeaveBlue,0.5);
+      color: $white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover{
+        background-color: $pubWeaveBlue;
+        color: $white;
+      }
+    }
+  }
+}
