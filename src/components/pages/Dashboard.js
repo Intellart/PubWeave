@@ -94,8 +94,8 @@ function Dashboard(): Node {
   };
 
   return (
-    <main className="about-wrapper">
-      <section className="about-section">
+    <main className="dashboard-wrapper">
+      <section className="dashboard-section">
         <MyDataGrid
           rows={rows}
           onDelete={onDeleteClick}

@@ -4,6 +4,8 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { useDispatch } from 'react-redux';
 // import MyTable from '../containers/MyTable';
+import classNames from 'classnames';
+import { join, size, split } from 'lodash';
 import logoImg from '../../images/LogoPubWeave.png';
 import { actions } from '../../store/userStore';
 
@@ -20,6 +22,7 @@ type Props = {
 function LoginPage({ forAdmin }: Props): Node {
   const [username, setUserName] = useState(forAdmin ? 'a@a.com' : 'test@test.com');
   const [password, setPassword] = useState('123456');
+  const [fullName, setFullName] = useState('');
   const [confirmedPassword, setConfirmedPassword] = useState('');
 
   const [register, setRegister] = useState(false);
@@ -27,22 +30,41 @@ function LoginPage({ forAdmin }: Props): Node {
   const dispatch = useDispatch();
   const loginUser = (user: User) => dispatch(actions.loginUser(user));
   const loginAdmin = (admin: User) => dispatch(actions.loginAdmin(admin));
-  const registerUser = (user: User) => dispatch(actions.loginUser(user));
+  const registerUser = (user: any) => dispatch(actions.registerUser(user));
+
+  const isDisabled = register
+    ? !username || !password || !confirmedPassword || !fullName
+    : !username || !password;
 
   const handleSubmit = () => {
-    if (!username || !password) {
+    if (isDisabled) {
       return;
     }
 
     if (register) {
-      if (password !== confirmedPassword) {
-        return;
+      // if (password !== confirmedPassword) {
+      //   return;
+      // }
+
+      console.log('registering user');
+
+      const name = fullName.replace(/^[ ]+$/g, '');
+      console.log(name);
+
+      const firstName = split(name, ' ')[0];
+      let lastName = '';
+
+      console.log(firstName);
+
+      if (size(split(fullName, ' ')) > 1) {
+        lastName = join(split(fullName, ' ').slice(1), ' ');
       }
 
       registerUser({
         email: username,
         password,
-        domain: 'Pubweave',
+        first_name: firstName,
+        last_name: lastName,
       });
     } else if (forAdmin) {
       loginAdmin({
@@ -77,6 +99,22 @@ function LoginPage({ forAdmin }: Props): Node {
           <div className="login-name">
             <h1 className="login-name-title">PubWeave {forAdmin ? 'Admin' : ''} Login</h1>
           </div>
+          {register && (
+          <div className="login-email">
+            <label htmlFor="full-name" className="login-email-label">
+              Full name
+            </label>
+            <div className='login-email-input-wrapper'>
+              <input
+                type="text"
+                placeholder="Your full name"
+                className="login-email-input"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+              />
+            </div>
+          </div>
+          ) }
           <div className="login-email">
             <label htmlFor="email" className="login-email-label">
               Email
@@ -129,7 +167,9 @@ function LoginPage({ forAdmin }: Props): Node {
           <button
             onClick={handleSubmit}
             type="button"
-            className="login-button"
+            className={classNames('login-button', {
+              disabled: isDisabled,
+            })}
           >
             {register && 'Register'}
             {forAdmin && !register && 'Admin Login'}

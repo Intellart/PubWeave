@@ -150,7 +150,7 @@ function ArticleConfig(props: Props): Node {
           </div>
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon' icon={faClock} />
-            <h6>{lastSavedString()}</h6>
+            <h6>{props.lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
           </div>
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />

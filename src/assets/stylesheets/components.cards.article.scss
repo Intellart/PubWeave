@@ -12,13 +12,13 @@
     &:hover{
         transition: 0.8s;
         transform: scale(1.03);
-        transition-delay: 0.5s;
+        transition-delay: 0.2s;
 
-        .article-card-img-wrapper{
-            transition: 0.8s;
-            transition-delay: 0.3s;
-            transform: scale(1.05);
-        }
+        // .article-card-img-wrapper{
+        //     transition: 0.8s;
+        //     transition-delay: 0.3s;
+        //     transform: scale(1.05);
+        // }
     }
 
     &:not(:hover){

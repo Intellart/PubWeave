@@ -1,197 +1,341 @@
+@import 'variables';
+@import 'colors';
+
 .user-page-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
   height: 100vh;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 20px;
+  background-color: $pubWeaveBlue;
+  gap: 20px;
 
-  .user-page{
-    display: flex;
-    flex-direction: row;
+  @media screen and (max-width: $mobile_breakpoint) {
+    flex-direction: column;
+    height: fit-content;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    gap: 20px;
-    margin-top : 20px;
+  }
 
-    .user-page-wrapper-right,
-    .user-page-wrapper-left {
+  .user-page-wrapper-right,
+  .user-page-wrapper-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: fit-content;
+    gap: 20px;
+
+    @media screen and (max-width: $mobile_breakpoint) {
+      width: 100%;
+    }
+
+    .user-page-hero{
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      width: fit-content;
+      width: 500px;
       height: 100%;
+      background: $white;
+      border-radius: 10px;
+      // box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
       gap: 20px;
+
+
+      .user-page-hidden-content{
+        visibility: hidden;
+        height: 0;
+      }
+
+      &.user-page-hero-expanded{
+        .user-page-header{
+          border-bottom: 3px solid $pubWeaveBlue;
+        }
+
+        .user-page-hidden-content{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          width: 100%;
+          gap: 20px;
+          padding: 20px;
+          transition: 0.5s ease-in-out;
+          animation: user-page-hero-expanded 0.5s ease-in-out forwards;
+
+          @keyframes user-page-hero-expanded {
+            0% {
+              height: 0;
+              visibility: hidden;
+            }
+            50% {
+              height: fit-content;
+              visibility: hidden;
+            }
+            100% {
+              height: fit-content;
+              visibility: visible;
+            }
+            
+          }
+        }
+      }
+
+
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        width: calc(100% - 20px);
+      }
   
-      .user-page-hero{
+      hr{
+        width: 50%;
+        border-top: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+  
+      }
+      
+  
+      .user-page-header{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        background: $white;
+        width: 100%;
+        height: fit-content;
+        border-radius: 10px 10px 0 0;
+        padding: 10px;
+        border-bottom: 3px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+        transition: 0.5s ease-in-out;
+
+        &:hover{
+          cursor: pointer;
+          border-bottom: 3px solid $pubWeaveBlue;
+
+        }
+  
+        .user-page-header-title{
+          font-size: 20px;
+          font-weight: 600;
+          color: #11273F;
+        }
+      }
+  
+      .user-page-info{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 10px;
+        gap: 20px;
+
+        .user-page-info-edit-icon{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          color: rgba($pubWeaveBlue, 0.5);
+          cursor: pointer;
+
+          &:hover{
+            color: $pubWeaveBlue;
+
+          }
+        }
+  
+        .user-page-info-avatar {
+          width: 90px;
+          height: 90px;
+          border-radius: 10px;
+          background: rgba($pubWeaveBlue, 0.5);
+          color: $white;
+          margin-right: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          cursor: pointer;
+
+
+          &:hover{
+            .icon{
+              visibility: visible;
+            }
+          }
+
+            .icon{
+              visibility: hidden;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              font-size: 30px;
+              color: rgba($white, 0.5);
+              z-index: 4;
+
+              
+            }
+
+            img{
+              width: 100%;
+              height: 100%;
+              border-radius: 10px;
+              border: 3px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+            }
+        }
+  
+        .user-page-info-text{
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: fit-content;
+  
+          .user-page-header-info-name{
+            font-size: 20px;
+            font-weight: 600;
+            width: 200px;
+            color: $pubWeaveBlue;
+
+            &.user-page-header-info-name-edit{
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: center;
+              width: 100%;
+              gap: 10px;
+
+              
+              width: 100%;
+              height: 40px;
+              border-radius: 5px;
+              border: none;
+              padding: 10px;
+              margin-bottom: 10px;
+              font-size: 14px;
+              font-weight: 400;
+              color: #000;
+              background: #fff;
+              border:rgba($color: $pubWeaveBlue, $alpha: 0.5) 1px solid;
+              
+            }
+          }
+  
+          .user-page-header-info-email{
+            font-size: 14px;
+            font-weight: 400;
+            width: 200px;
+            color: $pubWeaveBlue;
+          }
+        }
+      }
+  
+      .user-page-password-change{
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 500px;
-        background: #11273F;
-        border-radius: 10px;
-        // box-shadow: 0 0 10px 0 rgba(0,0,0,0.5);
-        gap: 20px;
-        padding-bottom: 20px;
-    
-        hr{
-          width: 50%;
-          border: 1px solid rgba(55, 55, 55, 0.763);
-    
+        width: fit-content;
+        width: 332px;
+
+        .user-page-password-change-input{
+          width: 100%;
+          height: 40px;
+          border-radius: 5px;
+          border: none;
+          padding: 10px;
+          margin-bottom: 10px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #000;
+          background: #fff;
+          border:rgba($color: $pubWeaveBlue, $alpha: 0.5) 1px solid;
+  
+          input{
+            &::placeholder{
+              color: rgba(0, 0, 0, 0.322);
+            }
+          }
+  
         }
-        
-    
-        .user-page-header{
+  
+        .user-page-password-change-submit {
+          width: 100%;
+          height: 40px;
+          border-radius: 5px;
+          border: none;
+          padding: 10px;
+          margin-bottom: 10px;
+          font-size: 14px;
+          font-weight: 400;
+          color: #11273F;
+          background: #fff;
+          border:rgba($color: $pubWeaveBlue, $alpha: 0.5) 1px solid;
+          cursor: pointer;
+  
+          &:hover{
+            background: #11273F;
+            color: #fff;
+            border: 1px solid #fff;
+  
+          }
+        }
+      }
+  
+      .user-page-other-info{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        gap: 20px;
+  
+        .user-page-other-info-item {
           display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: center;
           background: #fff;
-          width: 100%;
-          border-radius: 10px 10px 0 0;
+          gap: 10px;
           padding: 10px;
-          border: 3px solid #11273F;
-    
-          .user-page-header-title{
-            font-size: 20px;
-            font-weight: 600;
-            color: #11273F;
-          }
-        }
-    
-        .user-page-info{
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          padding: 10px;
-    
-          .user-page-info-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #fff;
-            margin-right: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-    
-          .user-page-info-text{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: fit-content;
-    
-            .user-page-header-info-name{
-              font-size: 20px;
-              font-weight: 600;
-              color: #fff;
-            }
-    
-            .user-page-header-info-email{
-              font-size: 14px;
-              font-weight: 400;
-              color: #fff;
-            }
-          }
-        }
-    
-        .user-page-password-change{
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: fit-content;
-    
-          .user-page-password-change-input{
-            width: 100%;
-            height: 40px;
-            border-radius: 5px;
-            border: none;
-            padding: 10px;
-            margin-bottom: 10px;
+          color: #11273F;
+          border-radius: 5px;
+          border: 1px $pubWeaveBlue solid;
+
+          .user-page-other-info-item-input{
+            width: 150px;
+            height: 20px;
             font-size: 14px;
             font-weight: 400;
             color: #000;
             background: #fff;
-    
-            input{
-              &::placeholder{
-                color: rgba(0, 0, 0, 0.322);
-              }
+
+            
+            &::placeholder{
+              color: rgba($color: $pubWeaveBlue, $alpha: 0.5);
             }
-    
+            
           }
-    
-          .user-page-password-change-submit {
-            width: 100%;
-            height: 40px;
-            border-radius: 5px;
-            border: none;
-            padding: 10px;
-            margin-bottom: 10px;
+  
+          .user-page-other-info-item-title{
+            font-size: 14px;
+            width: 150px;
+            font-weight: 400;  
+  
+          }
+  
+          .user-page-other-info-item-value{
             font-size: 14px;
             font-weight: 400;
-            color: #11273F;
-            background: #fff;
-            cursor: pointer;
-    
-            &:hover{
-              background: #11273F;
-              color: #fff;
-              border: 1px solid #fff;
-    
-            }
+            width: 150px;
           }
         }
-    
-        .user-page-other-info{
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: fit-content;
-          gap: 20px;
-    
-          .user-page-other-info-item {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            gap: 10px;
-            padding: 10px;
-            color: #11273F;
-            border-radius: 5px;
-    
-            .user-page-other-info-item-title{
-              font-size: 14px;
-              width: 150px;
-              font-weight: 400;  
-    
-            }
-    
-            .user-page-other-info-item-value{
-              font-size: 14px;
-              font-weight: 400;
-              width: 150px;
-            }
-          }
-        }
-    
       }
+  
     }
   }
-
-
-
-
-
 
 }

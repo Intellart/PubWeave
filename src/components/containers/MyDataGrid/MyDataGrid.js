@@ -23,6 +23,7 @@ import {
 } from 'lodash';
 import { Link } from 'react-router-dom';
 import { statuses } from '../../pages/Dashboard';
+import { useScreenSize } from '../../../utils/hooks';
 // import { toast } from 'react-toastify';
 
 type Props = {
@@ -441,6 +442,8 @@ export default function MyDataGrid(props: Props) {
     },
   ];
 
+  const { isMobile } = useScreenSize();
+
   return (
     <Box
       sx={{
@@ -448,8 +451,9 @@ export default function MyDataGrid(props: Props) {
         width: '90%',
         borderRadius: '18px',
         boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
-        padding: '20px',
-        margin: '10px',
+        border: '1px solid #e0e0e0',
+        padding: isMobile ? '0px' : '20px',
+        margin: isMobile ? '0px' : '10px',
       }}
     >
       <DataGrid

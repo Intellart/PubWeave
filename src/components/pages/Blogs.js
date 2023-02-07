@@ -84,10 +84,10 @@ function Blogs(): Node {
               return (
                 <Link
                   key={index}
-                  className="chip"
                   to={`/blogs/${catName}/${t.tag_name}`}
                 >
                   <Chip
+                    className="chip"
                     id={t.tag_name}
                     label={t.tag_name}
                     variant={tag === t.tag_name ? 'default' : 'outlined'}
@@ -137,7 +137,7 @@ function Blogs(): Node {
           </div>
         </section>
       ) : (
-        <p className="blogs-no-articles">No articles found</p>
+        <p className="blogs-no-articles unselectable">No articles found</p>
       )}
     </main>
   );

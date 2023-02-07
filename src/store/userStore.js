@@ -55,6 +55,16 @@ export const types = {
   USR_VALIDATE_USER_REJECTED: 'USR/VALIDATE_USER_REJECTED',
   USR_VALIDATE_USER_FULFILLED: 'USR/VALIDATE_USER_FULFILLED',
 
+  USR_UPDATE_USER: 'USR/UPDATE_USER',
+  USR_UPDATE_USER_PENDING: 'USR/UPDATE_USER_PENDING',
+  USR_UPDATE_USER_REJECTED: 'USR/UPDATE_USER_REJECTED',
+  USR_UPDATE_USER_FULFILLED: 'USR/UPDATE_USER_FULFILLED',
+
+  USR_REGISTER_USER: 'USR/REGISTER_USER',
+  USR_REGISTER_USER_PENDING: 'USR/REGISTER_USER_PENDING',
+  USR_REGISTER_USER_REJECTED: 'USR/REGISTER_USER_REJECTED',
+  USR_REGISTER_USER_FULFILLED: 'USR/REGISTER_USER_FULFILLED',
+
   USR_CLEAR_USER: 'USR/CLEAR_USER',
 };
 
@@ -80,9 +90,17 @@ export const actions = {
   clearUser: (): ReduxAction => ({
     type: types.USR_CLEAR_USER,
   }),
+  registerUser: (payload: LoginCredentials): ReduxAction => ({
+    type: types.USR_REGISTER_USER,
+    payload: API.postRequest('auth/user', { user: payload }),
+  }),
   validateUser: (jwt: string): ReduxAction => ({
     type: types.USR_VALIDATE_USER,
     payload: API.postRequest('auth/validate_jwt', { jwt }),
+  }),
+  updateUser: (userId:number, payload: any): ReduxAction => ({
+    type: types.USR_UPDATE_USER,
+    payload: API.putRequest(`intellart/users/${userId}`, { user: payload }),
   }),
 };
 
@@ -143,6 +161,19 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           currentAdmin: action.payload,
         },
       };
+
+    case types.USR_UPDATE_USER_FULFILLED:
+      toast.success('User successfully updated!');
+
+      return {
+        ...state,
+        profile: action.payload,
+      };
+
+    case types.USR_REGISTER_USER_FULFILLED:
+      toast.success('Registration successful! Check your email for confirmation.');
+
+      return state;
 
     case types.USR_LOGOUT_USER_FULFILLED:
       toast.success('User successfully logged out!');

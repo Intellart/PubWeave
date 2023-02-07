@@ -18,7 +18,6 @@ import {
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
-import AvatarImg from '../../images/Avatar.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
@@ -158,7 +157,7 @@ function Blogs(): Node {
     <main
       className="blogs-wrapper"
     >
-      <section className="blogs-category-highlight single-page">
+      <section className="blogs-category-highlight single-page unselectable">
         <div className="category-highlight-single-page-text">
           <div className="category-highlight-single-page-text-left">
             <h1 className="category-highlight-category">{get(article, 'category', '')}</h1>
@@ -172,7 +171,6 @@ function Blogs(): Node {
                   <Chip
                     variant='outlined'
                     key={tag.id}
-                    sx={{ color: 'white', borderColor: 'white', marginRight: 1 }}
                     label={tag.tag_name}
                     className="category-highlight-single-page-text-left-tags-chip"
                   />
@@ -187,7 +185,7 @@ function Blogs(): Node {
               <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
             </div>
             <div className="category-highlight-single-page-text-right-author">
-              <Avatar alt="Remy Sharp" src={AvatarImg} />
+              <Avatar alt="Remy Sharp" src={get(user, 'profile_img', '')} className="category-highlight-single-page-text-right-author-img" />
               <div className="category-highlight-single-page-text-right-author-text">
                 <p className="category-highlight-single-page-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
                 <p className="category-highlight-single-page-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
@@ -219,7 +217,7 @@ function Blogs(): Node {
             minHeight={0}
           />
           <Popover
-            className='editorjs-context-menu-popover'
+            className='editorjs-context-menu-popover unselectable'
             open={contextMenu.show}
             anchorReference="anchorPosition"
             anchorPosition={{ top: contextMenu.y, left: contextMenu.x }}
@@ -254,7 +252,7 @@ function Blogs(): Node {
           </Popover>
         </div>
       )}
-      <div className="reaction-icons">
+      <div className="reaction-icons unselectable">
         <FontAwesomeIcon
           className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
           onClick={() => (userAlreadyLiked ? handleRemoveArticleLike() : likeArticle(id, user.id))}
