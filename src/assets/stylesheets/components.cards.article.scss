@@ -9,17 +9,20 @@
     gap: 20px;
     width: 100%;
 
-    &:hover{
-        transition: 0.8s;
-        transform: scale(1.03);
-        transition-delay: 0.2s;
-
-        // .article-card-img-wrapper{
-        //     transition: 0.8s;
-        //     transition-delay: 0.3s;
-        //     transform: scale(1.05);
-        // }
+    @media screen and (max-width: $mobile_breakpoint) {
+        gap: 10px;
+        justify-content: flex-start;
     }
+
+    // &:hover{
+    //     transition: 0.8s;
+
+    //     // .article-card-img-wrapper{
+    //     //     transition: 0.8s;
+    //     //     transition-delay: 0.3s;
+    //     //     transform: scale(1.05);
+    //     // }
+    // }
 
     &:not(:hover){
         transition: 0.8s;
@@ -40,9 +43,7 @@
         position: relative;
         aspect-ratio: 16/9;
 
-        @media screen and (max-width: $mobile_breakpoint) {
-            width: 150px;
-        }
+ 
 
         .article-card-img-chip{
             display: flex;
@@ -52,6 +53,14 @@
             padding: 5px 10px;
             transform: translate(-50%, -50%);
             z-index: 1;
+        }
+
+        @media screen and (max-width: $mobile_breakpoint) {
+            width: 250px;
+
+            .article-card-img-chip{
+                font-size: 14px;
+            }
         }
 
         &.article-card-img-wrapper-published{
@@ -86,6 +95,17 @@
         align-self: center;
         gap: 20px;
         width: 100%;
+
+        @media screen and (max-width: $mobile_breakpoint) {
+            width: 100%;
+            gap: 10px;
+            padding-bottom: 5px;
+
+
+            .article-card-divider{
+                display: none;
+            }
+        }
 
         .article-card-description{
             display: block;
@@ -150,7 +170,15 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
-                gap: 5px;
+                gap: 10px;
+
+                @media screen and (max-width: $mobile_breakpoint) {
+                    svg{
+                        cursor: pointer;
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
             }
         }
     
@@ -159,18 +187,18 @@
             font-style: normal;
             font-weight: 600;
             font-size: 14px;
-            line-height: 17px;
+            line-height: 14px;
             color: #4A7DAD;
         }
     
-        // h2 {
-        //     font-family: 'Inter';
-        //     font-style: normal;
-        //     font-weight: 600;
-        //     font-size: 20px;
-        //     line-height: 24px;
-        //     color: #11273F;
-        // }
+        h2 {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 500;
+            font-size: 20px;
+            line-height: 20px;
+            color: #11273F;
+        }
     
         .author {
             font-family: 'Inter';

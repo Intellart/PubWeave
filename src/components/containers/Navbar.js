@@ -183,7 +183,7 @@ function Navbar(props: Props): Node {
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">
             <FontAwesomeIcon
-              className="burger-icon"
+              className={classNames('burger-icon', { 'burger-icon-open': mobileMenuOpen })}
               icon={faBars}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             />
@@ -198,8 +198,11 @@ function Navbar(props: Props): Node {
         <div ref={ref} className={classNames('navbar-mobile-menu', { 'mobile-menu-open': mobileMenuOpen })}>
           <div className="mobile-menu-items">
             {renderSearch()}
-            {props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
-            {renderLoginButton()}
+            <hr />
+            <div className="mobile-menu-items-buttons">
+              {props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
+              {renderLoginButton()}
+            </div>
           </div>
         </div>
       </>

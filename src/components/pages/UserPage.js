@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-unused-vars */
 // @flow
 import React, { useEffect, useState } from 'react';

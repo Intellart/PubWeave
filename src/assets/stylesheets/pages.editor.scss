@@ -52,6 +52,15 @@
   }
   #editorjs {
 
+    .ce-block__content,
+    .ce-toolbar__content {
+        max-width: calc(100% - 150px);
+
+        @media screen and (max-width: $mobile_breakpoint) {
+            max-width: calc(100% - 20px);
+        }
+    }
+
     .my-word-count-button{
       margin-left: 10px;
     }
@@ -72,7 +81,7 @@
     min-height: calc(80vh - 210px);
     
     .codex-editor{
-      transform: translateY(-800px);
+      // transform: translateY(-800px);
 
     // #katex-node{
     //   display: flex;

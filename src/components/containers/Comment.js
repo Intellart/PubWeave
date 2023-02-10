@@ -157,8 +157,6 @@ const Comment = forwardRef((props: Props, ref) => {
 
   };
 
-  console.log(props.comment);
-
   return (
     <div className="comment-wrapper">
       <div ref={ref} className="comment">

@@ -41,6 +41,8 @@ function ArticleConfig(props: Props): Node {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { tags: allTags } = props;
   const [/* newTag */, setNewTag] = useState('');
+  const [smallMenuHeight, setSmallMenuHeight] = useState(200);
+
   const [tags, setTags] = useState(map(get(props.article, 'tags', []), (t) => ({
     ...t,
     id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
@@ -121,7 +123,6 @@ function ArticleConfig(props: Props): Node {
 
   const onNewTagInput = (value) => {
     setNewTag(value);
-    console.log(value);
   };
 
   const category: number = get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '');
@@ -132,48 +133,60 @@ function ArticleConfig(props: Props): Node {
   }));
 
   return (
-    <ClickAwayListener
-      onClickAway={() => {
-        setArticleSettingsExpanded(false);
-      }}
-      mouseEvent="onMouseDown"
-      touchEvent="onTouchStart"
-    >
-      <div className='article-config-modals'>
-        <div
-          onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
-          className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
-        >
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon' icon={faPen} />
-            <h6>{props.wordCount} words</h6>
-          </div>
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon' icon={faClock} />
-            <h6>{props.lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
-          </div>
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
-          </div>
+    <>
+      <div
+        style={{ top: smallMenuHeight }}
+        onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
+        className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
+        draggable
+        onDragStart={(e) => {
+          console.log('dragging start');
+          console.log(e);
+        }}
+        onDragEnd={(e) => {
+          console.log('dragging end');
+          console.log(e);
+          setSmallMenuHeight(e.target.clientTop);
+        }}
+
+      >
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon' icon={faPen} />
+          <h6>{props.wordCount} words</h6>
         </div>
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon' icon={faClock} />
+          <h6>{props.lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
+        </div>
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
+        </div>
+      </div>
+      <ClickAwayListener
+        onClickAway={() => {
+          setArticleSettingsExpanded(false);
+        }}
+        mouseEvent="onMouseDown"
+        touchEvent="onTouchStart"
+      >
         <div
           className={classNames('article-config-large', { hidden: !articleSettingsExpanded })}
         >
           {/* Bookmark
-          <Checkbox
-            aria-label="checkmark"
-            checked={star}
-            onChange={(e) => {
-              props.updateArticle(props.id, { star: e.target.checked });
-            }}
-            icon={(
-              <FontAwesomeIcon
-                icon={faBook}
-                style={{ color: 'gray' }}
-              />
-              )}
-            checkedIcon={<FontAwesomeIcon icon={faBook} />}
-          /> */}
+        <Checkbox
+          aria-label="checkmark"
+          checked={star}
+          onChange={(e) => {
+            props.updateArticle(props.id, { star: e.target.checked });
+          }}
+          icon={(
+            <FontAwesomeIcon
+              icon={faBook}
+              style={{ color: 'gray' }}
+            />
+            )}
+          checkedIcon={<FontAwesomeIcon icon={faBook} />}
+        /> */}
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon' icon={faPen} />
             <FormControl
@@ -248,10 +261,10 @@ function ArticleConfig(props: Props): Node {
               />
 
               {/* value={newTag}
-              onChange={(e) => {
-                setNewTag(e.target.value);
-              }}
-              id="standard-basic" */}
+            onChange={(e) => {
+              setNewTag(e.target.value);
+            }}
+            id="standard-basic" */}
               <div
                 className='article-config-item-tags-buttons'
               >
@@ -264,7 +277,7 @@ function ArticleConfig(props: Props): Node {
                 </div>
 
                 )
-                }
+              }
                 {tagsChanged && (
                 <div
                   className='article-config-item-ok'
@@ -274,17 +287,17 @@ function ArticleConfig(props: Props): Node {
                 </div>
 
                 )
-            }
+          }
               </div>
             </div>
           </div>
           {/* {!isEmpty(tags) && (
-          <div className="all-chips">
-            {map(tags, (tag, index) => (
-              <Chip key={index} label={tag.tag_name} onDelete={() => {}} />
-            ))}
-          </div>
-          ) } */}
+        <div className="all-chips">
+          {map(tags, (tag, index) => (
+            <Chip key={index} label={tag.tag_name} onDelete={() => {}} />
+          ))}
+        </div>
+        ) } */}
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon' icon={faPen} />
             <h6>{props.wordCount} words</h6>
@@ -302,8 +315,9 @@ function ArticleConfig(props: Props): Node {
           </Link>
 
         </div>
-      </div>
-    </ClickAwayListener>
+
+      </ClickAwayListener>
+    </>
   );
 }
 

@@ -86,8 +86,6 @@ function ReactEditor () {
     });
   };
 
-  console.log(article);
-
   return (
     <main className="editor-wrapper">
       <div

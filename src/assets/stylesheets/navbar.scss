@@ -53,16 +53,48 @@
         width: 100%;
         height: 100%;
 
+        hr{
+            width: 100%;
+            height: 1px;
+            border: 1px solid #e6e6e6;
+            margin: 5px 0;
+        }
 
-        .search-wrapper {
-            align-items: center;
+        .mobile-menu-items-buttons{
             display: flex;
             flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            gap: 10px;
+
+            a{
+                width: 100%;
+                color: $pubWeaveBlue;
+                border: 1px solid $white;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+                white-space: nowrap;
+    
+                &:hover{
+                    background: $pubWeaveBlue;
+                    color: $white;
+                    
+                }
+            }
+        }
+
+
+        .search-wrapper {
+            align-items: flex-start;
+            display: flex;
+            flex-direction: column;
             gap:20px;
 
             .searchbar {
                 margin-bottom: 0px;
-                width: 500px;
+                width: 100%;
                 border-radius: 18px;
             }
             .select select {
@@ -91,19 +123,7 @@
         }
 
 
-        a{
-            color: $pubWeaveBlue;
-            border: 1px solid $white;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
-
-            &:hover{
-                background: $pubWeaveBlue;
-                color: $white;
-                
-            }
-        }
+        
     }
 }
 
@@ -140,6 +160,19 @@
         cursor: pointer;
         z-index: 100;
         padding: 10px;
+
+        .burger-icon{
+            width: 30px;
+            height: 30px;
+            margin: 3px;
+            border-radius: 5px;
+            
+
+            &.burger-icon-open{
+                background: $pubWeaveBlue;
+                height: 3px;
+            }
+        }
 
     }
 

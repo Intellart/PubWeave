@@ -115,7 +115,6 @@ function Blogs(): Node {
   };
 
   const onRightClick = (e) => {
-    console.log(e);
     e.preventDefault();
     setContextMenu({
       show: true,

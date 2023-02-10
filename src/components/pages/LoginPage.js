@@ -46,15 +46,10 @@ function LoginPage({ forAdmin }: Props): Node {
       //   return;
       // }
 
-      console.log('registering user');
-
       const name = fullName.replace(/^[ ]+$/g, '');
-      console.log(name);
 
       const firstName = split(name, ' ')[0];
       let lastName = '';
-
-      console.log(firstName);
 
       if (size(split(fullName, ' ')) > 1) {
         lastName = join(split(fullName, ' ').slice(1), ' ');

@@ -21,8 +21,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   padding-bottom: 20px;
+  min-height: calc(100vh - 370px);
 
   .blogs-no-articles{
     display: flex;
@@ -72,6 +73,17 @@
   #editorjs {
     transform: translateY(-50px);
     // min-height: calc(80vh - 210px);
+
+    .ce-block__content,
+    .ce-toolbar__content {
+        max-width: min(calc(100% - 200px),1000px);
+
+        @media screen and (max-width: $mobile_breakpoint) {
+          max-width: 92vw;
+        }
+    }
+
+
     
     .codex-editor{
       caret-color: transparent !important;
@@ -230,12 +242,23 @@
       margin: 30px 0px;
       max-width: 1000px;
 
+      @media screen and (max-width: $mobile_breakpoint) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 0 10px 110px 10px;
+      }
+
       .category-highlight-single-page-text-left{
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
         gap: 20px;
+
+        @media screen and (max-width: $mobile_breakpoint) {
+          gap: 10px; 
+        }
 
         .category-highlight-title{
           font-family: 'Inter';
@@ -386,6 +409,10 @@
     object-position: center;
     transform: translateY(-100px);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+    @media screen and (max-width: $mobile_breakpoint) {
+      width: 92vw;
+    }
   }
 
   .blogs-featured{

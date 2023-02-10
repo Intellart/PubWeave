@@ -13,6 +13,11 @@
   padding:20px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 
+  @media screen and (max-width: $mobile_breakpoint) {
+    margin: 10px;
+    width: calc(100vw - 20px);
+  }
+
   .share-modal-header{
     display: flex;
     flex-direction: row;

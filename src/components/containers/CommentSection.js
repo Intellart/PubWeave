@@ -90,8 +90,6 @@ function CommentSection(props: Props): Node {
     }] : [],
   ], 'user_id');
 
-  console.log('commenters', commenters);
-
   const mentionsInputStyle = {
     control: {
       backgroundColor: '#fff',

@@ -1,12 +1,5 @@
-.unselectable {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-                        supported by Chrome and Opera */
-}
+@import 'variables';
+@import 'colors';
 
 .comment-modal{
   //remove scrollbar
@@ -128,6 +121,11 @@
   width: 700px;
   padding: 30px;
   background: #fff;
+
+  @media screen and (max-width: $mobile_breakpoint){
+    width: 100%;
+    padding: 0;
+  }
 
 
   .comment-section-new-comment-wrapper{

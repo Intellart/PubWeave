@@ -77,6 +77,10 @@
       padding: 80px 50px 50px 50px;
       gap: 20px;
 
+      @media screen and (max-width: $mobile_breakpoint) {
+        width: 95vw;
+      }
+
       .login-signup{
         display: flex;
         justify-content: center;

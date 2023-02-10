@@ -12,7 +12,7 @@ import ShareModal from './ShareModal';
 type Props = {
   img: string,
   id: number,
-  // title: string,
+  title: string,
   category: string,
   description: string,
   author: string,
@@ -56,6 +56,7 @@ function FeaturedCard(props : Props): Node {
               {/* <FontAwesomeIcon icon={faHeart} /> */}
             </div>
           </div>
+          <h2 className="featured-card-title">{props.title}</h2>
           <hr className="featured-card-divider" />
           <p className="featured-card-description">{description.substring(0, 70)}...</p>
           <div className="author-date">

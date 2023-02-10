@@ -77,6 +77,11 @@
       align-items: center;
       justify-content: center;
       gap: 20px;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     .articles-list{
@@ -87,6 +92,10 @@
       gap: 20px;
       width: 70%;
       max-width: 1000px;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        width: 92%;
+      }
     }
 
   }

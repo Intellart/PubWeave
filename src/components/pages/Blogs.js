@@ -20,6 +20,7 @@ import Space from '../../images/SpaceImg.png';
 import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
 
 const images = [Rocket, Space, Astronaut, Earth];
@@ -29,6 +30,7 @@ function Blogs(): Node {
   const articles = useSelector((state) => articleSelectors.getPublishedArticles(state), isEqual);
   const categories = useSelector((state) => articleSelectors.getCategories(state), isEqual);
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const { cat, tag, userId } = useParams();
 
@@ -44,6 +46,8 @@ function Blogs(): Node {
   if (userId) {
     filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
   }
+
+  console.log(filteredArticles);
 
   return (
     <main className="blogs-wrapper">
@@ -112,7 +116,7 @@ function Blogs(): Node {
                 <FeaturedCard
                   key={index}
                   status={get(a, 'status', '')}
-                  img={images[a.id % 4]}
+                  img={a.image || images[a.id % 4]}
                   id={a.id}
                   title={a.title}
                   category={get(a, 'category', '')}
@@ -132,6 +136,7 @@ function Blogs(): Node {
               <ArticleCard
                 key={index}
                 article={a}
+                currentUserId={get(user, 'id', null)}
               />
             ))}
           </div>
