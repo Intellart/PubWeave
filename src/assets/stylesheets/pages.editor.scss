@@ -1,5 +1,9 @@
 .editor-wrapper{
 
+  .alert-container{
+    margin: 20px 0;
+  }
+
   @keyframes editor-title-focus {
     0%{ width: 0%; }
     100%{ width: 100%;} 

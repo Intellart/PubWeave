@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
   faLink,
+  faPen,
   faPencil,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
@@ -323,7 +324,13 @@ export default function MyDataGrid(props: Props) {
           );
         }
 
-        return null;
+        return (
+          <Link
+            to={`/submit-work/${params.row.id}`}
+          >
+            <FontAwesomeIcon icon={faPen} />
+          </Link>
+        );
       },
     },
     {

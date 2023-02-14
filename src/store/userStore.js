@@ -65,6 +65,11 @@ export const types = {
   USR_REGISTER_USER_REJECTED: 'USR/REGISTER_USER_REJECTED',
   USR_REGISTER_USER_FULFILLED: 'USR/REGISTER_USER_FULFILLED',
 
+  USR_UPDATE_USER_PASSWORD: 'USR/UPDATE_USER_PASSWORD',
+  USR_UPDATE_USER_PASSWORD_PENDING: 'USR/UPDATE_USER_PASSWORD_PENDING',
+  USR_UPDATE_USER_PASSWORD_REJECTED: 'USR/UPDATE_USER_PASSWORD_REJECTED',
+  USR_UPDATE_USER_PASSWORD_FULFILLED: 'USR/UPDATE_USER_PASSWORD_FULFILLED',
+
   USR_CLEAR_USER: 'USR/CLEAR_USER',
 };
 
@@ -101,6 +106,10 @@ export const actions = {
   updateUser: (userId:number, payload: any): ReduxAction => ({
     type: types.USR_UPDATE_USER,
     payload: API.putRequest(`intellart/users/${userId}`, { user: payload }),
+  }),
+  updateUserPassword: (userId:number, payload: any): ReduxAction => ({
+    type: types.USR_UPDATE_USER_PASSWORD,
+    payload: API.putRequest('auth/user/password_update', { password: payload }),
   }),
 };
 
@@ -161,6 +170,16 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           currentAdmin: action.payload,
         },
       };
+
+    case types.USR_UPDATE_USER_PASSWORD_FULFILLED:
+      toast.success('Password successfully updated!');
+
+      return state;
+
+    case types.USR_UPDATE_USER_PASSWORD_REJECTED:
+      toast.error('Password update failed!');
+
+      return state;
 
     case types.USR_UPDATE_USER_FULFILLED:
       toast.success('User successfully updated!');

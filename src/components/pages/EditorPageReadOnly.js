@@ -5,8 +5,9 @@ import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  isEmpty, sum, words, get, filter, map, isEqual, indexOf,
+  isEmpty, sum, words, get, filter, map, isEqual,
   toInteger,
+  uniq,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -37,12 +38,15 @@ function ReactEditor () {
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
+  const tags = useSelector((state) => selectors.getTags(state), isEqual);
 
   // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
   const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
+  const addTag = (articleId, tagId) => dispatch(actions.addTag(articleId, tagId));
+  const removeTag = (articleTagId) => dispatch(actions.removeTag(articleTagId));
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
@@ -79,6 +83,11 @@ function ReactEditor () {
   }, [titleRef, articleTitle]);
 
   // console.log(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')));
+
+  const linkList: Array<string> = uniq([
+    ...map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')),
+    ...get(article, 'image', '') ? [get(article, 'image', '')] : [],
+  ]);
 
   return (
     <main className="editor-wrapper">
@@ -126,12 +135,12 @@ function ReactEditor () {
         </div>
       </div>
       <ImageSelection
-        linkList={map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url'))}
+        linkList={linkList}
         onImageSelection={(href) => {
           // console.log('Image selected' + href);
           updateArticle(id, { image: href });
         }}
-        oldSelectedImageIndex={indexOf(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')), get(article, 'image', ''))}
+        currentImage={get(article, 'image', '')}
       />
       <div
         style={{
@@ -157,6 +166,9 @@ function ReactEditor () {
         updateArticle={updateArticle}
         article={article}
         categories={categories}
+        tags={tags}
+        addTag={addTag}
+        removeTag={removeTag}
       />
       {isReady && (
       <ReactEditorJS

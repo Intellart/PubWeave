@@ -8,31 +8,40 @@
     justify-content: space-between;
     gap: 20px;
     width: 100%;
+    cursor: pointer;
+    position: relative;
 
     @media screen and (max-width: $mobile_breakpoint) {
         gap: 10px;
         justify-content: flex-start;
     }
 
-    // &:hover{
-    //     transition: 0.8s;
+    &:hover{
+        
+        .article-right-side-content {
+            .article-card-side-content-title-wrapper{
+                h2{
+                    // color: #4A7DAD;
+                    border-bottom: 1px solid #4A7DAD !important;
+                    
 
-    //     // .article-card-img-wrapper{
-    //     //     transition: 0.8s;
-    //     //     transition-delay: 0.3s;
-    //     //     transform: scale(1.05);
-    //     // }
-    // }
-
-    &:not(:hover){
-        transition: 0.8s;
-        transform: scale(1);
-
-        .article-card-img-wrapper{
-            transition: 0.8s;
-            transform: scale(1);
+                    // &:after{
+                    //     content: "";
+                    //     position: absolute;
+                    //     top: 0;
+                    //     left: 0;
+                    //     width: 102%;
+                    //     height: 102%;
+                    //     transform: translate(-1%, -1%);
+                    //     /* From https://css.glass */
+                    //     background: rgba(255, 255, 255, 0.117);
+                    //     border-radius: 12px;
+                    //     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
+                        
+                    // }
+                }
+            }
         }
-
     }
 
     .article-card-img-wrapper {
@@ -123,6 +132,10 @@
                 display: flex;
                 flex-direction: column;
                 gap: 15px;
+                h2 {
+                    border-bottom: 1px solid transparent;
+                }
+                
             }
     
             .article-card-side-content-status-wrapper{

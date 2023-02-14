@@ -14,16 +14,19 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    gap: 10px;
 
     .editor-wrapper-image-selection-actions-select{
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 200px;
+      width: fit-content;
       height: 50px;
       background-color: #fdfdfd;
       border-radius: 5px;
       color: #11273F;
+      padding: 0 20px;
+      white-space: nowrap;
 
       &.disabled {
         background-color: #919191;

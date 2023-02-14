@@ -7,11 +7,12 @@ import {
   get, isEqual, map,
   isEmpty,
   omit,
+  slice,
 } from 'lodash';
 import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import classNames from 'classnames';
-import { Chip } from '@mui/material';
+import { Chip, Pagination } from '@mui/material';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
@@ -21,7 +22,7 @@ import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
-import { useScrollTopEffect } from '../../utils/hooks';
+import { useDebounce, useScrollTopEffect } from '../../utils/hooks';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -32,9 +33,9 @@ function Blogs(): Node {
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
-  const { cat, tag, userId } = useParams();
+  console.log(categories);
 
-  // console.log(cat, tag, userId);
+  const { cat, tag, userId } = useParams();
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
   filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
@@ -43,11 +44,14 @@ function Blogs(): Node {
 
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
+  const debounceFeaturedArticles = useDebounce(featuredArticles, 500);
+  const debounceFilteredArticles = useDebounce(filteredArticles, 500);
+  const itemsPerPage = 5;
+  const [page, setPage] = React.useState(1);
+
   if (userId) {
     filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
   }
-
-  console.log(filteredArticles);
 
   return (
     <main className="blogs-wrapper">
@@ -79,8 +83,8 @@ function Blogs(): Node {
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
         <div className="category-highlight-text">
           {cat && <h4>{cat}</h4> }
-          <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
-          <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p>
+          {/* <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
+          <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p> */}
           <div className="all-chips">
             {map(categoryTags, (t, index) => {
               const catName = get(categories, [t.category_id, 'category_name']);
@@ -106,13 +110,13 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(filteredArticles) ? (
+      {!isEmpty(debounceFilteredArticles) ? (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {/* <hr className="blogs-featured-divider" /> */}
           {!userId && (
           <><h2 className="blogs-featured-subtitle">Featured</h2>
             <div className='blogs-featured-cards'>
-              {map(featuredArticles.slice(0, 3), (a, index) => (
+              {map(debounceFeaturedArticles.slice(0, 3), (a, index) => (
                 <FeaturedCard
                   key={index}
                   status={get(a, 'status', '')}
@@ -132,7 +136,7 @@ function Blogs(): Node {
           )}
           <h2 className="blogs-featured-subtitle">Latest Blog Posts</h2>
           <div className='blogs-other-cards'>
-            {map(filteredArticles, (a, index) => (
+            {map(slice(debounceFilteredArticles, (page - 1) * itemsPerPage, page * itemsPerPage), (a, index) => (
               <ArticleCard
                 key={index}
                 article={a}
@@ -140,9 +144,25 @@ function Blogs(): Node {
               />
             ))}
           </div>
+          <Pagination
+            count={Math.ceil(filteredArticles.length / itemsPerPage)}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: '2rem',
+              width: '100%',
+            }}
+            page={page}
+            onChange={(e, value) => {
+              setPage(value);
+            }}
+          />
         </section>
       ) : (
-        <p className="blogs-no-articles unselectable">No articles found</p>
+        <p className={classNames('blogs-no-articles unselectable', { 'blogs-no-articles-active': cat })}>
+          No articles found
+        </p>
       )}
     </main>
   );

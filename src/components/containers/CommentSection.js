@@ -1,4 +1,4 @@
-import { Chip } from '@mui/material';
+import { Alert, AlertTitle, Button, Chip } from '@mui/material';
 import {
   filter,
   find,
@@ -6,6 +6,7 @@ import {
 } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
+import { Link } from 'react-router-dom';
 
 import Comment from './Comment';
 
@@ -144,6 +145,12 @@ function CommentSection(props: Props): Node {
 
   };
 
+  const doesUserHasUsername = () => {
+    console.log('doesUserHasUsername', props.currentUser);
+
+    return false;
+  };
+
   const handleNewEmptyReply = (replyContent, parentId) => {
     // console.log('handleReply', replyContent);
     setExpandedComment(parentId);
@@ -177,46 +184,56 @@ function CommentSection(props: Props): Node {
 
   return (
     <div className="comment-section-wrapper">
-      <div className="comment-section-new-comment-wrapper">
-        <MentionsInput
-          style={mentionsInputStyle}
-          className="comment-section-new-comment"
-          value={newCommentContent}
-          onChange={(e) => setNewCommentContent(e.target.value)}
-        >
-          <Mention
-            trigger="@"
-            displayTransform={(id) => `@${id}`}
-            style={mentionsStyle}
-            data={commenters}
-            renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
-              <div
-                className={focused ? 'focused' : ''}
-                key={id}
-                style={{ backgroundColor: focused ? '#cee4e5' : 'transparent' }}
-              >
-                {display} ({id})
-                <Chip
-                  sx={{
-                    ml: 1, height: 20, padding: 0, fontSize: 12,
-                  }}
-                  variant="outlined"
-                  label="Author"
-                  color='primary'
-                />
-              </div>
-            )}
-          />
-        </MentionsInput>
+      {doesUserHasUsername() ? (
+        <div className="comment-section-new-comment-wrapper">
+          <MentionsInput
+            style={mentionsInputStyle}
+            className="comment-section-new-comment"
+            value={newCommentContent}
+            onChange={(e) => setNewCommentContent(e.target.value)}
+          >
+            <Mention
+              trigger="@"
+              displayTransform={(id) => `@${id}`}
+              style={mentionsStyle}
+              data={commenters}
+              renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
+                <div
+                  className={focused ? 'focused' : ''}
+                  key={id}
+                  style={{ backgroundColor: focused ? '#cee4e5' : 'transparent' }}
+                >
+                  {display} ({id})
+                  <Chip
+                    sx={{
+                      ml: 1, height: 20, padding: 0, fontSize: 12,
+                    }}
+                    variant="outlined"
+                    label="Author"
+                    color='primary'
+                  />
+                </div>
+              )}
+            />
+          </MentionsInput>
 
-        <button
-          type="button"
-          className="comment-section-new-comment-button"
-          onClick={handlePostNewComment}
-        >
-          Post
-        </button>
-      </div>
+          <button
+            type="button"
+            className="comment-section-new-comment-button"
+            onClick={handlePostNewComment}
+          >
+            Post
+          </button>
+        </div>
+      ) : (
+        <div className="comment-section-notification-username-wrapper">
+          <Alert severity="info">
+            <AlertTitle>Info</AlertTitle>
+            You need to set your username in your profile to be able to comment.
+          </Alert>
+        </div>
+      )}
+
       {map(renderedComments(), (comment) => (
         <Comment
           comment={comment}

@@ -15,6 +15,7 @@ import classNames from 'classnames';
 import {
   faCamera, faCheck, faPencil, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 
 function UserPage(): Node {
@@ -23,15 +24,20 @@ function UserPage(): Node {
   const [expandedCard, setExpandedCard] = React.useState(null);
   const [avatarImg, setAvatarImg] = useState(get(user, 'profile_img'));
   const uploadAvatarRef = React.useRef(null);
+  const [newPassword, setNewPassword] = useState({
+    password: '',
+    confirm: '',
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [editField, setEditField] = useState({
     fieldName: '',
     fieldValue: '',
   });
   const [socialMedia, setSocialMedia] = useState({
-    facebook: get(user, 'facebook'),
-    twitter: get(user, 'twitter'),
-    linkedin: get(user, 'linkedin'),
+    facebook: get(user, 'social_fb') || '',
+    twitter: get(user, 'social_tw') || '',
+    linkedin: get(user, 'social_ln') || '',
+    website: get(user, 'social_web') || '',
   });
 
   useEffect(() => {
@@ -43,6 +49,7 @@ function UserPage(): Node {
   const dispatch = useDispatch();
   // const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const updateUser = (userId : number, payload:any) => dispatch(actions.updateUser(userId, payload));
+  const updateUserPassword = (userId : number, payload:any) => dispatch(actions.updateUserPassword(userId, payload));
 
   const handleFileChange = (e) => {
     if (!e.target.files) {
@@ -90,6 +97,27 @@ function UserPage(): Node {
     });
   };
 
+  const changePassword = () => {
+    if (newPassword.password !== newPassword.confirm) {
+      toast.error('Passwords do not match');
+
+      return;
+    }
+
+    if (newPassword.password === '' || newPassword.confirm === '') {
+      toast.error('Password cannot be empty');
+
+      return;
+    }
+
+    updateUserPassword(get(user, 'id'), { password: newPassword.password });
+
+    setNewPassword({
+      password: '',
+      confirm: '',
+    });
+  };
+
   const updateUserName = () => {
     if (editField.fieldValue === '') {
       return;
@@ -105,6 +133,16 @@ function UserPage(): Node {
     }
 
     clearEditing();
+  };
+
+  const updateSocialMedia = () => {
+    console.log(socialMedia);
+    updateUser(get(user, 'id'), {
+      social_fb: socialMedia.facebook,
+      social_tw: socialMedia.twitter,
+      social_ln: socialMedia.linkedin,
+      social_web: socialMedia.website,
+    });
   };
 
   return (
@@ -224,12 +262,27 @@ function UserPage(): Node {
           <div className="user-page-hidden-content">
             <div className="user-page-password-change">
               <div className="user-page-password-change-input">
-                <input type="password" placeholder="New password" />
+                <input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword.password}
+                  onChange={(e) => setNewPassword({ ...newPassword, password: e.target.value })}
+                />
               </div>
               <div className="user-page-password-change-input">
-                <input type="password" placeholder="Confirm new password" />
+                <input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={newPassword.confirm}
+                  onChange={(e) => setNewPassword({ ...newPassword, confirm: e.target.value })}
+                />
               </div>
-              <div type="button" className="user-page-password-change-submit">Change password</div>
+              <div
+                onClick={changePassword}
+                type="button"
+                className="user-page-password-change-submit"
+              >Change password
+              </div>
             </div>
           </div>
         </section>
@@ -244,21 +297,51 @@ function UserPage(): Node {
             <div className="user-page-other-info">
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faFacebook} /> Facebook</p>
-                <input className="user-page-other-info-item-input" type="text" placeholder="Facebook link" />
+                <input
+                  className="user-page-other-info-item-input"
+                  type="text"
+                  placeholder="Facebook link"
+                  value={socialMedia.facebook}
+                  onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
+                />
               </div>
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faTwitter} /> Twitter</p>
-                <input className="user-page-other-info-item-input" type="text" placeholder="Twitter link" />
+                <input
+                  className="user-page-other-info-item-input"
+                  type="text"
+                  placeholder="Twitter link"
+                  value={socialMedia.twitter}
+                  onChange={(e) => setSocialMedia({ ...socialMedia, twitter: e.target.value })}
+                />
               </div>
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faLinkedin} /> LinkedIn</p>
-                <input className="user-page-other-info-item-input" type="text" placeholder="LinkedIn link" />
+                <input
+                  className="user-page-other-info-item-input"
+                  type="text"
+                  placeholder="LinkedIn link"
+                  value={socialMedia.linkedin}
+                  onChange={(e) => setSocialMedia({ ...socialMedia, linkedin: e.target.value })}
+                />
               </div>
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title">Personal page</p>
-                <input className="user-page-other-info-item-input" type="text" placeholder="Personal page link" />
+                <input
+                  className="user-page-other-info-item-input"
+                  type="text"
+                  placeholder="Personal page link"
+                  value={socialMedia.website}
+                  onChange={(e) => setSocialMedia({ ...socialMedia, website: e.target.value })}
+                />
               </div>
-              <div type="button" className="user-page-password-change-submit">Change password</div>
+              <div
+                type="button"
+                className="user-page-other-info-submit"
+                onClick={updateSocialMedia}
+              >
+                Update social media links
+              </div>
             </div>
           </div>
         </section>

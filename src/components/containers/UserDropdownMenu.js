@@ -10,6 +10,7 @@ import { actions } from '../../store/userStore';
 type Props = {
   isAdmin: boolean,
   userId?: number,
+  userImg?: string,
 };
 
 export default function BasicMenu(props: Props): Node {
@@ -43,15 +44,29 @@ export default function BasicMenu(props: Props): Node {
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
-        <FontAwesomeIcon
-          className='navbar-user-icon'
-          icon={props.isAdmin ? faLock : faUserCircle}
-          style={{
-            fontSize: '2rem',
-            width: '2rem',
-            height: '2rem',
-          }}
-        />
+        {props.userImg ? (
+          <img
+            className='navbar-user-icon'
+            src={props.userImg}
+            alt='user'
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+            }}
+          />
+        ) : (
+          <FontAwesomeIcon
+            className='navbar-user-icon'
+            icon={props.isAdmin ? faLock : faUserCircle}
+            style={{
+              fontSize: '2rem',
+              width: '2rem',
+              height: '2rem',
+            }}
+          />
+        )
+        }
       </div>
       <Menu
         id="basic-menu"

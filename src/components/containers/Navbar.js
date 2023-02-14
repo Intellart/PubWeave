@@ -58,7 +58,9 @@ function Navbar(props: Props): Node {
 
   const renderLoginButton = () => {
     if (isDesktop && (props.isAuthorized || props.isAdmin)) {
-      return <BasicMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} />;
+      const userImage = get(props, 'user.profile_img');
+
+      return <BasicMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>

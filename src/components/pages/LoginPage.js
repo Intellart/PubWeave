@@ -61,6 +61,8 @@ function LoginPage({ forAdmin }: Props): Node {
         first_name: firstName,
         last_name: lastName,
       });
+
+      setRegister(false);
     } else if (forAdmin) {
       loginAdmin({
         email: username,

@@ -1,31 +1,42 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, {
   useEffect,
   useRef,
 } from 'react';
-import { isEmpty, map } from 'lodash';
+import {
+  isEmpty, map, indexOf,
+} from 'lodash';
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type Props = {
   linkList: Array<string>,
-  oldSelectedImageIndex: number,
+  currentImage: string,
   onImageSelection: (index: number) => void,
 };
 
 function ImageSelection (props: Props) {
-  const [alternateLinkImage, setAlternateLinkImage] = React.useState('');
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(-1);
-  const ref = useRef(null);
+
+  const oldSelectedImageIndex = indexOf(props.linkList, props.currentImage);
+
+  const parentRef = useRef(null);
   const selectedImageRef = useRef(null);
 
-  // console.log(selectedImageIndex);
+  // custom image
+  const customImageRef = useRef(null);
+  const [customImageUrl, setCustomImageUrl] = React.useState(null);
 
   useEffect(() => {
     if (selectedImageRef.current) {
       // console.log('selectedImageRef.current', selectedImageRef.current);
     }
   }, [selectedImageRef]);
+
+  const uploadCustomImage = () => {
+    customImageRef.current?.click();
+  };
 
   const handleNewImageSelection = (newIndex) => {
     if (selectedImageIndex === newIndex) {
@@ -37,8 +48,43 @@ function ImageSelection (props: Props) {
 
   const linkList = [
     ...props.linkList,
-    ...(alternateLinkImage !== '') ? [alternateLinkImage] : [],
   ];
+
+  // eslint-disable-next-line no-unused-vars
+  const addNewImage = (e) => {
+    if (!e.target.files) {
+      return;
+    }
+
+    setCustomImageUrl(URL.createObjectURL(e.target.files[0]));
+  };
+
+  // eslint-disable-next-line no-unused-vars
+  const uploadNewImage = (e) => {
+    if (!e.target.files) {
+      return;
+    }
+
+    const file: File = e.target.files[0];
+
+    console.log(e.target.files[0]);
+
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
+    data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
+
+    return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
+      method: 'post',
+      body: data,
+    }).then((res) => res.json())
+      .then((d) => {
+        console.log(d);
+        // updateUser(get(user, 'id'), { profile_img: d.url });
+        setCustomImageUrl(d.url);
+        props.onImageSelection(d.url);
+      }).catch((err) => console.log(err));
+  };
 
   return (
     <div className='editor-wrapper-image-selection-wrapper'>
@@ -46,7 +92,7 @@ function ImageSelection (props: Props) {
       <>
         <div
           onClick={() => {
-            ref.current.scrollTo({
+            parentRef.current.scrollTo({
               left: 0,
               behavior: 'smooth',
             });
@@ -57,7 +103,7 @@ function ImageSelection (props: Props) {
         </div>
         <div
           onClick={() => {
-            ref.current.scrollTo({
+            parentRef.current.scrollTo({
               left: 5000,
               behavior: 'smooth',
             });
@@ -69,11 +115,10 @@ function ImageSelection (props: Props) {
       </>
       )}
       <div
-        ref={ref}
+        ref={parentRef}
         className='editor-wrapper-image-selection'
       >
-        {(!isEmpty(props.linkList) || alternateLinkImage) && map(linkList, (link, index) => (
-          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+        {(!isEmpty(linkList)) && map(linkList, (link, index) => (
           <img
             id={`editor-wrapper-image-selection-image-${index}`}
             onClick={() => {
@@ -86,36 +131,57 @@ function ImageSelection (props: Props) {
             key={index}
             className={classNames('editor-wrapper-image-selection-image', {
               selected: index === selectedImageIndex,
-              oldSelected: index === props.oldSelectedImageIndex,
+              oldSelected: index === oldSelectedImageIndex,
             })}
             src={link}
             alt="selection_image"
           />
-        ))
-      }
+        ))}
+        {customImageUrl && (
+        <img
+          id="editor-wrapper-image-selection-image--1"
+          onClick={() => {
+            handleNewImageSelection(-2);
+            setTimeout(() => {
+              document.getElementById('editor-wrapper-image-selection-image--1').scrollIntoView(
+                { behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }, 250);
+          }}
+          className={classNames('editor-wrapper-image-selection-image', {
+            selected: selectedImageIndex === -2,
+            oldSelected: oldSelectedImageIndex === -2,
+          })}
+          src={customImageUrl}
+          alt="selection_image"
+        />
+        )}
       </div>
       <div className='editor-wrapper-image-selection-actions'>
-        {(!isEmpty(props.linkList) || alternateLinkImage) ? (
+        <input
+          type="file"
+          ref={customImageRef}
+          onChange={uploadNewImage}
+          style={{ display: 'none' }}
+        />
+        <div
+          className={classNames('editor-wrapper-image-selection-actions-select')}
+          onClick={() => {
+            uploadCustomImage();
+          }}
+        >
+          Select custom thumbnail image
+        </div>
+        {(!isEmpty(linkList)) && (
           <div
             className={classNames('editor-wrapper-image-selection-actions-select',
-              { disabled: selectedImageIndex === props.oldSelectedImageIndex && selectedImageIndex !== -1 })}
+              { disabled: selectedImageIndex === oldSelectedImageIndex && selectedImageIndex !== -1 })}
             onClick={() => {
               if (selectedImageIndex !== -1) { props.onImageSelection(linkList[selectedImageIndex]); }
             }}
           >
             Select thumbnail image
           </div>
-        )
-          : (
-            <div
-              className='editor-wrapper-image-selection-actions-select'
-              onClick={() => {
-                setAlternateLinkImage('https://i.imgur.com/1Z5Q1Zm.png');
-              }}
-            >
-              Upload thumbnail image
-            </div>
-          )}
+        )}
 
       </div>
     </div>

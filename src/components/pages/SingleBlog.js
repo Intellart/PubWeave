@@ -4,7 +4,7 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faClipboard, faCopy, faHeart, faHeartBroken,
+  faClipboard, faCopy, faGlobe, faHeart, faHeartBroken,
 } from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
@@ -18,6 +18,7 @@ import {
 import { createReactEditorJS } from 'react-editor-js';
 import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
+import { toast } from 'react-toastify';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
@@ -110,10 +111,6 @@ function Blogs(): Node {
     setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
   }, [article, user]);
 
-  const handleRemoveArticleLike = () => {
-    removeArticleLike(get(userAlreadyLiked, 'id', ''));
-  };
-
   const onRightClick = (e) => {
     e.preventDefault();
     setContextMenu({
@@ -132,6 +129,8 @@ function Blogs(): Node {
       y: 0,
       selection: '',
     });
+
+    toast.success('Copied to clipboard');
   };
 
   const referenceSelectedText = () => {
@@ -145,6 +144,8 @@ function Blogs(): Node {
       y: 0,
       selection: '',
     });
+
+    toast.success('Copied to clipboard');
   };
 
   const onEditorKeyDown = (e) => {
@@ -179,12 +180,33 @@ function Blogs(): Node {
           </div>
           <div className="category-highlight-single-page-text-right">
             <div className="category-highlight-single-page-text-right-social-icons">
-              <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
-              <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
-              <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
+              {get(article, 'user.social_tw')
+              && (
+              <a target="_blank" href={get(article, 'user.social_tw')}>
+                <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
+              </a>
+              )}
+              {get(article, 'user.social_ln')
+              && (
+                <a href={get(article, 'user.social_ln')}>
+                  <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
+              {get(article, 'user.social_fb')
+              && (
+                <a target="_blank" href={get(article, 'user.social_fb')}>
+                  <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
+              {get(article, 'user.social_web')
+              && (
+                <a target="_blank" href={get(article, 'user.social_web')}>
+                  <FontAwesomeIcon icon={faGlobe} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
             </div>
             <div className="category-highlight-single-page-text-right-author">
-              <Avatar alt="Remy Sharp" src={get(user, 'profile_img', '')} className="category-highlight-single-page-text-right-author-img" />
+              <Avatar alt="Remy Sharp" src={get(article, 'user.profile_img', '')} className="category-highlight-single-page-text-right-author-img" />
               <div className="category-highlight-single-page-text-right-author-text">
                 <p className="category-highlight-single-page-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
                 <p className="category-highlight-single-page-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
@@ -254,7 +276,7 @@ function Blogs(): Node {
       <div className="reaction-icons unselectable">
         <FontAwesomeIcon
           className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
-          onClick={() => (userAlreadyLiked ? handleRemoveArticleLike() : likeArticle(id, user.id))}
+          onClick={() => (userAlreadyLiked ? removeArticleLike(get(userAlreadyLiked, 'id', '')) : likeArticle(id, user.id))}
           icon={faHeart}
           style={{
             color: userAlreadyLiked ? '#FF0000' : '#11273F',

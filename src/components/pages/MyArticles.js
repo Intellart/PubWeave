@@ -5,8 +5,10 @@ import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { filter, isEqual, map } from 'lodash';
-import { Chip } from '@mui/material';
+import {
+  filter, isEqual, map, slice,
+} from 'lodash';
+import { Chip, Pagination } from '@mui/material';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
@@ -25,6 +27,9 @@ function MyArticles(): Node {
     { id: 'draft', name: 'Draft' },
   ];
   const [statusCategory, setStatusCategory] = useState('all');
+
+  const itemsPerPage = 5;
+  const [page, setPage] = React.useState(1);
 
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
@@ -55,12 +60,15 @@ function MyArticles(): Node {
               key={c.id}
               label={`${c.name} (${filter(articles, a => (c.id !== 'all' ? a.status === c.id : true)).length})`}
               variant={statusCategory === c.id ? 'default' : 'outlined'}
-              onClick={() => setStatusCategory(c.id)}
+              onClick={() => {
+                setStatusCategory(c.id);
+                setPage(1);
+              }}
             />
           ))}
         </div>
         <div className="articles-list">
-          {map(filter(articles, a => a.status === statusCategory || statusCategory === 'all'), (a) => (
+          {map(slice(filter(articles, a => a.status === statusCategory || statusCategory === 'all'), (page - 1) * itemsPerPage, page * itemsPerPage), (a) => (
             <ArticleCard
               key={a.id}
               article={a}
@@ -69,6 +77,20 @@ function MyArticles(): Node {
             />
           ))}
         </div>
+        <Pagination
+          count={Math.ceil(filter(articles, a => a.status === statusCategory || statusCategory === 'all').length / itemsPerPage)}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: '2rem',
+            width: '100%',
+          }}
+          page={page}
+          onChange={(e, value) => {
+            setPage(value);
+          }}
+        />
       </section>
       {/* --------------------------------- */}
     </main>

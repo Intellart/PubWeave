@@ -4,6 +4,7 @@ import {
   get, isEmpty, has,
 } from 'lodash';
 import { minutesToMilliseconds } from 'date-fns';
+// import { toast } from 'react-toastify';
 import { store } from '../store';
 import { actions } from '../store/userStore';
 import { localStorageKeys } from '../tokens';
@@ -48,7 +49,15 @@ apiClient.interceptors.response.use((response: any) => {
 }, (error) => {
   if (get(error, 'response.status') === 401) {
     store.dispatch(actions.clearUser());
-  }
+  } /* else if (get(error, 'response.status') === 422) {
+    toast.error('422 ' + get(error, 'response.data.message'));
+
+    return;
+  } else if (get(error, 'response.status') === 400) {
+    toast.error('400 ' + get(error, 'response.data.message'));
+
+    return;
+  } */
 
   return Promise.reject(error);
 },
