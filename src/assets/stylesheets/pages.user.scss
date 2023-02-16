@@ -193,12 +193,14 @@
           align-items: center;
           justify-content: center;
           width: fit-content;
+          gap: 3px;
   
           .user-page-header-info-name{
             font-size: 20px;
             font-weight: 600;
             width: 200px;
             color: $pubWeaveBlue;
+           
 
             &.user-page-header-info-name-edit{
               display: flex;
@@ -206,7 +208,11 @@
               align-items: center;
               justify-content: center;
               width: 100%;
-              gap: 10px;
+              margin-bottom: 0 !important;
+              &::placeholder{
+                color: rgba($pubWeaveBlue, 0.5);
+              }
+              
 
               
               width: 100%;
@@ -229,6 +235,17 @@
             font-weight: 400;
             width: 200px;
             color: $pubWeaveBlue;
+          }
+
+          .user-page-header-info-username{
+            font-size: 14px;
+            font-weight: 400;
+            width: 200px;
+            color: rgba($pubWeaveBlue, 0.7);
+
+            &.user-page-header-info-username-empty{
+              color: #879604;
+            }
           }
         }
       }

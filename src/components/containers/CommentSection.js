@@ -147,7 +147,11 @@ function CommentSection(props: Props): Node {
   };
 
   const doesUserHasUsername = () => {
-    console.log('doesUserHasUsername', props.currentUser);
+    const username = get(props.currentUser, 'username');
+
+    if (username && username.length > 0) {
+      return true;
+    }
 
     return false;
   };

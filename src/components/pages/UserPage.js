@@ -33,6 +33,12 @@ function UserPage(): Node {
     fieldName: '',
     fieldValue: '',
   });
+
+  const [editField2, setEditField2] = useState({
+    fieldName: '',
+    fieldValue: '',
+  });
+
   const [socialMedia, setSocialMedia] = useState({
     facebook: get(user, 'social_fb') || '',
     twitter: get(user, 'social_tw') || '',
@@ -87,6 +93,11 @@ function UserPage(): Node {
       fieldName: 'full_name',
       fieldValue: get(user, 'full_name'),
     });
+
+    setEditField2({
+      fieldName: 'username',
+      fieldValue: get(user, 'username'),
+    });
   };
 
   const clearEditing = () => {
@@ -132,6 +143,8 @@ function UserPage(): Node {
       updateUser(get(user, 'id'), { last_name: lastName });
     }
 
+    updateUser(get(user, 'id'), { username: editField2.fieldValue });
+
     clearEditing();
   };
 
@@ -173,6 +186,11 @@ function UserPage(): Node {
               <div className="user-page-info-text">
                 <h1 className="user-page-header-info-name">{get(user, 'full_name')}</h1>
                 <p className="user-page-header-info-email">{get(user, 'email')}</p>
+                <p
+                  className={classNames('user-page-header-info-username', { 'user-page-header-info-username-empty': !get(user, 'username') })}
+                >
+                  {get(user, 'username', 'No username')}
+                </p>
               </div>
             )
               : (
@@ -184,6 +202,13 @@ function UserPage(): Node {
                     onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
                   />
                   <p className="user-page-header-info-email">{get(user, 'email')}</p>
+                  <input
+                    type="text"
+                    placeholder='Enter username'
+                    className="user-page-header-info-name user-page-header-info-name-edit"
+                    value={editField2.fieldValue}
+                    onChange={(e) => setEditField2({ ...editField2, fieldValue: e.target.value })}
+                  />
                 </div>
               )}
 
