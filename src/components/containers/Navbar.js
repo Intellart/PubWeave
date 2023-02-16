@@ -178,8 +178,8 @@ function Navbar(props: Props): Node {
           <NavLink onClick={onClick} to="/">Home</NavLink>
           <NavLink onClick={onClick} to="/blogs">Blogs </NavLink>
           {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
-          <NavLink onClick={onClick} to="/About">About</NavLink>
-          <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink>
+          {/* <NavLink onClick={onClick} to="/About">About</NavLink>
+          <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
           {isDesktop && props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
           {isDesktop && renderLoginButton()}
           {isMobile && (

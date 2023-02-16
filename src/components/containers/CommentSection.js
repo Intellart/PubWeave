@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Button, Chip } from '@mui/material';
+import { Alert, AlertTitle, Chip } from '@mui/material';
 import {
   filter,
   find,
@@ -7,6 +7,7 @@ import {
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 import Comment from './Comment';
 
@@ -228,8 +229,12 @@ function CommentSection(props: Props): Node {
       ) : (
         <div className="comment-section-notification-username-wrapper">
           <Alert severity="info">
-            <AlertTitle>Info</AlertTitle>
-            You need to set your username in your profile to be able to comment.
+            <AlertTitle>You can&apos;t comment yet</AlertTitle>
+            You need to&nbsp;
+            <Link>
+              set your username in your profile
+            </Link>
+            &nbsp;to be able to comment.
           </Alert>
         </div>
       )}

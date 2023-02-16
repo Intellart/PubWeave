@@ -142,7 +142,7 @@ function ArticleCard(props : Props): Node {
       >
         <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
           <img
-            src={props.article.image || images[Math.floor(Math.random() * images.length)]}
+            src={props.article.image || images[props.article.id % 4]}
             className="article-card-img"
             alt="article"
           />
@@ -158,52 +158,54 @@ function ArticleCard(props : Props): Node {
             <div className="article-card-side-content-title-wrapper">
               <h4>{props.article.category || 'Category'}</h4>
               <h2>{props.article.title}</h2>
+              <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
             </div>
             <div className="article-card-side-content-status-wrapper">
               {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
             </div>
           </div>
-          <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
           <p className="article-card-description">{description.substring(0, isMobile ? 45 : 200)}...</p>
-          <div className="date-social">
-            <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
-            <div className="article-icons-share-heart">
-              <FontAwesomeIcon
-                icon={faShare}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowModal(true);
-                }}
-              />
-              <FontAwesomeIcon
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (userAlreadyLiked) {
-                    removeArticleLike(get(find(props.article.likes, (like) => like.user_id === props.currentUserId), 'id', 0));
-                  } else {
-                    likeArticle(props.article.id, props.currentUserId || 0);
-                  }
-                }}
-                style={{
-                  color: userAlreadyLiked ? '#FF0000' : '#11273F',
-                }}
-                icon={userAlreadyLiked ? faHeartSolid : faHeart}
-              />
-              {!isPublished && (
-              <a
-                onClick={(e) => handleEditArticle(e)}
-              ><FontAwesomeIcon icon={faPenToSquare} />
-              </a>
-              )}
-              {!isPublished && (
-              <a
-                onClick={(e) => handleDeleteArticle(e)}
-              ><FontAwesomeIcon icon={faXmark} />
-              </a>
-              )}
+          <div className='article-card-lower'>
+            <div className="date-social">
+              <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
+              <div className="article-icons-share-heart">
+                <FontAwesomeIcon
+                  icon={faShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowModal(true);
+                  }}
+                />
+                <FontAwesomeIcon
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (userAlreadyLiked) {
+                      removeArticleLike(get(find(props.article.likes, (like) => like.user_id === props.currentUserId), 'id', 0));
+                    } else {
+                      likeArticle(props.article.id, props.currentUserId || 0);
+                    }
+                  }}
+                  style={{
+                    color: userAlreadyLiked ? '#FF0000' : '#11273F',
+                  }}
+                  icon={userAlreadyLiked ? faHeartSolid : faHeart}
+                />
+                {!isPublished && (
+                <a
+                  onClick={(e) => handleEditArticle(e)}
+                ><FontAwesomeIcon icon={faPenToSquare} />
+                </a>
+                )}
+                {!isPublished && (
+                <a
+                  onClick={(e) => handleDeleteArticle(e)}
+                ><FontAwesomeIcon icon={faXmark} />
+                </a>
+                )}
+              </div>
             </div>
+            <hr className="article-card-divider" />
           </div>
-          <hr className="article-card-divider" />
         </div>
       </div>
     </>

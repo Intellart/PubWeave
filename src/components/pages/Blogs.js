@@ -6,7 +6,6 @@ import {
   filter,
   get, isEqual, map,
   isEmpty,
-  omit,
   slice,
 } from 'lodash';
 import { useSelector } from 'react-redux';
@@ -23,6 +22,7 @@ import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { useDebounce, useScrollTopEffect } from '../../utils/hooks';
+import { CategoryList } from '../elements/CategoryList';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -56,15 +56,15 @@ function Blogs(): Node {
   return (
     <main className="blogs-wrapper">
       {!userId && (
+      <CategoryList
+        categories={categories}
+        activeCategory={cat}
+      />
+      )
+}
+      {/*  (
       <section className="blogs-categories">
         <div className='blogs-featured-categories-list'>
-          {cat && (
-          <Link
-            to="/blogs"
-          >
-            <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
-          </Link>
-          ) }
           {map(omit(categories, [12]), (c, index) => (
             <Link
               key={index}
@@ -72,17 +72,28 @@ function Blogs(): Node {
                 { 'blogs-featured-categories-list-item-active': c.category_name === cat })}
               to={`/blogs/${c.category_name}`}
             >
-              <p>{c.category_name}
-              </p>
+              <CategoryItem
+                name={c.category_name}
+                articleCount={filter(articles, (a) => a.category === c.category_name).length}
+              />
             </Link>
           ))}
+          {cat && (
+          <Link
+            to="/blogs"
+          >
+            <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
+          </Link>
+          ) }
         </div>
 
       </section>
-      ) }
+      ) } */}
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
         <div className="category-highlight-text">
-          {cat && <h4>{cat}</h4> }
+          {/* <div className="category-highlight-text-top">
+            {cat && <h4>{cat}</h4> }
+          </div> */}
           {/* <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
           <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p> */}
           <div className="all-chips">
@@ -114,7 +125,8 @@ function Blogs(): Node {
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {/* <hr className="blogs-featured-divider" /> */}
           {!userId && (
-          <><h2 className="blogs-featured-subtitle">Featured</h2>
+          <>
+            {!isEmpty(debounceFeaturedArticles) && <h2 className="blogs-featured-subtitle">Featured</h2> }
             <div className='blogs-featured-cards'>
               {map(debounceFeaturedArticles.slice(0, 3), (a, index) => (
                 <FeaturedCard
