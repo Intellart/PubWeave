@@ -100,7 +100,7 @@ export function CategoryList(props: CategoryListProps): Node {
           setScrollLeft(scrollLeft + clientScrollWidth.current);
         }}
       >
-        {scrollLeft < clientScrollWidth.current
+        {(scrollLeft < clientScrollWidth.current || !clientScrollWidth.current)
         && (
         <FontAwesomeIcon
           icon={faAngleRight}
