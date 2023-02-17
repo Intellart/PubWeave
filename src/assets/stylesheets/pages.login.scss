@@ -81,6 +81,19 @@
         width: 95vw;
       }
 
+      .login-alert{
+        .login-alert-item{
+          display: flex;
+          justify-content: flex-start;
+          align-items: flex-start;
+          gap: 10px;
+
+          .login-alert-item-icon{
+            width: 10px; 
+          }
+        }
+      }
+
       .login-signup{
         display: flex;
         justify-content: center;

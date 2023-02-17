@@ -5,7 +5,12 @@ import 'bulma/css/bulma.min.css';
 import { useDispatch } from 'react-redux';
 // import MyTable from '../containers/MyTable';
 import classNames from 'classnames';
-import { join, size, split } from 'lodash';
+import {
+  isEqual, join, map, size, split,
+} from 'lodash';
+import { Alert } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import logoImg from '../../images/LogoPubWeave.png';
 import { actions } from '../../store/userStore';
 
@@ -77,6 +82,20 @@ function LoginPage({ forAdmin }: Props): Node {
       });
     }
   };
+
+  const toggleRegister = () => {
+    setRegister(!register);
+    setUserName('');
+    setPassword('');
+    setFullName('');
+  };
+
+  const checkPasswords = () => [
+    { rule: !(password === '' || confirmedPassword === ''), text: "Can't be empty" },
+    { rule: isEqual(password, confirmedPassword) && !(password === '' || confirmedPassword === ''), text: 'Password match' },
+    { rule: size(password) >= 6, text: 'At least 6 characters' },
+    { rule: /\d/g.test(password), text: 'At least 1 number' },
+  ];
 
   return (
     <main className="login-page-wrapper">
@@ -150,12 +169,34 @@ function LoginPage({ forAdmin }: Props): Node {
                 type="password"
                 placeholder="Password"
                 className="login-password-input"
-                value={password}
+                value={confirmedPassword}
                 onChange={e => setConfirmedPassword(e.target.value)}
               />
             </div>
           </div>
           ) }
+          {register && (
+          <Alert
+            severity="warning"
+            className='login-alert'
+            sx={{
+              width: '100%',
+            }}
+          >
+            {map(checkPasswords(), (check) => (
+              <div className='login-alert-item'>
+                <FontAwesomeIcon
+                  lassName='login-alert-item-icon'
+                  icon={check.rule ? faCheck : faXmark}
+                  style={{
+                    color: check.rule ? 'green' : 'red',
+                  }}
+                />
+                {check.text}
+              </div>
+            ))}
+          </Alert>
+          )}
           <div className="login-forget">
             <a href="/forget" className="login-forget-link">
               Forget Password?
@@ -174,7 +215,7 @@ function LoginPage({ forAdmin }: Props): Node {
           </button>
           {!forAdmin && (
           <div
-            onClick={() => setRegister(!register)}
+            onClick={() => toggleRegister()}
             className="login-signup"
           >
             {!register
