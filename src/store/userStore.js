@@ -32,6 +32,7 @@ type LoginCredentials = {
 export type State = {
   profile: User|null,
   currentAdmin: Admin|null,
+  selectedUser: User|null,
 };
 
 export const types = {
@@ -70,12 +71,18 @@ export const types = {
   USR_UPDATE_USER_PASSWORD_REJECTED: 'USR/UPDATE_USER_PASSWORD_REJECTED',
   USR_UPDATE_USER_PASSWORD_FULFILLED: 'USR/UPDATE_USER_PASSWORD_FULFILLED',
 
+  USR_SELECT_USER: 'USR/SELECT_USER',
+  USR_SELECT_USER_PENDING: 'USR/SELECT_USER_PENDING',
+  USR_SELECT_USER_REJECTED: 'USR/SELECT_USER_REJECTED',
+  USR_SELECT_USER_FULFILLED: 'USR/SELECT_USER_FULFILLED',
+
   USR_CLEAR_USER: 'USR/CLEAR_USER',
 };
 
 export const selectors = {
   getUser: (state: ReduxState): User|null => state.user.profile,
   getAdmin: (state: ReduxState): Admin|null => state.user.currentAdmin,
+  getSelectedUser: (state: ReduxState): User|null => state.user.selectedUser,
 
 };
 
@@ -110,6 +117,10 @@ export const actions = {
   updateUserPassword: (userId:number, payload: any): ReduxAction => ({
     type: types.USR_UPDATE_USER_PASSWORD,
     payload: API.putRequest('auth/user/password_update', { password: payload }),
+  }),
+  selectUser: (userId: number): ReduxAction => ({
+    type: types.USR_SELECT_USER,
+    payload: API.getRequest(`intellart/users/${userId}`),
   }),
 };
 
@@ -206,6 +217,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.USR_CLEAR_USER:
       return logoutUser();
+
+    case types.USR_SELECT_USER_FULFILLED:
+      return {
+        ...state,
+        selectedUser: action.payload,
+      };
 
     default:
       return state || {};

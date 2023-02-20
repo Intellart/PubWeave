@@ -16,6 +16,7 @@ import {
   faCamera, faCheck, faPencil, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import { Alert } from '@mui/material';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 
 function UserPage(): Node {
@@ -172,6 +173,7 @@ function UserPage(): Node {
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />
+            {!isEditing && (
             <div
               className="user-page-info-avatar"
               onClick={uploadAvatar}
@@ -182,35 +184,65 @@ function UserPage(): Node {
               />
               {avatarImg && <img src={avatarImg} alt="avatar" /> }
             </div>
-            {!isEditing ? (
+            )}
+            {!isEditing && (
               <div className="user-page-info-text">
                 <h1 className="user-page-header-info-name">{get(user, 'full_name')}</h1>
                 <p className="user-page-header-info-email">{get(user, 'email')}</p>
                 <p
                   className={classNames('user-page-header-info-username', { 'user-page-header-info-username-empty': !get(user, 'username') })}
                 >
-                  {get(user, 'username', 'No username')}
+                  {get(user, 'username') || 'No username'}
                 </p>
               </div>
-            )
-              : (
-                <div className="user-page-info-text">
-                  <input
-                    type="text"
-                    className="user-page-header-info-name user-page-header-info-name-edit"
-                    value={editField.fieldValue}
-                    onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
-                  />
-                  <p className="user-page-header-info-email">{get(user, 'email')}</p>
-                  <input
-                    type="text"
-                    placeholder='Enter username'
-                    className="user-page-header-info-name user-page-header-info-name-edit"
-                    value={editField2.fieldValue}
-                    onChange={(e) => setEditField2({ ...editField2, fieldValue: e.target.value })}
-                  />
-                </div>
-              )}
+            ) }
+            {isEditing && (
+            <div className="user-page-editing">
+              <p className="user-page-editing-label">
+                Full name:
+              </p>
+              <input
+                type="text"
+                className="user-page-editing-input"
+                value={editField.fieldValue}
+                onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
+              />
+              <p className="user-page-editing-label">
+                Email:
+              </p>
+              <input
+                type="text"
+                className="user-page-editing-input"
+                value={get(user, 'email')}
+                onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
+              />
+              <p className="user-page-editing-label">
+                Username:
+              </p>
+              <input
+                type="text"
+                placeholder='Enter username'
+                className="user-page-editing-input"
+                value={editField2.fieldValue}
+                onChange={(e) => setEditField2({ ...editField2, fieldValue: e.target.value })}
+              />
+              <Alert>
+                <p className="user-page-header-info-email">Username is used to create a unique URL for your profile. It can be changed later.</p>
+              </Alert>
+              <div className="user-page-editing-icons">
+                <FontAwesomeIcon
+                  onClick={() => updateUserName()}
+                  className="user-page-info-edit-icon"
+                  icon={faCheck}
+                />
+                <FontAwesomeIcon
+                  onClick={() => clearEditing()}
+                  className="user-page-info-edit-icon"
+                  icon={faXmark}
+                />
+              </div>
+            </div>
+            )}
 
             {!isEditing && (
             <FontAwesomeIcon
@@ -219,27 +251,16 @@ function UserPage(): Node {
               icon={faPencil}
             />
             )}
-            {isEditing && (
-            <FontAwesomeIcon
-              onClick={() => updateUserName()}
-              className="user-page-info-edit-icon"
-              icon={faCheck}
-            />
-            )
-            }
-            {isEditing && (
-            <FontAwesomeIcon
-              onClick={() => clearEditing()}
-              className="user-page-info-edit-icon"
-              icon={faXmark}
-            />
-            )
-            }
 
           </div>
 
           <hr />
           <div className="user-page-other-info">
+            {!isEditing && get(user, 'username') === '' && (
+              <Alert>
+                <p className="user-page-header-info-email">You need to set a username in order to comment on the platform.</p>
+              </Alert>
+            )}
             <div className="user-page-other-info-item">
               <p className="user-page-other-info-item-title">ORCID</p>
               <p className="user-page-other-info-item-value">{get(user, 'orcid_id')}</p>

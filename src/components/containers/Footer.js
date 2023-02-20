@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
+import { Link } from 'react-router-dom';
 
 function Footer(): Node {
   return (
@@ -19,7 +20,15 @@ function Footer(): Node {
         </div>
         <div className="contact-details">
           <h3>Contact</h3>
-          <p>info@intellart.ca</p>
+          <Link
+            to='#'
+            onClick={(e) => {
+              window.location.href = 'info@intellart.ca';
+              e.preventDefault();
+            }}
+          >
+            <p>info@intellart.ca</p>
+          </Link>
         </div>
         <div className="navigation">
           <h3>Navigation</h3>

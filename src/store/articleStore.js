@@ -299,15 +299,28 @@ export const actions = {
     payload: API.deleteRequest(`pubweave/blog_articles/${id}`),
   }),
   // this will be handled by Admin from the backend, see publish and reject actions
-  publishArticle: (id: number, newStatus: string): ReduxAction => ({
-    type: types.ART_PUBLISH_ARTICLE,
-    payload: API.putRequest(`pubweave/blog_articles/${id}`,
-      {
-        blog_article: {
-          status: newStatus,
-        },
-      }),
-  }),
+  publishArticle: (id: number, newStatus: string): ReduxAction => {
+    console.log('publishing article', id, newStatus);
+
+    let route = '';
+    if (newStatus === 'published') {
+      route = `pubweave/blog_articles/${id}/accept_publishing`;
+    } else if (newStatus === 'rejected') {
+      route = `pubweave/blog_articles/${id}/reject_publishing`;
+    } else if (newStatus === 'requested') {
+      route = `pubweave/blog_articles/${id}/request_publishing`;
+    }
+
+    return {
+      type: types.ART_PUBLISH_ARTICLE,
+      payload: API.putRequest(route,
+        {
+          blog_article: {
+            status: newStatus,
+          },
+        }),
+    };
+  },
 
 };
 

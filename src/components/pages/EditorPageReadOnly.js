@@ -12,10 +12,10 @@ import {
 
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faPenToSquare, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { Alert } from '@mui/material';
+import { Alert, AlertTitle } from '@mui/material';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
@@ -68,13 +68,13 @@ function ReactEditor () {
 
   useEffect(() => {
     if (isReady) {
-      // console.log('Article loaded');
+      console.log('Article loaded');
       setArticleTitle(get(article, 'title'));
       setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article]);
+  }, [article, isReady]);
 
   useEffect(() => {
     if (titleRef.current) {
@@ -89,6 +89,39 @@ function ReactEditor () {
     ...get(article, 'image', '') ? [get(article, 'image', '')] : [],
   ]);
 
+  const checks = [
+    {
+      name: 'Word count',
+      check: () => wordCount >= 200,
+      message: 'Word count must be at least 200',
+    },
+    {
+      name: 'Title',
+      check: () => articleTitle.length > 0 && articleTitle !== 'New article',
+      message: 'Add a title',
+    },
+    {
+      name: 'Image',
+      check: () => get(article, 'image', ''),
+      message: 'Add at least one image to your article',
+    },
+    {
+      name: 'Thumbnail',
+      check: () => get(article, 'image', ''),
+      message: 'Add a thumbnail to your article',
+    },
+    {
+      name: 'Category',
+      check: () => get(article, 'category', ''),
+      message: 'Add a category to your article',
+    },
+    {
+      name: 'Description',
+      check: () => get(article, 'description', ''),
+      message: 'Add a description to your article',
+    },
+  ];
+
   return (
     <main className="editor-wrapper">
       <div
@@ -102,6 +135,14 @@ function ReactEditor () {
           onFocus={() => setTitleFocus(true)}
           onBlur={() => {
             setTitleFocus(false);
+            if (articleTitle === get(article, 'title')) {
+              return;
+            }
+            if (articleTitle === '') {
+              setArticleTitle(get(article, 'title'));
+
+              return;
+            }
             updateArticle(id, { title: articleTitle });
           }}
           ref={titleRef}
@@ -110,30 +151,8 @@ function ReactEditor () {
           className={classNames('editor-title-input', { focus: titleFocus })}
         />
       </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleTitle })} />
-      <div className="editor-buttons-wrapper">
-        <div className="editor-buttons">
-          <Link
-            to={`/submit-work/${id}`}
-          >
-            <div
-              className='editor-buttons-back-button'
-              color="primary"
-            >
-              Back to editor
-            </div>
-          </Link>
-          <div
-            className={classNames('editor-wrapper-publish-button')}
-            onClick={() => {
-              publishArticle(id, 'requested', article);
-              navigate('/submit-work');
-            }}
-          >
-            Publish article
-          </div>
-        </div>
-      </div>
+      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
+
       <ImageSelection
         linkList={linkList}
         onImageSelection={(href) => {
@@ -152,13 +171,27 @@ function ReactEditor () {
         className="alert-container"
       >
         <Alert
-          sx={{ width: '60%' }}
+          sx={{
+            width: 'calc(100% - 150px)',
+
+          }}
           severity="info"
         >
-          You are in read only mode and can only view the article. To edit the article, click on the Back button.
+          <AlertTitle>Complete this steps to publish your article</AlertTitle>
+          {map(checks, (check) => (
+            <div key={check.name}>
+              <FontAwesomeIcon
+                icon={check.check() ? faCheckCircle : faTimesCircle}
+                style={{
+                  color: check.check() ? 'green' : 'red',
+                  marginRight: '10px',
+                }}
+              />
+              {check.message}
+            </div>
+          ))}
         </Alert>
       </div>
-
       <ArticleConfig
         id={id}
         wordCount={wordCount}
@@ -182,6 +215,29 @@ function ReactEditor () {
         placeholder='Start your article here!'
       />
       )}
+      <div className="editor-buttons-wrapper">
+        <div className="editor-buttons">
+          <Link
+            to={`/submit-work/${id}`}
+          >
+            <div
+              className='editor-buttons-back-button'
+              color="primary"
+            >
+              Back to editor
+            </div>
+          </Link>
+          <div
+            className={classNames('editor-wrapper-publish-button')}
+            onClick={() => {
+              publishArticle(id, 'requested', article);
+              navigate('/submit-work');
+            }}
+          >
+            Publish article
+          </div>
+        </div>
+      </div>
     </main>
   );
 }

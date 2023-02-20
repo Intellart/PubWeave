@@ -12,15 +12,20 @@ import type { Node } from 'react';
 import { Modal } from '@mui/material';
 import { faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import { get } from 'lodash';
+import type { Article } from '../../store/articleStore';
 
 type Props = {
   open: boolean,
   onClose: Function,
+  article: Article,
 };
 
 function ShareModal(props: Props): Node {
-  const link = 'https://www.google.com';
-  const shareText = 'Article title goes here';
+  console.log(window.location.href);
+  const link = `${window.location.href}/${get(props.article, 'id', 0)}`;
+
+  const shareText = get(props.article, 'title', 'Article Title');
   const hashtags = 'Math,Science,Technology';
 
   const twitterLink = `http://twitter.com/share?text=${shareText}&url=${link}&hashtags=${hashtags}`;
@@ -60,7 +65,7 @@ function ShareModal(props: Props): Node {
         <p className="share-modal-subtitle">Or copy the link</p>
         <div className="share-modal-copy-link">
           <FontAwesomeIcon className="icon" icon={faLink} />
-          <p>https://www.google.com</p>
+          <p>{link}</p>
           <button
             type="button"
             className="copy-button"

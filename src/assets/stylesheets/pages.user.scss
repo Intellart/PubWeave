@@ -121,6 +121,41 @@
           color: #11273F;
         }
       }
+    
+      .user-page-editing{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        height: fit-content;
+        padding: 20px;
+        gap: 20px;
+
+        .user-page-editing-label{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          width: 100%;
+          height: fit-content;
+          gap: 10px;
+
+        }
+
+        .user-page-editing-input{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          width: 100%;
+          height: fit-content;
+          gap: 10px;
+          border: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+
+        }
+
+      }
   
       .user-page-info{
         display: flex;

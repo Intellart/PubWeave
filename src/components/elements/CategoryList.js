@@ -20,7 +20,7 @@ export function CategoryItem(props: CategoryItemProps): Node {
     <Link to={`/blogs/${props.name}`} className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}>
       <div className='category-list-item-block-left' />
       <div className='category-list-item-inner-overlay'>
-        <div className='category-list-item-inner'>
+        <div className={classNames('category-list-item-inner', { 'category-list-item-empty': !props.articleCount })}>
           <p className='category-list-item-name'>{props.name}</p>
           <p className='category-list-item-count'>{props.articleCount || 0} articles</p>
         </div>
@@ -83,9 +83,9 @@ export function CategoryList(props: CategoryListProps): Node {
         {map(props.categories, (c, index) => (
           <CategoryItem
             key={index}
-            isActive={c.category_name === props.activeCategory}
-            name={c.category_name}
-            articleCount={0}
+            isActive={c.name === props.activeCategory}
+            name={c.name}
+            articleCount={c.count}
           />
         ))}
       </div>

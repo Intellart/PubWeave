@@ -135,6 +135,7 @@ function ArticleCard(props : Props): Node {
       <ShareModal
         open={showModal}
         onClose={() => setShowModal(false)}
+        article={props.article}
       />
       <div
         onClick={handleArticleClick}
@@ -176,6 +177,7 @@ function ArticleCard(props : Props): Node {
                     setShowModal(true);
                   }}
                 />
+                {props.currentUserId && (
                 <FontAwesomeIcon
                   onClick={(e) => {
                     e.stopPropagation();
@@ -190,6 +192,7 @@ function ArticleCard(props : Props): Node {
                   }}
                   icon={userAlreadyLiked ? faHeartSolid : faHeart}
                 />
+                ) }
                 {!isPublished && (
                 <a
                   onClick={(e) => handleEditArticle(e)}
