@@ -4,7 +4,7 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faClipboard, faCopy, faGlobe, faHeart, faHeartBroken,
+  faClipboard, faCopy, faGlobe, faHeart,
 } from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
@@ -25,43 +25,6 @@ import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 import { useScrollTopEffect } from '../../utils/hooks';
-
-const sampleBlog = () => (
-  <section className="single-blog-content">
-    <h2>Abstract</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget faucibus mauris. Maecenas pellentesque placerat consectetur. Suspendisse sed pharetra erat. Ut at vestibulum arcu. Ut a ex elit. Mauris purus odio, gravida id egestas id, pellentesque id libero. Vivamus tortor massa, lobortis id hendrerit eget, facilisis at orci. Duis tincidunt purus sem, id vulputate libero consequat at. Vivamus egestas tellus massa, at pretium quam maximus sed. Cras ac nisi posuere, cursus velit id, tincidunt metus. Etiam magna turpis, luctus quis lacinia nec, blandit mattis tellus.</p>
-    <hr className="single-blog-content-divider" />
-    <h2>Introduction</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget faucibus mauris. Maecenas pellentesque placerat consectetur. Suspendisse sed pharetra erat. Ut at vestibulum arcu. Ut a ex elit. Mauris purus odio, gravida id egestas id, pellentesque id libero. Vivamus tortor massa, lobortis id hendrerit eget, facilisis at orci. Duis tincidunt purus sem, id vulputate libero consequat at. Vivamus egestas tellus massa, at pretium quam maximus sed. Cras ac nisi posuere, cursus velit id, tincidunt metus. Etiam magna turpis, luctus quis lacinia nec, blandit mattis tellus.</p>
-    <hr className="single-blog-content-divider" />
-    <h2>Results</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget faucibus mauris. Maecenas pellentesque placerat consectetur. Suspendisse sed pharetra erat. Ut at vestibulum arcu. Ut a ex elit. Mauris purus odio, gravida id egestas id, pellentesque id libero. Vivamus tortor massa, lobortis id hendrerit eget, facilisis at orci. Duis tincidunt purus sem, id vulputate libero consequat at. Vivamus egestas tellus massa, at pretium quam maximus sed. Cras ac nisi posuere, cursus velit id, tincidunt metus. Etiam magna turpis, luctus quis lacinia nec, blandit mattis tellus. Proin interdum dolor est, eu condimentum felis commodo vitae. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut rutrum mi libero, at dignissim enim consectetur in. Duis sodales interdum ornare. Maecenas erat felis, egestas at tempus sed, euismod id mauris. Nam ac augue in lacus tincidunt tempor. Cras odio ipsum, vulputate nec mollis a, pellentesque eget arcu. Integer finibus metus sed diam luctus, in consequat tortor hendrerit. In turpis odio, aliquet quis bibendum vel, facilisis consequat enim. Donec dignissim mi eget pulvinar sagittis. Pellentesque nibh urna, sagittis eget elementum ut, tincidunt et magna. Nunc consequat dignissim orci, id auctor nulla dictum quis. Mauris in urna non dui viverra feugiat. In convallis augue in finibus viverra. Proin at imperdiet lacus. Integer urna sapien, laoreet sed leo tincidunt, luctus tristique eros. Quisque ultrices, sapien in rhoncus ultrices, libero urna vulputate nisi, mattis mattis arcu massa id augue. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam laoreet viverra metus non fermentum. Sed tempus dictum neque non lacinia. Cras feugiat velit metus, ornare faucibus nulla luctus sit amet. Maecenas venenatis porta venenatis. Sed fermentum lectus et nulla suscipit accumsan.
-    </p>
-    <hr className="single-blog-content-divider" />
-    <h2>Discussion</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget faucibus mauris. Maecenas pellentesque placerat consectetur. Suspendisse sed pharetra erat. Ut at vestibulum arcu. Ut a ex elit. Mauris purus odio, gravida id egestas id, pellentesque id libero. Vivamus tortor massa, lobortis id hendrerit eget, facilisis at orci. Duis tincidunt purus sem, id vulputate libero consequat at. Vivamus egestas tellus massa, at pretium quam maximus sed. Cras ac nisi posuere, cursus velit id, tincidunt metus. Etiam magna turpis, luctus quis lacinia nec, blandit mattis tellus.</p>
-    <hr className="single-blog-content-divider" />
-    <h2>Materials and methods</h2>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse eget faucibus mauris. Maecenas pellentesque placerat consectetur. Suspendisse sed pharetra erat. Ut at vestibulum arcu. Ut a ex elit. Mauris purus odio, gravida id egestas id, pellentesque id libero. Vivamus tortor massa, lobortis id hendrerit eget, facilisis at orci. Duis tincidunt purus sem, id vulputate libero consequat at. Vivamus egestas tellus massa, at pretium quam maximus sed. Cras ac nisi posuere, cursus velit id, tincidunt metus. Etiam magna turpis, luctus quis lacinia nec, blandit mattis tellus.</p>
-    <div className="reaction-icons">
-      <FontAwesomeIcon
-        style={{
-          width: 28, height: 28, color: '#11273F', marginRight: 6,
-        }}
-        icon={faHeart}
-      />
-      <p>56</p>
-      <FontAwesomeIcon
-        style={{
-          width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
-        }}
-        icon={faHeartBroken}
-      /><p>0</p>
-      <CommentModal />
-      <p>12</p>
-    </div>
-  </section>
-);
 
 const ReactEditorJS = createReactEditorJS();
 
@@ -154,15 +117,13 @@ function Blogs(): Node {
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <main
-      className="blogs-wrapper"
-    >
-      <section className="blogs-category-highlight single-page unselectable">
-        <div className="category-highlight-single-page-text">
-          <div className="category-highlight-single-page-text-left">
-            <h1 className="category-highlight-category">{get(article, 'category', '')}</h1>
-            <h2 className="category-highlight-title">{get(article, 'title', 'No title')}</h2>
-            <div className="category-highlight-single-page-text-left-tags">
+    <main className="single-blog-wrapper">
+      <section className="single-blog-highlight unselectable">
+        <div className="single-blog-highlight-text">
+          <div className="single-blog-highlight-text-left">
+            <h1 className="single-blog-highlight-category">{get(article, 'category', '')}</h1>
+            <h2 className="single-blog-highlight-title">{get(article, 'title', 'No title')}</h2>
+            <div className="single-blog-highlight-text-left-tags">
               {map(get(article, 'tags', []), (tag, index) => (
                 <Link
                   key={index}
@@ -172,14 +133,14 @@ function Blogs(): Node {
                     variant='outlined'
                     key={tag.id}
                     label={tag.tag_name}
-                    className="category-highlight-single-page-text-left-tags-chip"
+                    className="single-blog-highlight-text-left-tags-chip"
                   />
                 </Link>
               ))}
             </div>
           </div>
-          <div className="category-highlight-single-page-text-right">
-            <div className="category-highlight-single-page-text-right-social-icons">
+          <div className="single-blog-highlight-text-right">
+            <div className="single-blog-highlight-text-right-social-icons">
               {get(article, 'user.social_tw')
               && (
               <a target="_blank" href={get(article, 'user.social_tw')}>
@@ -205,19 +166,17 @@ function Blogs(): Node {
                 </a>
               )}
             </div>
-            <div className="category-highlight-single-page-text-right-author">
-              <Avatar alt="Remy Sharp" src={get(article, 'user.profile_img', '')} className="category-highlight-single-page-text-right-author-img" />
-              <div className="category-highlight-single-page-text-right-author-text">
-                <p className="category-highlight-single-page-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
-                <p className="category-highlight-single-page-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
+            <div className="single-blog-highlight-text-right-author">
+              <Avatar alt="Remy Sharp" src={get(article, 'user.profile_img', '')} className="single-blog-highlight-text-right-author-img" />
+              <div className="single-blog-highlight-text-right-author-text">
+                <p className="single-blog-highlight-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
+                <p className="single-blog-highlight-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
       <img src={get(article, 'image')} className="single-blog-img" alt="single blog" />
-      {/* <hr className="single-blog-content-divider" /> */}
-      {!id && sampleBlog()}
       {isReady && (
         <div
           onKeyDown={(event) => onEditorKeyDown(event)}
@@ -276,31 +235,39 @@ function Blogs(): Node {
       <div className="reaction-icons unselectable">
         <FontAwesomeIcon
           className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
-          onClick={() => (userAlreadyLiked ? removeArticleLike(get(userAlreadyLiked, 'id', '')) : likeArticle(id, user.id))}
+          onClick={() => {
+            if (!user) return;
+
+            if (userAlreadyLiked) {
+              removeArticleLike(get(userAlreadyLiked, 'id', ''));
+            } else {
+              likeArticle(id, user.id);
+            }
+          }}
           icon={faHeart}
           style={{
             color: userAlreadyLiked ? '#FF0000' : '#11273F',
           }}
         />
         <p>{size(get(article, 'likes', 0))}</p>
-        {/* <FontAwesomeIcon
-          className="reaction-icon reaction-icon-dislike"
-          style={{
-            width: 28, height: 28, color: '#11273F', marginRight: 8, marginLeft: 14,
-          }}
-          icon={faHeartBroken}
-        /><p>{get(article, 'dislikes', 0)}</p> */}
-        <CommentModal
-          className="reaction-icon reaction-icon-comment"
-          comments={get(article, 'blog_article_comments', [])}
-          createComment={createComment}
-          articleId={id}
-          authorId={get(article, 'user.id', 1)}
-          currentUserId={get(user, 'id', 1)}
-          author={get(article, 'user')}
-          currentUser={user}
-        />
-        <p>{size(get(article, 'blog_article_comments', []))}</p>
+        {user ? (
+          <>
+            <CommentModal
+              className="reaction-icon reaction-icon-comment"
+              comments={get(article, 'blog_article_comments', [])}
+              createComment={createComment}
+              articleId={id}
+              authorId={get(article, 'user.id', 1)}
+              currentUserId={get(user, 'id', 1)}
+              author={get(article, 'user')}
+              currentUser={user}
+            />
+            <p>{size(get(article, 'blog_article_comments', []))}</p>
+          </>
+        ) : (
+          <p>You must be logged in to see comments.</p>
+        )}
+
       </div>
     </main>
   );

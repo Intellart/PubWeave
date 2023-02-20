@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import {
@@ -8,10 +8,13 @@ import {
   isEmpty,
   slice,
 } from 'lodash';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
@@ -20,8 +23,8 @@ import Space from '../../images/SpaceImg.png';
 import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
-import { selectors as userSelectors } from '../../store/userStore';
-import { useDebounce, useScrollTopEffect } from '../../utils/hooks';
+import { actions, selectors as userSelectors } from '../../store/userStore';
+import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
 
 const images = [Rocket, Space, Astronaut, Earth];
@@ -32,10 +35,21 @@ function Blogs(): Node {
   const categories = useSelector((state) => articleSelectors.getCategories(state), isEqual);
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const selectedUser = useSelector((state) => userSelectors.getSelectedUser(state), isEqual);
 
-  console.log(categories);
+  const dispatch = useDispatch();
+  const getSelectedUser = (userId) => dispatch(actions.selectUser(userId));
 
   const { cat, tag, userId } = useParams();
+
+  useEffect(() => {
+    if (userId && !selectedUser) {
+      getSelectedUser(userId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, selectedUser]);
+
+  console.log(selectedUser);
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
   filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
@@ -44,8 +58,6 @@ function Blogs(): Node {
 
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
-  const debounceFeaturedArticles = useDebounce(featuredArticles, 500);
-  const debounceFilteredArticles = useDebounce(filteredArticles, 500);
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
 
@@ -57,45 +69,58 @@ function Blogs(): Node {
     <main className="blogs-wrapper">
       {!userId && (
       <CategoryList
-        categories={categories}
+        categories={map(categories, (c) => ({
+          name: c.category_name,
+          count: filter(articles, (a) => a.category === c.category_name).length,
+        }),
+        )}
         activeCategory={cat}
       />
-      )
-}
-      {/*  (
-      <section className="blogs-categories">
-        <div className='blogs-featured-categories-list'>
-          {map(omit(categories, [12]), (c, index) => (
-            <Link
-              key={index}
-              className={classNames('blogs-featured-categories-list-item',
-                { 'blogs-featured-categories-list-item-active': c.category_name === cat })}
-              to={`/blogs/${c.category_name}`}
-            >
-              <CategoryItem
-                name={c.category_name}
-                articleCount={filter(articles, (a) => a.category === c.category_name).length}
-              />
-            </Link>
-          ))}
-          {cat && (
-          <Link
-            to="/blogs"
-          >
-            <h2 className='blogs-featured-categories-list-item blogs-featured-categories-list-item-all'>Browse all categories</h2>
-          </Link>
-          ) }
-        </div>
-
-      </section>
-      ) } */}
+      )}
+      {userId && (
+        <section className="blogs-user-header">
+          <div className="blogs-user-header-inner">
+            <div className="blogs-user-header-left">
+              <h1 className="blogs-user-header-title">
+                {get(selectedUser, 'full_name', '')} ({get(selectedUser, 'username', '')})
+              </h1>
+              <p className="blogs-user-header-subtitle">
+                Sample bio: I am a software engineer at Google. I love to write about my experiences in the tech industry.
+              </p>
+            </div>
+            <div className="blogs-user-header-right">
+              <div className="blogs-user-header-social-icons">
+                {get(selectedUser, 'social_tw')
+              && (
+              <a target="_blank" href={get(selectedUser, 'social_tw')}>
+                <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
+              </a>
+              )}
+                {get(selectedUser, 'social_ln')
+              && (
+                <a href={get(selectedUser, 'social_ln')}>
+                  <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
+                {get(selectedUser, 'social_fb')
+              && (
+                <a target="_blank" href={get(selectedUser, 'social_fb')}>
+                  <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
+                {get(selectedUser, 'social_web')
+              && (
+                <a target="_blank" href={get(selectedUser, 'social_web')}>
+                  <FontAwesomeIcon icon={faGlobe} style={{ width: 35, height: 35 }} />
+                </a>
+              )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
         <div className="category-highlight-text">
-          {/* <div className="category-highlight-text-top">
-            {cat && <h4>{cat}</h4> }
-          </div> */}
-          {/* <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit</h2>
-          <p>Pellentesque laoreet porta lectus sed ornare. Aenean at nisi dui. Mauris dapibus facilisis <br /> viverra. Sed luctus vitae lacus vel dapibus. Mauris nec diam nulla. Mauris fringilla augue <br /> vitae sollicitudin vestibulum.</p> */}
           <div className="all-chips">
             {map(categoryTags, (t, index) => {
               const catName = get(categories, [t.category_id, 'category_name']);
@@ -121,14 +146,13 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(debounceFilteredArticles) ? (
+      {!isEmpty(filteredArticles) && (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
-          {/* <hr className="blogs-featured-divider" /> */}
           {!userId && (
           <>
-            {!isEmpty(debounceFeaturedArticles) && <h2 className="blogs-featured-subtitle">Featured</h2> }
+            {!isEmpty(featuredArticles) && <h2 className="blogs-featured-subtitle">Featured</h2> }
             <div className='blogs-featured-cards'>
-              {map(debounceFeaturedArticles.slice(0, 3), (a, index) => (
+              {map(featuredArticles.slice(0, 3), (a, index) => (
                 <FeaturedCard
                   key={index}
                   status={get(a, 'status', '')}
@@ -143,35 +167,40 @@ function Blogs(): Node {
                 />
               ))}
             </div>
-            <hr className="blogs-featured-divider" />
           </>
           )}
-          <h2 className="blogs-featured-subtitle">Latest Blog Posts</h2>
-          <div className='blogs-other-cards'>
-            {map(slice(debounceFilteredArticles, (page - 1) * itemsPerPage, page * itemsPerPage), (a, index) => (
-              <ArticleCard
-                key={index}
-                article={a}
-                currentUserId={get(user, 'id', null)}
-              />
-            ))}
-          </div>
-          <Pagination
-            count={Math.ceil(filteredArticles.length / itemsPerPage)}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: '2rem',
-              width: '100%',
-            }}
-            page={page}
-            onChange={(e, value) => {
-              setPage(value);
-            }}
-          />
         </section>
-      ) : (
+      )}
+      {!isEmpty(filteredArticles) && <hr className={classNames('blogs-divider', { 'blogs-divider-active': cat })} /> }
+      {!isEmpty(filteredArticles) && (
+      <section className={classNames('blogs-other', { 'blogs-other-active': cat })}>
+        <h2 className="blogs-other-subtitle">Latest Blog Posts</h2>
+        <div className='blogs-other-cards'>
+          {map(slice(filteredArticles, (page - 1) * itemsPerPage, page * itemsPerPage), (a, index) => (
+            <ArticleCard
+              key={index}
+              article={a}
+              currentUserId={get(user, 'id', null)}
+            />
+          ))}
+        </div>
+        <Pagination
+          count={Math.ceil(filteredArticles.length / itemsPerPage)}
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: '2rem',
+            width: '100%',
+          }}
+          page={page}
+          onChange={(e, value) => {
+            setPage(value);
+          }}
+        />
+      </section>
+      ) }
+      {isEmpty(filteredArticles) && (
         <p className={classNames('blogs-no-articles unselectable', { 'blogs-no-articles-active': cat })}>
           No articles found
         </p>
