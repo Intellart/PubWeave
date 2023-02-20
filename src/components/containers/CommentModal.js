@@ -3,7 +3,6 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
-import Button from '@mui/material/Button';
 import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import CommentSection from './CommentSection';
@@ -43,13 +42,19 @@ export default function CommentModal(props: Props) {
 
   return (
     <div>
-      <Button onClick={handleOpen}><FontAwesomeIcon
-        icon={faComment}
-        style={{
-          width: 28, height: 28, color: '#11273F', marginLeft: 14,
-        }}
-      />
-      </Button>
+      <div
+        onClick={handleOpen}
+        className="reaction-icon-comment"
+      >
+        <FontAwesomeIcon
+          icon={faComment}
+          style={{
+            width: 28,
+            height: 28,
+            color: '#11273F',
+          }}
+        />
+      </div>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

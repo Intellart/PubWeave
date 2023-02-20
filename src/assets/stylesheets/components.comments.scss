@@ -267,6 +267,13 @@
                 line-height: 22px;
 
                 color: rgba(17, 39, 63, 0.5);
+
+                &:hover{
+                  color: #11273F;
+                  text-decoration: underline;
+
+
+                }
               }
 
               .comment-content-upper-user-text-tag{

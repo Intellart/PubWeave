@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { Alert, AlertTitle, Chip } from '@mui/material';
 import {
   filter,
@@ -56,6 +57,9 @@ function CommentSection(props: Props): Node {
   };
 
   const handleSaveReply = (replyContent, replyTo) => {
+    if (isEmpty(replyContent) || replyContent === '') {
+      return;
+    }
     props.createComment(props.articleId, props.currentUserId, replyContent, replyTo);
     setTempComment({});
   };
@@ -77,7 +81,7 @@ function CommentSection(props: Props): Node {
   const commenters = uniqBy([
     ...map(props.comments, (comment) => ({
       user_id: comment.commenter.id,
-      id: comment.commenter.first_name + ' ' + comment.commenter.last_name,
+      id: comment.commenter.username,
       display: comment.commenter.first_name + ' ' + comment.commenter.last_name,
     })),
     {
@@ -166,22 +170,24 @@ function CommentSection(props: Props): Node {
     setTempComment({
       id: 999,
       key: 999,
-      comment: `@[${parentComment.commenter.first_name} ${parentComment.commenter.last_name}](${parentComment.commenter.first_name} ${parentComment.commenter.last_name}) `,
+      comment: `@[${parentComment.commenter.username}](${parentComment.commenter.username}) `,
       rating: 0,
       alreadyVoted: 0,
       replyTo: replyContent.id,
       newComment: true,
       isTempComment: true,
+      updated_at: new Date(),
       commenter: {
         id: props.currentUserId,
-        email: props.currentUser.email,
-        first_name: props.currentUser.first_name,
-        last_name: props.currentUser.last_name,
+        ...props.currentUser,
       },
     });
   };
 
   const handlePostNewComment = () => {
+    if (isEmpty(newCommentContent) || newCommentContent === '') {
+      return;
+    }
     setTempComment({});
     props.createComment(props.articleId, props.currentUserId, newCommentContent);
     setNewCommentContent('');
@@ -202,21 +208,24 @@ function CommentSection(props: Props): Node {
               displayTransform={(id) => `@${id}`}
               style={mentionsStyle}
               data={commenters}
-              renderSuggestion={({ display, id }, search, highlightedDisplay, index, focused) => (
+              renderSuggestion={({ display, id, user_id }, search, highlightedDisplay, index, focused) => (
                 <div
                   className={focused ? 'focused' : ''}
                   key={id}
                   style={{ backgroundColor: focused ? '#cee4e5' : 'transparent' }}
                 >
                   {display} ({id})
-                  <Chip
-                    sx={{
-                      ml: 1, height: 20, padding: 0, fontSize: 12,
-                    }}
-                    variant="outlined"
-                    label="Author"
-                    color='primary'
-                  />
+                  {user_id === props.authorId && (
+                    <Chip
+                      sx={{
+                        ml: 1, height: 20, padding: 0, fontSize: 12,
+                      }}
+                      variant="outlined"
+                      label="Author"
+                      color='primary'
+                    />
+                  )
+                  }
                 </div>
               )}
             />
@@ -235,7 +244,7 @@ function CommentSection(props: Props): Node {
           <Alert severity="info">
             <AlertTitle>You can&apos;t comment yet</AlertTitle>
             You need to&nbsp;
-            <Link>
+            <Link to={`/user/${props.currentUserId}`}>
               set your username in your profile
             </Link>
             &nbsp;to be able to comment.

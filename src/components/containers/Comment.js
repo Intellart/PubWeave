@@ -62,7 +62,8 @@ const Comment = forwardRef((props: Props, ref) => {
   const formatText = (text) => {
     // console.log('formatText', text);
     // const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
-    const newContent = text.split(/(@\[.*\]\(.*\))/);
+    const newContent = text.split(/(@\[[a-zA-Z ]+\]\([a-zA-Z0-9]+\))/);
+    console.log('newContent', newContent);
     let hashtag;
 
     return newContent.map((word) => {
@@ -81,10 +82,10 @@ const Comment = forwardRef((props: Props, ref) => {
       } else if (word.startsWith('@')) {
         // console.log('word', word);
 
-        const key = word.replace(/(@\[(.*)\]\(.*\))/, '$2');
+        // const key = word.replace(/(@\[(.*)\]\(.*\))/, '$2');
         const name = word.replace(/(@\[.*\]\((.*)\))/, '$2');
 
-        const userId = get(find(props.commenters, { id: key }), 'user_id', null);
+        const userId = get(find(props.commenters, { id: name }), 'user_id', null);
 
         return (
           <Link
@@ -167,7 +168,13 @@ const Comment = forwardRef((props: Props, ref) => {
             </div>
             <div className="comment-content-upper-user-text">
               <div className="comment-content-upper-user-text-upper">
-                <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.email', 'No Name')}</p>
+                <Link
+                  to={`/blogs/user/${get(props.comment, 'commenter.id')}`}
+                >
+                  <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.username', 'USERNAME N/A')}</p>
+
+                </Link>
+
                 {props.currentUserId === get(props.comment, 'commenter.id') && <p className='comment-content-upper-user-text-tag'>You</p>}
               </div>
               <div className="comment-content-upper-user-text-lower">
