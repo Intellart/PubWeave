@@ -13,4 +13,6 @@ module.file_ext=.js
 module.file_ext=.scss
 module.name_mapper.extension='scss' -> 'empty/object'
 module.name_mapper.extension='svg' -> 'empty/object'
+module.name_mapper.extension='gif' -> 'empty/object'
+
 [strict]

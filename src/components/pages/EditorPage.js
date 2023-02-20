@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
+import Cookies from 'universal-cookie';
 
 import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
@@ -22,8 +23,10 @@ import type { ArticleContent } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
+import TutorialModal from '../containers/TutorialModal';
 
 const ReactEditorJS = createReactEditorJS();
+const cookies = new Cookies();
 
 function ReactEditor () {
   const [titleFocus, setTitleFocus] = useState(false);
@@ -61,6 +64,8 @@ function ReactEditor () {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
+  const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
+
   useEffect(() => {
     if (isReady) {
       // console.log('Article loaded');
@@ -88,6 +93,15 @@ function ReactEditor () {
 
   return (
     <main className="editor-wrapper">
+      <TutorialModal
+        open={openTutorialModal}
+        onClose={() => {
+          setOpenTutorialModal(false);
+        }}
+        onFinished={() => {
+          cookies.set('tutorial', 'true', { path: '/' });
+        }}
+      />
       <div
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
@@ -99,6 +113,14 @@ function ReactEditor () {
           onFocus={() => setTitleFocus(true)}
           onBlur={() => {
             setTitleFocus(false);
+            if (articleTitle === get(article, 'title')) {
+              return;
+            }
+            if (articleTitle === '') {
+              setArticleTitle(get(article, 'title'));
+
+              return;
+            }
             updateArticle(id, { title: articleTitle });
           }}
           ref={titleRef}
@@ -107,7 +129,7 @@ function ReactEditor () {
           className={classNames('editor-title-input', { focus: titleFocus })}
         />
       </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: !articleTitle })} />
+      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
       <ArticleConfig
         id={id}
         wordCount={wordCount}
