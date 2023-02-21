@@ -43,6 +43,32 @@ class ImageWrapper extends Image {
 
     return this.ui.render(this.data);
   }
+
+  static get pasteConfig() {
+    return {
+      /**
+       * Paste HTML into Editor
+       */
+      tags: [
+        {
+          img: { src: true },
+        },
+      ],
+      /**
+       * Paste URL of image into the Editor
+       */
+      patterns: {
+        image: /https?:\/\/\S+\.(gif|jpe?g|tiff|png|svg|webp)(\?.*)?$/i,
+      },
+
+      /**
+       * Drag n drop file from into the Editor
+       */
+      files: {
+        mimeTypes: ['image/*'],
+      },
+    };
+  }
 }
 
 class WordCounter {
@@ -299,6 +325,17 @@ export const EDITOR_JS_TOOLS = {
           });
         },
       },
+      // actions: [
+      //   // {
+      //   //   name: 'new_button',
+      //   //   icon: '<svg>...</svg>',
+      //   //   title: 'New Button',
+      //   //   toggle: true,
+      //   //   action: (name) => {
+      //   //     alert(`${name} button clicked`);
+      //   //   },
+      //   // },
+      // ],
     },
   },
   raw: Raw,
