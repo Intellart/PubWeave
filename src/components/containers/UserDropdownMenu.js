@@ -76,6 +76,25 @@ export default function BasicMenu(props: Props): Node {
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
+        sx={{
+          '& .MuiPaper-root': {
+            backgroundColor: '#1a1a1a',
+            color: 'white',
+            borderRadius: '10px',
+            boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.75)',
+            marginTop: '0.5rem',
+          },
+          '& .MuiMenuItem-root': {
+            fontSize: '1.2rem',
+            padding: '0.5rem 1rem',
+            '&:hover': {
+              backgroundColor: '#2a2a2a',
+            },
+          },
+          '& .Mui-disabled': {
+            color: '#2a2a2a',
+          },
+        }}
       >
         {props.isAdmin && <MenuItem disabled>ADMIN</MenuItem> }
         <MenuItem onClick={handleProfile}>Profile</MenuItem>

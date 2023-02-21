@@ -9,6 +9,7 @@ import {
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { uploadImage } from '../../utils/hooks';
 
 type Props = {
   linkList: Array<string>,
@@ -67,23 +68,10 @@ function ImageSelection (props: Props) {
 
     const file: File = e.target.files[0];
 
-    console.log(e.target.files[0]);
-
-    const data = new FormData();
-    data.append('file', file);
-    data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
-    data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
-
-    return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
-      method: 'post',
-      body: data,
-    }).then((res) => res.json())
-      .then((d) => {
-        console.log(d);
-        // updateUser(get(user, 'id'), { profile_img: d.url });
-        setCustomImageUrl(d.url);
-        props.onImageSelection(d.url);
-      }).catch((err) => console.log(err));
+    uploadImage(file).then((url) => {
+      setCustomImageUrl(url);
+      props.onImageSelection(url);
+    });
   };
 
   return (

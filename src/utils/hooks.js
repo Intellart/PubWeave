@@ -1,8 +1,65 @@
 // @flow
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { every, isEqual } from 'lodash';
+import {
+  every,
+  includes,
+  isEqual,
+  size,
+} from 'lodash';
 import { useInView } from 'react-intersection-observer';
+
+export const regex: Object = {
+  specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
+  numbers: /[0-9]/,
+  email: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+};
+
+export const checks = ({
+  empty: {
+    check: (value: string): bool => size(value) > 0,
+    info: 'Cannot be empty',
+  },
+  maxlength: {
+    check: (value: string): bool => size(value) < 30,
+    info: 'Cannot be longer than 30 characters',
+  },
+  special: {
+    check: (value: string): bool => !regex.specialChars.test(value),
+    info: 'Cannot contain special characters',
+  },
+  space: {
+    check: (value: string): bool => !includes(value, ' '),
+    info: 'Cannot contain spaces',
+  },
+  number: {
+    check: (value: string): bool => !regex.numbers.test(value),
+    info: 'Cannot contain numbers',
+  },
+  email: {
+    check: (value: string): bool => regex.email.test(value),
+    info: 'Invalid email',
+  },
+});
+
+export const usernameChecks = [
+  checks.empty,
+  checks.maxlength,
+  checks.space,
+  checks.special,
+];
+
+export const nameChecks = [
+  checks.empty,
+  checks.maxlength,
+  checks.number,
+  checks.special,
+];
+
+export const emailChecks = [
+  checks.empty,
+  checks.email,
+];
 
 export const useScreenSize = (): Object => {
   const tabletQuery = window.matchMedia('(max-width: 991px)');
@@ -121,3 +178,22 @@ export const useScrollTopEffect = () => {
     document.querySelector('.scroll-wrapper')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [locationInfo.currentRoute]);
 };
+
+/*
+uploadImage(file).then((res) => {
+  console.log('upl img', res);
+});
+*/
+export async function uploadImage (file: File): Promise<string> {
+  const data = new FormData();
+  data.append('file', file);
+  data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
+  data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
+
+  const response = await fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
+    method: 'post',
+    body: data,
+  }).then((res) => res.json());
+
+  return response.url;
+}
