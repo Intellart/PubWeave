@@ -6,18 +6,30 @@ import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { /* useDispatch */ useDispatch, useSelector } from 'react-redux';
 import {
-  get, isEqual, join, split,
+  get, includes, isEqual, join, split,
+  map,
+  mapValues,
+  filter,
+  every,
+  size,
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import classNames from 'classnames';
 import {
-  faCamera, faCheck, faPencil, faXmark,
+  faCamera, faCheck, faCircleCheck, faCircleXmark, faPencil, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { Alert } from '@mui/material';
 import { actions, selectors as userSelectors } from '../../store/userStore';
+import {
+  emailChecks,
+  nameChecks,
+  regex,
+  uploadImage,
+  usernameChecks,
+} from '../../utils/hooks';
 
 function UserPage(): Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
@@ -30,14 +42,10 @@ function UserPage(): Node {
     confirm: '',
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [editField, setEditField] = useState({
-    fieldName: '',
-    fieldValue: '',
-  });
-
-  const [editField2, setEditField2] = useState({
-    fieldName: '',
-    fieldValue: '',
+  const [editFields, setEditFields] = useState({
+    name: '',
+    email: '',
+    username: '',
   });
 
   const [socialMedia, setSocialMedia] = useState({
@@ -49,6 +57,18 @@ function UserPage(): Node {
 
   useEffect(() => {
     setAvatarImg(get(user, 'profile_img'));
+    setSocialMedia({
+      facebook: get(user, 'social_fb') || '',
+      twitter: get(user, 'social_tw') || '',
+      linkedin: get(user, 'social_ln') || '',
+      website: get(user, 'social_web') || '',
+    });
+
+    setEditFields({
+      name: get(user, 'full_name'),
+      email: get(user, 'email'),
+      username: get(user, 'username') || '',
+    });
   }, [user]);
 
   console.log(user);
@@ -65,22 +85,11 @@ function UserPage(): Node {
 
     const file: File = e.target.files[0];
 
-    console.log(e.target.files[0]);
-
-    const data = new FormData();
-    data.append('file', file);
-    data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
-    data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
-
-    return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
-      method: 'post',
-      body: data,
-    }).then((res) => res.json())
-      .then((d) => {
-        console.log(d);
-        updateUser(get(user, 'id'), { profile_img: d.url });
-        setAvatarImg(d.url);
-      }).catch((err) => console.log(err));
+    uploadImage(file).then((url) => {
+      console.log('upl img', url);
+      updateUser(get(user, 'id'), { profile_img: url });
+      setAvatarImg(url);
+    });
   };
 
   const uploadAvatar = () => {
@@ -90,22 +99,19 @@ function UserPage(): Node {
   const isEditingName = () => {
     setIsEditing(!isEditing);
 
-    setEditField({
-      fieldName: 'full_name',
-      fieldValue: get(user, 'full_name'),
-    });
-
-    setEditField2({
-      fieldName: 'username',
-      fieldValue: get(user, 'username'),
+    setEditFields({
+      name: get(user, 'full_name'),
+      email: get(user, 'email'),
+      username: get(user, 'username') || '',
     });
   };
 
   const clearEditing = () => {
     setIsEditing(!isEditing);
-    setEditField({
-      fieldName: '',
-      fieldValue: '',
+    setEditFields({
+      name: get(user, 'full_name'),
+      email: get(user, 'email'),
+      username: get(user, 'username') || '',
     });
   };
 
@@ -130,21 +136,25 @@ function UserPage(): Node {
     });
   };
 
-  const updateUserName = () => {
-    if (editField.fieldValue === '') {
+  const updateUserFields = () => {
+    if (isEqual(editFields, {
+      name: get(user, 'full_name'),
+      email: get(user, 'email'),
+      username: get(user, 'username'),
+    })) {
       return;
     }
 
-    const firstName = split(editField.fieldValue, ' ')[0];
+    const firstName = split(editFields.name, ' ')[0];
 
     updateUser(get(user, 'id'), { first_name: firstName });
 
-    if (split(editField.fieldValue, ' ').length > 1) {
-      const lastName = join(split(editField.fieldValue, ' ').slice(1), ' ');
+    if (split(editFields.name, ' ').length > 1) {
+      const lastName = join(split(editFields.name, ' ').slice(1), ' ');
       updateUser(get(user, 'id'), { last_name: lastName });
     }
 
-    updateUser(get(user, 'id'), { username: editField2.fieldValue });
+    updateUser(get(user, 'id'), { username: editFields.username });
 
     clearEditing();
   };
@@ -158,6 +168,20 @@ function UserPage(): Node {
       social_web: socialMedia.website,
     });
   };
+
+  const usernameOK = every(usernameChecks, (check) => check.check(editFields.username));
+  const emailOK = every(emailChecks, (check) => check.check(editFields.email));
+  const nameOK = every(nameChecks, (check) => check.check(editFields.name));
+
+  const isUsernameSame = editFields.username === get(user, 'username');
+  const isEmailSame = editFields.email === get(user, 'email');
+  const isNameSame = editFields.name === get(user, 'full_name');
+
+  const isOK = (!isUsernameSame || !isEmailSame || !isNameSame) && usernameOK && emailOK && nameOK;
+
+  const renderChecks = (checks, value) => map(filter(checks, (check) => !check.check(value)), (check, index) => (
+    <p key={index}>{check.info}</p>
+  ));
 
   return (
     <main className="user-page-wrapper">
@@ -190,54 +214,97 @@ function UserPage(): Node {
                 <h1 className="user-page-header-info-name">{get(user, 'full_name')}</h1>
                 <p className="user-page-header-info-email">{get(user, 'email')}</p>
                 <p
-                  className={classNames('user-page-header-info-username', { 'user-page-header-info-username-empty': !get(user, 'username') })}
+                  className={classNames('user-page-header-info-username')}
                 >
                   {get(user, 'username') || 'No username'}
                 </p>
               </div>
-            ) }
+            )}
             {isEditing && (
             <div className="user-page-editing">
               <p className="user-page-editing-label">
                 Full name:
               </p>
-              <input
-                type="text"
-                className="user-page-editing-input"
-                value={editField.fieldValue}
-                onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
-              />
+              <div className="user-name-editing-input-wrapper">
+                <input
+                  type="text"
+                  className="user-page-editing-input"
+                  value={editFields.name}
+                  onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
+                />
+                <div className="user-page-editing-input-checks-wrapper">
+                  <FontAwesomeIcon
+                    className={classNames('user-page-editing-input-icon')}
+                    icon={nameOK ? faCircleCheck : faCircleXmark}
+                    // eslint-disable-next-line no-nested-ternary
+                    style={{ color: isNameSame ? 'grey' : nameOK ? 'green' : 'red' }}
+                  />
+                  {!nameOK && (
+                  <div className="user-page-editing-input-checks">
+                    {renderChecks(nameChecks, editFields.name)}
+                  </div>
+                  ) }
+                </div>
+              </div>
               <p className="user-page-editing-label">
                 Email:
               </p>
-              <input
-                type="text"
-                className="user-page-editing-input"
-                value={get(user, 'email')}
-                onChange={(e) => setEditField({ ...editField, fieldValue: e.target.value })}
-              />
+              <div className="user-name-editing-input-wrapper">
+                <input
+                  type="text"
+                  className="user-page-editing-input"
+                  value={editFields.email}
+                  onChange={(e) => setEditFields({ ...editFields, email: e.target.value })}
+                />
+                <div className="user-page-editing-input-checks-wrapper">
+                  <FontAwesomeIcon
+                    className={classNames('user-page-editing-input-icon')}
+                    icon={emailOK ? faCircleCheck : faCircleXmark}
+                    // eslint-disable-next-line no-nested-ternary
+                    style={{ color: isEmailSame ? 'grey' : emailOK ? 'green' : 'red' }}
+                  />
+                  {!emailOK && (
+                  <div className="user-page-editing-input-checks">
+                    {renderChecks(emailChecks, editFields.email)}
+                  </div>
+                  ) }
+                </div>
+              </div>
               <p className="user-page-editing-label">
                 Username:
               </p>
-              <input
-                type="text"
-                placeholder='Enter username'
-                className="user-page-editing-input"
-                value={editField2.fieldValue}
-                onChange={(e) => setEditField2({ ...editField2, fieldValue: e.target.value })}
-              />
-              <Alert>
-                <p className="user-page-header-info-email">Username is used to create a unique URL for your profile. It can be changed later.</p>
-              </Alert>
+              <div className="user-name-editing-input-wrapper">
+                <input
+                  type="text"
+                  placeholder='Enter username'
+                  className="user-page-editing-input"
+                  value={editFields.username}
+                  onChange={(e) => setEditFields({ ...editFields, username: e.target.value })}
+                />
+                <div className="user-page-editing-input-checks-wrapper">
+                  <FontAwesomeIcon
+                    className={classNames('user-page-editing-input-icon')}
+                    icon={usernameOK ? faCircleCheck : faCircleXmark}
+                    // eslint-disable-next-line no-nested-ternary
+                    style={{ color: isUsernameSame ? 'grey' : usernameOK ? 'green' : 'red' }}
+                  />
+                  {!usernameOK && (
+                  <div className="user-page-editing-input-checks">
+                    {renderChecks(usernameChecks, editFields.username)}
+                  </div>
+                  ) }
+                </div>
+              </div>
               <div className="user-page-editing-icons">
                 <FontAwesomeIcon
-                  onClick={() => updateUserName()}
-                  className="user-page-info-edit-icon"
+                  onClick={() => isOK && updateUserFields()}
+                  className="user-page-editing-icon-ok"
                   icon={faCheck}
+                  style={{ color: isOK ? '#00BFA6' : '#BDBDBD' }}
                 />
                 <FontAwesomeIcon
                   onClick={() => clearEditing()}
-                  className="user-page-info-edit-icon"
+                  className="user-page-editing-icon-x"
                   icon={faXmark}
                 />
               </div>
@@ -256,8 +323,14 @@ function UserPage(): Node {
 
           <hr />
           <div className="user-page-other-info">
-            {!isEditing && get(user, 'username') === '' && (
-              <Alert>
+            {!isEditing && (get(user, 'username') === '' || !get(user, 'username')) && (
+              <Alert
+                severity="warning"
+                sx={{
+                  width: '80%',
+                  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)',
+                }}
+              >
                 <p className="user-page-header-info-email">You need to set a username in order to comment on the platform.</p>
               </Alert>
             )}
