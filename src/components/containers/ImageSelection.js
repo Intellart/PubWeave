@@ -26,7 +26,7 @@ function ImageSelection (props: Props) {
   const selectedImageRef = useRef(null);
 
   // custom image
-  const customImageRef = useRef(null);
+  // const customImageRef = useRef(null);
   const [customImageUrl, setCustomImageUrl] = React.useState(null);
 
   useEffect(() => {
@@ -35,9 +35,9 @@ function ImageSelection (props: Props) {
     }
   }, [selectedImageRef]);
 
-  const uploadCustomImage = () => {
-    customImageRef.current?.click();
-  };
+  // const uploadCustomImage = () => {
+  //   customImageRef.current?.click();
+  // };
 
   const handleNewImageSelection = (newIndex) => {
     if (selectedImageIndex === newIndex) {
@@ -145,20 +145,20 @@ function ImageSelection (props: Props) {
         )}
       </div>
       <div className='editor-wrapper-image-selection-actions'>
-        <input
+        {/* <input
           type="file"
           ref={customImageRef}
           onChange={uploadNewImage}
           style={{ display: 'none' }}
-        />
-        <div
+        /> */}
+        {/* <div
           className={classNames('editor-wrapper-image-selection-actions-select')}
           onClick={() => {
             uploadCustomImage();
           }}
         >
           Select custom thumbnail image
-        </div>
+        </div> */}
         {(!isEmpty(linkList)) && (
           <div
             className={classNames('editor-wrapper-image-selection-actions-select',

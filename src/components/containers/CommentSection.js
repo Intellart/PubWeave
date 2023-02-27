@@ -86,12 +86,12 @@ function CommentSection(props: Props): Node {
     })),
     {
       user_id: get(props.author, 'id'),
-      id: get(props.author, 'full_name'),
+      id: get(props.author, 'username'),
       display: get(props.author, 'full_name'),
     },
     ...!isEmpty(tempComment) ? [{
       user_id: get(tempComment, 'commenter.id'),
-      id: get(tempComment, 'commenter.first_name') + ' ' + get(tempComment, 'commenter.last_name'),
+      id: get(tempComment, 'commenter.username'),
       display: get(tempComment, 'commenter.first_name') + ' ' + get(tempComment, 'commenter.last_name'),
     }] : [],
   ], 'user_id');

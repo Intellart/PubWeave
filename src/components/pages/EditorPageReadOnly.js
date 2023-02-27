@@ -86,7 +86,7 @@ function ReactEditor () {
 
   const linkList: Array<string> = uniq([
     ...map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')),
-    ...get(article, 'image', '') ? [get(article, 'image', '')] : [],
+    // ...get(article, 'image', '') ? [get(article, 'image', '')] : [],
   ]);
 
   const checks = [
