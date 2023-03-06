@@ -91,6 +91,10 @@ export const actions = {
     type: types.USR_LOGIN_USER,
     payload: API.postRequest('auth/session', { user: payload }),
   }),
+  loginORCIDUser: (payload: LoginCredentials): ReduxAction => ({
+    type: types.USR_LOGIN_USER,
+    payload: API.postRequest('auth/orcid/session', { user: payload }),
+  }),
   loginAdmin: (payload: LoginCredentials): ReduxAction => ({
     type: types.USER_LOGIN_ADMIN,
     payload: API.postRequest('admin/session', { admin: payload }),

@@ -1,11 +1,12 @@
 // @flow
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { useDispatch } from 'react-redux';
 // import MyTable from '../containers/MyTable';
 import classNames from 'classnames';
 import {
+  isEmpty,
   isEqual, join, map, size, split,
 } from 'lodash';
 import { Alert } from '@mui/material';
@@ -13,6 +14,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions } from '../../store/userStore';
+import orcidImg from '../../assets/images/orcid_logo.png';
+import { orcidOAuthLink } from '../../utils/hooks';
 
 type User = {
   email: string,
@@ -25,8 +28,8 @@ type Props = {
 }
 
 function LoginPage({ forAdmin }: Props): Node {
-  const [username, setUserName] = useState(forAdmin ? 'a@a.com' : 'test@test.com');
-  const [password, setPassword] = useState('123456');
+  const [username, setUserName] = useState(''); // useState(forAdmin ? 'a@a.com' : 'test@test.com');
+  const [password, setPassword] = useState(''); // useState('123456');
   const [fullName, setFullName] = useState('');
   const [confirmedPassword, setConfirmedPassword] = useState('');
 
@@ -34,6 +37,7 @@ function LoginPage({ forAdmin }: Props): Node {
 
   const dispatch = useDispatch();
   const loginUser = (user: User) => dispatch(actions.loginUser(user));
+  const loginORCIDUser = (user: any) => dispatch(actions.loginORCIDUser(user));
   const loginAdmin = (admin: User) => dispatch(actions.loginAdmin(admin));
   const registerUser = (user: any) => dispatch(actions.registerUser(user));
 
@@ -82,6 +86,26 @@ function LoginPage({ forAdmin }: Props): Node {
       });
     }
   };
+
+  const handleORCIDSubmit = () => {
+    if (isDisabled) {
+      return;
+    }
+
+    window.location.assign(orcidOAuthLink(window.location.pathname));
+  };
+
+  useEffect(() => {
+    const code = new URL(window.location.href).searchParams.get('code');
+    if (!isEmpty(code) && code) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      console.log('code', code);
+      loginORCIDUser({
+        code,
+        redirect_uri: window.location.origin + window.location.pathname,
+      });
+    }
+  }, []);
 
   const toggleRegister = () => {
     setRegister(!register);
@@ -202,6 +226,19 @@ function LoginPage({ forAdmin }: Props): Node {
               Forget Password?
             </a>
           </div>
+          {!register && (
+          <button
+            onClick={handleORCIDSubmit}
+            type="button"
+            className={classNames('orcid-login-button', {
+              disabled: isDisabled,
+            })}
+          >
+            <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
+            Login with ORCID
+          </button>
+          )
+          }
           <button
             onClick={handleSubmit}
             type="button"

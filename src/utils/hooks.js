@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   every,
+  get,
   includes,
   isEqual,
   size,
@@ -60,6 +61,17 @@ export const emailChecks = [
   checks.empty,
   checks.email,
 ];
+
+export const isProdEnv = process.env.NODE_ENV === 'production';
+
+export const buildRedirectLink = (path: string): string => window.location.origin + path;
+
+export const orcidOAuthLink = (path: string): string => {
+  const baseURL = isProdEnv ? 'https://orcid.org' : 'https://sandbox.orcid.org';
+  const clientId = get(process.env, 'REACT_APP_ORCID_CLIENT_ID', '');
+
+  return `${baseURL}/oauth/authorize?client_id=${clientId}&response_type=code&scope=/authenticate&redirect_uri=${buildRedirectLink(path)}`;
+};
 
 export const useScreenSize = (): Object => {
   const tabletQuery = window.matchMedia('(max-width: 991px)');
