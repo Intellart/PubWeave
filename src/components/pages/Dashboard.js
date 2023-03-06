@@ -7,8 +7,10 @@ import {
   get, isEqual, map,
 } from 'lodash';
 import {
-  faCheck, faPaperPlane, faRotateRight, faXmark,
+  faCheck, faEdit, faPaperPlane, faRotateRight, faStar, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import { Alert, AlertTitle } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
 
 import { actions, selectors } from '../../store/articleStore';
@@ -106,7 +108,29 @@ function Dashboard(): Node {
           setStar={handleSetStar}
           onDeleteArticle={deleteArticle}
         />
+
       </section>
+      <Alert
+        sx={{ width: '90%' }}
+        severity="info"
+      >
+        <AlertTitle>Instruction</AlertTitle>
+        As an admin, you can:<br />
+        - Delete an article<br />
+        - Publish an article<br />
+        - Edit the article <FontAwesomeIcon icon={faEdit} /><br />
+        - Change the category of an article<br />
+        - Change the status of an article<br />
+        - Star an article <FontAwesomeIcon icon={faStar} /><br />
+      </Alert>
+      <Alert
+        sx={{ width: '90%' }}
+      >
+        <AlertTitle>Legend</AlertTitle>
+        Draft &gt; Requested (by author)<br />
+        Requested &gt; Published (by admin)<br />
+        Requested &gt; Rejected (by admin)
+      </Alert>
     </main>
   );
 }

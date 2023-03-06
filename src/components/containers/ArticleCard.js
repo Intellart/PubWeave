@@ -14,15 +14,16 @@ import classNames from 'classnames';
 import { find, get } from 'lodash';
 import { useDispatch } from 'react-redux';
 import type { Article } from '../../store/articleStore';
-import Rocket from '../../images/RocketLaunch.png';
-import Space from '../../images/SpaceImg.png';
-import Astronaut from '../../images/AstronautImg.png';
-import Earth from '../../images/EarthImg.png';
+// import Rocket from '../../images/RocketLaunch.png';
+// import Space from '../../images/SpaceImg.png';
+// import Astronaut from '../../images/AstronautImg.png';
+// import Earth from '../../images/EarthImg.png';
 import { useScreenSize } from '../../utils/hooks';
 import ShareModal from './ShareModal';
 import { actions } from '../../store/articleStore';
+import LogoImg from '../../assets/images/pubweave_logo.png';
 
-const images = [Rocket, Space, Astronaut, Earth];
+// const images = [Rocket, Space, Astronaut, Earth];
 
 type Props = {
   article: Article,
@@ -52,16 +53,16 @@ function ArticleCard(props : Props): Node {
 
   const { isMobile } = useScreenSize();
 
-  const handleEditArticle = (e) => {
-    e.stopPropagation();
-    if (isPublished) {
-      navigate(`/submit-work/${props.article.id}`);
-    }
-  };
+  // const handleEditArticle = (e) => {
+  //   e.stopPropagation();
+  //   if (isPublished) {
+  //     navigate(`/submit-work/${props.article.id}`);
+  //   }
+  // };
 
   const handleDeleteArticle = (e) => {
     e.stopPropagation();
-    if (isPublished && props.onDelete) {
+    if (props.onDelete) {
       props.onDelete(props.article.id);
     }
   };
@@ -143,7 +144,7 @@ function ArticleCard(props : Props): Node {
       >
         <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
           <img
-            src={props.article.image || images[props.article.id % 4]}
+            src={props.article.image || LogoImg}
             className="article-card-img"
             alt="article"
           />
@@ -170,6 +171,7 @@ function ArticleCard(props : Props): Node {
             <div className="date-social">
               <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
               <div className="article-icons-share-heart">
+                {isPublished && (
                 <FontAwesomeIcon
                   icon={faShare}
                   onClick={(e) => {
@@ -177,6 +179,7 @@ function ArticleCard(props : Props): Node {
                     setShowModal(true);
                   }}
                 />
+                )}
                 {props.currentUserId && (
                 <FontAwesomeIcon
                   onClick={(e) => {
@@ -193,12 +196,12 @@ function ArticleCard(props : Props): Node {
                   icon={userAlreadyLiked ? faHeartSolid : faHeart}
                 />
                 ) }
-                {!isPublished && (
+                {/* {!isPublished && (
                 <a
                   onClick={(e) => handleEditArticle(e)}
                 ><FontAwesomeIcon icon={faPenToSquare} />
                 </a>
-                )}
+                )} */}
                 {!isPublished && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}

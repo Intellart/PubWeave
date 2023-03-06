@@ -192,10 +192,10 @@ function ArticleConfig(props: Props): Node {
             <FormControl
               className='article-config-category-select'
               sx={{ m: 2, minWidth: 200 }}
+              size="small"
             >
               <InputLabel>Category</InputLabel>
               <Select
-                sx={{ height: 40 }}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={category}

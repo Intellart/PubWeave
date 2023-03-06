@@ -40,7 +40,10 @@ function MyArticles(): Node {
   };
 
   const handleDeleteClick = (id) => {
-    deleteArticle(id);
+    // eslint-disable-next-line no-restricted-globals, no-alert
+    if (confirm('Are you sure you want to delete this article?')) {
+      deleteArticle(id);
+    }
   };
 
   return (

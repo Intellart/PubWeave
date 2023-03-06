@@ -562,11 +562,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_DELETE_ARTICLE_FULFILLED:
-      toast.success(`Deleted article ${action.payload.title} successfully!`);
+      const deletedId: number = action.payload;
+      toast.success(`Deleted article #${deletedId} successfully!`);
 
       return {
         ...state,
-        allArticles: omit(state.allArticles, action.payload.id),
+        allArticles: omit(state.allArticles, deletedId),
       };
 
     case types.ART_PUBLISH_ARTICLE_FULFILLED:
