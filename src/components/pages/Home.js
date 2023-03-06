@@ -93,8 +93,18 @@ function Home(): Node {
               <h1>Perfect Solution <br />  to Monetize <br /> Scientific Work</h1>
               <h4>Pricing plans that fit like a glove.</h4>
               <div className="team-cta-buttons">
-                <button className='submit-work'>Submit Work</button>
-                <button className='more-info'>More Info</button>
+                <Link
+                  className='submit-work'
+                  to="/blogs"
+                >
+                  Submit Work
+                </Link>
+                <Link
+                  className='more-info'
+                  to="/blogs"
+                >
+                  More Info
+                </Link>
               </div>
               <hr className="divider" />
               <div className="stars-text">

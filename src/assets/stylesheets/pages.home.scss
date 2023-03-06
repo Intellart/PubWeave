@@ -109,6 +109,9 @@
       // margin-top: 50px;
       gap: 20px;
       .submit-work {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           background-color: #11273F;
           height: 59px;
           left: 140px;
@@ -125,6 +128,9 @@
       }
 
       .more-info {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           border-color: rgba(17, 39, 63, 1);
           border-style: solid;
           height: 59px;

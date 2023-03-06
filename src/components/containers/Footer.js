@@ -13,9 +13,33 @@ function Footer(): Node {
         <div className="social-networks">
           <h3>Social</h3>
           <div className="icons-social">
-            <FontAwesomeIcon icon={faTwitter} />
-            <FontAwesomeIcon icon={faGithub} />
-            <FontAwesomeIcon icon={faDiscord} />
+            <Link
+              to='#'
+              onClick={(e) => {
+                window.location.href = '#';
+                e.preventDefault();
+              }}
+            >
+              <FontAwesomeIcon icon={faTwitter} />
+            </Link>
+            <Link
+              to='#'
+              onClick={(e) => {
+                window.location.href = '#';
+                e.preventDefault();
+              }}
+            >
+              <FontAwesomeIcon icon={faGithub} />
+            </Link>
+            <Link
+              to='#'
+              onClick={(e) => {
+                window.location.href = '#';
+                e.preventDefault();
+              }}
+            >
+              <FontAwesomeIcon icon={faDiscord} />
+            </Link>
           </div>
         </div>
         <div className="contact-details">
@@ -23,7 +47,7 @@ function Footer(): Node {
           <Link
             to='#'
             onClick={(e) => {
-              window.location.href = 'info@intellart.ca';
+              window.location.href = 'mailto:info@intellart.ca';
               e.preventDefault();
             }}
           >
@@ -32,14 +56,52 @@ function Footer(): Node {
         </div>
         <div className="navigation">
           <h3>Navigation</h3>
-          <p>Home</p>
-          <p>About Us</p>
+          <Link
+            to='/'
+          >
+            <p>Home</p>
+          </Link>
+          <Link
+            to='/blogs'
+          >
+            <p>Blogs</p>
+          </Link>
         </div>
       </div>
       <hr className="solid" />
       <div className="copyrights-termsofuse">
         <p>© 2022 Intellart. All rights reserved.</p>
-        <p>Terms of Use | Cookie policy | Privacy policy</p>
+        <p>
+          <Link
+            to="#"
+            onClick={(e) => {
+              window.location.href = 'https://veritheum.intellart.ca/terms-of-use';
+              e.preventDefault();
+            }}
+          >
+            Terms of Use
+          </Link>
+          &nbsp; |&nbsp;
+          <Link
+            to="#"
+            onClick={(e) => {
+              window.location.href = 'https://veritheum.intellart.ca/cookie-policy';
+              e.preventDefault();
+            }}
+          >
+            Cookie Policy
+          </Link>
+          &nbsp; |&nbsp;
+          <Link
+            to="#"
+            onClick={(e) => {
+              window.location.href = 'https://veritheum.intellart.ca/privacy-policy';
+              e.preventDefault();
+            }}
+          >
+            Privacy Policy
+          </Link>
+        </p>
       </div>
     </footer>
   );

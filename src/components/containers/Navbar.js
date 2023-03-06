@@ -20,6 +20,7 @@ import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
 // import { actions } from '../../store/userStore';
 import { store } from '../../store';
 import { actions } from '../../store/userStore';
+import { selectors } from '../../store/articleStore';
 
 type Props = {
   isAuthorized: boolean,
@@ -27,7 +28,8 @@ type Props = {
   user?: any,
 };
 function Navbar(props: Props): Node {
-  const articles = useSelector((state) => get(state, 'article.allArticles'), isEqual);
+  const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
+
   const navigate = useNavigate();
 
   const [searchParam, setSearchParam] = useState('article');
