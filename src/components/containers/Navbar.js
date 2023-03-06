@@ -13,7 +13,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
-import logoImg from '../../images/LogoPubWeave.png';
+import logoImg from '../../assets/images/pubweave_logo.png';
 import 'bulma/css/bulma.min.css';
 import BasicMenu from './UserDropdownMenu';
 import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';

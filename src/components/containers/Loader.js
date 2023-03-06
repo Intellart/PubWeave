@@ -2,7 +2,7 @@
 import React from 'react';
 import type { Node } from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import logoImg from '../../images/LogoPubWeave.png';
+import logoImg from '../../assets/images/pubweave_logo.png';
 
 function Loader(): Node {
   return (

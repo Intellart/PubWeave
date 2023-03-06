@@ -11,7 +11,7 @@ import {
 import { Alert } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-import logoImg from '../../images/LogoPubWeave.png';
+import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions } from '../../store/userStore';
 
 type User = {
