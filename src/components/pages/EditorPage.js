@@ -106,28 +106,35 @@ function ReactEditor () {
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
       >
-        {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
-        <input
-          type="text"
-          placeholder="Enter a title..."
-          onFocus={() => setTitleFocus(true)}
-          onBlur={() => {
-            setTitleFocus(false);
-            if (articleTitle === get(article, 'title')) {
-              return;
-            }
-            if (articleTitle === '') {
-              setArticleTitle(get(article, 'title'));
+        <div />
 
-              return;
-            }
-            updateArticle(id, { title: articleTitle });
-          }}
-          ref={titleRef}
-          onChange={(e) => setArticleTitle(e.target.value)}
-          value={articleTitle}
-          className={classNames('editor-title-input', { focus: titleFocus })}
-        />
+        <div className="editor-title-input-wrapper">
+          {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
+          <input
+            type="text"
+            placeholder="Enter a title..."
+            onFocus={() => setTitleFocus(true)}
+            onBlur={() => {
+              setTitleFocus(false);
+              if (articleTitle === get(article, 'title')) {
+                return;
+              }
+              if (articleTitle === '') {
+                setArticleTitle(get(article, 'title'));
+
+                return;
+              }
+              updateArticle(id, { title: articleTitle });
+            }}
+            ref={titleRef}
+            onChange={(e) => setArticleTitle(e.target.value)}
+            value={articleTitle}
+            className={classNames('editor-title-input', { focus: titleFocus })}
+          />
+        </div>
+        <div className="editor-publish-button">
+          Publish
+        </div>
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
       <ArticleConfig
