@@ -28,7 +28,7 @@ function Home(): Node {
         <section className="hero-section">
           <div className="punchline-cta-buttons">
             <div className="punchline">
-              <h1>Your proof  <br />  of Science </h1>
+              <h1>Your proof  of Science </h1>
               <h4>Fast, reliable & unlimited scientific projects.</h4>
               <div className="cta-buttons">
                 <Link to="/blogs"><button className='explore'>Explore</button></Link>

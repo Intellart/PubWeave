@@ -1,6 +1,5 @@
 @import 'variables';
 @import 'colors';
-
 .home-wrapper {
 
   .timeline{
@@ -24,13 +23,13 @@
       height: calc(100vh);
       padding-right: 20vw;
 
-      @media (max-width: $mobile_breakpoint) {
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          padding: 0 20px;
-      }
+      @media (max-width: calc($tablet_breakpoint + 40px)) {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 0 20px;
+    }
       
       .team-img {
           width:620px;
@@ -57,7 +56,7 @@
           color: #1B1B1B;
 
           @media (max-width: $mobile_breakpoint) {
-              font-size: 40px;
+              font-size: 30px;
               line-height: 48px;
               padding-left: 20px;
           }
@@ -74,6 +73,8 @@
 
           @media (max-width: $mobile_breakpoint) {
             padding-left: 20px;
+            padding-top: 23px;
+            padding-bottom: 33px;
         }
       }
       .stars-text {
@@ -101,6 +102,10 @@
       height: 20px;
       width: 150px;
       margin-bottom: 50px;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        display: none;
+      }
   }
 
 
@@ -151,6 +156,7 @@
         .more-info,
         .submit-work {
           width: 150px;
+          font-size: 16px;
         }
       }
   }
@@ -166,7 +172,7 @@
     align-items: center;
     height: calc(100vh - 150px);
 
-    @media screen and (max-width: $mobile_breakpoint) {
+    @media screen and (max-width: $tablet_breakpoint) {
       flex-direction: column;
       justify-content: center;
       align-items: center;
@@ -178,6 +184,11 @@
     width: 500px;
     height: 500px;
     margin-top: 50px;
+
+    @media screen and (max-width: $mobile_breakpoint) {
+      width: 300px;
+      height: 300px;
+    }
 
   }
 
@@ -196,10 +207,13 @@
       /* or 134% */
       letter-spacing: -0.02em;
       color: #FFFFFF;
+      max-width: 500px;
 
       @media screen and (max-width: $mobile_breakpoint) {
-        font-size: 66px;
+        font-size: 50px;
+        line-height: 80px;
         margin: 20px;
+        max-width: 100%;
       }
 
     }
@@ -253,8 +267,10 @@
 
 
     @media screen and (max-width: $mobile_breakpoint) {
+      gap: 25px;
       .explore, .our-mission {
         width: 150px;
+        font-size: 20px;
       }
     }
   }
@@ -352,7 +368,7 @@
       }
 
       p {
-        font-size: 16px;
+        font-size: 13px;
         text-align: left;
 
       }

@@ -59,7 +59,7 @@ function Navbar(props: Props): Node {
   };
 
   const renderLoginButton = () => {
-    if (isDesktop && (props.isAuthorized || props.isAdmin)) {
+    if (!isMobile && (props.isAuthorized || props.isAdmin)) {
       const userImage = get(props, 'user.profile_img');
 
       return <BasicMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
@@ -174,7 +174,7 @@ function Navbar(props: Props): Node {
   return (
     <>
       <nav className='navbar'>
-        {isDesktop && renderSearch()}
+        {!isMobile && renderSearch()}
 
         <div className="navigation">
           <NavLink onClick={onClick} to="/">Home</NavLink>
@@ -182,8 +182,8 @@ function Navbar(props: Props): Node {
           {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {isDesktop && props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
-          {isDesktop && renderLoginButton()}
+          {!isMobile && props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
+          {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">
             <FontAwesomeIcon
