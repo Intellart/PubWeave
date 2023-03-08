@@ -5,6 +5,7 @@ import 'bulma/css/bulma.min.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   get, isEqual, map,
+  filter,
 } from 'lodash';
 import {
   faCheck, faEdit, faPaperPlane, faRotateRight, faStar, faXmark,
@@ -64,7 +65,7 @@ function Dashboard(): Node {
     if (!articles) {
       fetchAllArticles();
     } else {
-      setRows(map(articles, (article) => ({
+      setRows(map(filter(articles, a => a.status !== 'draft'), (article) => ({
         id: article.id,
         title: article.title,
         status: get(statuses, get(article, 'status', 'draft')),

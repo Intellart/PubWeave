@@ -11,7 +11,7 @@ import {
   Chip, FormControl, MenuItem, Select,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
   faLink,
   faPen,
@@ -20,7 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import {
-  map, get, find,
+  map, get, find, filter,
 } from 'lodash';
 import { Link } from 'react-router-dom';
 import { statuses } from '../../pages/Dashboard';
@@ -153,6 +153,26 @@ export default function MyDataGrid(props: Props) {
 
     const handleChange = (event) => {
       // api.setEditCellValue({ id, field, value: event.target.value }, event);
+      console.log('new value', event.target.value);
+      console.log('old value', params.value.value);
+
+      const newValue = event.target.value;
+      const oldValue = params.value.value;
+
+      if (event.target.value === params.value.value) {
+        alert('Status is the same');
+
+        return;
+      }
+
+      if (oldValue === 'requested') {
+        if (newValue !== 'published' && newValue !== 'rejected') {
+          alert('You can only publish or reject articles that are requested');
+
+          return;
+        }
+      }
+
       props.onChangeStatus(id, event.target.value);
 
       setCellModesModel((prevModel) => ({
@@ -169,6 +189,25 @@ export default function MyDataGrid(props: Props) {
         element.focus();
       }
     };
+
+    console.log(params.value.value);
+    console.log(statuses);
+
+    const newStatuses = filter(statuses, (status) => {
+      if (params.value.value === 'requested') {
+        return status.value === 'published' || status.value === 'rejected';
+      }
+      if (params.value.value === 'published') {
+        return status.value === 'rejected';
+      }
+      if (params.value.value === 'rejected') {
+        return status.value === 'published';
+      }
+
+      return true;
+    });
+
+    console.log(newStatuses);
 
     return (
       <FormControl
@@ -196,7 +235,7 @@ export default function MyDataGrid(props: Props) {
           }}
           ref={handleRef}
         >
-          {map(statuses, (status, index) => (
+          {map(newStatuses, (status, index) => (
             <MenuItem key={index} value={status.value}>{status.label}</MenuItem>
           ))}
 
@@ -426,27 +465,27 @@ export default function MyDataGrid(props: Props) {
         </div>
       ),
     },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      renderCell: (params) => (
-        <div className='datagrid-cell datagrid-cell-actions'>
-          <FontAwesomeIcon
-            className='datagrid-cell-actions-icon'
-            icon={faPencil}
-            // eslint-disable-next-line
-            onClick={() => console.log('edit', params.row)}
-          />
-          <FontAwesomeIcon
-            className='datagrid-cell-actions-icon'
-            icon={faSave}
-            // eslint-disable-next-line
-            onClick={() => console.log('save', params.row)}
-          />
-        </div>
-      ),
-    },
+    // {
+    //   field: 'actions',
+    //   headerName: 'Actions',
+    //   width: 100,
+    //   renderCell: (params) => (
+    //     <div className='datagrid-cell datagrid-cell-actions'>
+    //       <FontAwesomeIcon
+    //         className='datagrid-cell-actions-icon'
+    //         icon={faPencil}
+    //         // eslint-disable-next-line
+    //         onClick={() => console.log('edit', params.row)}
+    //       />
+    //       <FontAwesomeIcon
+    //         className='datagrid-cell-actions-icon'
+    //         icon={faSave}
+    //         // eslint-disable-next-line
+    //         onClick={() => console.log('save', params.row)}
+    //       />
+    //     </div>
+    //   ),
+    // },
   ];
 
   const { isMobile } = useScreenSize();

@@ -124,6 +124,7 @@ function LoginPage({ forAdmin }: Props): Node {
               Forget Password?
             </a>
           </div> */}
+          {!forAdmin && (
           <button
             onClick={handleORCIDSubmit}
             type="button"
@@ -132,6 +133,7 @@ function LoginPage({ forAdmin }: Props): Node {
             <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
             Login with ORCID
           </button>
+          )}
 
           <button
             onClick={handleSubmit}
