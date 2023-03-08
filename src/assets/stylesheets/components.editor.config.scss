@@ -88,9 +88,30 @@
 
 }
 
+.article-config-backdrop{
+  &.hidden{
+    display: none;
+  }
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  transition: all .5s;
+  -webkit-transition: all .5s;
+  -moz-transition: all .5s;
+
+
+ 
+}
+
 .article-config-large{
   left: calc(100vw - 350px);
-  top: 300px;
+  top: 90px;
   width: 350px;
   justify-content: flex-start;
   align-items: flex-start;
@@ -110,6 +131,7 @@
     left: 60px;
     width: calc(100vw - 60px);
     padding: 20px;
+    top: 30px;
     gap: 20px;
     padding-right: 60px;
 

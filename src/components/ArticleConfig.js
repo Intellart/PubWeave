@@ -133,6 +133,7 @@ function ArticleConfig(props: Props): Node {
 
   return (
     <>
+      <div className={classNames('article-config-backdrop', { hidden: !articleSettingsExpanded })} />
       <div
         style={{ top: smallMenuHeight }}
         onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
@@ -147,7 +148,6 @@ function ArticleConfig(props: Props): Node {
           console.log(e);
           setSmallMenuHeight(e.target.clientTop);
         }}
-
       >
         <div className="article-config-item">
           <FontAwesomeIcon className='article-config-icon' icon={faPen} />
