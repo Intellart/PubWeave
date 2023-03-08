@@ -7,11 +7,8 @@ import { useDispatch } from 'react-redux';
 import classNames from 'classnames';
 import {
   isEmpty,
-  isEqual, join, map, size, split,
 } from 'lodash';
-import { Alert } from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions } from '../../store/userStore';
 import orcidImg from '../../assets/images/orcid_logo.png';
@@ -30,49 +27,20 @@ type Props = {
 function LoginPage({ forAdmin }: Props): Node {
   const [username, setUserName] = useState(''); // useState(forAdmin ? 'a@a.com' : 'test@test.com');
   const [password, setPassword] = useState(''); // useState('123456');
-  const [fullName, setFullName] = useState('');
-  const [confirmedPassword, setConfirmedPassword] = useState('');
-
-  const [register, setRegister] = useState(false);
 
   const dispatch = useDispatch();
   const loginUser = (user: User) => dispatch(actions.loginUser(user));
   const loginORCIDUser = (user: any) => dispatch(actions.loginORCIDUser(user));
   const loginAdmin = (admin: User) => dispatch(actions.loginAdmin(admin));
-  const registerUser = (user: any) => dispatch(actions.registerUser(user));
 
-  const isDisabled = register
-    ? !username || !password || !confirmedPassword || !fullName
-    : !username || !password;
+  const isDisabled = !username || !password;
 
   const handleSubmit = () => {
     if (isDisabled) {
       return;
     }
 
-    if (register) {
-      // if (password !== confirmedPassword) {
-      //   return;
-      // }
-
-      const name = fullName.replace(/^[ ]+$/g, '');
-
-      const firstName = split(name, ' ')[0];
-      let lastName = '';
-
-      if (size(split(fullName, ' ')) > 1) {
-        lastName = join(split(fullName, ' ').slice(1), ' ');
-      }
-
-      registerUser({
-        email: username,
-        password,
-        first_name: firstName,
-        last_name: lastName,
-      });
-
-      setRegister(false);
-    } else if (forAdmin) {
+    if (forAdmin) {
       loginAdmin({
         email: username,
         password,
@@ -88,10 +56,6 @@ function LoginPage({ forAdmin }: Props): Node {
   };
 
   const handleORCIDSubmit = () => {
-    if (isDisabled) {
-      return;
-    }
-
     window.location.assign(orcidOAuthLink(window.location.pathname));
   };
 
@@ -99,27 +63,15 @@ function LoginPage({ forAdmin }: Props): Node {
     const code = new URL(window.location.href).searchParams.get('code');
     if (!isEmpty(code) && code) {
       window.history.replaceState({}, document.title, window.location.pathname);
+      console.log('redirect_uri', window.location.origin + window.location.pathname);
       console.log('code', code);
+
       loginORCIDUser({
         code,
         redirect_uri: window.location.origin + window.location.pathname,
       });
     }
   }, []);
-
-  const toggleRegister = () => {
-    setRegister(!register);
-    setUserName('');
-    setPassword('');
-    setFullName('');
-  };
-
-  const checkPasswords = () => [
-    { rule: !(password === '' || confirmedPassword === ''), text: "Can't be empty" },
-    { rule: isEqual(password, confirmedPassword) && !(password === '' || confirmedPassword === ''), text: 'Password match' },
-    { rule: size(password) >= 6, text: 'At least 6 characters' },
-    { rule: /\d/g.test(password), text: 'At least 1 number' },
-  ];
 
   return (
     <main className="login-page-wrapper">
@@ -139,22 +91,6 @@ function LoginPage({ forAdmin }: Props): Node {
           <div className="login-name">
             <h1 className="login-name-title">PubWeave {forAdmin ? 'Admin' : ''} Login</h1>
           </div>
-          {register && (
-          <div className="login-email">
-            <label htmlFor="full-name" className="login-email-label">
-              Full name
-            </label>
-            <div className='login-email-input-wrapper'>
-              <input
-                type="text"
-                placeholder="Your full name"
-                className="login-email-input"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-              />
-            </div>
-          </div>
-          ) }
           <div className="login-email">
             <label htmlFor="email" className="login-email-label">
               Email
@@ -183,62 +119,20 @@ function LoginPage({ forAdmin }: Props): Node {
               />
             </div>
           </div>
-          {register && (
-          <div className="login-password">
-            <label htmlFor="password" className="login-password-label">
-              Confirm Password
-            </label>
-            <div className='login-password-input-wrapper'>
-              <input
-                type="password"
-                placeholder="Password"
-                className="login-password-input"
-                value={confirmedPassword}
-                onChange={e => setConfirmedPassword(e.target.value)}
-              />
-            </div>
-          </div>
-          ) }
-          {register && (
-          <Alert
-            severity="warning"
-            className='login-alert'
-            sx={{
-              width: '100%',
-            }}
-          >
-            {map(checkPasswords(), (check) => (
-              <div className='login-alert-item'>
-                <FontAwesomeIcon
-                  lassName='login-alert-item-icon'
-                  icon={check.rule ? faCheck : faXmark}
-                  style={{
-                    color: check.rule ? 'green' : 'red',
-                  }}
-                />
-                {check.text}
-              </div>
-            ))}
-          </Alert>
-          )}
-          <div className="login-forget">
+          {/* <div className="login-forget">
             <a href="/forget" className="login-forget-link">
               Forget Password?
             </a>
-          </div>
-          {!register && (
+          </div> */}
           <button
             onClick={handleORCIDSubmit}
             type="button"
-            className={classNames('orcid-login-button', {
-              disabled: isDisabled,
-            })}
+            className={classNames('orcid-login-button')}
           >
             <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
             Login with ORCID
           </button>
-          )
-          }
+
           <button
             onClick={handleSubmit}
             type="button"
@@ -246,29 +140,20 @@ function LoginPage({ forAdmin }: Props): Node {
               disabled: isDisabled,
             })}
           >
-            {register && 'Register'}
-            {forAdmin && !register && 'Admin Login'}
-            {!forAdmin && !register && 'Login'}
+            {forAdmin ? 'Admin' : null} Login
           </button>
           {!forAdmin && (
-          <div
-            onClick={() => toggleRegister()}
+          <Link
+            to='/register'
             className="login-signup"
           >
-            {!register
-              ? (
-                <p className="login-signup-text">
-                  Don&apos;t have an account?
+            <p className="login-signup-text">
+              Don&apos;t have an account?
 
-                  Sign Up
-                </p>
-              ) : (
-                <p className="login-signup-text">
-                  Sign in
-                </p>
-              )}
+              Sign Up
+            </p>
 
-          </div>
+          </Link>
           )}
         </div>
       </section>

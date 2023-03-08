@@ -23,6 +23,7 @@ import Navbar from './containers/Navbar';
 import CatchAllRoute from './pages/CatchAllRoute';
 import UserPage from './pages/UserPage';
 import Footer from './containers/Footer';
+import RegisterPage from './pages/RegisterPage';
 
 function App(): Node {
   useScrollTopEffect();
@@ -70,6 +71,7 @@ function App(): Node {
         <Routes>
           {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
           {!isAuthorized && <Route path="/admin-login" element={<LoginPage forAdmin />} /> }
+          {!isAuthorized && <Route path="/register" element={<RegisterPage />} /> }
           <Route index element={<Home />} />
           <Route path="/singleblog" element={<SingleBlog />} />
           <Route path="/singleblog/:id" element={<SingleBlog />} />

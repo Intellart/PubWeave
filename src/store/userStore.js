@@ -33,6 +33,7 @@ export type State = {
   profile: User|null,
   currentAdmin: Admin|null,
   selectedUser: User|null,
+  orcidAccount: any,
 };
 
 export const types = {
@@ -76,6 +77,11 @@ export const types = {
   USR_SELECT_USER_REJECTED: 'USR/SELECT_USER_REJECTED',
   USR_SELECT_USER_FULFILLED: 'USR/SELECT_USER_FULFILLED',
 
+  USR_REGISTER_ORCID_USER: 'USR/REGISTER_ORCID_USER',
+  USR_REGISTER_ORCID_USER_PENDING: 'USR/REGISTER_ORCID_USER_PENDING',
+  USR_REGISTER_ORCID_USER_REJECTED: 'USR/REGISTER_ORCID_USER_REJECTED',
+  USR_REGISTER_ORCID_USER_FULFILLED: 'USR/REGISTER_ORCID_USER_FULFILLED',
+
   USR_CLEAR_USER: 'USR/CLEAR_USER',
 };
 
@@ -83,6 +89,7 @@ export const selectors = {
   getUser: (state: ReduxState): User|null => state.user.profile,
   getAdmin: (state: ReduxState): Admin|null => state.user.currentAdmin,
   getSelectedUser: (state: ReduxState): User|null => state.user.selectedUser,
+  getOrcidAccount: (state: ReduxState): any => state.user.orcidAccount,
 
 };
 
@@ -93,7 +100,11 @@ export const actions = {
   }),
   loginORCIDUser: (payload: LoginCredentials): ReduxAction => ({
     type: types.USR_LOGIN_USER,
-    payload: API.postRequest('auth/orcid/session', { user: payload }),
+    payload: API.orcidOAuth('/auth/orcid/session', { orcid: payload }),
+  }),
+  registerORCIDUser: (payload: any): ReduxAction => ({
+    type: types.USR_REGISTER_ORCID_USER,
+    payload: API.orcidOAuth('/auth/orcid/user', { orcid: payload }),
   }),
   loginAdmin: (payload: LoginCredentials): ReduxAction => ({
     type: types.USER_LOGIN_ADMIN,
@@ -155,6 +166,7 @@ const handleSilentLogin = (state: State, payload): State => {
     ...state,
     profile: payload.user,
     currentAdmin: null,
+    orcidAccount: null,
   };
 };
 
@@ -185,6 +197,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           currentAdmin: action.payload,
         },
       };
+
+    case types.USR_REGISTER_ORCID_USER_FULFILLED:
+      toast.success('Successfully connected with ORCID!');
+      console.log(action.payload);
+
+      return { ...state, ...{ orcidAccount: action.payload } };
 
     case types.USR_UPDATE_USER_PASSWORD_FULFILLED:
       toast.success('Password successfully updated!');

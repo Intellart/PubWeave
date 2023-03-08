@@ -334,10 +334,13 @@ function UserPage(): Node {
                 <p className="user-page-header-info-email">You need to set a username in order to comment on the platform.</p>
               </Alert>
             )}
+            {get(user, 'orcid_id') && (
             <div className="user-page-other-info-item">
               <p className="user-page-other-info-item-title">ORCID</p>
               <p className="user-page-other-info-item-value">{get(user, 'orcid_id')}</p>
             </div>
+            )
+            }
             <div className="user-page-other-info-item">
               <p className="user-page-other-info-item-title">Created at</p>
               <p className="user-page-other-info-item-value">{new Date(get(user, 'created_at')).toLocaleDateString()}</p>

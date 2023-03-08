@@ -193,7 +193,7 @@
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        width: 300px;
+        width: 322px;
         height: 40px;
 
         &.disabled{
@@ -210,11 +210,11 @@
         border: 1px solid #11273F;
         border-radius: 5px;
         background-color: #fff;
-        color: rgba($pubWeaveBlue, 0.5);
+        color: $pubWeaveBlue;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        width: 300px;
+        width: 322px;
         height: 40px;
 
         img{
@@ -224,6 +224,7 @@
         }
 
         &.disabled{
+          color: rgba($pubWeaveBlue, 0.5);
           background-color: #fff;
           cursor: not-allowed;
         }

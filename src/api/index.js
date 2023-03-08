@@ -29,6 +29,16 @@ export const deleteRequest = async (endpoint: string, client: 'api' | 'app' = 'a
   return response.data;
 };
 
+export const orcidOAuth = async (finalEndpoint: string, payload: any): Promise<any> => {
+  const authResponse: any = await apiClient.post('/api/' + apiVersion + '/auth/orcid', payload);
+
+  if (authResponse && authResponse.status === 200) {
+    const response: any = await apiClient.post('/api/' + apiVersion + finalEndpoint, authResponse.data);
+
+    return response.data;
+  }
+};
+
 export type ApiHandlerOptions = {
   success?: string,
   showError?: boolean,
