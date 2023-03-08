@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  filter, isEqual, map, slice, size
+  filter, isEqual, map, slice, size,
 } from 'lodash';
 import { Chip, Pagination } from '@mui/material';
 import { useNavigate } from 'react-router-dom';

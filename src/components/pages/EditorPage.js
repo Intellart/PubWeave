@@ -5,6 +5,7 @@ import React, {
 import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
+import { Link, useParams } from 'react-router-dom';
 
 import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
@@ -13,7 +14,6 @@ import {
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { useParams } from 'react-router-dom';
 
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
@@ -129,12 +129,21 @@ function ReactEditor () {
             ref={titleRef}
             onChange={(e) => setArticleTitle(e.target.value)}
             value={articleTitle}
-            className={classNames('editor-title-input', { focus: titleFocus })}
+            className={classNames('editor-title-input', {
+              focus: titleFocus,
+              empty: (!articleTitle || articleTitle === 'New article'),
+            })}
           />
         </div>
-        <div className="editor-publish-button">
-          Publish
-        </div>
+        <Link
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          to={`/publish/${id}`}
+          className="editor-publish-button"
+        >
+          Review before publishing
+        </Link>
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
       <ArticleConfig

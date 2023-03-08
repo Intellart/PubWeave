@@ -128,9 +128,15 @@ function ReactEditor () {
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
       >
-        <div className="editor-publish-button editor-publish-button-back">
+        <Link
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+          to={`/submit-work/${id}`}
+          className="editor-publish-button editor-publish-button-back"
+        >
           Back to Editor
-        </div>
+        </Link>
         <div>
           {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
           <input
@@ -155,7 +161,13 @@ function ReactEditor () {
             className={classNames('editor-title-input', { focus: titleFocus })}
           />
         </div>
-        <div className="editor-publish-button">
+        <div
+          onClick={() => {
+            publishArticle(id, 'requested', article);
+            navigate('/submit-work');
+          }}
+          className="editor-publish-button"
+        >
           Publish
         </div>
       </div>
@@ -223,29 +235,6 @@ function ReactEditor () {
         placeholder='Start your article here!'
       />
       )}
-      <div className="editor-buttons-wrapper">
-        <div className="editor-buttons">
-          <Link
-            to={`/submit-work/${id}`}
-          >
-            <div
-              className='editor-buttons-back-button'
-              color="primary"
-            >
-              Back to editor
-            </div>
-          </Link>
-          <div
-            className={classNames('editor-wrapper-publish-button')}
-            onClick={() => {
-              publishArticle(id, 'requested', article);
-              navigate('/submit-work');
-            }}
-          >
-            Publish article
-          </div>
-        </div>
-      </div>
     </main>
   );
 }

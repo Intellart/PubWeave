@@ -16,7 +16,6 @@ import {
   filter,
 } from 'lodash';
 // import Chip from '@mui/material/Chip';
-import { Link } from 'react-router-dom';
 import {
   Alert,
   Autocomplete,
@@ -306,13 +305,6 @@ function ArticleConfig(props: Props): Node {
             <FontAwesomeIcon className='article-config-icon' icon={faClock} />
             <h6>{lastSavedString()}</h6>
           </div>
-
-          <Link
-            className='article-config-publish'
-            to={`/publish/${props.id}`}
-          >
-            <p>Publish</p>
-          </Link>
 
         </div>
 
