@@ -13,7 +13,7 @@ import {
 import { Alert } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions, selectors } from '../../store/userStore';
 import orcidImg from '../../assets/images/orcid_logo.png';
@@ -29,12 +29,14 @@ type Props = {
   forAdmin?: boolean,
 }
 
-function LoginPage({ forAdmin }: Props): Node {
+function RegistrationPage({ forAdmin }: Props): Node {
   const [username, setUserName] = useState(''); // useState(forAdmin ? 'a@a.com' : 'test@test.com');
   const [password, setPassword] = useState(''); // useState('123456');
   const [fullName, setFullName] = useState('');
   const [orcidId, setOrcidId] = useState('');
   const [confirmedPassword, setConfirmedPassword] = useState('');
+
+  const navigate = useNavigate();
 
   const orcidAccount = useSelector((state) => selectors.getOrcidAccount(state));
 
@@ -77,6 +79,13 @@ function LoginPage({ forAdmin }: Props): Node {
       last_name: lastName,
       orcid_id: orcidId,
     });
+
+    setUserName('');
+    setPassword('');
+    setFullName('');
+    setConfirmedPassword('');
+
+    navigate('/login');
   };
 
   const handleORCIDSubmit = () => {
@@ -281,4 +290,4 @@ function LoginPage({ forAdmin }: Props): Node {
   );
 }
 
-export default LoginPage;
+export default RegistrationPage;
