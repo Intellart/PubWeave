@@ -1,23 +1,35 @@
 // @flow
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  filter, isEqual, map, slice,
+  filter, isEqual, map, slice, size
 } from 'lodash';
 import { Chip, Pagination } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
 import { useScrollTopEffect } from '../../utils/hooks';
 
 function MyArticles(): Node {
+  const [lastKnownSize, setLastKnownSize] = useState(-1);
+  const navigate = useNavigate();
+
   useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+
+  console.log(articles);
+
+  useEffect(() => {
+    if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
+      navigate(`/submit-work/${articles[size(articles) - 1].id}`);
+    }
+  }, [articles, lastKnownSize]);
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -37,6 +49,7 @@ function MyArticles(): Node {
 
   const handleCreateArticle = () => {
     createArticle(user.id);
+    setLastKnownSize(size(articles));
   };
 
   const handleDeleteClick = (id) => {
