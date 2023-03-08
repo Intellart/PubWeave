@@ -147,14 +147,21 @@ function UserPage(): Node {
 
     const firstName = split(editFields.name, ' ')[0];
 
-    updateUser(get(user, 'id'), { first_name: firstName });
+    if (firstName !== get(user, 'first_name')) {
+      updateUser(get(user, 'id'), { first_name: firstName });
+    }
 
     if (split(editFields.name, ' ').length > 1) {
       const lastName = join(split(editFields.name, ' ').slice(1), ' ');
-      updateUser(get(user, 'id'), { last_name: lastName });
+
+      if (lastName !== get(user, 'last_name')) {
+        updateUser(get(user, 'id'), { last_name: lastName });
+      }
     }
 
-    updateUser(get(user, 'id'), { username: editFields.username });
+    if (editFields.username !== get(user, 'email')) {
+      updateUser(get(user, 'id'), { username: editFields.username });
+    }
 
     clearEditing();
   };
