@@ -8,14 +8,14 @@ import Cookies from 'universal-cookie';
 import { Link, useParams } from 'react-router-dom';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, forEach, uniq, keys, size,
+  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, size,
 } from 'lodash';
 
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHistory,
-  faPenToSquare, faThumbtack, faTimes,
+  faPenToSquare,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
@@ -26,9 +26,9 @@ import type { ArticleContent } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
-import { selectors as userSelectors } from '../../store/userStore';
 import TutorialModal from '../containers/TutorialModal';
 import ActiveUsers from '../elements/ActiveUsers';
+import SideBar from '../elements/SideBar';
 
 const ReactEditorJS = createReactEditorJS();
 const cookies = new Cookies();
@@ -41,13 +41,11 @@ function ReactEditor () {
   // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
-  const newArticleC = keyBy(get(articleContent, 'blocks'), 'id');
+  const articleBlocks = keyBy(get(articleContent, 'blocks'), 'id');
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
 
-  console.log('n', size(newArticleC), size(get(article, 'content.blocks')));
-
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  console.log('blocks', size(articleBlocks));
 
   // dispatch
   const dispatch = useDispatch();
@@ -97,38 +95,9 @@ function ReactEditor () {
 
   const handleUploadEditorContent = (api) => {
     api.saver.save().then((newArticleContent: ArticleContent) => {
-      // console.log({ content: newArticleContent });
       updateArticleContentSilently(id, newArticleContent);
       setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(newArticleContent.time);
-
-      const newArticleContentC = keyBy(newArticleContent.blocks, 'id');
-
-      console.log('STATUS ', size(newArticleC), size(newArticleContentC));
-
-      forEach(uniq([...keys(newArticleC), ...keys(newArticleContentC)]), (key) => {
-        if (!(key in newArticleC) || !(key in newArticleContentC)) {
-          console.log('new block', key);
-
-          return;
-        }
-        const oldBlock = newArticleC[key];
-        const newBlock = newArticleContentC[key];
-
-        if (oldBlock.type !== newBlock.type) {
-          console.log('ERROR type changed', key);
-
-          return;
-        }
-
-        if (isEqual(oldBlock.data, newBlock.data)) {
-          console.log('no change', key);
-
-          return;
-        }
-
-        console.log('changed', key);
-      });
     });
   };
 
@@ -181,20 +150,7 @@ function ReactEditor () {
           />
         </div>
         <div className="editor-title-buttons">
-          <ActiveUsers
-            users={[
-              {
-                id: 1,
-                name: 'John Doe',
-                image: get(user, 'profile_img'),
-              },
-              {
-                id: 2,
-                name: 'Jane Doe',
-                image: get(user, 'profile_img'),
-              },
-            ]}
-          />
+          <ActiveUsers />
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -231,84 +187,12 @@ function ReactEditor () {
         addTag={addTag}
         removeTag={removeTag}
       />
-      {showSidebar && (
-      <div className='editors-sidebar'>
-        <div className='editors-sidebar-top'>
-          <div className='editors-sidebar-top-snap'>
-            <FontAwesomeIcon
-              icon={faThumbtack}
-              onClick={() => setSnapSidebar(!snapSidebar)}
-              style={{
-                color: snapSidebar ? '#000' : '#ccc',
-              }}
-            />
-          </div>
-          <div
-            className='editors-sidebar-top-x'
-            onClick={() => {
-              setShowSidebar(false);
-              setSnapSidebar(false);
-            }}
-          >
-            <FontAwesomeIcon icon={faTimes} />
-          </div>
-        </div>
-        <div className='editors-sidebar-item'>
-          <div className='editors-sidebar-item-last-edit'>
-            <div className='editors-sidebar-item-last-edit-title'>
-              Last edit
-            </div>
-            <div className='editors-sidebar-item-last-edit-time'>
-              8 minutes ago
-            </div>
-          </div>
-          <div className='editors-sidebar-item-name'>
-            <div className='editors-sidebar-item-name-title'>
-              Mark Twain
-            </div>
-            <div className='editors-sidebar-item-name-action'>
-              Show version
-            </div>
-          </div>
-        </div>
-        <div className='editors-sidebar-item'>
-          <div className='editors-sidebar-item-last-edit'>
-            <div className='editors-sidebar-item-last-edit-title'>
-              Last edit
-            </div>
-            <div className='editors-sidebar-item-last-edit-time'>
-              8 minutes ago
-            </div>
-          </div>
-          <div className='editors-sidebar-item-name'>
-            <div className='editors-sidebar-item-name-title'>
-              Mark Twain
-            </div>
-            <div className='editors-sidebar-item-name-action'>
-              Show version
-            </div>
-          </div>
-        </div>
-        <div className='editors-sidebar-item'>
-          <div className='editors-sidebar-item-last-edit'>
-            <div className='editors-sidebar-item-last-edit-title'>
-              Last edit
-            </div>
-            <div className='editors-sidebar-item-last-edit-time'>
-              8 minutes ago
-            </div>
-          </div>
-          <div className='editors-sidebar-item-name'>
-            <div className='editors-sidebar-item-name-title'>
-              Mark Twain
-            </div>
-            <div className='editors-sidebar-item-name-action'>
-              Show version
-            </div>
-          </div>
-        </div>
-      </div>
-      )}
+      <SideBar
+        showSidebar={showSidebar}
+        setShowSidebar={setShowSidebar}
+        snapSidebar={snapSidebar}
+        setSnapSidebar={setSnapSidebar}
+      />
       {isReady && (
         <ReactEditorJS
           holder='editorjs'

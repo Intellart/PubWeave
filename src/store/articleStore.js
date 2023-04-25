@@ -2,7 +2,7 @@
 // @flow
 // import React from 'react';
 import {
-  filter, keyBy, omit, get, map,
+  filter, keyBy, omit, get, map, size,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -598,6 +598,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       // ARTICLE CONTENT ----------------------------------------------------
       // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
+      console.log('STATUS ', size(state.oneArticle.content.blocks), size(JSON.parse(get(action.payload, 'content', '{}')).blocks));
+
       return {
         ...state,
         oneArticle: {

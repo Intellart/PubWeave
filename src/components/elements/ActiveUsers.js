@@ -1,12 +1,33 @@
-import { map } from 'lodash';
+import { get, isEqual, map } from 'lodash';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsis, faHistory } from '@fortawesome/free-solid-svg-icons';
+import { selectors as userSelectors } from '../../store/userStore';
 
-type Props = {
-  users: Array<Object>,
-};
+function ActiveUsers() {
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
-function ActiveUsers(props: Props) {
-  const { users } = props;
+  const users = [
+    {
+      id: 1,
+      name: 'John Doe',
+      image: get(user, 'profile_img'),
+      time: '1 hour ago',
+    },
+    {
+      id: 2,
+      name: 'Jane Doe',
+      image: get(user, 'profile_img'),
+      time: '25 minutes ago',
+    },
+    {
+      id: 3,
+      name: 'John Doe',
+      image: get(user, 'profile_img'),
+      time: 'just now',
+    },
+  ];
 
   const [openModal, setOpenModal] = useState(false);
 
@@ -21,32 +42,32 @@ function ActiveUsers(props: Props) {
       <div key={users[0].id} className="active-user main-user">
         <img src={users[0].image} alt={`Avatar of ${users[0].name}`} />
       </div>
+      <FontAwesomeIcon icon={faEllipsis} className='ellipsis-icon' />
       <div className="active-users">
-        {map(users, (user) => (
-          <div key={user.id} className="active-user">
-            <img src={user.image} alt={`Avatar of ${user.name}`} />
+        {map(users, (u, i) => (
+          <div
+            key={u.id}
+            className="active-user"
+            style={{
+              zIndex: i,
+              transform: `translateX(${(users.length - i - 1) * 20}px)`,
+              opacity: 1 - (users.length - i - 1) * 0.2,
+            }}
+          >
+            <img src={u.image} alt={`Avatar of ${u.name}`} />
           </div>
         ))}
       </div>
       {openModal && (
         <div className="active-users-modal">
-          <div className="active-users-modal-header">
-            <div className="active-users-modal-title">Active users</div>
-            <div
-              className="active-users-modal-close"
-              onClick={() => setOpenModal(false)}
-            >
-              <i className="fas fa-times" />
-            </div>
-          </div>
-          <div className="active-users-modal-body">
-            {map(users, (user) => (
-              <div key={user.id} className="active-user">
-                <img src={user.image} alt={`Avatar of ${user.name}`} />
-                <div className="active-user-name">{user.name}</div>
+            {map(users, (u) => (
+              <div key={u.id} className="modal-active-user">
+                <img className="modal-active-user-img" src={u.image} alt={`Avatar of ${u.name}`} />
+                <div className="modal-active-user-name">{u.name}</div>
+                <div className="modal-active-user-time">{u.time}</div>
+                <FontAwesomeIcon icon={faHistory} />
               </div>
             ))}
-          </div>
         </div>
       )}
     </div>
