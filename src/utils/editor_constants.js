@@ -238,6 +238,7 @@ class WordCounter {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 class LatexInline {
   /**
    * Class name for term-tag
