@@ -8,7 +8,7 @@ import Cookies from 'universal-cookie';
 import { Link, useParams } from 'react-router-dom';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, size,
+  sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -41,11 +41,9 @@ function ReactEditor () {
   // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
-  const articleBlocks = keyBy(get(articleContent, 'blocks'), 'id');
+  // const articleBlocks = keyBy(get(articleContent, 'blocks'), 'id');
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
-
-  console.log('blocks', size(articleBlocks));
 
   // dispatch
   const dispatch = useDispatch();
