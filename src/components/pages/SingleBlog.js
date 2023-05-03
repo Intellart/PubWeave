@@ -19,6 +19,7 @@ import { createReactEditorJS } from 'react-editor-js';
 import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
+import hljs from 'highlight.js';
 import PubWeaveLogo from '../../assets/images/pubweave_logo.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
@@ -192,6 +193,7 @@ function Blogs(): Node {
             holder='editorjs'
             readOnly
             onReady={() => {
+              hljs.highlightAll();
               const editor = document.getElementById('editorjs');
               if (editor) { editor.setAttribute('spellcheck', 'false'); }
             }}

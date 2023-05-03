@@ -57,6 +57,7 @@
     "flow-bin": "^0.160.2",
     "font-awesome": "^4.7.0",
     "framer-motion": "^10.12.6",
+    "highlight.js": "^11.8.0",
     "lodash": "^4.17.21",
     "mathlive": "^0.86.0",
     "node-sass": "^7.0.1",
