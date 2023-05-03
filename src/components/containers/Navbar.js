@@ -108,6 +108,9 @@ function Navbar(props: Props): Node {
         options={options}
         isOptionEqualToValue={(option, value) => option.full_name === value.value}
         onChange={(event, newValue) => {
+          if (!newValue || !newValue.id) {
+            return;
+          }
           if (searchParam === 'article') {
             navigate(`/singleblog/${newValue.id}`);
           } else {

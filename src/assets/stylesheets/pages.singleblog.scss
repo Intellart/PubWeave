@@ -1,23 +1,23 @@
 @import './variables';
 @import './colors';
 
-.editorjs-context-menu{
-  .editorjs-context-menu-item{
+.editorjs-context-menu {
+  .editorjs-context-menu-item {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
     padding: 10px;
     cursor: pointer;
-    
-    &:hover{
+
+    &:hover {
       background: #32B4FC;
       color: #FFFFFF;
     }
   }
 }
 
-.single-blog-wrapper{
+.single-blog-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,28 +32,32 @@
     justify-content: left;
     gap: 10px;
 
-    .reaction-icon-comment{
+    .reaction-icon-comment {
       display: flex;
       align-items: center;
       justify-content: center;
       margin-left: 20px;
 
-      &:hover{
+      &:hover {
         transition: all 0.3s ease-in-out;
         transform: scale(1.2);
       }
     }
 
-    .reaction-icon-like{
+    .reaction-icon-like {
       width: 28px;
       height: 28px;
 
-      &:hover{
+      &:hover {
         transition: all 0.3s ease-in-out;
         transform: scale(1.2);
       }
     }
-}
+  }
+
+  .editorjs-wrapper{
+    width: 100%;
+  }
 
   #editorjs {
     transform: translateY(-50px);
@@ -61,55 +65,55 @@
 
     .ce-block__content,
     .ce-toolbar__content {
-        max-width: min(calc(100% - 200px),950px);
+      max-width: min(calc(100% - 200px), 950px);
 
-        @media screen and (max-width: $mobile_breakpoint) {
-          max-width: 92vw;
-        }
+      @media screen and (max-width: $mobile_breakpoint) {
+        max-width: 92vw;
+      }
     }
 
 
-    
-    .codex-editor{
+
+    .codex-editor {
       caret-color: transparent !important;
 
-        // transform: translateY(-700px);
+      // transform: translateY(-700px);
 
-      h1{
+      h1 {
         font-size: 2.5em;
       }
 
-      h2{
+      h2 {
         font-size: 2em;
       }
 
-      h3{
+      h3 {
         font-size: 1.5em;
       }
 
-      h4{
+      h4 {
         font-size: 1.25em;
       }
 
-      h5{
+      h5 {
         font-size: 1em;
       }
 
-      h6{
+      h6 {
         font-size: 0.75em;
       }
 
-      .text-node{
+      .text-node {
         border: 1px solid rgb(114, 114, 114);
         border-radius: 5px;
         display: flex;
         min-width: 500px !important;
 
-        &:where([hidden]){
+        &:where([hidden]) {
           display: none;
         }
 
-        .ML__container{
+        .ML__container {
           min-width: 500px !important;
         }
       }
@@ -130,9 +134,9 @@
     @media screen and (max-width: $mobile_breakpoint) {
       padding: 20px 20px;
     }
-    
-  
-    .single-blog-highlight-text{
+
+
+    .single-blog-highlight-text {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -151,7 +155,7 @@
         padding: 0 10px 110px 10px;
       }
 
-      .single-blog-highlight-text-left{
+      .single-blog-highlight-text-left {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -159,10 +163,10 @@
         gap: 20px;
 
         @media screen and (max-width: $mobile_breakpoint) {
-          gap: 10px; 
+          gap: 10px;
         }
 
-        .single-blog-highlight-title{
+        .single-blog-highlight-title {
           font-family: 'Inter';
           font-style: normal;
           font-weight: 600;
@@ -171,7 +175,7 @@
           color: #FFFFFF;
         }
 
-        .single-blog-highlight-category{
+        .single-blog-highlight-category {
           font-family: 'Inter';
           font-style: normal;
           font-weight: 600;
@@ -180,19 +184,19 @@
           color: #32B4FC;
         }
 
-        .single-blog-highlight-text-left-tags{
+        .single-blog-highlight-text-left-tags {
           display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
           gap: 10px;
 
-          .single-blog-highlight-text-left-tags-chip{
+          .single-blog-highlight-text-left-tags-chip {
             color: $white;
             border-color: $white;
             cursor: pointer;
 
-            &:hover{
+            &:hover {
               background-color: $white;
               color: $pubWeaveBlue;
             }
@@ -200,14 +204,14 @@
         }
       }
 
-      .single-blog-highlight-text-right{
+      .single-blog-highlight-text-right {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: center;
         gap: 20px;
 
-        .single-blog-highlight-text-right-social-icons{
+        .single-blog-highlight-text-right-social-icons {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -216,21 +220,21 @@
           color: #32B4FC;
         }
 
-        .single-blog-highlight-text-right-author{
+        .single-blog-highlight-text-right-author {
           display: flex;
           flex-direction: row;
           align-items: center;
           justify-content: flex-start;
           gap: 20px;
 
-          .single-blog-highlight-text-right-author-text{
+          .single-blog-highlight-text-right-author-text {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             justify-content: center;
             gap: 5px;
 
-            .single-blog-highlight-text-right-author-text-name{
+            .single-blog-highlight-text-right-author-text-name {
               font-family: 'Inter';
               font-style: normal;
               font-weight: 600;
@@ -239,7 +243,7 @@
               color: #FFFFFF;
             }
 
-            .single-blog-highlight-text-right-author-text-date{
+            .single-blog-highlight-text-right-author-text-date {
               font-family: 'Inter';
               font-style: normal;
               font-weight: 500;
@@ -251,7 +255,7 @@
         }
 
       }
-   }
+    }
 
   }
 
@@ -265,9 +269,7 @@
     transform: translateY(-100px);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
-    &.single-blog-img-no-image {
-      
-    }
+    &.single-blog-img-no-image {}
 
     @media screen and (max-width: $mobile_breakpoint) {
       width: 92vw;
@@ -275,4 +277,3 @@
   }
 
 }
-

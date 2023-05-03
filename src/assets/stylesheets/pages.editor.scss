@@ -289,6 +289,46 @@
       }
     }
 
+    .editor-publish-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 40px;
+      border-radius: 5px;
+      background-color: #11273F;
+      color: white;
+      font-size: 1.2em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0 40px;
+      margin: 0 20px 0 0;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        margin: 0;
+      }
+
+      &:hover {
+        background-color: #debc00;
+      }
+
+      &.editor-publish-button-back {
+        background-color: #fff;
+        border: 1px solid #11273F;
+        color: #11273F;
+        margin: 0 0 0 20px;
+
+        @media screen and (max-width: $mobile_breakpoint) {
+          margin: 0;
+        }
+
+        &:hover {
+          background-color: #11273F;
+          color: white;
+        }
+      }
+    }
+
     .editor-title-buttons{
       display: flex;
       justify-content: center;
