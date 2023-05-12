@@ -289,7 +289,7 @@ export const actions = {
     payload: API.putRequest(`pubweave/blog_articles/${id}`,
       {
         blog_article: {
-          content: JSON.stringify(newArticleContent),
+          content: newArticleContent,
         },
       }),
   }),
@@ -340,7 +340,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...action.payload,
-          content: JSON.parse(get(action.payload, 'content', '{}')),
+          content: get(action.payload, 'content', '{}'),
           blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
             blog_article_id: t.blog_article_id,
@@ -602,7 +602,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: JSON.parse(get(action.payload, 'content', '{}') || '{}'),
+          content: get(action.payload, 'content', '{}') || '{}',
         },
       };
 
