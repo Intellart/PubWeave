@@ -2,13 +2,13 @@
 // @flow
 // import React from 'react';
 import {
-  filter, keyBy, omit, get, map, isEqual,
+  filter, keyBy, omit, get, map,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 import type { User } from './userStore';
-import { store } from '.';
+// import { store } from '.';
 
 export type ArticleContent = {
   blocks: Array<Object>,
@@ -241,7 +241,7 @@ export const actions = {
       }),
   }),
 
-  createArticle: (userId : number): ReduxAction => ({
+  createArticle: (userId: number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
     payload: API.postRequest('pubweave/blog_articles',
       {
@@ -373,11 +373,17 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
+      const { time: articleTime, blocks: articleBlocks, version: articleVersion } = get(action.payload, 'content', '{}');
+
       return {
         ...state,
         oneArticle: {
           ...action.payload,
-          content: get(action.payload, 'content', '{}'),
+          content: {
+            time: articleTime,
+            blocks: keyBy(articleBlocks, 'id'),
+            version: articleVersion,
+          },
           blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
             blog_article_id: t.blog_article_id,
@@ -632,18 +638,25 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
       };
 
-      // ARTICLE CONTENT ----------------------------------------------------
-      // --------------------------------------------------------------------
+    // ARTICLE CONTENT ----------------------------------------------------
+    // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
       // console.log('STATUS ');
       // console.log('old', size(state.oneArticle.content.blocks));
       // console.log('new', size(JSON.parse(get(action.payload, 'content', '{}')).blocks));
+      // console.log('new', get(action.payload, 'content', '{}'));
+
+      const { time, blocks, version } = get(action.payload, 'content', '{}') || '{}';
 
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: get(action.payload, 'content', '{}') || '{}',
+          content: {
+            time,
+            blocks: keyBy(blocks, 'id'),
+            version,
+          },
         },
       };
 

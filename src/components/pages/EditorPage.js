@@ -1,14 +1,12 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
-import { createReactEditorJS } from 'react-editor-js';
+import React, { useEffect, useRef, useState } from 'react';
+// import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { Link, useParams } from 'react-router-dom';
+import EditorJS from '@editorjs/editorjs';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty,
+  sum, words, get, map, isEqual, toInteger, isEmpty, values,
 } from 'lodash';
 
 import classNames from 'classnames';
@@ -16,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHistory,
   faPenToSquare,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
@@ -30,10 +29,12 @@ import TutorialModal from '../containers/TutorialModal';
 import ActiveUsers from '../elements/ActiveUsers';
 import SideBar from '../elements/SideBar';
 
-const ReactEditorJS = createReactEditorJS();
+// const ReactEditorJS = createReactEditorJS();
 const cookies = new Cookies();
 
 function ReactEditor () {
+  const editor = useRef(null);
+
   const [titleFocus, setTitleFocus] = useState(false);
   const titleRef = React.useRef(null);
   const { id } = useParams();
@@ -41,7 +42,6 @@ function ReactEditor () {
   // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
-  // const articleBlocks = keyBy(get(articleContent, 'blocks'), 'id');
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
 
@@ -99,12 +99,72 @@ function ReactEditor () {
     });
   };
 
+  useEffect(() => {
+    if (isReady && !editor.current) {
+      editor.current = new EditorJS({
+        holder: 'editorjs',
+        defaultValue: {
+          blocks: values(get(articleContent, 'blocks', {})),
+        },
+        data: {
+          blocks: values(get(articleContent, 'blocks', {})),
+        },
+        tools: EDITOR_JS_TOOLS,
+
+        onReady: () => {
+          const criticalSectionIndex = 3;
+
+          const criticalSection = document.getElementsByClassName('ce-block__content')[criticalSectionIndex];
+
+          if (criticalSection) {
+            console.log('Critical section found');
+            console.log(criticalSection);
+            criticalSection.id = 'critical-section';
+          }
+        },
+
+        onChange: (api) => {
+          handleUploadEditorContent(api);
+        },
+        // autofocus,
+        placeholder: 'Start your article here!',
+      });
+
+      editor.current.isReady
+        .then(() => {
+          console.log('Editor.js is ready to work!');
+        })
+        .catch((reason) => {
+          console.log(`Editor.js initialization failed because of ${reason}`);
+        });
+    }
+  }, [isReady]);
+
   return (
     <main
       className={classNames('editor-wrapper', {
         'editor-wrapper-snap': snapSidebar,
       })}
     >
+      <button
+        className="editor-sidebar-toggle"
+        onClick={() => {
+          insert(type?: string, data?: BlockToolData, config?: ToolConfig, index?: number, needToFocus?: boolean): void
+
+
+
+          const blockToAdd = {
+            type: 'header',
+            data: {
+              text: 'My header',
+            },
+          };
+
+          editor.current.blocks.insert(blockToAdd);
+        }}
+      >
+        <FontAwesomeIcon icon={faPlus} />
+      </button>
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -191,20 +251,38 @@ function ReactEditor () {
         snapSidebar={snapSidebar}
         setSnapSidebar={setSnapSidebar}
       />
-      {isReady && (
+      <div
+        id="editorjs"
+      />
+      {/* {isReady && (
         <ReactEditorJS
           holder='editorjs'
           defaultValue={{
-            blocks: get(articleContent, 'blocks', []),
+            blocks: values(get(articleContent, 'blocks', {})),
           }}
+          // value={{
+          //   blocks: values(get(articleContent, 'blocks', {})),
+          // }}
           tools={EDITOR_JS_TOOLS}
+          onReady={() => {
+            const criticalSectionIndex = 3;
+
+            const criticalSection = document.getElementsByClassName('ce-block__content')[criticalSectionIndex];
+
+            if (criticalSection) {
+              console.log('Critical section found');
+              console.log(criticalSection);
+              criticalSection.id = 'critical-section';
+            }
+          }
+        }
           onChange={(api) => {
             handleUploadEditorContent(api);
           }}
           autofocus
           placeholder='Start your article here!'
         />
-      )}
+      )} */}
 
     </main>
   );
