@@ -285,42 +285,51 @@ export const actions = {
       }),
   }),
 
-  updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => {
-    const oldState = keyBy(store.getState().article.oneArticle.content.blocks, 'id');
-    const newState = keyBy(newArticleContent.blocks, 'id');
+  // updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => {
+  //   const oldState = keyBy(store.getState().article.oneArticle.content.blocks, 'id');
+  //   const newState = keyBy(newArticleContent.blocks, 'id');
 
-    console.log('old state', oldState);
-    console.log('new state', newState);
+  //   console.log('old state', oldState);
+  //   console.log('new state', newState);
 
-    const diff1 = filter(newState, (block, key) => {
-      if (!oldState[key]) {
-        return true;
-      }
-      if (oldState[key].type !== block.type) {
-        return true;
-      }
-      if (!isEqual(oldState[key].data, block.data)) {
-        return true;
-      }
+  //   const diff1 = filter(newState, (block, key) => {
+  //     if (!oldState[key]) {
+  //       return true;
+  //     }
+  //     if (oldState[key].type !== block.type) {
+  //       return true;
+  //     }
+  //     if (!isEqual(oldState[key].data, block.data)) {
+  //       return true;
+  //     }
 
-      return false;
-    });
+  //     return false;
+  //   });
 
-    const diff2 = filter(oldState, (block, key) => !newState[key]);
+  //   const diff2 = filter(oldState, (block, key) => !newState[key]);
 
-    console.log('added/edited', diff1);
-    console.log('removed', diff2);
+  //   console.log('added/edited', diff1);
+  //   console.log('removed', diff2);
 
-    return {
-      type: types.ART_UPDATE_ARTICLE_CONTENT,
-      payload: API.putRequest(`pubweave/blog_articles/${id}`,
-        {
-          blog_article: {
-            content: JSON.stringify(newArticleContent),
-          },
-        }),
-    };
-  },
+  //   return {
+  //     type: types.ART_UPDATE_ARTICLE_CONTENT,
+  //     payload: API.putRequest(`pubweave/blog_articles/${id}`,
+  //       {
+  //         blog_article: {
+  //           content: JSON.stringify(newArticleContent),
+  //         },
+  //       }),
+  //   };
+  // },
+  updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => ({
+    type: types.ART_UPDATE_ARTICLE_CONTENT,
+    payload: API.putRequest(`pubweave/blog_articles/${id}`,
+      {
+        blog_article: {
+          content: newArticleContent,
+        },
+      }),
+  }),
 
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
@@ -368,7 +377,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...action.payload,
-          content: JSON.parse(get(action.payload, 'content', '{}')),
+          content: get(action.payload, 'content', '{}'),
           blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
             blog_article_id: t.blog_article_id,
@@ -634,7 +643,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: JSON.parse(get(action.payload, 'content', '{}') || '{}'),
+          content: get(action.payload, 'content', '{}') || '{}',
         },
       };
 

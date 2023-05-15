@@ -4,7 +4,7 @@ import Table from '@editorjs/table';
 import List from '@editorjs/list';
 import Warning from '@editorjs/warning';
 import Code from '@editorjs/code';
-import LinkTool from '@editorjs/link';
+// import LinkTool from '@editorjs/link';
 import Raw from '@editorjs/raw';
 import HeaderAPI from '@editorjs/header';
 import Quote from '@editorjs/quote';
@@ -44,7 +44,7 @@ export const EDITOR_JS_TOOLS = {
   warning: Warning,
   code: Code,
   myCode: CodeTool,
-  linkTool: LinkTool,
+  // linkTool: LinkTool,
   image: {
     class: ImageWrapper,
     inlineToolbar: ['link'],
