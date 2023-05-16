@@ -167,6 +167,7 @@ export const types = {
 export const selectors = {
   article: (state: ReduxState): any => state.article.oneArticle,
   articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
+  getBlocks: (state: ReduxState): any => get(state.article.oneArticle, 'content.blocks'),
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
@@ -381,7 +382,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...action.payload,
           content: {
             time: articleTime,
-            blocks: keyBy(articleBlocks, 'id'),
+            blocks: articleBlocks,
             version: articleVersion,
           },
           blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
@@ -654,7 +655,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...state.oneArticle,
           content: {
             time,
-            blocks: keyBy(blocks, 'id'),
+            blocks: blocks || [],
             version,
           },
         },
