@@ -10,10 +10,10 @@ import {
 } from 'lodash';
 
 import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faPlus,
-} from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import {
+//   faPlus,
+// } from '@fortawesome/free-solid-svg-icons';
 
 import 'bulma/css/bulma.min.css';
 import ArticleConfig from '../ArticleConfig';
@@ -50,21 +50,17 @@ function ReactEditor () {
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
 
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-
   const [sidebar, setSidebar] = useState({
     show: false,
     snap: false,
   });
 
-  const [criticalSectionIds, setCriticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
+  const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
+
+  const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
 
   useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-  }, [article, id]);
-
-  useEffect(() => {
-    if (!isReady) {
+    if (!isReady && id) {
       fetchArticle(id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,7 +86,7 @@ function ReactEditor () {
         'editor-wrapper-snap': sidebar.snap,
       })}
     >
-      <button
+      {/* <button
         className="editor-sidebar-toggle"
         onClick={() => {
           setCriticalSectionIds([criticalSectionIds[0]]);
@@ -106,7 +102,7 @@ function ReactEditor () {
         }}
       >
         <FontAwesomeIcon icon={faPlus} /> ADD
-      </button>
+      </button> */}
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -143,6 +139,9 @@ function ReactEditor () {
       <Editor
         blocks={blocks}
         onChange={(newArticleContent: ArticleContent) => {
+          if (isEqual(newArticleContent.blocks, blocks)) {
+            return;
+          }
           updateArticleContentSilently(id, newArticleContent);
           setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
           setLastSaved(newArticleContent.time);

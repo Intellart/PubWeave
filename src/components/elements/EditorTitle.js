@@ -2,15 +2,17 @@ import { faHistory, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ActiveUsers from './ActiveUsers';
 
 type Props = {
     articleId: string,
-    onShowSidebar: () => void,
-    showSidebar: boolean,
+    onShowSidebar?: () => void,
+    showSidebar?: boolean,
     title: string,
     onTitleChange: (title: string) => void,
+    inReview?: boolean,
+    onPublish?: () => void,
 };
 
 export default function EditorTitle ({
@@ -19,6 +21,8 @@ export default function EditorTitle ({
   showSidebar,
   title,
   onTitleChange,
+  inReview,
+  onPublish,
 }: Props) {
   const [titleFocus, setTitleFocus] = useState(false);
   const titleRef = React.useRef(null);
@@ -39,13 +43,26 @@ export default function EditorTitle ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
 
+  const navigate = useNavigate();
+
   return (
     <>
       <div
         className={classNames('editor-title')}
         onClick={() => titleRef.current.focus()}
       >
-        <div />
+
+        {!inReview ? (<div />) : (
+          <Link
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            to={`/submit-work/${articleId}`}
+            className="editor-publish-button editor-publish-button-back"
+          >
+            Back to Editor
+          </Link>
+        )}
 
         <div className="editor-title-input-wrapper">
           {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
@@ -77,6 +94,7 @@ export default function EditorTitle ({
         </div>
         <div className="editor-title-buttons">
           <ActiveUsers />
+          {!inReview && (
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -88,15 +106,21 @@ export default function EditorTitle ({
           >
             <FontAwesomeIcon icon={faHistory} />
           </div>
-          <Link
+          ) }
+          <div
             onClick={(e) => {
               e.stopPropagation();
+
+              if (inReview) {
+                onPublish();
+              } else {
+                navigate(`/publish/${articleId}`);
+              }
             }}
-            to={`/publish/${articleId}`}
             className="editor-publish-button"
           >
-            Review before publishing
-          </Link>
+            {inReview ? 'Publish' : 'Review before publishing'}
+          </div>
         </div>
       </div>
       <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />

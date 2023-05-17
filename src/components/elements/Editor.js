@@ -14,11 +14,12 @@ type Props = {
     blocks: any,
     isReady: boolean,
     criticalSectionIds: Array<string>,
-    onChange: (newBlocks: any) => void,
+    onChange?: (newBlocks: any) => void,
+    readOnly?: boolean,
 };
 
 function Editor({
-  blocks, isReady, criticalSectionIds, onChange,
+  blocks, isReady, criticalSectionIds, onChange, readOnly,
 } : Props) {
   const editor = useRef(null);
 
@@ -94,7 +95,9 @@ function Editor({
         return;
       }
 
-      onChange(newArticleContent);
+      if (onChange) {
+        onChange(newArticleContent);
+      }
     });
   };
 
@@ -105,7 +108,7 @@ function Editor({
 
   useEffect(() => {
     if (isReady) {
-      if (editor.current) {
+      if (editor.current && editor.current.configuration) {
         editor.current.configuration.onChange = handleUploadEditorContent;
       }
     }
@@ -118,6 +121,7 @@ function Editor({
         autofocus: true,
         // logLevel: 'ERROR',
         holder: 'editorjs',
+        readOnly,
         defaultValue: {
           blocks: blocks || [],
         },
