@@ -2,7 +2,7 @@
 import React from 'react';
 import type { Node } from 'react';
 import {
-  get, isString, join, map, startCase,
+  get, isString, map,
 } from 'lodash';
 
 export type ApiError = {
@@ -28,9 +28,9 @@ function ErrorMessage(props: ApiError): Node {
       <h3>{code} - {title}</h3>
       {isString(detail) ? (
         <span title={detail}>{detail.substring(0, 40)}</span>
-      ) : map(detail, (messages: string | string[], key: string) => (
+      ) : map(detail.errors, (errorDesc: any, key: string) => (
         <React.Fragment key={key}>
-          <span>{startCase(key) + ': ' + isString(messages) ? messages : join(messages, ', ')}</span>
+          <span>{get(errorDesc, 'detail', '')}</span>
           <br />
         </React.Fragment>
       ))}
