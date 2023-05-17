@@ -186,6 +186,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         currentAdmin: null,
       };
 
+    case types.USR_LOGIN_USER_REJECTED:
+
+      return state;
+
     case types.USER_LOGIN_ADMIN_FULFILLED:
       toast.success('Admin successfully logged in!');
       setItem(localStorageKeys.isAdmin, 'true');

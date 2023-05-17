@@ -43,6 +43,7 @@ function ChooseType() {
       <section className="work-types-items-wrapper">
         {map(labels, (label, id) => (
           <motion.div
+            key={id}
             {...motionItemProps(id)}
           >
             <div
