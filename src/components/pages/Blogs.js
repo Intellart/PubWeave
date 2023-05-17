@@ -26,6 +26,7 @@ import { selectors as articleSelectors } from '../../store/articleStore';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
+import OrcIDButton from '../elements/OrcIDButton';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -64,6 +65,7 @@ function Blogs(): Node {
   if (userId) {
     filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
   }
+  console.log(selectedUser);
 
   return (
     <main className="blogs-wrapper">
@@ -82,13 +84,18 @@ function Blogs(): Node {
           <div className="blogs-user-header-inner">
             <div className="blogs-user-header-left">
               <h1 className="blogs-user-header-title">
-                {get(selectedUser, 'full_name', '')} ({get(selectedUser, 'username', '')})
+                {get(selectedUser, 'full_name', '')} (@{get(selectedUser, 'username', '')})
               </h1>
               <p className="blogs-user-header-subtitle">
                 Sample bio: I am a software engineer at Google. I love to write about my experiences in the tech industry.
               </p>
             </div>
             <div className="blogs-user-header-right">
+              {get(selectedUser, 'orcid_id') && (
+              <OrcIDButton
+                orcid={get(selectedUser, 'orcid_id', '')}
+              />
+              )}
               <div className="blogs-user-header-social-icons">
                 {get(selectedUser, 'social_tw')
               && (
