@@ -77,9 +77,9 @@ function ReactEditor () {
   }, [article, isReady]);
 
   useEffect(() => {
-    if (titleRef.current) {
-      titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
-    }
+    if (!titleRef.current || !articleTitle) return;
+
+    titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
   }, [titleRef, articleTitle]);
 
   const handleUploadEditorContent = (api) => {

@@ -40,8 +40,8 @@ function Blogs(): Node {
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
   const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
-  const likeArticle = (articleId, userId) => dispatch(actions.likeArticle(articleId, userId));
-  const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
+  const likeArticle = (articleId) => dispatch(actions.likeArticle(articleId));
+  const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
   const [contextMenu, setContextMenu] = useState({
     show: false,
@@ -244,9 +244,9 @@ function Blogs(): Node {
             if (!user) return;
 
             if (userAlreadyLiked) {
-              removeArticleLike(get(userAlreadyLiked, 'id', ''));
+              removeArticleLike(id);
             } else {
-              likeArticle(id, user.id);
+              likeArticle(id);
             }
           }}
           icon={faHeart}

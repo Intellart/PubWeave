@@ -22,7 +22,6 @@ export type Comment = {
   dislikes: number,
   created_at: string,
   updated_at: string,
-  replies: { [number]: Comment },
   reply_to: number,
 };
 
@@ -44,7 +43,7 @@ export type Article = {
   title: string,
   subtitle: string,
   content: ArticleContent,
-  user: User,
+  author: User,
   likes: Array<Object>,
   status: string,
   description: string,
@@ -53,7 +52,7 @@ export type Article = {
   category: string,
   created_at: string,
   updated_at: string,
-  blog_article_comments: { [number]: Comment },
+  comments: { [number]: Comment },
   tags: Array<any>,
 };
 
@@ -166,7 +165,7 @@ export const types = {
 export const selectors = {
   article: (state: ReduxState): any => state.article.oneArticle,
   articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
-  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.user.id === state.user.profile?.id),
+  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
@@ -176,32 +175,19 @@ export const selectors = {
 export const actions = {
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
-    payload: API.getRequest(`pubweave/blog_articles/${id}`),
+    payload: API.getRequest(`pubweave/articles/${id}`),
   }),
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
-    payload: API.getRequest('pubweave/blog_articles'),
+    payload: API.getRequest('pubweave/articles'),
   }),
-  fetchComments: (): ReduxAction => ({
-    type: types.ART_FETCH_COMMENTS,
-    payload: API.getRequest('pubweave/blog_article_comments'),
-  }),
-  likeComment: (commentId: number, userId: number): ReduxAction => ({
+  likeComment: (commentId: number): ReduxAction => ({
     type: types.ART_LIKE_COMMENT,
-    payload: API.postRequest('pubweave/blog_article_comment_likes', {
-      like: {
-        blog_article_comment_id: commentId,
-        user_id: userId,
-      },
-    }),
+    payload: API.putRequest(`pubweave/comments/${commentId}/like`),
   }),
   deleteComment: (commentId: number): ReduxAction => ({
     type: types.ART_DELETE_COMMENT,
-    payload: API.deleteRequest(`pubweave/blog_article_comments/${commentId}`),
-  }),
-  unlikeComment: (commentId: number): ReduxAction => ({
-    type: types.ART_UNLIKE_COMMENT,
-    payload: API.deleteRequest(`pubweave/blog_article_comment_likes/${commentId}`),
+    payload: API.deleteRequest(`pubweave/comments/${commentId}`),
   }),
   flushArticle: (): ReduxAction => ({
     type: types.ART_FLUSH_ARTICLE,
@@ -210,18 +196,21 @@ export const actions = {
     type: types.ART_FETCH_CATEGORIES,
     payload: API.getRequest('categories'),
   }),
-  addTag: (articleId: number, tagId: number): ReduxAction => ({
+  addTag: (id: number, tagId: number): ReduxAction => ({
     type: types.ART_ADD_TAG,
-    payload: API.postRequest('pubweave/blog_article_tags', {
-      blog_article_tag: {
-        blog_article_id: articleId,
+    payload: API.postRequest(`pubweave/articles/${id}/add_tag`, {
+      article: {
         tag_id: tagId,
       },
     }),
   }),
-  removeTag: (articleTagId: number): ReduxAction => ({
+  removeTag: (id: number, tagId: number): ReduxAction => ({
     type: types.ART_REMOVE_TAG,
-    payload: API.deleteRequest(`pubweave/blog_article_tags/${articleTagId}`),
+    payload: API.putRequest(`pubweave/articles/${id}/remove_tag`, {
+      article: {
+        tag_id: tagId,
+      },
+    }),
   }),
   fetchTags: (): ReduxAction => ({
     type: types.ART_FETCH_TAGS,
@@ -229,10 +218,10 @@ export const actions = {
   }),
   createComment: (articleId: number, userId: number, content: string, replyTo: number): ReduxAction => ({
     type: types.ART_CREATE_COMMENT,
-    payload: API.postRequest('pubweave/blog_article_comments',
+    payload: API.postRequest('pubweave/comments',
       {
-        blog_article_comment: {
-          blog_article_id: articleId,
+        comment: {
+          article_id: articleId,
           commenter_id: userId,
           comment: content,
           reply_to_id: replyTo,
@@ -242,11 +231,11 @@ export const actions = {
 
   createArticle: (userId : number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
-    payload: API.postRequest('pubweave/blog_articles',
+    payload: API.postRequest('pubweave/articles',
       {
-        user_id: userId,
+        author_id: userId,
         title: 'New article',
-        content: JSON.stringify({
+        content: {
           time: 0,
           blocks: [
             {
@@ -257,28 +246,22 @@ export const actions = {
               type: 'paragraph',
             },
           ],
-        }),
-      }),
-  }),
-  likeArticle: (articleId: number, userId: number): ReduxAction => ({
-    type: types.ART_LIKE_ARTICLE,
-    payload: API.postRequest('pubweave/blog_article_likes',
-      {
-        like: {
-          user_id: userId,
-          blog_article_id: articleId,
         },
       }),
   }),
-  likeArticleRemoval: (likeArticleLink: number): ReduxAction => ({
+  likeArticle: (articleId: number): ReduxAction => ({
+    type: types.ART_LIKE_ARTICLE,
+    payload: API.putRequest(`pubweave/articles/${articleId}/like`),
+  }),
+  likeArticleRemoval: (articleId: number): ReduxAction => ({
     type: types.ART_LIKE_ARTICLE_REMOVAL,
-    payload: API.deleteRequest(`pubweave/blog_article_likes/${likeArticleLink}`),
+    payload: API.putRequest(`pubweave/articles/${articleId}/like`),
   }),
   updateArticle: (id: number, payload: any): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE,
-    payload: API.putRequest(`pubweave/blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/articles/${id}`,
       {
-        blog_article: {
+        article: {
           ...payload,
         },
       }),
@@ -286,9 +269,9 @@ export const actions = {
 
   updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE_CONTENT,
-    payload: API.putRequest(`pubweave/blog_articles/${id}`,
+    payload: API.putRequest(`pubweave/articles/${id}`,
       {
-        blog_article: {
+        article: {
           content: newArticleContent,
         },
       }),
@@ -296,7 +279,7 @@ export const actions = {
 
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
-    payload: API.deleteRequest(`pubweave/blog_articles/${id}`),
+    payload: API.deleteRequest(`pubweave/articles/${id}`),
   }),
   // this will be handled by Admin from the backend, see publish and reject actions
   publishArticle: (id: number, newStatus: string): ReduxAction => {
@@ -304,18 +287,18 @@ export const actions = {
 
     let route = '';
     if (newStatus === 'published') {
-      route = `pubweave/blog_articles/${id}/accept_publishing`;
+      route = `pubweave/articles/${id}/accept_publishing`;
     } else if (newStatus === 'rejected') {
-      route = `pubweave/blog_articles/${id}/reject_publishing`;
+      route = `pubweave/articles/${id}/reject_publishing`;
     } else if (newStatus === 'requested') {
-      route = `pubweave/blog_articles/${id}/request_publishing`;
+      route = `pubweave/articles/${id}/request_publishing`;
     }
 
     return {
       type: types.ART_PUBLISH_ARTICLE,
       payload: API.putRequest(route,
         {
-          blog_article: {
+          article: {
             status: newStatus,
           },
         }),
@@ -341,9 +324,9 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         oneArticle: {
           ...action.payload,
           content: get(action.payload, 'content', '{}'),
-          blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
+          comments: keyBy(get(action.payload, 'comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
-            blog_article_id: t.blog_article_id,
+            article_id: t.article_id,
             category_id: t.category_id,
             id: null,
             article_tag_link: t.id,
@@ -371,8 +354,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          blog_article_comments: {
-            ...state.oneArticle.blog_article_comments,
+          comments: {
+            ...state.oneArticle.comments,
             [action.payload.id]: action.payload,
           },
         },
@@ -386,7 +369,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          blog_article_comments: omit(state.oneArticle.blog_article_comments, action.payload),
+          comments: omit(state.oneArticle.comments, action.payload),
         },
       };
 
@@ -401,10 +384,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          blog_article_comments: {
-            ...state.oneArticle.blog_article_comments,
+          comments: {
+            ...state.oneArticle.comments,
             [action.payload.id]: {
-              ...state.oneArticle.blog_article_comments[action.payload.id],
+              ...state.oneArticle.comments[action.payload.id],
               likes: action.payload.likes,
             },
           },
@@ -419,10 +402,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          blog_article_comments: {
-            ...state.oneArticle.blog_article_comments,
+          comments: {
+            ...state.oneArticle.comments,
             [action.payload.id]: {
-              ...state.oneArticle.blog_article_comments[action.payload.id],
+              ...state.oneArticle.comments[action.payload.id],
               likes: action.payload.likes,
             },
           },
@@ -509,7 +492,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
               article_tag_link: action.payload.id,
               tag_name: action.payload.tag_name,
               category_id: action.payload.category_id,
-              blog_article_id: action.payload.blog_article_id,
+              article_id: action.payload.article_id,
             },
           ],
         },
