@@ -156,7 +156,7 @@ function Blogs(): Node {
                 <FeaturedCard
                   key={index}
                   status={get(a, 'status', '')}
-                  img={a.image_url || images[a.id % 4]}
+                  img={a.image || images[a.id % 4]}
                   id={a.id}
                   title={a.title}
                   category={get(a, 'category', '')}
