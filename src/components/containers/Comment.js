@@ -63,7 +63,7 @@ const Comment = forwardRef((props: Props, ref) => {
     // console.log('formatText', text);
     // const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
     const newContent = text.split(/(@\[[a-zA-Z ]+\]\([a-zA-Z0-9]+\))/);
-    console.log('newContent', newContent);
+    // console.log('newContent', newContent);
     let hashtag;
 
     return newContent.map((word) => {
@@ -157,6 +157,8 @@ const Comment = forwardRef((props: Props, ref) => {
     backgroundColor: '#cee4e5',
 
   };
+
+  console.log('c', props.comment);
 
   return (
     <div className="comment-wrapper">
@@ -274,8 +276,7 @@ const Comment = forwardRef((props: Props, ref) => {
                 />
                 <p>{props.replyCount}</p>
               </>
-            )
-            }
+            )}
           </div>
           {props.currentUserId === props.comment.commenter.id && (
           <div

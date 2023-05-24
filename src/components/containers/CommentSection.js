@@ -80,9 +80,9 @@ function CommentSection(props: Props): Node {
 
   const commenters = uniqBy([
     ...map(props.comments, (comment) => ({
-      user_id: comment.commenter.id,
-      id: comment.commenter.username,
-      display: comment.commenter.first_name + ' ' + comment.commenter.last_name,
+      user_id: get(comment, 'commenter.id'),
+      id: get(comment, 'commenter.username'),
+      display: get(comment, 'commenter.first_name') + ' ' + get(comment, 'commenter.last_name'),
     })),
     {
       user_id: get(props.author, 'id'),
@@ -192,6 +192,8 @@ function CommentSection(props: Props): Node {
     props.createComment(props.articleId, props.currentUserId, newCommentContent);
     setNewCommentContent('');
   };
+
+  console.log('r', renderedComments());
 
   return (
     <div className="comment-section-wrapper">

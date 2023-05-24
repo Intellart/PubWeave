@@ -58,6 +58,8 @@ function Blogs(): Node {
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
+  // console.log(article);
+
   useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   }, [article, id]);
@@ -267,7 +269,7 @@ function Blogs(): Node {
           <>
             <CommentModal
               className="reaction-icon reaction-icon-comment"
-              comments={get(article, 'blog_article_comments', [])}
+              comments={get(article, 'comments', [])}
               createComment={createComment}
               articleId={id}
               authorId={get(article, 'user.id', 1)}
@@ -275,7 +277,7 @@ function Blogs(): Node {
               author={get(article, 'user')}
               currentUser={user}
             />
-            <p>{size(get(article, 'blog_article_comments', []))}</p>
+            <p>{size(get(article, 'comments', []))}</p>
           </>
         ) : (
           <p>You must be logged in to see comments.</p>

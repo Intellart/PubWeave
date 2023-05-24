@@ -18,7 +18,7 @@ import type { Article } from '../../store/articleStore';
 type Props = {
   open: boolean,
   onClose: Function,
-  article: Article,
+  article?: Article,
 };
 
 function ShareModal(props: Props): Node {
