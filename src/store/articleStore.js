@@ -47,7 +47,7 @@ export type Article = {
   likes: Array<Object>,
   status: string,
   description: string,
-  image: string,
+  image_url: string,
   star: boolean,
   category: string,
   created_at: string,

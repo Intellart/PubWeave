@@ -49,7 +49,7 @@ function ArticleCard(props : Props): Node {
     setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
   }, [props.article, props.currentUserId]);
 
-  const noImage = props.article.image === null;
+  const noImage = props.article.image_url === null;
 
   const { isMobile } = useScreenSize();
 
@@ -144,7 +144,7 @@ function ArticleCard(props : Props): Node {
       >
         <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
           <img
-            src={props.article.image || LogoImg}
+            src={props.article.image_url || LogoImg}
             className="article-card-img"
             alt="article"
           />

@@ -177,7 +177,7 @@ function ReactEditor () {
         linkList={linkList}
         onImageSelection={(href) => {
           // console.log('Image selected' + href);
-          updateArticle(id, { image: href });
+          updateArticle(id, { image_url: href });
         }}
         currentImage={get(article, 'image', '')}
       />
