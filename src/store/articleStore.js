@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 import type { User } from './userStore';
+// import { store } from '.';
 
 export type ArticleContent = {
   blocks: Array<Object>,
@@ -166,6 +167,7 @@ export const selectors = {
   article: (state: ReduxState): any => state.article.oneArticle,
   articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id),
+  getBlocks: (state: ReduxState): any => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
@@ -229,7 +231,7 @@ export const actions = {
       }),
   }),
 
-  createArticle: (userId : number): ReduxAction => ({
+  createArticle: (userId: number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
     payload: API.postRequest('pubweave/articles',
       {
@@ -267,6 +269,42 @@ export const actions = {
       }),
   }),
 
+  // updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => {
+  //   const oldState = keyBy(store.getState().article.oneArticle.content.blocks, 'id');
+  //   const newState = keyBy(newArticleContent.blocks, 'id');
+
+  //   console.log('old state', oldState);
+  //   console.log('new state', newState);
+
+  //   const diff1 = filter(newState, (block, key) => {
+  //     if (!oldState[key]) {
+  //       return true;
+  //     }
+  //     if (oldState[key].type !== block.type) {
+  //       return true;
+  //     }
+  //     if (!isEqual(oldState[key].data, block.data)) {
+  //       return true;
+  //     }
+
+  //     return false;
+  //   });
+
+  //   const diff2 = filter(oldState, (block, key) => !newState[key]);
+
+  //   console.log('added/edited', diff1);
+  //   console.log('removed', diff2);
+
+  //   return {
+  //     type: types.ART_UPDATE_ARTICLE_CONTENT,
+  //     payload: API.putRequest(`pubweave/blog_articles/${id}`,
+  //       {
+  //         blog_article: {
+  //           content: JSON.stringify(newArticleContent),
+  //         },
+  //       }),
+  //   };
+  // },
   updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE_CONTENT,
     payload: API.putRequest(`pubweave/articles/${id}`,
@@ -319,12 +357,19 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
+      const { time: articleTime, blocks: articleBlocks, version: articleVersion } = get(action.payload, 'content', '{}');
+
       return {
         ...state,
         oneArticle: {
           ...action.payload,
-          content: get(action.payload, 'content', '{}'),
           comments: keyBy(get(action.payload, 'comments', []), 'id'),
+          content: {
+            time: articleTime,
+            blocks: articleBlocks,
+            version: articleVersion,
+          },
+          // blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
             article_id: t.article_id,
             category_id: t.category_id,
@@ -578,14 +623,25 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
       };
 
-      // ARTICLE CONTENT ----------------------------------------------------
-      // --------------------------------------------------------------------
+    // ARTICLE CONTENT ----------------------------------------------------
+    // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
+      // console.log('STATUS ');
+      // console.log('old', size(state.oneArticle.content.blocks));
+      // console.log('new', size(JSON.parse(get(action.payload, 'content', '{}')).blocks));
+      // console.log('new', get(action.payload, 'content', '{}'));
+
+      const { time, blocks, version } = get(action.payload, 'content', '{}') || '{}';
+
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: get(action.payload, 'content', '{}') || '{}',
+          content: {
+            time,
+            blocks: blocks || [],
+            version,
+          },
         },
       };
 

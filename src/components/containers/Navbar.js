@@ -108,6 +108,9 @@ function Navbar(props: Props): Node {
         options={options}
         isOptionEqualToValue={(option, value) => option.full_name === value.value}
         onChange={(event, newValue) => {
+          if (!newValue || !newValue.id) {
+            return;
+          }
           if (searchParam === 'article') {
             navigate(`/singleblog/${newValue.id}`);
           } else {
@@ -182,7 +185,7 @@ function Navbar(props: Props): Node {
           {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {!isMobile && props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
+          {!isMobile && props.isAuthorized && <Link onClick={onClick} to="/choose-work" className='submit-work'>My Work</Link>}
           {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">

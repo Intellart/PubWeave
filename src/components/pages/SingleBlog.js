@@ -19,6 +19,7 @@ import { createReactEditorJS } from 'react-editor-js';
 import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
+import hljs from 'highlight.js';
 import PubWeaveLogo from '../../assets/images/pubweave_logo.png';
 import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
@@ -26,6 +27,7 @@ import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 import { useScrollTopEffect } from '../../utils/hooks';
+import OrcIDButton from '../elements/OrcIDButton';
 
 const ReactEditorJS = createReactEditorJS();
 
@@ -167,6 +169,11 @@ function Blogs(): Node {
                 </a>
               )}
             </div>
+            {get(article, 'user.orcid_id') && (
+              <OrcIDButton
+                orcid={get(article, 'user.orcid_id')}
+              />
+            )}
             <div className="single-blog-highlight-text-right-author">
               <Avatar alt="Remy Sharp" src={get(article, 'user.profile_img', '')} className="single-blog-highlight-text-right-author-img" />
               <div className="single-blog-highlight-text-right-author-text">
@@ -192,6 +199,7 @@ function Blogs(): Node {
             holder='editorjs'
             readOnly
             onReady={() => {
+              hljs.highlightAll();
               const editor = document.getElementById('editorjs');
               if (editor) { editor.setAttribute('spellcheck', 'false'); }
             }}

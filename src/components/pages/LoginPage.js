@@ -63,8 +63,8 @@ function LoginPage({ forAdmin }: Props): Node {
     const code = new URL(window.location.href).searchParams.get('code');
     if (!isEmpty(code) && code) {
       window.history.replaceState({}, document.title, window.location.pathname);
-      console.log('redirect_uri', window.location.origin + window.location.pathname);
-      console.log('code', code);
+      // console.log('redirect_uri', window.location.origin + window.location.pathname);
+      // console.log('code', code);
 
       loginORCIDUser({
         code,

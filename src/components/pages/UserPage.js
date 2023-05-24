@@ -22,6 +22,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { Alert } from '@mui/material';
+import { motion } from 'framer-motion';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import {
   emailChecks,
@@ -190,6 +191,26 @@ function UserPage(): Node {
     <p key={index}>{check.info}</p>
   ));
 
+  const variants = {
+    visible: {
+      opacity: 1,
+      height: 'auto',
+      visibility: 'visible',
+      margin: '20px',
+      transition: {
+        opacity: {
+          delay: 0.2,
+        },
+      },
+    },
+    hidden: {
+      opacity: 0,
+      height: 0,
+      visibility: 'hidden',
+      margin: 0,
+    },
+  };
+
   return (
     <main className="user-page-wrapper">
       <div className="user-page-wrapper-left">
@@ -334,8 +355,9 @@ function UserPage(): Node {
               <Alert
                 severity="warning"
                 sx={{
-                  width: '80%',
-                  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.25)',
+                  width: '330px',
+                  boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)',
+                  borderRadius: '5px',
                 }}
               >
                 <p className="user-page-header-info-email">You need to set a username in order to comment on the platform.</p>
@@ -361,14 +383,24 @@ function UserPage(): Node {
         </section>
       </div>
       <div className="user-page-wrapper-right">
-        <section className={classNames('user-page-hero', { 'user-page-hero-expanded': expandedCard === 'user-page-hero-1' })}>
+        <section className={classNames(
+          'user-page-hero',
+          // { 'user-page-hero-expanded': expandedCard === 'user-page-hero-1' },
+        )}
+        >
           <div
             className="user-page-header"
             onClick={() => setExpandedCard(expandedCard === 'user-page-hero-1' ? null : 'user-page-hero-1')}
           >
             <p className='user-page-header-title'>Statistics</p>
           </div>
-          <div className="user-page-hidden-content">
+          <motion.div
+            className="user-page-hidden-content"
+            variants={variants}
+            initial="hidden"
+            animate={expandedCard === 'user-page-hero-1' ? 'visible' : 'hidden'}
+
+          >
             <div className="user-page-other-info">
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title">Articles</p>
@@ -379,7 +411,7 @@ function UserPage(): Node {
                 <p className="user-page-other-info-item-value">0</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
         <section className={classNames('user-page-hero', { 'user-page-hero-expanded': expandedCard === 'user-page-hero-2' })}>
           <div
@@ -388,7 +420,12 @@ function UserPage(): Node {
           >
             <p className='user-page-header-title'>Change password</p>
           </div>
-          <div className="user-page-hidden-content">
+          <motion.div
+            className="user-page-hidden-content"
+            variants={variants}
+            initial="hidden"
+            animate={expandedCard === 'user-page-hero-2' ? 'visible' : 'hidden'}
+          >
             <div className="user-page-password-change">
               <div className="user-page-password-change-input">
                 <input
@@ -413,7 +450,7 @@ function UserPage(): Node {
               >Change password
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
         <section className={classNames('user-page-hero', { 'user-page-hero-expanded': expandedCard === 'user-page-hero-3' })}>
           <div
@@ -422,7 +459,12 @@ function UserPage(): Node {
           >
             <p className='user-page-header-title'>Social links</p>
           </div>
-          <div className="user-page-hidden-content">
+          <motion.div
+            className="user-page-hidden-content"
+            variants={variants}
+            initial="hidden"
+            animate={expandedCard === 'user-page-hero-3' ? 'visible' : 'hidden'}
+          >
             <div className="user-page-other-info">
               <div className="user-page-other-info-item">
                 <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faFacebook} /> Facebook</p>
@@ -472,7 +514,7 @@ function UserPage(): Node {
                 Update social media links
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
       </div>
     </main>

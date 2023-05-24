@@ -24,6 +24,7 @@ import CatchAllRoute from './pages/CatchAllRoute';
 import UserPage from './pages/UserPage';
 import Footer from './containers/Footer';
 import RegisterPage from './pages/RegisterPage';
+import ChooseType from './pages/ChooseType';
 
 function App(): Node {
   useScrollTopEffect();
@@ -83,6 +84,7 @@ function App(): Node {
 
           {isAuthorized && (
             <>
+              <Route path="/choose-work/" element={<ChooseType />} />
               <Route path="/user/:id" element={<UserPage />} />
               <Route path="/submit-work" element={<MyArticles />} />
               <Route path="/submit-work/:id" element={<EditorPage />} />

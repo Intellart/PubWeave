@@ -1,21 +1,19 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
-import { createReactEditorJS } from 'react-editor-js';
+import React, { useEffect, useState } from 'react';
+// import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
+  // difference,
 } from 'lodash';
 
 import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-
-import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import {
+//   faPlus,
+// } from '@fortawesome/free-solid-svg-icons';
 
 import 'bulma/css/bulma.min.css';
 import ArticleConfig from '../ArticleConfig';
@@ -24,18 +22,20 @@ import type { ArticleContent } from '../../store/articleStore';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import TutorialModal from '../containers/TutorialModal';
+import SideBar from '../elements/SideBar';
+import Editor from '../elements/Editor';
+import EditorTitle from '../elements/EditorTitle';
 
-const ReactEditorJS = createReactEditorJS();
+// const ReactEditorJS = createReactEditorJS();
 const cookies = new Cookies();
 
 function ReactEditor () {
-  const [titleFocus, setTitleFocus] = useState(false);
-  const titleRef = React.useRef(null);
   const { id } = useParams();
 
   // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+  const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
 
@@ -49,16 +49,18 @@ function ReactEditor () {
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
-  const [articleTitle, setArticleTitle] = useState('');
 
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  const [sidebar, setSidebar] = useState({
+    show: false,
+    snap: false,
+  });
+
+  const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
+
+  const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
 
   useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-  }, [article, id]);
-
-  useEffect(() => {
-    if (!isReady) {
+    if (!isReady && id) {
       fetchArticle(id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,33 +68,41 @@ function ReactEditor () {
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
 
+  // console.log(blocks);
+
   useEffect(() => {
     if (isReady) {
       // console.log('Article loaded');
-      setArticleTitle(get(article, 'title'));
-      setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
+      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(get(articleContent, 'time'));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, isReady]);
-
-  useEffect(() => {
-    if (!titleRef.current || !articleTitle) return;
-
-    titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
-  }, [titleRef, articleTitle]);
-
-  const handleUploadEditorContent = (api) => {
-    api.saver.save().then((newArticleContent: ArticleContent) => {
-      // console.log({ content: newArticleContent });
-      updateArticleContentSilently(id, newArticleContent);
-      setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
-      setLastSaved(newArticleContent.time);
-    });
-  };
+  // console.log(blocks);
 
   return (
-    <main className="editor-wrapper">
+    <main
+      className={classNames('editor-wrapper', {
+        'editor-wrapper-snap': sidebar.snap,
+      })}
+    >
+      {/* <button
+        className="editor-sidebar-toggle"
+        onClick={() => {
+          setCriticalSectionIds([criticalSectionIds[0]]);
+
+          // const blockToAdd = {
+          //   type: 'header',
+          //   data: {
+          //     text: 'My header2',
+          //   },
+          // };
+          // console.log(editor.current);
+          // editor.current.blocks.insert(blockToAdd.type, blockToAdd.data);
+        }}
+      >
+        <FontAwesomeIcon icon={faPlus} /> ADD
+      </button> */}
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -102,50 +112,13 @@ function ReactEditor () {
           cookies.set('tutorial', 'true', { path: '/' });
         }}
       />
-      <div
-        className={classNames('editor-title')}
-        onClick={() => titleRef.current.focus()}
-      >
-        <div />
-
-        <div className="editor-title-input-wrapper">
-          {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
-          <input
-            type="text"
-            placeholder="Enter a title..."
-            onFocus={() => setTitleFocus(true)}
-            onBlur={() => {
-              setTitleFocus(false);
-              if (articleTitle === get(article, 'title')) {
-                return;
-              }
-              if (articleTitle === '') {
-                setArticleTitle(get(article, 'title'));
-
-                return;
-              }
-              updateArticle(id, { title: articleTitle });
-            }}
-            ref={titleRef}
-            onChange={(e) => setArticleTitle(e.target.value)}
-            value={articleTitle}
-            className={classNames('editor-title-input', {
-              focus: titleFocus,
-              empty: (!articleTitle || articleTitle === 'New article'),
-            })}
-          />
-        </div>
-        <Link
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          to={`/publish/${id}`}
-          className="editor-publish-button"
-        >
-          Review before publishing
-        </Link>
-      </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
+      <EditorTitle
+        articleId={id}
+        onShowSidebar={(show) => setSidebar({ ...sidebar, show })}
+        showSidebar={sidebar.show}
+        title={get(article, 'title')}
+        onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
+      />
       <ArticleConfig
         id={id}
         wordCount={wordCount}
@@ -157,20 +130,27 @@ function ReactEditor () {
         addTag={addTag}
         removeTag={removeTag}
       />
-      {isReady && (
-      <ReactEditorJS
-        holder='editorjs'
-        defaultValue={{
-          blocks: get(articleContent, 'blocks', []),
-        }}
-        tools={EDITOR_JS_TOOLS}
-        onChange={(api) => {
-          handleUploadEditorContent(api);
-        }}
-        autofocus
-        placeholder='Start your article here!'
+      <SideBar
+        showSidebar={sidebar.show}
+        setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
+        snapSidebar={sidebar.snap}
+        setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
       />
-      )}
+      <Editor
+        blocks={blocks}
+        onChange={(newArticleContent: ArticleContent) => {
+          if (isEqual(newArticleContent.blocks, blocks)) {
+            return;
+          }
+          updateArticleContentSilently(id, newArticleContent);
+          setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
+          setLastSaved(newArticleContent.time);
+        }}
+        isReady={isReady}
+        criticalSectionIds={criticalSectionIds}
+
+      />
+
     </main>
   );
 }

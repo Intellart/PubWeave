@@ -5,9 +5,10 @@ import React, { useEffect, useRef } from 'react';
 import type { Node } from 'react';
 import { map, omitBy, filter } from 'lodash';
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { motion } from 'framer-motion';
 
 type CategoryItemProps = {
   name:string,
@@ -16,8 +17,14 @@ type CategoryItemProps = {
 };
 
 export function CategoryItem(props: CategoryItemProps): Node {
+  const navigate = useNavigate();
+
   return (
-    <Link to={`/blogs/${props.name}`} className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}>
+    <motion.div
+      className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}
+      layoutId={props.isActive ? 'category-list-item-active' : null}
+      onClick={() => navigate(`/blogs/${props.name}`)}
+    >
       <div className='category-list-item-block-left' />
       <div className='category-list-item-inner-overlay'>
         <div className={classNames('category-list-item-inner', { 'category-list-item-empty': !props.articleCount })}>
@@ -26,7 +33,7 @@ export function CategoryItem(props: CategoryItemProps): Node {
         </div>
       </div>
       <div className='category-list-item-block-right' />
-    </Link>
+    </motion.div>
   );
 }
 

@@ -6,12 +6,13 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import {
   concat, forEach, get, isString, includes,
 } from 'lodash';
+// import { toast } from 'react-toastify';
 import { toast } from 'react-toastify';
 import { isPromise } from '../utils';
 import { reducer as globalStoreReducer } from './globalStore';
 import { reducer as userStoreReducer, types as userTypes } from './userStore';
 import { reducer as articleStoreReducer, types as articleTypes } from './articleStore';
-import ErrorMessage from '../components/errors/ErrorMessage';
+// import ErrorMessage from '../components/errors/ErrorMessage';
 import { localStorageKeys } from '../tokens';
 import { getItem } from '../localStorage';
 
@@ -21,6 +22,7 @@ import type {
   ReduxMiddlewareArgument,
   ActionChains,
 } from '../types';
+import ErrorMessage from '../components/errors/ErrorMessage';
 
 const ignoreErrors = [];
 
@@ -55,7 +57,7 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
         })
         .catch((e) => {
           const message = get(e, 'message') || get(e, 'errorMessage');
-          const statusCode = get(e, 'code') || get(e, 'errorCode') || get(e, 'statusCode');
+          const statusCode = get(e, 'code') || get(e, 'errorCode') || get(e, 'statusCode') || get(e, 'response.status');
           dispatch({
             type: `${action.type}_REJECTED`,
             error: true,
@@ -69,7 +71,7 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
 
           toast.error(<ErrorMessage error={e} />);
           // eslint-disable-next-line no-console
-          console.error('error', e);
+          console.error(e);
         });
 
       return dispatch({ type: `${action.type}_PENDING` });

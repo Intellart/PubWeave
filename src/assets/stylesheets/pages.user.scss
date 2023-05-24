@@ -45,45 +45,14 @@
 
 
       .user-page-hidden-content{
-        visibility: hidden;
-        height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        gap: 20px;
       }
-
-      &.user-page-hero-expanded{
-        .user-page-header{
-          border-bottom: 3px solid $pubWeaveBlue;
-        }
-
-        .user-page-hidden-content{
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-start;
-          width: 100%;
-          gap: 20px;
-          padding: 20px;
-          transition: 0.5s ease-in-out;
-          animation: user-page-hero-expanded 0.5s ease-in-out forwards;
-
-          @keyframes user-page-hero-expanded {
-            0% {
-              height: 0;
-              visibility: hidden;
-            }
-            50% {
-              height: fit-content;
-              visibility: hidden;
-            }
-            100% {
-              height: fit-content;
-              visibility: visible;
-            }
-            
-          }
-        }
-      }
-
-
+    
 
       @media screen and (max-width: $mobile_breakpoint) {
         width: calc(100% - 20px);
@@ -92,6 +61,7 @@
       hr{
         width: 50%;
         border-top: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+        margin: 0;
   
       }
       
@@ -173,6 +143,8 @@
           height: fit-content;
           gap: 10px;
           padding-left: 10px;
+          margin-left: 100px;
+          
 
 
         }
@@ -184,6 +156,7 @@
           margin-bottom: 20px;
           position: relative; 
           align-items: center;
+          justify-content: center;
           gap: 10px;
 
           .user-page-editing-input-checks-wrapper{
@@ -241,18 +214,17 @@
             flex-direction: row;
             align-items: center;
             justify-content: flex-start;
-            width: 100%;
+            width: 332px;
             height: fit-content;
             gap: 10px;
             border: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 5px;
+            padding: 8px;
+            margin-left: 40px;
 
             &::placeholder{
               color:rgba($color: $pubWeaveBlue, $alpha: 0.5);
-            }
-
-            
+            } 
           }
 
 

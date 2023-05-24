@@ -1,22 +1,20 @@
 import React, {
   useEffect, useState,
 } from 'react';
-import { createReactEditorJS } from 'react-editor-js';
 import { useDispatch, useSelector } from 'react-redux';
 
 import {
   isEmpty, sum, words, get, filter, map, isEqual,
   toInteger,
   uniq,
+  size,
 } from 'lodash';
 
-import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faPenToSquare, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Alert, AlertTitle } from '@mui/material';
-import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 
 import 'bulma/css/bulma.min.css';
 import ArticleConfig from '../ArticleConfig';
@@ -24,12 +22,10 @@ import ArticleConfig from '../ArticleConfig';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import ImageSelection from '../containers/ImageSelection';
-
-const ReactEditorJS = createReactEditorJS();
+import Editor from '../elements/Editor';
+import EditorTitle from '../elements/EditorTitle';
 
 function ReactEditor () {
-  const [titleFocus, setTitleFocus] = useState(false);
-  const titleRef = React.useRef(null);
   const { id } = useParams();
 
   const navigate = useNavigate();
@@ -50,6 +46,8 @@ function ReactEditor () {
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
+  const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
+
   useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   }, [article, id]);
@@ -64,23 +62,13 @@ function ReactEditor () {
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
 
-  const [articleTitle, setArticleTitle] = useState('');
-
   useEffect(() => {
     if (isReady) {
-      console.log('Article loaded');
-      setArticleTitle(get(article, 'title'));
       setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
       setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, isReady]);
-
-  useEffect(() => {
-    if (titleRef.current) {
-      titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
-    }
-  }, [titleRef, articleTitle]);
 
   // console.log(map(filter(get(articleContent, 'blocks', []), (block) => block.type === 'image'), (block) => get(block, 'data.file.url')));
 
@@ -97,7 +85,7 @@ function ReactEditor () {
     },
     {
       name: 'Title',
-      check: () => articleTitle.length > 0 && articleTitle !== 'New article',
+      check: () => size(get(article, 'title')) > 0 && get(article, 'title') !== 'New article',
       message: 'Add a title',
     },
     {
@@ -124,55 +112,16 @@ function ReactEditor () {
 
   return (
     <main className="editor-wrapper">
-      <div
-        className={classNames('editor-title')}
-        onClick={() => titleRef.current.focus()}
-      >
-        <Link
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          to={`/submit-work/${id}`}
-          className="editor-publish-button editor-publish-button-back"
-        >
-          Back to Editor
-        </Link>
-        <div>
-          {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
-          <input
-            type="text"
-            placeholder="Title"
-            onFocus={() => setTitleFocus(true)}
-            onBlur={() => {
-              setTitleFocus(false);
-              if (articleTitle === get(article, 'title')) {
-                return;
-              }
-              if (articleTitle === '') {
-                setArticleTitle(get(article, 'title'));
-
-                return;
-              }
-              updateArticle(id, { title: articleTitle });
-            }}
-            ref={titleRef}
-            onChange={(e) => setArticleTitle(e.target.value)}
-            value={articleTitle}
-            className={classNames('editor-title-input', { focus: titleFocus })}
-          />
-        </div>
-        <div
-          onClick={() => {
-            publishArticle(id, 'requested', article);
-            navigate('/submit-work');
-          }}
-          className="editor-publish-button"
-        >
-          Publish
-        </div>
-      </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
-
+      <EditorTitle
+        articleId={id}
+        title={get(article, 'title')}
+        onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
+        inReview
+        onPublish={() => {
+          publishArticle(id, 'requested', article);
+          navigate('/submit-work');
+        }}
+      />
       <ImageSelection
         linkList={linkList}
         onImageSelection={(href) => {
@@ -223,7 +172,7 @@ function ReactEditor () {
         addTag={addTag}
         removeTag={removeTag}
       />
-      {isReady && (
+      {/* {isReady && (
       <ReactEditorJS
         holder='editorjs'
         readOnly
@@ -234,7 +183,14 @@ function ReactEditor () {
         autofocus
         placeholder='Start your article here!'
       />
-      )}
+      )} */}
+      <Editor
+        blocks={get(articleContent, 'blocks', [])}
+        isReady={isReady}
+        criticalSectionIds={criticalSectionIds}
+        readOnly
+
+      />
     </main>
   );
 }
