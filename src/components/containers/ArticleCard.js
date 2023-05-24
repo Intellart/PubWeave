@@ -40,8 +40,8 @@ function ArticleCard(props : Props): Node {
   const isPublished = status === 'published';
 
   const dispatch = useDispatch();
-  const likeArticle = (articleId, userId:number) => dispatch(actions.likeArticle(articleId, userId));
-  const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
+  const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
+  const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
   const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 
@@ -160,7 +160,7 @@ function ArticleCard(props : Props): Node {
             <div className="article-card-side-content-title-wrapper">
               <h4>{props.article.category || 'Category'}</h4>
               <h2>{props.article.title}</h2>
-              <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
+              <p className="author">By {props.article.author.full_name || 'Authors Name'}</p>
             </div>
             <div className="article-card-side-content-status-wrapper">
               {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
@@ -185,9 +185,9 @@ function ArticleCard(props : Props): Node {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (userAlreadyLiked) {
-                      removeArticleLike(get(find(props.article.likes, (like) => like.user_id === props.currentUserId), 'id', 0));
+                      removeArticleLike(get(props.article.id));
                     } else {
-                      likeArticle(props.article.id, props.currentUserId || 0);
+                      likeArticle(get(props.article.id));
                     }
                   }}
                   style={{

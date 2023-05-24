@@ -43,7 +43,7 @@ type CategoryListProps = {
 };
 
 export function CategoryList(props: CategoryListProps): Node {
-  const categoryListRef = useRef(null);
+  const categoryListRef = useRef<any>(null);
 
   const maxScrollWidth = useRef(0);
   const clientScrollWidth = useRef(0);

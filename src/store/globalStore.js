@@ -52,9 +52,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case articleTypes.ART_FETCH_ALL_ARTICLES_FULFILLED:
       return updateLoading(state, action.type, 'DONE');
 
-    case articleTypes.ART_FETCH_COMMENTS_FULFILLED:
-      return updateLoading(state, action.type, 'DONE');
-
     case articleTypes.ART_FETCH_CATEGORIES_FULFILLED:
       return updateLoading(state, action.type, 'DONE');
 

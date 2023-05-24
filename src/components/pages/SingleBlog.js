@@ -42,8 +42,8 @@ function Blogs(): Node {
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
   const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
-  const likeArticle = (articleId, userId) => dispatch(actions.likeArticle(articleId, userId));
-  const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
+  const likeArticle = (articleId) => dispatch(actions.likeArticle(articleId));
+  const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
   const [contextMenu, setContextMenu] = useState({
     show: false,
@@ -57,6 +57,8 @@ function Blogs(): Node {
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+
+  // console.log(article);
 
   useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
@@ -252,9 +254,9 @@ function Blogs(): Node {
             if (!user) return;
 
             if (userAlreadyLiked) {
-              removeArticleLike(get(userAlreadyLiked, 'id', ''));
+              removeArticleLike(id);
             } else {
-              likeArticle(id, user.id);
+              likeArticle(id);
             }
           }}
           icon={faHeart}
@@ -267,7 +269,7 @@ function Blogs(): Node {
           <>
             <CommentModal
               className="reaction-icon reaction-icon-comment"
-              comments={get(article, 'blog_article_comments', [])}
+              comments={get(article, 'comments', [])}
               createComment={createComment}
               articleId={id}
               authorId={get(article, 'user.id', 1)}
@@ -275,7 +277,7 @@ function Blogs(): Node {
               author={get(article, 'user')}
               currentUser={user}
             />
-            <p>{size(get(article, 'blog_article_comments', []))}</p>
+            <p>{size(get(article, 'comments', []))}</p>
           </>
         ) : (
           <p>You must be logged in to see comments.</p>

@@ -114,7 +114,6 @@ const initialReduxState = {
     loading:
      {
        [articleTypes.ART_FETCH_ALL_ARTICLES]: 'PENDING',
-       [articleTypes.ART_FETCH_COMMENTS]: 'PENDING',
        [articleTypes.ART_FETCH_CATEGORIES]: 'PENDING',
        [articleTypes.ART_FETCH_TAGS]: 'PENDING',
        [userTypes.USR_VALIDATE_USER]: getItem(localStorageKeys.jwt) ? 'PENDING' : 'DONE',

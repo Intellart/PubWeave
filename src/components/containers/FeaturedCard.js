@@ -36,6 +36,7 @@ function FeaturedCard(props : Props): Node {
       <ShareModal
         open={showModal}
         onClose={() => setShowModal(false)}
+        // article={null}
       />
       <Link to={`/singleblog/${props.id}`}>
         <div

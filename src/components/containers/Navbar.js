@@ -43,8 +43,8 @@ function Navbar(props: Props): Node {
   useOutsideClickEffect(() => setMobileMenuOpen(false), [ref, buttonRef]);
 
   const userItems = uniqBy(map(articles, (article) => ({
-    ...article.user,
-    label: article.user.full_name,
+    ...article.author,
+    label: article.author.full_name,
   })), 'id');
 
   const articleItems = sortBy(map(articles, (article) => ({
