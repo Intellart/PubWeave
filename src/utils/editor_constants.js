@@ -54,7 +54,7 @@ export const EDITOR_JS_TOOLS = {
 
         uploadByFile(file) {
         // your own uploading logic here
-          // console.log('uploadByFile', file);
+          console.log('uploadByFile', file);
 
           const data = new FormData();
           data.append('file', file);
@@ -65,19 +65,27 @@ export const EDITOR_JS_TOOLS = {
             method: 'post',
             body: data,
           }).then((res) => res.json())
-            .then((d) => ({
-              success: 1,
-              file: {
-                url: d.url,
-              },
-            }))
+            .then((d) => {
+              console.log('d', d);
+
+              return {
+                success: 1,
+                file: {
+                  url: d.url,
+                  asset_id: d.asset_id,
+                  public_id: d.public_id,
+                  folder: d.folder,
+                  signature: d.signature,
+                },
+              };
+            })
             .catch((/* err */) => {
               // console.log('err', err);
             });
         },
 
         uploadByUrl(url) {
-          // console.log('uploadByUrl', url);
+          console.log('uploadByUrl', url);
 
           return new Promise((resolve) => {
             resolve({

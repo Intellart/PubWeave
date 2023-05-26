@@ -5,9 +5,8 @@ import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, filter, find,
+  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, filter,
 } from 'lodash';
-
 import classNames from 'classnames';
 
 import 'bulma/css/bulma.min.css';
@@ -27,6 +26,7 @@ import SideBar from '../elements/SideBar';
 import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
+// import axios from '../../api/axios';
 
 const cookies = new Cookies();
 
@@ -70,8 +70,6 @@ function ReactEditor (): React$Element<any> {
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
 
-  // console.log(blocks);
-
   useEffect(() => {
     if (isReady) {
       // console.log('Article loaded');
@@ -80,21 +78,27 @@ function ReactEditor (): React$Element<any> {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, isReady]);
-  // console.log(blocks);
 
   const checkBlocks = (newArticleContent: _ArticleContent) : void => {
+    // console.clear();
     const newBlocks: _Blocks = keyBy(newArticleContent.blocks, 'id');
     const oldBlocks: _Blocks = keyBy(map(articleContent.blocks, (block: Block) => ({
-      id: block.editor_section_id,
+      id: block.id,
       type: block.type,
       data: block.data,
     })), 'id');
+    // console.log(newArticleContent);
+    // console.log('new blocks raw', newArticleContent.blocks);
+    // console.log('new blocks', newBlocks);
+    // console.log('old blocks', oldBlocks);
 
     if (isEqual(newBlocks, oldBlocks)) {
+      // console.log('no diff');
+
       return;
     }
 
-    const diff0 = filter(newBlocks, (block, key) => {
+    const blocksNew = filter(newBlocks, (block, key) => {
       if (!oldBlocks[key]) {
         return true;
       }
@@ -102,7 +106,7 @@ function ReactEditor (): React$Element<any> {
       return false;
     });
 
-    const diff1 = filter(newBlocks, (block, key) => {
+    const blocksEdited = filter(newBlocks, (block, key) => {
       if (!oldBlocks[key]) {
         return false;
       }
@@ -117,30 +121,38 @@ function ReactEditor (): React$Element<any> {
       return false;
     });
 
-    const diff2 = filter(oldBlocks, (block, key) => !newBlocks[key]);
+    const blockDeleted = filter(oldBlocks, (block, key) => !newBlocks[key]);
 
-    if (isEmpty(diff1) && isEmpty(diff2) && isEmpty(diff0)) {
-      console.log('no diff');
+    if (isEmpty(blocksEdited) && isEmpty(blocksEdited) && isEmpty(blockDeleted)) {
+      // console.log('no diff');
 
       return;
     } else {
-      console.log('new blocks', diff0);
-      console.log('edited blocks', diff1);
-      console.log('deleted blocks', diff2);
+      // console.log('new blocks', blocksNew);
+      // console.log('edited blocks', blocksEdited);
+      // console.log('deleted blocks', blockDeleted);
     }
 
     updateArticleContentSilently(id, {
       ...newArticleContent,
-      blocks: [...map([...diff0, ...diff2], (block: Block) => ({
-        editor_section_id: block.id,
-        type: block.type,
-        data: block.data,
-      })), ...map([...diff1], (block: Block) => ({
-        editor_section_id: block.id,
-        id: find(articleContent.blocks, (b) => b.editor_section_id === block.id).id,
-        type: block.type,
-        data: block.data,
-      }))],
+      blocks: [
+        ...map(blocksNew, (block: Block) => ({
+          id: block.id,
+          type: block.type,
+          data: block.data,
+        })),
+        ...map(blocksEdited, (block: Block) => ({
+          id: block.id,
+          type: block.type,
+          data: block.data,
+        })),
+        ...map(blockDeleted, (block: Block) => ({
+          id: block.id,
+          type: block.type,
+          data: block.data,
+          delete: true,
+        })),
+      ],
 
     });
   };
@@ -207,12 +219,13 @@ function ReactEditor (): React$Element<any> {
       />
       <Editor
         blocks={map(blocks, (block: Block) => ({
-          id: block.editor_section_id,
+          id: block.id,
           type: block.type,
           data: block.data,
         }))}
         onChange={(newArticleContent: _ArticleContent) => {
           console.log('onChange');
+          console.log(newArticleContent);
           checkBlocks(newArticleContent);
 
           setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));

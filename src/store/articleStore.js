@@ -1,5 +1,4 @@
 // @flow
-// import React from 'react';
 import {
   filter, keyBy, omit, get, map,
 } from 'lodash';
@@ -10,11 +9,10 @@ import type { User } from './userStore';
 // import { store } from '.';
 
 export type Block = {
-  editor_section_id: string,
+  id: string,
   type: string,
   data: Object,
 
-  id: number,
   article_id: number,
   version_number: number,
   collaborator_id: number,
@@ -387,13 +385,21 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
+      const { time, version, blocks } = get(action.payload, 'content', '{}');
+
       return {
         ...state,
         oneArticle: {
           ...action.payload,
           comments: keyBy(get(action.payload, 'comments', []), 'id'),
-          content: get(action.payload, 'content', '{}'),
-          // blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
+          content: {
+            time,
+            version,
+            blocks: map(blocks, (b) => ({
+              ...b,
+              id: b.editor_section_id,
+            })),
+          },
           tags: map(get(action.payload, 'tags', []), (t) => ({
             article_id: t.article_id,
             category_id: t.category_id,
@@ -650,11 +656,20 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     // ARTICLE CONTENT ----------------------------------------------------
     // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
+      const { time: timeV, version: versionV, blocks: blocksV } = get(action.payload, 'content', '{}');
+
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: get(action.payload, 'content', '{}'),
+          content: {
+            time: timeV,
+            version: versionV,
+            blocks: map(blocksV, (block) => ({
+              ...block,
+              id: block.editor_section_id,
+            })),
+          },
         },
       };
 
