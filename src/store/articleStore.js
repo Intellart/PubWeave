@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 // import React from 'react';
 import {
@@ -10,8 +9,39 @@ import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 import type { User } from './userStore';
 // import { store } from '.';
 
+export type Block = {
+  editor_section_id: string,
+  type: string,
+  data: Object,
+
+  id: number,
+  article_id: number,
+  version_number: number,
+  collaborator_id: number,
+};
+
+export type _Block = {
+  id: string,
+  type: string,
+  data: Object,
+};
+
+export type Blocks = {
+  [string]: Block,
+};
+
+export type _Blocks = {
+  [string]: _Block,
+};
+
+export type _ArticleContent = {
+  blocks: Array<_Block>,
+  time: number,
+  version: string,
+};
+
 export type ArticleContent = {
-  blocks: Array<Object>,
+  blocks: Array<Block>,
   time: number,
   version: string,
 };
@@ -167,7 +197,7 @@ export const selectors = {
   article: (state: ReduxState): any => state.article.oneArticle,
   articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id),
-  getBlocks: (state: ReduxState): any => get(state.article.oneArticle, 'content.blocks'),
+  getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
@@ -357,18 +387,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
 
-      const { time: articleTime, blocks: articleBlocks, version: articleVersion } = get(action.payload, 'content', '{}');
-
       return {
         ...state,
         oneArticle: {
           ...action.payload,
           comments: keyBy(get(action.payload, 'comments', []), 'id'),
-          content: {
-            time: articleTime,
-            blocks: articleBlocks,
-            version: articleVersion,
-          },
+          content: get(action.payload, 'content', '{}'),
           // blog_article_comments: keyBy(get(action.payload, 'blog_article_comments', []), 'id'),
           tags: map(get(action.payload, 'tags', []), (t) => ({
             article_id: t.article_id,
@@ -626,22 +650,11 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     // ARTICLE CONTENT ----------------------------------------------------
     // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
-      // console.log('STATUS ');
-      // console.log('old', size(state.oneArticle.content.blocks));
-      // console.log('new', size(JSON.parse(get(action.payload, 'content', '{}')).blocks));
-      // console.log('new', get(action.payload, 'content', '{}'));
-
-      const { time, blocks, version } = get(action.payload, 'content', '{}') || '{}';
-
       return {
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          content: {
-            time,
-            blocks: blocks || [],
-            version,
-          },
+          content: get(action.payload, 'content', '{}'),
         },
       };
 

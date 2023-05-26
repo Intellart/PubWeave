@@ -104,7 +104,7 @@ function Editor({
   useEffect(() => {
     labelCriticalSections();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks, criticalSectionIds]);
+  }, [criticalSectionIds]);
 
   useEffect(() => {
     if (isReady) {

@@ -24,9 +24,10 @@ import { actions, selectors } from '../../store/articleStore';
 import ImageSelection from '../containers/ImageSelection';
 import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
+import routes from '../../routes';
 
 function ReactEditor () {
-  const { id } = useParams();
+  const { id, type } = useParams();
 
   const navigate = useNavigate();
 
@@ -117,10 +118,11 @@ function ReactEditor () {
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
         inReview
-        onPublish={() => {
+        onPublishClick={() => {
           publishArticle(id, 'requested', article);
-          navigate('/submit-work');
+          navigate(routes.myWork.choose(type));
         }}
+        projectType={type}
       />
       <ImageSelection
         linkList={linkList}
