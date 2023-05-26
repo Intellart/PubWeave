@@ -131,7 +131,8 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
+    padding: 0 100px;
     position: relative;
     // border: 1px solid black;
     // justify-content: space-between;
@@ -205,7 +206,7 @@
 
         .nav--logo {
             padding: 5px;
-            margin-left: 20px;
+            // margin-left: 20px;
         }
         .searchbar {
             margin-bottom: 0px;

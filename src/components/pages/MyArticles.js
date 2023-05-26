@@ -9,15 +9,18 @@ import {
   filter, isEqual, map, slice, size,
 } from 'lodash';
 import { Chip, Pagination } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
 import { useScrollTopEffect } from '../../utils/hooks';
+import routes from '../../routes';
 
 function MyArticles(): Node {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
   const navigate = useNavigate();
+
+  const { type } = useParams();
 
   useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
@@ -27,7 +30,7 @@ function MyArticles(): Node {
 
   useEffect(() => {
     if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
-      navigate(`/submit-work/${articles[size(articles) - 1].id}`);
+      navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
     }
   }, [articles, lastKnownSize]);
 
@@ -90,6 +93,7 @@ function MyArticles(): Node {
               article={a}
               showPublishedChip
               onDelete={handleDeleteClick}
+              onClick={() => navigate(routes.myWork.project(type, a.id))}
             />
           ))}
         </div>

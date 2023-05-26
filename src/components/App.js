@@ -84,11 +84,14 @@ function App(): Node {
 
           {isAuthorized && (
             <>
-              <Route path="/choose-work/" element={<ChooseType />} />
+              <Route path="/my-work/" element={<ChooseType />} />
+              <Route path="/my-work/:type" element={<MyArticles />} />
+              <Route path="/my-work/:type/:id" element={<EditorPage />} />
+              <Route path="/my-work/:type/:id/review" element={<EditorPageReadOnly />} />
+
               <Route path="/user/:id" element={<UserPage />} />
-              <Route path="/submit-work" element={<MyArticles />} />
-              <Route path="/submit-work/:id" element={<EditorPage />} />
-              <Route path="/publish/:id" element={<EditorPageReadOnly />} />
+              {/* <Route path="/submit-work" element={<MyArticles />} /> */}
+              {/* <Route path="/submit-work/:id" element={<EditorPage />} /> */}
             </>
           )}
           {isAdmin && (

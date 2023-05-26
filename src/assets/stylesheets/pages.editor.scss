@@ -291,6 +291,7 @@
     height: 60px;
     display: flex;
     justify-content: space-between;
+    padding: 0 100px;
     align-items: center;
     border-bottom: 1px solid rgb(210, 210, 210);
 
@@ -330,7 +331,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       padding: 0 40px;
-      margin: 0 20px 0 0;
+      // margin: 0 20px 0 0;
 
       @media screen and (max-width: $mobile_breakpoint) {
         margin: 0;
@@ -344,7 +345,6 @@
         background-color: #fff;
         border: 1px solid #11273F;
         color: #11273F;
-        margin: 0 0 0 40px;
 
         @media screen and (max-width: $mobile_breakpoint) {
           margin: 0;
@@ -391,52 +391,13 @@
         }
       }
 
-      .editor-publish-button {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 40px;
-        border-radius: 5px;
-        background-color: #11273F;
-        color: white;
-        font-size: 1.2em;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        padding: 0 40px;
-        margin: 0 20px 0 0;
-  
-        @media screen and (max-width: $mobile_breakpoint) {
-          margin: 0;
-        }
-  
-        &:hover {
-          background-color: #debc00;
-        }
-  
-        &.editor-publish-button-back {
-          background-color: #fff;
-          border: 1px solid #11273F;
-          color: #11273F;
-          margin: 0 0 0 20px;
-  
-          @media screen and (max-width: $mobile_breakpoint) {
-            margin: 0;
-          }
-  
-          &:hover {
-            background-color: #11273F;
-            color: white;
-          }
-        }
-      }
     }
    
 
     .editor-title-input {
-      margin-left: 20px;
       height: 40px;
-      font-size: 1.5em;
+      font-size: 25px;
+      max-width: 80vw;
 
       &.focus {
         transform: translateX(8px);

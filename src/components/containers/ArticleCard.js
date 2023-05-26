@@ -9,7 +9,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
 import { find, get } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -29,11 +28,11 @@ type Props = {
   article: Article,
   onDelete?: (id: number) => void,
   showPublishedChip?: boolean,
+  onClick?: () => void,
   currentUserId?: number,
 };
 
 function ArticleCard(props : Props): Node {
-  const navigate = useNavigate();
   const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   const status = props.article.status ? props.article.status : 'draft';
@@ -69,11 +68,8 @@ function ArticleCard(props : Props): Node {
 
   const handleArticleClick = (e) => {
     e.preventDefault();
-
-    if (isPublished) {
-      navigate(`/singleblog/${props.article.id}`);
-    } else {
-      navigate(`/submit-work/${props.article.id}`);
+    if (props.onClick) {
+      props.onClick();
     }
   };
 

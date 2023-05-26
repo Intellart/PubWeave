@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import work1 from '../../assets/images/div-backgrounds/work1.png';
 import work2 from '../../assets/images/div-backgrounds/work2.png';
 import work3 from '../../assets/images/div-backgrounds/work3.png';
+import routes from '../../routes';
 
 function ChooseType() {
   const backgrounds = [work1, work2, work3];
@@ -13,13 +14,11 @@ function ChooseType() {
 
   const navigate = useNavigate();
 
-  const links = ['/submit-work', '/submit-blog', '/submit-preprint'];
-
   const motionItemProps = (id) => ({
     className: 'work-types-item',
     initial: { scale: 0, rotate: 90 },
     animate: { rotate: 0, scale: 1 },
-    onClick: () => navigate(links[id]),
+    onClick: () => navigate(routes.myWork.choose(labels[id].toLowerCase())),
     transition: {
       type: 'spring',
       stiffness: 260,

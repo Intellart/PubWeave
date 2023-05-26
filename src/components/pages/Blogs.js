@@ -9,7 +9,7 @@ import {
   slice,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -37,6 +37,8 @@ function Blogs(): Node {
   const tags = useSelector((state) => articleSelectors.getTags(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const selectedUser = useSelector((state) => userSelectors.getSelectedUser(state), isEqual);
+
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const getSelectedUser = (userId) => dispatch(actions.selectUser(userId));
@@ -188,6 +190,7 @@ function Blogs(): Node {
               key={index}
               article={a}
               currentUserId={get(user, 'id', null)}
+              onClick={() => navigate(`/singleblog/${a.id}`)}
             />
           ))}
         </div>

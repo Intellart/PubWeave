@@ -21,6 +21,7 @@ import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
 import { store } from '../../store';
 import { actions } from '../../store/userStore';
 import { selectors } from '../../store/articleStore';
+import routes from '../../routes';
 
 type Props = {
   isAuthorized: boolean,
@@ -185,7 +186,7 @@ function Navbar(props: Props): Node {
           {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {!isMobile && props.isAuthorized && <Link onClick={onClick} to="/choose-work" className='submit-work'>My Work</Link>}
+          {!isMobile && props.isAuthorized && <Link onClick={onClick} to={routes.myWork.root} className='submit-work'>My Work</Link>}
           {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">
