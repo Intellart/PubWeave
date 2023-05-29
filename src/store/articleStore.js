@@ -397,7 +397,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             version,
             blocks: map(blocks, (b) => ({
               ...b,
-              id: b.editor_section_id,
+              id: b.id,
             })),
           },
           tags: map(get(action.payload, 'tags', []), (t) => ({
@@ -667,7 +667,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             version: versionV,
             blocks: map(blocksV, (block) => ({
               ...block,
-              id: block.editor_section_id,
+              id: block.id,
             })),
           },
         },

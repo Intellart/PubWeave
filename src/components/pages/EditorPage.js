@@ -123,7 +123,7 @@ function ReactEditor (): React$Element<any> {
 
     const blockDeleted = filter(oldBlocks, (block, key) => !newBlocks[key]);
 
-    if (isEmpty(blocksEdited) && isEmpty(blocksEdited) && isEmpty(blockDeleted)) {
+    if (isEmpty(blocksNew) && isEmpty(blocksEdited) && isEmpty(blockDeleted)) {
       // console.log('no diff');
 
       return;
