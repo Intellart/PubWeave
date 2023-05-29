@@ -8,6 +8,7 @@
     align-items: center;
     flex-direction: column;
     gap: 10px;
+    transform: translateY(-10px);
   }
 
   @keyframes editor-title-focus {
@@ -42,6 +43,13 @@
   }
 
   #editorjs {
+
+    .ce-toolbar__actions{
+      .ce-toolbar-section-info{
+        position: absolute;
+        top: 30px;
+      }
+    }
 
     .ce-block__content{
 
@@ -295,7 +303,7 @@
     align-items: center;
     border-bottom: 1px solid rgb(210, 210, 210);
 
-    @media screen and (max-width: $mobile_breakpoint) {
+    @media screen and (max-width: 1200px) {
       flex-direction: column;
       height: auto;
       gap: 10px;
@@ -310,8 +318,10 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      gap: 10px;
 
-      @media screen and (max-width: $mobile_breakpoint) {
+      
+      @media screen and (max-width: 1200px) {
         position: relative !important;
         left: 0;
         transform: translateX(0);

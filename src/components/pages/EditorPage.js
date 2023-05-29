@@ -140,17 +140,19 @@ function ReactEditor (): React$Element<any> {
           id: block.id,
           type: block.type,
           data: block.data,
+          action: 'created',
         })),
         ...map(blocksEdited, (block: Block) => ({
           id: block.id,
           type: block.type,
           data: block.data,
+          action: 'updated',
         })),
         ...map(blockDeleted, (block: Block) => ({
           id: block.id,
           type: block.type,
           data: block.data,
-          delete: true,
+          action: 'deleted',
         })),
       ],
 
@@ -196,7 +198,7 @@ function ReactEditor (): React$Element<any> {
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
         onPublishClick={() => {
-          navigate(routes.myWork.review(id, type));
+          navigate(routes.myWork.review(type, id));
         }}
 
       />

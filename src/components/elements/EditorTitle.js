@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { size } from 'lodash';
 import routes from '../../routes';
 // import ActiveUsers from './ActiveUsers';
 
@@ -35,28 +34,35 @@ export default function EditorTitle ({
 
   useEffect(() => {
     if (titleRef.current) {
-      const minPx = 12;
+      const minPx = 18;
       const maxPx = 25;
       const minChars = 25;
       const maxChars = 70;
-      // titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
+
+      if (!titleFocus) {
+        titleRef.current.style.width = '220px';
+
+        return;
+      }
+
+      console.log('articleTitle', articleTitle);
 
       if (articleTitle.length > maxPx && articleTitle.length < maxChars) {
         const fontSize = maxPx + ((minPx - maxPx) / (maxChars - minChars)) * (articleTitle.length - minChars);
         titleRef.current.style.fontSize = `${fontSize}px`;
+        titleRef.current.style.width = `${(articleTitle.length * fontSize * 0.55 + 60)}px`;
       } else if (articleTitle.length >= maxChars) {
         titleRef.current.style.fontSize = `${minPx}px`;
+        titleRef.current.style.width = `${(articleTitle.length * 10 + 60)}px`;
       } else {
         titleRef.current.style.fontSize = `${maxPx}px`;
+        titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
       }
     }
   }, [titleRef, articleTitle]);
 
   useEffect(() => {
     if (title === articleTitle || !title || title === '') {
-      return;
-    }
-    if (size(title) > 100) {
       return;
     }
 
@@ -88,6 +94,7 @@ export default function EditorTitle ({
           <input
             type="text"
             placeholder="Enter a title..."
+            maxLength={100}
             onFocus={() => {
               setTitleFocus(true);
               titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;

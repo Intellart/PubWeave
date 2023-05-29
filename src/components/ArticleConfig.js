@@ -40,7 +40,6 @@ function ArticleConfig(props: Props): Node {
   const [currentTime, setCurrentTime] = useState(new Date());
   const { tags: allTags } = props;
   const [/* newTag */, setNewTag] = useState('');
-  const [smallMenuHeight, setSmallMenuHeight] = useState(200);
 
   const [tags, setTags] = useState(map(get(props.article, 'tags', []), (t) => ({
     ...t,
@@ -135,19 +134,9 @@ function ArticleConfig(props: Props): Node {
     <>
       <div className={classNames('article-config-backdrop', { hidden: !articleSettingsExpanded })} />
       <div
-        style={{ top: smallMenuHeight }}
+        style={{ top: 80 }}
         onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
         className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
-        draggable
-        onDragStart={(e) => {
-          console.log('dragging start');
-          console.log(e);
-        }}
-        onDragEnd={(e) => {
-          console.log('dragging end');
-          console.log(e);
-          setSmallMenuHeight(e.target.clientTop);
-        }}
       >
         <div className="article-config-item">
           <FontAwesomeIcon className='article-config-icon' icon={faPen} />

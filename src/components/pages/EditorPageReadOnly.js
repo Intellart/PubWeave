@@ -29,6 +29,9 @@ import routes from '../../routes';
 function ReactEditor () {
   const { id, type } = useParams();
 
+  console.log('id', id);
+  console.log('type', type);
+
   const navigate = useNavigate();
 
   // useSelector

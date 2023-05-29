@@ -141,6 +141,17 @@ function Editor({
       editor.current.isReady
         .then(() => {
           // console.log('Editor.js is ready to work!');
+          // search for element  ce-toolbar
+          const toolbar = document.getElementsByClassName('ce-toolbar__actions')[0];
+
+          // add child
+          const toolbarChild = document.createElement('div');
+          toolbarChild.className = 'ce-toolbar-section-info';
+          toolbarChild.innerHTML = '<div class="ce-toolbar__plus">🧑</div>';
+          toolbarChild.onclick = () => {
+            console.log('add new block');
+          };
+          toolbar.appendChild(toolbarChild);
         })
         .catch((reason) => {
           toast.error(`Editor.js initialization failed because of ${reason}`);
