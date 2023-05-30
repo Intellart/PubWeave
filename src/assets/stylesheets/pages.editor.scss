@@ -44,11 +44,20 @@
 
   #editorjs {
 
-    .ce-toolbar__actions{
-      .ce-toolbar-section-info{
-        position: absolute;
-        top: 30px;
-      }
+    // .ce-toolbar__actions{
+    //   .ce-toolbar-section-info{
+    //     position: absolute;
+    //     top: 30px;
+    //   }
+    // }
+
+    .cdx-text-variant--call-out {
+      background-color: rgb(255, 255, 255);
+      border: 1px solid rgb(255, 255, 255);
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
     }
 
     .ce-block__content{

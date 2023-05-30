@@ -13,12 +13,98 @@ import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
 import Tooltip from 'editorjs-tooltip';
+// import TextVariantTune from '@editorjs/text-variant-tune';
 import LatexPlugin from './latex_plugin';
 import { ImageWrapper } from './editorExtensions/imageWrapper';
 import { WordCounter } from './editorExtensions/wordCounter';
 import CodeTool from './editorExtensions/codeHighlight';
 
+export class MyTune {
+  constructor({
+    api, data, config, block,
+  }) {
+    this.api = api;
+    this.data = data;
+    this.config = config;
+    this.block = block;
+
+    this.wrapper = undefined;
+  }
+
+  static get isTune() {
+    return true;
+  }
+
+  static get CSS() {
+    return {
+      toggler: 'cdx-text-variant__toggler', // has svg icon
+    };
+  }
+
+  render() {
+    const tuneWrapper = document.createElement('div');
+    tuneWrapper.setAttribute('class', '');
+
+    const toggler = document.createElement('div');
+    toggler.classList.add(this.api.styles.settingsButton);
+    toggler.innerHTML = '😸 Call-out';
+
+    toggler.dataset.name = 'call-out';
+
+    this.api.tooltip.onHover(toggler, 'Call-out', {
+      placement: 'top',
+      hidingDelay: 500,
+    });
+
+    tuneWrapper.appendChild(toggler);
+
+    this.api.listeners.on(tuneWrapper, 'click', (event) => {
+      this.tuneClicked(event);
+
+      console.log('H button clicked');
+      console.log('block', this.block.id);
+    });
+
+    return tuneWrapper;
+  }
+
+  tuneClicked(event) {
+    const tune = event.target.closest(`.${this.api.styles.settingsButton}`); // get the closest element with the class
+    const isEnabled = tune.classList.contains(this.api.styles.settingsButtonActive);
+
+    tune.classList.toggle(this.api.styles.settingsButtonActive, !isEnabled);
+
+    this.variant = !isEnabled ? tune.dataset.name : '';
+  }
+
+  wrap(blockContent) {
+    this.wrapper = document.createElement('div');
+
+    this.variant = this.data;
+
+    this.wrapper.appendChild(blockContent);
+
+    return this.wrapper;
+  }
+
+  set variant(name) {
+    this.data = name;
+
+    // this.variants.forEach((variant) => {
+    //   this.wrapper.classList.toggle(`cdx-text-variant--${variant.name}`, variant.name === this.data);
+    // });
+
+    this.wrapper.classList.toggle('cdx-text-variant--call-out', this.data === 'call-out');
+  }
+
+  save() {
+    return this.data || '';
+  }
+}
+
 export const EDITOR_JS_TOOLS = {
+  // textVariant: TextVariantTune,
+  myTune: MyTune,
   tooltip: {
     class: Tooltip,
     config: {
@@ -27,7 +113,7 @@ export const EDITOR_JS_TOOLS = {
       underline: true,
       backgroundColor: '#154360',
       textColor: '#FDFEFE',
-      holder: 'editorId',
+      holder: 'editorjs',
     },
   },
   embed: {
