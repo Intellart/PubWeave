@@ -1,3 +1,4 @@
+// @flow
 import React, { useEffect, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import {
@@ -8,7 +9,10 @@ import {
   isEqual,
 } from 'lodash';
 import { toast } from 'react-toastify';
-import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
+import Undo from 'editorjs-undo';
+// import DragDrop from 'editorjs-drag-drop';
+
+import { useEditorTools } from '../../utils/editor_constants';
 
 type Props = {
     blocks: any,
@@ -16,12 +20,27 @@ type Props = {
     criticalSectionIds: Array<string>,
     onChange?: (newBlocks: any) => void,
     readOnly?: boolean,
+    versioningBlockId : any,
 };
 
 function Editor({
-  blocks, isReady, criticalSectionIds, onChange, readOnly,
-} : Props) {
+  blocks, isReady, criticalSectionIds, onChange, readOnly, versioningBlockId,
+} : Props): any {
   const editor = useRef(null);
+
+  const versionBlock = useRef(null);
+
+  const EDITOR_JS_TOOLS = useEditorTools({ versioningBlockId, versionBlock });
+
+  useEffect(() => {
+    console.log('TRIGGER', versioningBlockId);
+    if (versioningBlockId.current !== null) {
+      const title = document.getElementsByClassName('cdx-versioning-info-card__example-title')[0];
+      if (title) {
+        title.innerHTML = versioningBlockId.current;
+      }
+    }
+  }, [versioningBlockId.current]);
 
   const labelCriticalSections = () => {
     forEach(document.getElementsByClassName('ce-block__content'), (div, divIndex) => {
@@ -82,6 +101,8 @@ function Editor({
   };
 
   const handleUploadEditorContent = () => {
+    // console.log('editor content changed');
+    // console.log('editor', editor.current);
     editor.current.save().then((newArticleContent: ArticleContent) => {
       if (checkIfCriticalSection(newArticleContent.blocks)) {
         toast.error('You can\'t edit a critical section from another user');
@@ -141,6 +162,19 @@ function Editor({
 
       editor.current.isReady
         .then(() => {
+          const config = {
+            shortcuts: {
+              undo: 'CMD+X',
+              redo: 'CMD+ALT+C',
+            },
+          };
+
+          // eslint-disable-next-line no-new
+          const undo = new Undo({ editor: editor.current, config });
+          undo.initialize(blocks);
+          // eslint-disable-next-line no-new
+          // new DragDrop({ blocks, editor: editor.current, configuration: { holder: 'editorjs' } });
+
           // const toolbar = document.getElementsByClassName('ce-toolbar__actions')[0];
           // const toolbarChild = document.createElement('div');
           // toolbarChild.className = 'ce-toolbar-section-info';
@@ -157,7 +191,11 @@ function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
-  return (<div id="editorjs" />);
+  return (
+
+    <div id="editorjs" />
+
+  );
 }
 
 export default Editor;

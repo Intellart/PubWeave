@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -56,6 +56,8 @@ function ReactEditor (): React$Element<any> {
     show: false,
     snap: false,
   });
+
+  const versioningBlockId = useRef(null);
 
   const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
 
@@ -212,6 +214,7 @@ function ReactEditor (): React$Element<any> {
         tags={tags}
         addTag={addTag}
         removeTag={removeTag}
+        versioningBlockId={versioningBlockId}
       />
       <SideBar
         showSidebar={sidebar.show}
@@ -225,6 +228,7 @@ function ReactEditor (): React$Element<any> {
           type: block.type,
           data: block.data,
         }))}
+        versioningBlockId={versioningBlockId}
         onChange={(newArticleContent: _ArticleContent) => {
           console.log('onChange');
           console.log(newArticleContent);

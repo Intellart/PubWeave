@@ -33,6 +33,7 @@ type Props = {
   tags: { [number]: any },
   addTag: Function,
   removeTag: Function,
+  versioningBlockId: any,
 };
 
 function ArticleConfig(props: Props): Node {
@@ -49,6 +50,12 @@ function ArticleConfig(props: Props): Node {
   const [/* star */, setStar] = useState(get(props.article, 'star', false) || false);
 
   const SECOND_MS = 1000;
+
+  const [versioningBlockActive, setVersioningBlockActive] = useState(false);
+
+  useEffect(() => {
+    setVersioningBlockActive(props.versioningBlockId.current !== null);
+  }, [props.versioningBlockId.current]);
 
   useEffect(() => {
     setTags(map(get(props.article, 'tags', []), (t) => ({
@@ -134,7 +141,10 @@ function ArticleConfig(props: Props): Node {
     <>
       <div className={classNames('article-config-backdrop', { hidden: !articleSettingsExpanded })} />
       <div
-        style={{ top: 80 }}
+        style={{
+          top: 80,
+          marginLeft: versioningBlockActive ? 200 : 0,
+        }}
         onClick={() => setArticleSettingsExpanded(!articleSettingsExpanded)}
         className={classNames('article-config-small', { hidden: articleSettingsExpanded })}
       >

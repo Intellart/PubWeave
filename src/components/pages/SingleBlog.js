@@ -25,9 +25,9 @@ import CommentModal from '../containers/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
-import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
 import { useScrollTopEffect } from '../../utils/hooks';
 import OrcIDButton from '../elements/OrcIDButton';
+import { useEditorTools } from '../../utils/editor_constants';
 
 const ReactEditorJS = createReactEditorJS();
 
@@ -38,6 +38,8 @@ function Blogs(): Node {
   store.getState();
 
   // eslint-disable-next-line no-unused-vars
+
+  const EDITOR_JS_TOOLS = useEditorTools();
 
   const dispatch = useDispatch();
   const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
