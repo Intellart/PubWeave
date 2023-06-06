@@ -1,12 +1,16 @@
 import { faThumbtack, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { isEmpty, isEqual } from 'lodash';
+import { actions, selectors } from '../../store/articleStore';
 
 type Props = {
   showSidebar: boolean,
   setShowSidebar: Function,
   snapSidebar: boolean,
   setSnapSidebar: Function,
+  blockId: any,
 };
 
 function SideBar(props: Props) {
@@ -15,7 +19,20 @@ function SideBar(props: Props) {
     setShowSidebar,
     snapSidebar,
     setSnapSidebar,
+    blockId,
   } = props;
+
+  const versions = useSelector((state) => selectors.getVersions(state), isEqual);
+
+  // dispatch
+  const dispatch = useDispatch();
+  const fetchVersions = (id) => dispatch(actions.fetchVersions(id));
+
+  useEffect(() => {
+    if (showSidebar && blockId.current && isEmpty(versions)) {
+      fetchVersions(blockId.current);
+    }
+  }, [showSidebar, blockId.current, versions]);
 
   if (!showSidebar) return null;
 
@@ -34,8 +51,8 @@ function SideBar(props: Props) {
         <div
           className='editors-sidebar-top-x'
           onClick={() => {
-            setShowSidebar(false);
             setSnapSidebar(false);
+            setShowSidebar(false);
           }}
         >
           <FontAwesomeIcon icon={faTimes} />

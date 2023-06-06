@@ -221,6 +221,7 @@ function ReactEditor (): React$Element<any> {
         setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
         snapSidebar={sidebar.snap}
         setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
+        blockId={versioningBlockId}
       />
       <Editor
         blocks={map(blocks, (block: Block) => ({

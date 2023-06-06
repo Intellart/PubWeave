@@ -18,6 +18,8 @@ import InlineImage from 'editorjs-inline-image';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPerson } from '@fortawesome/free-solid-svg-icons';
 import LatexPlugin from './latex_plugin';
 import { ImageWrapper } from './editorExtensions/imageWrapper';
 import { WordCounter } from './editorExtensions/wordCounter';
@@ -33,9 +35,75 @@ import CodeTool from './editorExtensions/codeHighlight';
 type Props = {
   versioningBlockId: any,
   versionBlock: any,
+  versionInfo: any,
 };
 
-export function useEditorTools ({ versioningBlockId, versionBlock }: Props): { [toolName: string]: any} {
+type VersioningInfoCardProps = {
+  block: any,
+  onClose: any,
+  versionInfo: any,
+};
+
+export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }: Props): { [toolName: string]: any} {
+  function VersioningInfoCard(props:VersioningInfoCardProps) {
+    console.log(props.versionInfo);
+
+    return (
+      <>
+        <div
+          className="cdx-versioning-info-card-close"
+          onClick={() => {
+            props.onClose();
+          }}
+        > Close
+        </div>
+
+        <div className="cdx-versioning-info-card-row">
+          <div className="cdx-versioning-info-card-row-item">
+            <p className="cdx-versioning-info-card-row-item-title">Block ID</p>
+            <p
+              className="cdx-versioning-info-card-row-item-value"
+              id="cdx-versioning-info-card-block-id"
+            >
+              {props.block.id}
+            </p>
+          </div>
+          <div className="cdx-versioning-info-card-row-item">
+            <p className="cdx-versioning-info-card-row-item-title">Last updated</p>
+            <p
+              className="cdx-versioning-info-card-row-item-value"
+              id="cdx-versioning-info-card-last-updated"
+            > {props.versionInfo.current.lastUpdated}
+            </p>
+          </div>
+        </div>
+        <div className="cdx-versioning-info-card-row">
+          <div className="cdx-versioning-info-card-row-item">
+            <p className="cdx-versioning-info-card-row-item-title">Author name</p>
+            <p
+              className="cdx-versioning-info-card-row-item-value"
+              id="cdx-versioning-info-card-author-name"
+            > {props.versionInfo.current.author}
+            </p>
+          </div>
+          <div className="cdx-versioning-info-card-row-item">
+            <button
+              type="button"
+              className="cdx-versioning-info-card-row-item-button"
+              onClick={() => {
+                props.versionInfo.current.onViewVersions();
+              }}
+
+            >
+              Show history
+            </button>
+          </div>
+        </div>
+
+      </>
+    );
+  }
+
   class MyTune {
     api: any;
 
@@ -51,6 +119,10 @@ export function useEditorTools ({ versioningBlockId, versionBlock }: Props): { [
 
     vbId: any;
 
+    toggleClass: string;
+
+    vbInfo: any;
+
     constructor({
       api, data, config, block,
     }: any) {
@@ -61,6 +133,9 @@ export function useEditorTools ({ versioningBlockId, versionBlock }: Props): { [
 
       this.vbId = versioningBlockId;
       this.vb = versionBlock;
+      this.vbInfo = versionInfo;
+
+      this.toggleClass = 'cdx-versioning-selected';
 
       // console.log('constructor', this.block.id);
 
@@ -78,117 +153,107 @@ export function useEditorTools ({ versioningBlockId, versionBlock }: Props): { [
     }
 
     render(): any {
-      const tuneWrapper = document.createElement('div');
-      tuneWrapper.setAttribute('class', '');
+      // const tuneWrapper = document.createElement('button');
+      // tuneWrapper.classList.add(this.api.styles.settingsButton);
 
-      const toggler = document.createElement('div');
-      toggler.classList.add(this.api.styles.settingsButton);
-      toggler.innerHTML = '😸 Block settings';
+      // const toggler = document.createElement('div');
+      // toggler.classList.add(this.api.styles.settingsButton);
+      // tuneWrapper.classList.toggle(this.api.styles.settingsButtonActive, this.vbId.current === this.block.id);
 
-      toggler.dataset.name = 'call-out';
+      // const root = createRoot(tuneWrapper);
+      // root.render(
+      //   <div className="cdx-versioning-info-card__title">😸 Block settings</div>,
+      // );
 
-      this.api.tooltip.onHover(toggler, 'Block settings', {
-        placement: 'top',
-        hidingDelay: 500,
-      });
+      // this.api.tooltip.onHover(tuneWrapper, 'Block settings', {
+      //   placement: 'top',
+      //   hidingDelay: 500,
+      // });
 
-      tuneWrapper.appendChild(toggler);
+      const svgIcon = document.createElement('div');
+      const root2 = createRoot(svgIcon);
+      root2.render(
+        <FontAwesomeIcon
+          className="cdx-svg-icon-versioning"
+          icon={faPerson}
+        />,
+      );
 
-      this.api.listeners.on(tuneWrapper, 'click', (event) => {
-        this.tuneClicked(event);
+      const svg = svgIcon.querySelector('.cdx-svg-icon-versioning');
 
-        // console.log('H button clicked');
-        // console.log('block', this.block.id);
-      });
-
-      return tuneWrapper;
+      return {
+        icon: svg,
+        label: 'Block settings',
+        toggle: true,
+        onActivate: () => {
+          this.tuneClicked();
+        },
+        isActive: this.vbId.current === this.block.id,
+      };
     }
 
     generateInfoCard(): any {
       const infoCard = document.createElement('div');
       infoCard.classList.add('cdx-versioning-info-card');
+      infoCard.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
 
-      const root = createRoot(infoCard); // createRoot(container!) if you use TypeScript
+      const root = createRoot(infoCard);
       root.render(
-        <>
-          <div className="cdx-versioning-info-card__title">Block settings</div>
-          <div className="cdx-versioning-info-card__description">Highlight important information in your article.</div>
-          <div className="cdx-versioning-info-card__example">
-            <div className="cdx-versioning-info-card__example-title">Example</div>
-            <div className="cdx-versioning-info-card__example-content">This is a call-out.</div>
-          </div>
-          <div className="cdx-versioning-info-card-close">
-            <p className="cdx-versioning-info-card-close-text">Close</p>
-          </div>
+        <VersioningInfoCard
+          block={this.block}
+          versionInfo={this.vbInfo}
+          onClose={() => {
+            this.uncheckOldWrapper();
+            this.vbId.current = null;
+            this.vb.current = null;
+          }}
 
-        </>,
+        />,
       );
 
       return infoCard;
     }
 
-    toggleButton(event: any, isEnabled: any): any {
-      const tune = event.target.closest(`.${this.api.styles.settingsButton}`); // button element
-      tune.classList.toggle(this.api.styles.settingsButtonActive, !isEnabled);
+    uncheckOldWrapper(): any {
+      const vbWrapper = this.vb.current?.closest(`.${this.toggleClass}`);
+      if (vbWrapper) vbWrapper.classList.remove(this.toggleClass);
 
-      this.variant = !isEnabled ? tune.dataset.name : '';
+      const infoCard = this.vb.current.querySelector('.cdx-versioning-info-card');
+      this.vb.current.removeChild(infoCard);
     }
 
-    tuneClicked(event: any): any {
-      const isEnabled = this.vbId.current === this.block.id;
+    checkCurrentWrapper(): any {
+      if (this.wrapper) this.wrapper.classList.add(this.toggleClass);
+    }
 
-      this.toggleButton(event, isEnabled);
-
+    tuneClicked(): any {
+      // this.toggleButton(event);
       const blockContent = this.wrapper.querySelector('.ce-block__content');
 
-      // remove cdx-versioning-info-card if it exists
-      const existingInfoCard = document.querySelector('.cdx-versioning-info-card');
-      if (existingInfoCard) {
-        existingInfoCard.remove();
-
-        const allWrappers = document.querySelectorAll('.cdx-versioning-selected');
-        allWrappers.forEach((wrapper) => {
-          if (wrapper !== this.wrapper) {
-            wrapper.classList.remove('cdx-versioning-selected');
-
-            const blockContent2 = wrapper.querySelector('.ce-block__content');
-
-            if (blockContent2) {
-              const child = blockContent2.querySelector('.cdx-versioning-info-card');
-              if (child) blockContent2.removeChild(child);
-            }
-          }
-        });
+      if (this.vbId.current !== null) {
+        this.uncheckOldWrapper();
       }
-
-      blockContent.appendChild(this.generateInfoCard());
-
-      console.log('CURRENT', this.vbId.current, this.vb.current);
-      console.log(blockContent, this.wrapper);
 
       if (this.vbId.current === this.block.id) {
         this.vbId.current = null;
         this.vb.current = null;
-      } else {
-        this.vbId.current = this.block.id;
-        this.vb.current = this.block;
-      }
+      } else if (this.vbId.current !== this.block.id) {
+        this.checkCurrentWrapper();
 
-      // console.log('versioningBlock', versioningBlock);
-      // console.log('this.vb', this.vb);
+        this.vbId.current = this.block.id;
+        this.vb.current = blockContent;
+
+        blockContent.appendChild(this.generateInfoCard());
+      }
     }
 
     wrap(blockContent: any) : any {
       this.wrapper = document.createElement('div');
-      this.variant = this.data;
       this.wrapper.appendChild(blockContent);
 
       return this.wrapper;
-    }
-
-    set variant(name: any): any {
-      this.data = name;
-      this.wrapper.classList.toggle('cdx-versioning-selected', this.data === 'call-out');
     }
 
     save(): any {

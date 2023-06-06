@@ -29,16 +29,32 @@ function Editor({
   const editor = useRef(null);
 
   const versionBlock = useRef(null);
+  const versionInfo = useRef({
+    version: 1,
+    lastUpdated: '25/05/2021 12:00',
+    author: 'John Doe',
+    onViewVersions: () => {
+      console.log('view versions');
+    },
+  });
 
-  const EDITOR_JS_TOOLS = useEditorTools({ versioningBlockId, versionBlock });
+  const EDITOR_JS_TOOLS = useEditorTools({ versioningBlockId, versionBlock, versionInfo });
 
   useEffect(() => {
     console.log('TRIGGER', versioningBlockId);
     if (versioningBlockId.current !== null) {
-      const title = document.getElementsByClassName('cdx-versioning-info-card__example-title')[0];
-      if (title) {
-        title.innerHTML = versioningBlockId.current;
-      }
+      // const lastUpdated = document.getElementById('cdx-versioning-info-card-last-updated');
+      // if (lastUpdated) {
+      //   lastUpdated.innerHTML = '25/05/2021 12:00';
+      // }
+      versionInfo.current = {
+        version: 1,
+        lastUpdated: new Date().toLocaleString(),
+        author: 'John Doe',
+        onViewVersions: () => {
+          console.log('view versions for block', versioningBlockId.current);
+        },
+      };
     }
   }, [versioningBlockId.current]);
 

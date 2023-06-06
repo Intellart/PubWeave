@@ -91,6 +91,7 @@ export type State = {
   comments: { [number]: Comment },
   categories: { [string]: Category },
   tags: { [number]: Tag },
+  versions: Array<any>,
 };
 
 export const types = {
@@ -189,6 +190,11 @@ export const types = {
   ART_DELETE_COMMENT_REJECTED: 'ART/DELETE_COMMENT_REJECTED',
   ART_DELETE_COMMENT_FULFILLED: 'ART/DELETE_COMMENT_FULFILLED',
 
+  ART_FETCH_VERSIONS: 'ART/FETCH_VERSIONS',
+  ART_FETCH_VERSIONS_PENDING: 'ART/FETCH_VERSIONS_PENDING',
+  ART_FETCH_VERSIONS_REJECTED: 'ART/FETCH_VERSIONS_REJECTED',
+  ART_FETCH_VERSIONS_FULFILLED: 'ART/FETCH_VERSIONS_FULFILLED',
+
 };
 
 export const selectors = {
@@ -200,9 +206,14 @@ export const selectors = {
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
   getTags: (state: ReduxState): any => state.article.tags,
+  getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
 };
 
 export const actions = {
+  fetchVersions: (id: number): ReduxAction => ({
+    type: types.ART_FETCH_VERSIONS,
+    payload: API.getRequest(`pubweave/articles/sections/${id}/version_data`),
+  }),
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,
     payload: API.getRequest(`pubweave/articles/${id}`),
@@ -375,6 +386,12 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_FETCH_VERSIONS_FULFILLED:
+      return {
+        ...state,
+        versions: action.payload,
+      };
+
     case types.ART_FLUSH_ARTICLE_FULFILLED:
       toast.success('Article flushed.');
 

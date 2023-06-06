@@ -77,6 +77,8 @@
           border-top: 1px solid rgb(128, 128, 128);
           padding:10px;
           position: relative;
+          padding-right: 70px;
+          background-color: rgb(128, 128, 128);
 
           animation: versioningCardFadeIn 1s ease forwards;
 
@@ -92,20 +94,77 @@
 
           .cdx-versioning-info-card-close{
             position: absolute;
-            top: 0;
+            bottom: 0;
             right: 0;
             padding: 3px 7px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            background-color: rgb(128, 128, 128);
-            color: white;
-            border-radius: 0 0 0 5px;
+            background-color: white;
+            color: rgb(128, 128, 128);
+            border-radius: 5px 0 5px 0;
             transition: all 0.3s ease;
+            border: 1px solid rgb(128, 128, 128);
 
             &:hover{
-              background-color: rgb(181, 41, 41);
+              background-color: rgb(128, 128, 128);
+              color: white;
+            }
+
+            
+
+
+          }
+
+          .cdx-versioning-info-card-row{
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row;
+
+            .cdx-versioning-info-card-row-item{
+              display: flex;
+              justify-content: center;
+              align-items: flex-start;
+              flex-direction: column;
+
+              &:last-of-type{
+                align-items: flex-end;
+              }
+
+              .cdx-versioning-info-card-row-item-title{
+                font-size: 16px;
+                font-weight: 600;
+                color: rgb(171, 171, 171);
+              }
+
+              .cdx-versioning-info-card-row-item-value{
+                font-size: 20px;
+                font-weight:  600;
+                color: white;
+              }
+
+              .cdx-versioning-info-card-row-item-button{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: row;
+                gap: 5px;
+                padding: 5px 10px;
+                border-radius: 5px;
+                background-color: rgb(128, 128, 128);
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover{
+                  background-color: rgb(181, 41, 41);
+                }
+              }
             }
           }
         }
