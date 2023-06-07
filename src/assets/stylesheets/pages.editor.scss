@@ -74,10 +74,10 @@
           justify-content: space-between;
           align-items: flex-start;
           flex-direction: column;
-          border-top: 1px solid rgb(128, 128, 128);
+          border: 1px solid rgb(128, 128, 128);
           padding:10px;
           position: relative;
-          padding-right: 70px;
+          // padding-right: 70px;
           background-color: rgb(128, 128, 128);
 
           animation: versioningCardFadeIn 1s ease forwards;
@@ -92,7 +92,8 @@
             }
           }
 
-          .cdx-versioning-info-card-close{
+          .cdx-versioning-info-card-close,
+          .cdx-versioning-info-card-button{
             position: absolute;
             bottom: 0;
             right: 0;
@@ -110,11 +111,19 @@
             &:hover{
               background-color: rgb(128, 128, 128);
               color: white;
+              border-left: 1px solid white;
+              border-top: 1px solid white;
             }
+          }
 
-            
+          .cdx-versioning-info-card-button{
+            right: 60px;
+            border-radius: 5px 5px 0 0;
 
-
+            &:hover{
+              border: 1px solid white;
+              border-bottom: 1px solid rgb(128, 128, 128);
+            }
           }
 
           .cdx-versioning-info-card-row{
@@ -134,6 +143,10 @@
                 align-items: flex-end;
               }
 
+              &:only-child{
+                align-items: flex-start;
+              }
+
               .cdx-versioning-info-card-row-item-title{
                 font-size: 16px;
                 font-weight: 600;
@@ -146,25 +159,7 @@
                 color: white;
               }
 
-              .cdx-versioning-info-card-row-item-button{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-direction: row;
-                gap: 5px;
-                padding: 5px 10px;
-                border-radius: 5px;
-                background-color: rgb(128, 128, 128);
-                color: white;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-
-                &:hover{
-                  background-color: rgb(181, 41, 41);
-                }
-              }
+              
             }
           }
         }
@@ -327,6 +322,7 @@
     box-shadow: 10px 13px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(70px);
     -webkit-backdrop-filter: blur(70px);
+
 
     .editors-sidebar-top {
       display: flex;

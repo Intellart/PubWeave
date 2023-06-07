@@ -2,17 +2,20 @@
 import React, { useEffect, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import {
+  find,
   findIndex,
   forEach,
   get,
   includes,
   isEqual,
+  map,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 
 import { useEditorTools } from '../../utils/editor_constants';
+import type { ArticleContent } from '../../store/articleStore';
 
 type Props = {
     blocks: any,
@@ -21,20 +24,21 @@ type Props = {
     onChange?: (newBlocks: any) => void,
     readOnly?: boolean,
     versioningBlockId : any,
+    onShowHistory?: () => void,
 };
 
 function Editor({
-  blocks, isReady, criticalSectionIds, onChange, readOnly, versioningBlockId,
+  blocks, isReady, criticalSectionIds, onChange, readOnly, versioningBlockId, onShowHistory,
 } : Props): any {
   const editor = useRef(null);
 
   const versionBlock = useRef(null);
   const versionInfo = useRef({
-    version: 1,
+    version: -1,
     lastUpdated: '25/05/2021 12:00',
     author: 'John Doe',
     onViewVersions: () => {
-      console.log('view versions');
+      if (onShowHistory) onShowHistory();
     },
   });
 
@@ -52,9 +56,11 @@ function Editor({
         lastUpdated: new Date().toLocaleString(),
         author: 'John Doe',
         onViewVersions: () => {
-          console.log('view versions for block', versioningBlockId.current);
+          if (onShowHistory) onShowHistory();
         },
       };
+    } else {
+      // editor.current?.blocks.render({ blocks });
     }
   }, [versioningBlockId.current]);
 
@@ -85,7 +91,7 @@ function Editor({
     // });
   };
 
-  const checkIfCriticalSection = (newBlocks) => {
+  const checkIfCriticalSection = (newBlocks: any) => {
     let criticalSectionFound = false;
 
     // const blockIds = map(blocks, (block) => get(block, 'id'));
@@ -119,13 +125,13 @@ function Editor({
   const handleUploadEditorContent = () => {
     // console.log('editor content changed');
     // console.log('editor', editor.current);
-    editor.current.save().then((newArticleContent: ArticleContent) => {
+    editor.current?.save().then((newArticleContent: ArticleContent) => {
       if (checkIfCriticalSection(newArticleContent.blocks)) {
         toast.error('You can\'t edit a critical section from another user');
 
         // load old content
         // api.blocks.clear();
-        editor.current.blocks.render({ blocks }).then(() => {
+        editor.current?.blocks.render({ blocks }).then(() => {
           labelCriticalSections();
         });
 
@@ -133,7 +139,34 @@ function Editor({
       }
 
       if (onChange) {
-        onChange(newArticleContent);
+        onChange({
+          ...newArticleContent,
+          blocks: map(newArticleContent.blocks, (block) => {
+            if (get(block, 'id') === versioningBlockId.current) {
+              return find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
+            } else {
+              return block;
+            }
+          }),
+        });
+
+        // if (versioningBlockId.current !== null && versionInfo.current.version !== -1) {
+        //   console.log('versioning block id', versioningBlockId.current);
+        //   const oldBlock = find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
+        //   const newBlock = find(newArticleContent.blocks, (o) => get(o, 'id') === versioningBlockId.current);
+
+        //   console.log('old block', oldBlock);
+        //   console.log('new block', newBlock);
+        //   console.log('isEqual', isEqual(oldBlock.data, newBlock.data));
+
+        //   if (!isEqual(oldBlock.data, newBlock.data)) {
+        //     versionBlock.current = null;
+        //     versioningBlockId.current = null;
+        //     versionInfo.current.version = -1;
+
+        //     editor.current?.blocks.render({ blocks });
+        //   }
+        // }
       }
     });
   };

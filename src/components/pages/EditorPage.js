@@ -229,6 +229,10 @@ function ReactEditor (): React$Element<any> {
           type: block.type,
           data: block.data,
         }))}
+        onShowHistory={() => {
+          console.log('onShowHistory');
+          setSidebar({ ...sidebar, show: true });
+        }}
         versioningBlockId={versioningBlockId}
         onChange={(newArticleContent: _ArticleContent) => {
           console.log('onChange');

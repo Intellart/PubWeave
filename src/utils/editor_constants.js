@@ -46,7 +46,7 @@ type VersioningInfoCardProps = {
 
 export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }: Props): { [toolName: string]: any} {
   function VersioningInfoCard(props:VersioningInfoCardProps) {
-    console.log(props.versionInfo);
+    // console.log(props.versionInfo);
 
     return (
       <>
@@ -57,6 +57,15 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
           }}
         > Close
         </div>
+        <button
+          type="button"
+          className="cdx-versioning-info-card-button"
+          onClick={() => {
+            props.versionInfo.current.onViewVersions();
+          }}
+        >
+          Show history
+        </button>
 
         <div className="cdx-versioning-info-card-row">
           <div className="cdx-versioning-info-card-row-item">
@@ -86,18 +95,7 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
             > {props.versionInfo.current.author}
             </p>
           </div>
-          <div className="cdx-versioning-info-card-row-item">
-            <button
-              type="button"
-              className="cdx-versioning-info-card-row-item-button"
-              onClick={() => {
-                props.versionInfo.current.onViewVersions();
-              }}
 
-            >
-              Show history
-            </button>
-          </div>
         </div>
 
       </>

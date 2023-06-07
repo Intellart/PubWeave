@@ -212,7 +212,7 @@ export const selectors = {
 export const actions = {
   fetchVersions: (id: number): ReduxAction => ({
     type: types.ART_FETCH_VERSIONS,
-    payload: API.getRequest(`pubweave/articles/sections/${id}/version_data`),
+    payload: API.getRequest(`pubweave/sections/${id}/version_data`),
   }),
   fetchArticle: (id: number): ReduxAction => ({
     type: types.ART_FETCH_ARTICLE,

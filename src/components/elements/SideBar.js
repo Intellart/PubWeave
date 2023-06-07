@@ -1,8 +1,11 @@
+// @flow
 import { faThumbtack, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEmpty, isEqual } from 'lodash';
+import {
+  isEmpty, isEqual, map,
+} from 'lodash';
 import { actions, selectors } from '../../store/articleStore';
 
 type Props = {
@@ -34,10 +37,16 @@ function SideBar(props: Props) {
     }
   }, [showSidebar, blockId.current, versions]);
 
+  const [selectedVersion, setSelectedVersion] = useState(0);
+
   if (!showSidebar) return null;
 
   return (
     <div className='editors-sidebar'>
+      {selectedVersion !== -1 && (
+        <div className='editors-sidebar-version' />
+      )}
+
       <div className='editors-sidebar-top'>
         <div className='editors-sidebar-top-snap'>
           <FontAwesomeIcon
@@ -58,60 +67,35 @@ function SideBar(props: Props) {
           <FontAwesomeIcon icon={faTimes} />
         </div>
       </div>
-      <div className='editors-sidebar-item'>
-        <div className='editors-sidebar-item-last-edit'>
-          <div className='editors-sidebar-item-last-edit-title'>
-            Last edit
+      {map(versions, (version, index) => (
+        <div
+          key={index}
+          className='editors-sidebar-item'
+          onClick={() => {
+            console.log('VERSION', version);
+            if (version.version_number === selectedVersion) {
+              setSelectedVersion(-1);
+            } else { setSelectedVersion(index); }
+          }}
+        >
+          <div className='editors-sidebar-item-last-edit'>
+            <div className='editors-sidebar-item-last-edit-title'>
+              Version {version.version_number}
+            </div>
+            <div className='editors-sidebar-item-last-edit-time'>
+              12/05/2021 12:00
+            </div>
           </div>
-          <div className='editors-sidebar-item-last-edit-time'>
-            8 minutes ago
-          </div>
-        </div>
-        <div className='editors-sidebar-item-name'>
-          <div className='editors-sidebar-item-name-title'>
-            Mark Twain
-          </div>
-          <div className='editors-sidebar-item-name-action'>
-            Show version
-          </div>
-        </div>
-      </div>
-      <div className='editors-sidebar-item'>
-        <div className='editors-sidebar-item-last-edit'>
-          <div className='editors-sidebar-item-last-edit-title'>
-            Last edit
-          </div>
-          <div className='editors-sidebar-item-last-edit-time'>
-            8 minutes ago
-          </div>
-        </div>
-        <div className='editors-sidebar-item-name'>
-          <div className='editors-sidebar-item-name-title'>
-            Mark Twain
-          </div>
-          <div className='editors-sidebar-item-name-action'>
-            Show version
+          <div className='editors-sidebar-item-name'>
+            <div className='editors-sidebar-item-name-title'>
+              Colab:{version.collaborator_id}
+            </div>
+            <div className='editors-sidebar-item-name-action'>
+              Show version
+            </div>
           </div>
         </div>
-      </div>
-      <div className='editors-sidebar-item'>
-        <div className='editors-sidebar-item-last-edit'>
-          <div className='editors-sidebar-item-last-edit-title'>
-            Last edit
-          </div>
-          <div className='editors-sidebar-item-last-edit-time'>
-            8 minutes ago
-          </div>
-        </div>
-        <div className='editors-sidebar-item-name'>
-          <div className='editors-sidebar-item-name-title'>
-            Mark Twain
-          </div>
-          <div className='editors-sidebar-item-name-action'>
-            Show version
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
