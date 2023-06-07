@@ -8,7 +8,6 @@ import {
   get,
   includes,
   isEqual,
-  map,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
@@ -32,6 +31,14 @@ function Editor({
 } : Props): any {
   const editor = useRef(null);
 
+  const uncheckOldWrapper = (currentVB: any, toggleClass: string) => {
+    const vbWrapper = currentVB?.closest(`.${toggleClass}`);
+    if (vbWrapper) vbWrapper.classList.remove(toggleClass);
+
+    const infoCard = document.querySelector('.cdx-versioning-info-card');
+    if (infoCard) infoCard.remove();
+  };
+
   const versionBlock = useRef(null);
   const versionInfo = useRef({
     version: -1,
@@ -42,7 +49,9 @@ function Editor({
     },
   });
 
-  const EDITOR_JS_TOOLS = useEditorTools({ versioningBlockId, versionBlock, versionInfo });
+  const EDITOR_JS_TOOLS = useEditorTools({
+    versioningBlockId, versionBlock, versionInfo, uncheckOldWrapper,
+  });
 
   useEffect(() => {
     console.log('TRIGGER', versioningBlockId);
@@ -139,34 +148,37 @@ function Editor({
       }
 
       if (onChange) {
-        onChange({
-          ...newArticleContent,
-          blocks: map(newArticleContent.blocks, (block) => {
-            if (get(block, 'id') === versioningBlockId.current) {
-              return find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
-            } else {
-              return block;
-            }
-          }),
-        });
+        // onChange({
+        //   ...newArticleContent,
+        //   blocks: map(newArticleContent.blocks, (block) => {
+        //     if (get(block, 'id') === versioningBlockId.current) {
+        //       return find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
+        //     } else {
+        //       return block;
+        //     }
+        //   }),
+        // });
 
-        // if (versioningBlockId.current !== null && versionInfo.current.version !== -1) {
-        //   console.log('versioning block id', versioningBlockId.current);
-        //   const oldBlock = find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
-        //   const newBlock = find(newArticleContent.blocks, (o) => get(o, 'id') === versioningBlockId.current);
+        if (versioningBlockId.current !== null) {
+          console.log('versioning block id', versioningBlockId.current);
+          const oldBlock = find(blocks, (o) => get(o, 'id') === versioningBlockId.current);
+          const newBlock = find(newArticleContent.blocks, (o) => get(o, 'id') === versioningBlockId.current);
 
-        //   console.log('old block', oldBlock);
-        //   console.log('new block', newBlock);
-        //   console.log('isEqual', isEqual(oldBlock.data, newBlock.data));
+          console.log('old block', oldBlock);
+          console.log('new block', newBlock);
+          console.log('isEqual', isEqual(oldBlock.data, newBlock.data));
 
-        //   if (!isEqual(oldBlock.data, newBlock.data)) {
-        //     versionBlock.current = null;
-        //     versioningBlockId.current = null;
-        //     versionInfo.current.version = -1;
+          if (!isEqual(oldBlock.data, newBlock.data)) {
+            versionBlock.current = null;
+            versioningBlockId.current = null;
+            versionInfo.current.version = -1;
+            // editor.current?.blocks.render({ blocks });
 
-        //     editor.current?.blocks.render({ blocks });
-        //   }
-        // }
+            uncheckOldWrapper(versionBlock.current, 'cdx-versioning-selected');
+          }
+        }
+
+        onChange(newArticleContent);
       }
     });
   };

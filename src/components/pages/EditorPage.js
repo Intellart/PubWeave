@@ -26,6 +26,8 @@ import SideBar from '../elements/SideBar';
 import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
+
+// import ActiveUsers from '../elements/ActiveUsers';
 // import axios from '../../api/axios';
 
 const cookies = new Cookies();
@@ -167,6 +169,7 @@ function ReactEditor (): React$Element<any> {
         'editor-wrapper-snap': sidebar.snap,
       })}
     >
+      {/* <ActiveUsers /> */}
       {/* <button
         className="editor-sidebar-toggle"
         onClick={() => {

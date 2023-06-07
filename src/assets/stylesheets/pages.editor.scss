@@ -42,6 +42,103 @@
     }
   }
 
+  .cdx-versioning-info-card{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: column;
+    border: 1px solid rgb(128, 128, 128);
+    padding:10px;
+    width: 500px;
+    position: absolute;
+    border-radius: 5px;
+    z-index: 2;
+    background-color: rgb(128, 128, 128);
+
+    animation: versioningCardFadeIn 1s ease forwards;
+
+    @keyframes versioningCardFadeIn {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .cdx-versioning-info-card-close,
+    .cdx-versioning-info-card-button{
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      padding: 3px 7px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background-color: white;
+      color: rgb(128, 128, 128);
+      border-radius: 5px 0 5px 0;
+      transition: all 0.3s ease;
+      border: 1px solid rgb(128, 128, 128);
+
+      &:hover{
+        background-color: rgb(128, 128, 128);
+        color: white;
+        border-left: 1px solid white;
+        border-top: 1px solid white;
+      }
+    }
+
+    .cdx-versioning-info-card-button{
+      right: 60px;
+      border-radius: 5px 5px 0 0;
+
+      &:hover{
+        border: 1px solid white;
+        border-bottom: 1px solid rgb(128, 128, 128);
+      }
+    }
+
+    .cdx-versioning-info-card-row{
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+      flex-direction: row;
+
+      .cdx-versioning-info-card-row-item{
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+
+        &:last-of-type{
+          align-items: flex-end;
+        }
+
+        &:only-child{
+          align-items: flex-start;
+        }
+
+        .cdx-versioning-info-card-row-item-title{
+          font-size: 16px;
+          font-weight: 600;
+          color: rgb(171, 171, 171);
+        }
+
+        .cdx-versioning-info-card-row-item-value{
+          font-size: 20px;
+          font-weight:  600;
+          color: white;
+        }
+
+        
+      }
+    }
+  }
+
   #editorjs {
 
     // .ce-toolbar__actions{
@@ -60,6 +157,8 @@
       z-index: 1000;
     }
 
+
+
     .cdx-versioning-selected {
       .ce-block__content{
         background-color: rgb(255, 255, 255);
@@ -69,100 +168,7 @@
         // padding: 10px 0;
         // box-shadow: 0 0 10px 0 rgba(181, 41, 41, 0.1);
 
-        .cdx-versioning-info-card{
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          flex-direction: column;
-          border: 1px solid rgb(128, 128, 128);
-          padding:10px;
-          position: relative;
-          // padding-right: 70px;
-          background-color: rgb(128, 128, 128);
 
-          animation: versioningCardFadeIn 1s ease forwards;
-
-          @keyframes versioningCardFadeIn {
-            0% {
-              opacity: 0;
-            }
-
-            100% {
-              opacity: 1;
-            }
-          }
-
-          .cdx-versioning-info-card-close,
-          .cdx-versioning-info-card-button{
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            padding: 3px 7px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            background-color: white;
-            color: rgb(128, 128, 128);
-            border-radius: 5px 0 5px 0;
-            transition: all 0.3s ease;
-            border: 1px solid rgb(128, 128, 128);
-
-            &:hover{
-              background-color: rgb(128, 128, 128);
-              color: white;
-              border-left: 1px solid white;
-              border-top: 1px solid white;
-            }
-          }
-
-          .cdx-versioning-info-card-button{
-            right: 60px;
-            border-radius: 5px 5px 0 0;
-
-            &:hover{
-              border: 1px solid white;
-              border-bottom: 1px solid rgb(128, 128, 128);
-            }
-          }
-
-          .cdx-versioning-info-card-row{
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            align-items: center;
-            flex-direction: row;
-
-            .cdx-versioning-info-card-row-item{
-              display: flex;
-              justify-content: center;
-              align-items: flex-start;
-              flex-direction: column;
-
-              &:last-of-type{
-                align-items: flex-end;
-              }
-
-              &:only-child{
-                align-items: flex-start;
-              }
-
-              .cdx-versioning-info-card-row-item-title{
-                font-size: 16px;
-                font-weight: 600;
-                color: rgb(171, 171, 171);
-              }
-
-              .cdx-versioning-info-card-row-item-value{
-                font-size: 20px;
-                font-weight:  600;
-                color: white;
-              }
-
-              
-            }
-          }
-        }
 
         .cdx-block{
           padding: 10px;

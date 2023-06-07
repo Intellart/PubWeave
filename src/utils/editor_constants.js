@@ -36,6 +36,7 @@ type Props = {
   versioningBlockId: any,
   versionBlock: any,
   versionInfo: any,
+  uncheckOldWrapper: any,
 };
 
 type VersioningInfoCardProps = {
@@ -44,7 +45,9 @@ type VersioningInfoCardProps = {
   versionInfo: any,
 };
 
-export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }: Props): { [toolName: string]: any} {
+export function useEditorTools ({
+  versioningBlockId, versionBlock, versionInfo, uncheckOldWrapper,
+}: Props): { [toolName: string]: any} {
   function VersioningInfoCard(props:VersioningInfoCardProps) {
     // console.log(props.versionInfo);
 
@@ -121,6 +124,8 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
 
     vbInfo: any;
 
+    uncheckOldWrapper: any;
+
     constructor({
       api, data, config, block,
     }: any) {
@@ -134,6 +139,8 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
       this.vbInfo = versionInfo;
 
       this.toggleClass = 'cdx-versioning-selected';
+
+      this.uncheckOldWrapper = uncheckOldWrapper;
 
       // console.log('constructor', this.block.id);
 
@@ -197,13 +204,18 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
         e.stopPropagation();
       });
 
+      console.log(this.vb.current.getBoundingClientRect());
+
+      infoCard.style.top = `${this.vb.current.getBoundingClientRect().top - 10}px`;
+      infoCard.style.left = `${this.vb.current.getBoundingClientRect().left + 240}px`;
+
       const root = createRoot(infoCard);
       root.render(
         <VersioningInfoCard
           block={this.block}
           versionInfo={this.vbInfo}
           onClose={() => {
-            this.uncheckOldWrapper();
+            this.uncheckOldWrapper(this.vb.current, this.toggleClass);
             this.vbId.current = null;
             this.vb.current = null;
           }}
@@ -214,13 +226,13 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
       return infoCard;
     }
 
-    uncheckOldWrapper(): any {
-      const vbWrapper = this.vb.current?.closest(`.${this.toggleClass}`);
-      if (vbWrapper) vbWrapper.classList.remove(this.toggleClass);
+    // uncheckOldWrapper(): any {
+    //   const vbWrapper = this.vb.current?.closest(`.${this.toggleClass}`);
+    //   if (vbWrapper) vbWrapper.classList.remove(this.toggleClass);
 
-      const infoCard = this.vb.current.querySelector('.cdx-versioning-info-card');
-      this.vb.current.removeChild(infoCard);
-    }
+    //   const infoCard = document.querySelector('.cdx-versioning-info-card');
+    //   if (infoCard) infoCard.remove();
+    // }
 
     checkCurrentWrapper(): any {
       if (this.wrapper) this.wrapper.classList.add(this.toggleClass);
@@ -230,9 +242,7 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
       // this.toggleButton(event);
       const blockContent = this.wrapper.querySelector('.ce-block__content');
 
-      if (this.vbId.current !== null) {
-        this.uncheckOldWrapper();
-      }
+      this.uncheckOldWrapper(this.vb.current, this.toggleClass);
 
       if (this.vbId.current === this.block.id) {
         this.vbId.current = null;
@@ -243,7 +253,8 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
         this.vbId.current = this.block.id;
         this.vb.current = blockContent;
 
-        blockContent.appendChild(this.generateInfoCard());
+        const editorWrapper = document.getElementById('editorjs');
+        if (editorWrapper && editorWrapper.parentNode) editorWrapper.parentNode.appendChild(this.generateInfoCard());
       }
     }
 
