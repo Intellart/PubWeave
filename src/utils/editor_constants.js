@@ -20,6 +20,7 @@ import { createRoot } from 'react-dom/client';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPerson } from '@fortawesome/free-solid-svg-icons';
+import apiClient from '../api/axios';
 import LatexPlugin from './latex_plugin';
 import { ImageWrapper } from './editorExtensions/imageWrapper';
 import { WordCounter } from './editorExtensions/wordCounter';
@@ -281,35 +282,17 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
         uploader: {
         // endpoint: 'http://localhost:8008/uploadFile'
           uploadByFile(file: any):any {
-          // your own uploading logic here
-            console.log('uploadByFile', file);
+            // your own uploading logic here
 
             const data = new FormData();
             data.append('file', file);
-            data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
-            data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
 
-            return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
-              method: 'post',
-              body: data,
-            }).then((res) => res.json())
-              .then((d) => {
-                console.log('d', d);
-
-                return {
-                  success: 1,
-                  file: {
-                    url: d.url,
-                    asset_id: d.asset_id,
-                    public_id: d.public_id,
-                    folder: d.folder,
-                    signature: d.signature,
-                  },
-                };
-              })
-              .catch((/* err */) => {
-                // console.log('err', err);
-              });
+            return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+              success: 1,
+              file: {
+                url: res.data,
+              },
+            }));
           },
         },
       },
@@ -353,34 +336,16 @@ export function useEditorTools ({ versioningBlockId, versionBlock, versionInfo }
 
           uploadByFile(file: any):any {
             // your own uploading logic here
-            console.log('uploadByFile', file);
 
             const data = new FormData();
-            data.append('file', file);
-            data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET || '');
-            data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || '');
+            data.append('image', file);
 
-            return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL || ''}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME || ''}/image/upload`, {
-              method: 'post',
-              body: data,
-            }).then((res) => res.json())
-              .then((d) => {
-                console.log('d', d);
-
-                return {
-                  success: 1,
-                  file: {
-                    url: d.url,
-                    asset_id: d.asset_id,
-                    public_id: d.public_id,
-                    folder: d.folder,
-                    signature: d.signature,
-                  },
-                };
-              })
-              .catch((/* err */) => {
-              // console.log('err', err);
-              });
+            return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+              success: 1,
+              file: {
+                url: res.data,
+              },
+            }));
           },
 
           uploadByUrl(url: any): any {
