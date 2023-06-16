@@ -92,6 +92,9 @@ export type State = {
   categories: { [string]: Category },
   tags: { [number]: Tag },
   versions: Array<any>,
+  activeBlock: {
+    id:string,
+  }
 };
 
 export const types = {
@@ -195,6 +198,8 @@ export const types = {
   ART_FETCH_VERSIONS_REJECTED: 'ART/FETCH_VERSIONS_REJECTED',
   ART_FETCH_VERSIONS_FULFILLED: 'ART/FETCH_VERSIONS_FULFILLED',
 
+  BLOCK_SET_ACTIVE_BLOCK: 'BLOCK/SET_ACTIVE_BLOCK',
+
 };
 
 export const selectors = {
@@ -207,9 +212,16 @@ export const selectors = {
   getCategories: (state: ReduxState): any => state.article.categories,
   getTags: (state: ReduxState): any => state.article.tags,
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
+  getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
 };
 
 export const actions = {
+  setActiveBlock: (blockId:string | null): ReduxAction => ({
+    type: types.BLOCK_SET_ACTIVE_BLOCK,
+    payload: {
+      id: blockId,
+    },
+  }),
   fetchVersions: (id: number): ReduxAction => ({
     type: types.ART_FETCH_VERSIONS,
     payload: API.getRequest(`pubweave/sections/${id}/version_data`),
@@ -386,6 +398,14 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.BLOCK_SET_ACTIVE_BLOCK:
+
+      return {
+        ...state,
+        activeBlock: {
+          id: action.payload.id,
+        },
+      };
     case types.ART_FETCH_VERSIONS_FULFILLED:
       return {
         ...state,

@@ -13,8 +13,11 @@ import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 
+import { useDispatch, useSelector } from 'react-redux';
 import { useEditorTools } from '../../utils/editor_constants';
 import type { ArticleContent } from '../../store/articleStore';
+import { actions, selectors } from '../../store/articleStore';
+import VersioningInfoCard from './VersioningInfoCard';
 
 type Props = {
     blocks: any,
@@ -31,15 +34,19 @@ function Editor({
 } : Props): any {
   const editor = useRef(null);
 
-  const uncheckOldWrapper = (currentVB: any, toggleClass: string) => {
-    const vbWrapper = currentVB?.closest(`.${toggleClass}`);
-    if (vbWrapper) vbWrapper.classList.remove(toggleClass);
+  const activeBlock = useSelector((state) => selectors.getActiveBlock(state), isEqual);
 
-    const infoCard = document.querySelector('.cdx-versioning-info-card');
-    if (infoCard) infoCard.remove();
-  };
+  const dispatch = useDispatch();
+  const setActiveBlock = (id: string) => dispatch(actions.setActiveBlock(id));
 
-  const versionBlock = useRef(null);
+  // const uncheckOldWrapper = (currentVB: any, toggleClass: string) => {
+  //   const vbWrapper = currentVB?.closest(`.${toggleClass}`);
+  //   if (vbWrapper) vbWrapper.classList.remove(toggleClass);
+
+  //   const infoCard = document.querySelector('.cdx-versioning-info-card');
+  //   if (infoCard) infoCard.remove();
+  // };
+
   const versionInfo = useRef({
     version: -1,
     lastUpdated: '25/05/2021 12:00',
@@ -49,9 +56,7 @@ function Editor({
     },
   });
 
-  const EDITOR_JS_TOOLS = useEditorTools({
-    versioningBlockId, versionBlock, versionInfo, uncheckOldWrapper,
-  });
+  const EDITOR_JS_TOOLS = useEditorTools();
 
   useEffect(() => {
     console.log('TRIGGER', versioningBlockId);
@@ -169,12 +174,11 @@ function Editor({
           console.log('isEqual', isEqual(oldBlock.data, newBlock.data));
 
           if (!isEqual(oldBlock.data, newBlock.data)) {
-            versionBlock.current = null;
             versioningBlockId.current = null;
             versionInfo.current.version = -1;
             // editor.current?.blocks.render({ blocks });
 
-            uncheckOldWrapper(versionBlock.current, 'cdx-versioning-selected');
+            // uncheckOldWrapper(versionBlock.current, 'cdx-versioning-selected');
           }
         }
 
@@ -252,9 +256,40 @@ function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady]);
 
-  return (
+  const getTop = () => {
+    const block = document.getElementsByClassName('cdx-versioning-selected')[0];
+    const blockTop = get(block, 'offsetTop');
+    const blockHeight = get(block, 'offsetHeight');
 
-    <div id="editorjs" />
+    return `${blockTop + blockHeight + 10}px`;
+  };
+
+  return (
+    <div
+      id="editorjs"
+      style={{
+        position: 'relative',
+      }}
+    >
+      {get(activeBlock, 'id') && (
+      <VersioningInfoCard
+        style={{
+          top: getTop(),
+          left: '275px',
+          zIndex: 1,
+        }}
+        block={find(blocks, (o) => get(o, 'id') === get(activeBlock, 'id'))}
+        // versionInfo={this.vbInfo}
+        onClose={() => {
+          // VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, this.toggleClass);
+          // VersioningTune.setActiveBlockId(null);
+          // VersioningTune.previousWrapper = null;
+          console.log('close');
+          setActiveBlock(null);
+        }}
+      />
+      ) }
+    </div>
 
   );
 }

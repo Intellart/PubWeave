@@ -9,6 +9,7 @@ import {
   size,
 } from 'lodash';
 import { useInView } from 'react-intersection-observer';
+import apiClient from '../api/axios';
 
 export const regex: Object = {
   specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
@@ -208,4 +209,27 @@ export async function uploadImage (file: File): Promise<string> {
   }).then((res) => res.json());
 
   return response.url;
+}
+
+export function uploadByFile(file: any, type:string):any {
+  const data = new FormData();
+  data.append(type, file);
+
+  return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+    success: 1,
+    file: {
+      url: res.data,
+    },
+  }));
+}
+
+export function uploadByUrl(url: any): any {
+  return new Promise((resolve) => {
+    resolve({
+      success: 1,
+      file: {
+        url,
+      },
+    });
+  });
 }
