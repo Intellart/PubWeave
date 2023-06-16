@@ -25,6 +25,7 @@ import UserPage from './pages/UserPage';
 import Footer from './containers/Footer';
 import RegisterPage from './pages/RegisterPage';
 import ChooseType from './pages/ChooseType';
+import WebSocketElement from './WebSocketElement';
 
 function App(): Node {
   useScrollTopEffect();
@@ -56,6 +57,7 @@ function App(): Node {
 
   return (
     <div className="App">
+      <WebSocketElement isAdmin={isAdmin} />
       <ToastContainer
         closeOnClick
         newestOnTop={false}
