@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { createConsumer } from '@rails/actioncable';
 import { secondsToMilliseconds } from 'date-fns';
 import { useDispatch } from 'react-redux';
+import { actions } from '../store/articleStore';
 // import { actions } from '../store/eventStore';
 
 export type MessagePayload = {
@@ -13,24 +14,24 @@ export type MessagePayload = {
     states: string,
 };
 
-type Props = {
-  isAdmin: boolean,
-};
+// type Props = {
+//   isAdmin: boolean,
+// };
 
-function WebSocketElement({ isAdmin }: Props): null {
-  const consumer = useRef(createConsumer(window.location.origin.replace('http', 'ws') + '/cable'));
+function WebSocketElement(): null {
+  const consumer = useRef(createConsumer((process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + '/cable'));
   const connectionStatus = useRef('awaiting');
 
-  console.log('isAdmin', isAdmin);
+  // console.log('isAdmin', isAdmin);
 
   const dispatch = useDispatch();
-  const createEvent = () => dispatch(/* actions.wsCreateEvent(event) */);
-  const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);
-  const changeStateReservation = (
-    /* reservation: Reservation,
-    beforeState: string,
-    afterState: string, */
-  ) => dispatch(/* actions.wsChangeStateReservation(reservation, beforeState, afterState, props.userRole) */);
+  const wsUpdateBlock = (payload: any) => dispatch(actions.wsUpdateBlock(payload));
+  // const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);
+  // const changeStateReservation = (
+  //   /* reservation: Reservation,
+  //   beforeState: string,
+  //   afterState: string, */
+  // ) => dispatch(/* actions.wsChangeStateReservation(reservation, beforeState, afterState, props.userRole) */);
 
   const status = {
     awaiting: 'awaiting',
@@ -39,33 +40,39 @@ function WebSocketElement({ isAdmin }: Props): null {
   };
 
   const messageTypes = {
-    event: 'event',
-    reservation: 'reservation',
+    section: 'section',
   };
 
   const messageActions = {
-    create: 'create',
-    transition: 'transition',
+    update: 'update',
   };
 
   useEffect(() => {
-    consumer.current.subscriptions.create({ channel: 'MainChannel' }, {
+    consumer.current.subscriptions.create({ channel: 'ArticleChannel' }, {
       received(payload) {
         switch (payload.type) {
-          case messageTypes.event:
-            createEvent(/* payload.data */);
-            break;
-          case messageTypes.reservation:
-            if (payload.method === messageActions.create) {
-              createReservation(/* payload.data */ /* props.userRole */);
-            } else if (payload.method === messageActions.transition) {
-            //   const [before, after] = payload.states.split(' -> ');
-            //   const beforeState = statusNames[before];
-            //   const afterState = statusNames[after];
+          case messageTypes.section:
+            switch (payload.method) {
+              case messageActions.update:
+                // console.log('payload', payload.data);
+                wsUpdateBlock(payload.data);
+                break;
 
-              changeStateReservation(/* payload.data */ /* beforeState, afterState */);
+              default:
+                break;
             }
             break;
+            // case messageTypes.reservation:
+            //   if (payload.method === messageActions.create) {
+            //     createReservation(/* payload.data */ /* props.userRole */);
+            //   } else if (payload.method === messageActions.transition) {
+            //   //   const [before, after] = payload.states.split(' -> ');
+            //   //   const beforeState = statusNames[before];
+            //   //   const afterState = statusNames[after];
+
+          //     changeStateReservation(/* payload.data */ /* beforeState, afterState */);
+          //   }
+          //   break;
           default:
             break;
         }

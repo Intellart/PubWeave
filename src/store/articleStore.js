@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map,
+  filter, keyBy, omit, get, map, isEqual, find, includes,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -94,7 +94,8 @@ export type State = {
   versions: Array<any>,
   activeBlock: {
     id:string,
-  }
+  },
+  critical_section_ids: Array<string>,
 };
 
 export const types = {
@@ -200,6 +201,8 @@ export const types = {
 
   BLOCK_SET_ACTIVE_BLOCK: 'BLOCK/SET_ACTIVE_BLOCK',
 
+  WS_BLOCK_UPDATE: 'WS/BLOCK_UPDATE',
+
 };
 
 export const selectors = {
@@ -213,9 +216,14 @@ export const selectors = {
   getTags: (state: ReduxState): any => state.article.tags,
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
+  getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
 };
 
 export const actions = {
+  wsUpdateBlock: (payload: any): ReduxAction => ({
+    type: types.WS_BLOCK_UPDATE,
+    payload,
+  }),
   setActiveBlock: (blockId:string | null): ReduxAction => ({
     type: types.BLOCK_SET_ACTIVE_BLOCK,
     payload: {
@@ -398,6 +406,51 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WS_BLOCK_UPDATE:
+      console.log('WS_BLOCK_UPDATE', action.payload);
+      const { id, data } = action.payload;
+
+      // const newBlock = {
+      //   id,
+      //   data,
+      //   type,
+      // };
+
+      const oldBlock = find(state.oneArticle.content.blocks, (block) => block.id === id);
+
+      // console.log('old block', oldBlock);
+
+      if (!oldBlock || isEqual(oldBlock.data, data)) {
+        console.log('no old block or data is same');
+
+        return state;
+      }
+
+      if (includes(state.critical_section_ids, id)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        // oneArticle: {
+        //   ...state.oneArticle,
+        //   content: {
+        //     ...state.oneArticle.content,
+        //     blocks: map(state.oneArticle.content.blocks, (block) => {
+        //       if (block.id === id) {
+        //         return newBlock;
+        //       }
+
+        //       return block;
+        //     }),
+        //   },
+        // },
+        critical_section_ids: [
+          ...state.critical_section_ids || [],
+          id,
+        ],
+      };
+
     case types.BLOCK_SET_ACTIVE_BLOCK:
 
       return {
