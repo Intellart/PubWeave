@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map, isEqual, find, includes,
+  filter, keyBy, omit, get, map, isEqual,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -95,6 +95,7 @@ export type State = {
   activeBlock: {
     id:string,
   },
+  blocksToUpdate: { [string]: Block },
   critical_section_ids: Array<string>,
 };
 
@@ -202,6 +203,7 @@ export const types = {
   BLOCK_SET_ACTIVE_BLOCK: 'BLOCK/SET_ACTIVE_BLOCK',
 
   WS_BLOCK_UPDATE: 'WS/BLOCK_UPDATE',
+  WS_BLOCK_UPDATE_REMOVE: 'WS/BLOCK_UPDATE_REMOVE',
 
 };
 
@@ -217,12 +219,17 @@ export const selectors = {
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
+  getBlocksToUpdate: (state: ReduxState): any => get(state.article, 'blocksToUpdate', []),
 };
 
 export const actions = {
   wsUpdateBlock: (payload: any): ReduxAction => ({
     type: types.WS_BLOCK_UPDATE,
     payload,
+  }),
+  removeFromBlocksToUpdate: (blockId: string): ReduxAction => ({
+    type: types.WS_BLOCK_UPDATE_REMOVE,
+    payload: blockId,
   }),
   setActiveBlock: (blockId:string | null): ReduxAction => ({
     type: types.BLOCK_SET_ACTIVE_BLOCK,
@@ -408,47 +415,33 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
   switch (action.type) {
     case types.WS_BLOCK_UPDATE:
       console.log('WS_BLOCK_UPDATE', action.payload);
-      const { id, data } = action.payload;
-
-      // const newBlock = {
-      //   id,
-      //   data,
-      //   type,
-      // };
-
-      const oldBlock = find(state.oneArticle.content.blocks, (block) => block.id === id);
-
-      // console.log('old block', oldBlock);
-
-      if (!oldBlock || isEqual(oldBlock.data, data)) {
-        console.log('no old block or data is same');
-
-        return state;
-      }
-
-      if (includes(state.critical_section_ids, id)) {
-        return state;
-      }
+      const updatedSection = action.payload;
 
       return {
         ...state,
-        // oneArticle: {
-        //   ...state.oneArticle,
-        //   content: {
-        //     ...state.oneArticle.content,
-        //     blocks: map(state.oneArticle.content.blocks, (block) => {
-        //       if (block.id === id) {
-        //         return newBlock;
-        //       }
+        blocksToUpdate: {
+          ...state.blocksToUpdate,
+          [updatedSection.id]: updatedSection,
+        },
+        oneArticle: {
+          ...state.oneArticle,
+          content: {
+            ...state.oneArticle.content,
+            time: updatedSection.time,
+            blocks: map(state.oneArticle.content.blocks, (block) => {
+              if (block.id === updatedSection.id && !isEqual(block.data, updatedSection.data)) {
+                return omit(updatedSection, 'time');
+              }
 
-        //       return block;
-        //     }),
-        //   },
-        // },
-        critical_section_ids: [
-          ...state.critical_section_ids || [],
-          id,
-        ],
+              return block;
+            }),
+          },
+        },
+      };
+    case types.WS_BLOCK_UPDATE_REMOVE:
+      return {
+        ...state,
+        blocksToUpdate: omit(state.blocksToUpdate, action.payload),
       };
 
     case types.BLOCK_SET_ACTIVE_BLOCK:
@@ -470,7 +463,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        oneArticle: {},
+        oneArticle: null,
       };
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
@@ -746,22 +739,24 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     // ARTICLE CONTENT ----------------------------------------------------
     // --------------------------------------------------------------------
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
-      const { time: timeV, version: versionV, blocks: blocksV } = get(action.payload, 'content', '{}');
+      // const { time: timeV, version: versionV, blocks: blocksV } = get(action.payload, 'content', '{}');
 
-      return {
-        ...state,
-        oneArticle: {
-          ...state.oneArticle,
-          content: {
-            time: timeV,
-            version: versionV,
-            blocks: map(blocksV, (block) => ({
-              ...block,
-              id: block.id,
-            })),
-          },
-        },
-      };
+      // return {
+      //   ...state,
+      //   oneArticle: {
+      //     ...state.oneArticle,
+      //     content: {
+      //       time: timeV,
+      //       version: versionV,
+      //       blocks: map(blocksV, (block) => ({
+      //         ...block,
+      //         id: block.id,
+      //       })),
+      //     },
+      //   },
+      // };
+
+      return state;
 
     default:
       return state || {};

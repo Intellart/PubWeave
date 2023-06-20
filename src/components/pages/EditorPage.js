@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -26,6 +26,7 @@ import SideBar from '../elements/SideBar';
 import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
+import WebSocketElement from '../WebSocketElement';
 
 // import ActiveUsers from '../elements/ActiveUsers';
 // import axios from '../../api/axios';
@@ -39,17 +40,17 @@ function ReactEditor (): React$Element<any> {
   // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
-  const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
+  const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
 
   // dispatch
   const dispatch = useDispatch();
-  const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
-  const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
-  const updateArticleContentSilently = (articleId, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
-  const addTag = (articleId, tagId) => dispatch(actions.addTag(articleId, tagId));
-  const removeTag = (articleTagId) => dispatch(actions.removeTag(id, articleTagId));
+  const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
+  const updateArticle = (articleId:number, payload:any) => dispatch(actions.updateArticle(articleId, payload));
+  const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
+  const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
+  const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -59,29 +60,19 @@ function ReactEditor (): React$Element<any> {
     snap: false,
   });
 
-  const versioningBlockId = useRef(null);
-
-  const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
-
   const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
 
   useEffect(() => {
     if (!isReady && id) {
       fetchArticle(id);
+    } else if (isReady) {
+      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
+      setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
-
-  useEffect(() => {
-    if (isReady) {
-      // console.log('Article loaded');
-      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
-      setLastSaved(get(articleContent, 'time'));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, isReady]);
 
   const checkBlocks = (newArticleContent: _ArticleContent) : void => {
     // console.clear();
@@ -187,6 +178,7 @@ function ReactEditor (): React$Element<any> {
       >
         <FontAwesomeIcon icon={faPlus} /> ADD
       </button> */}
+      <WebSocketElement articleId={id} />
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -217,36 +209,27 @@ function ReactEditor (): React$Element<any> {
         tags={tags}
         addTag={addTag}
         removeTag={removeTag}
-        versioningBlockId={versioningBlockId}
       />
       <SideBar
         showSidebar={sidebar.show}
         setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
         snapSidebar={sidebar.snap}
         setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
-        blockId={versioningBlockId}
       />
       <Editor
-        blocks={map(blocks, (block: Block) => ({
-          id: block.id,
-          type: block.type,
-          data: block.data,
-        }))}
         onShowHistory={() => {
           console.log('onShowHistory');
           setSidebar({ ...sidebar, show: true });
         }}
-        versioningBlockId={versioningBlockId}
         onChange={(newArticleContent: _ArticleContent) => {
-          console.log('onChange');
-          console.log(newArticleContent);
+          // console.log('onChange');
+          // console.log(newArticleContent);
           checkBlocks(newArticleContent);
 
           setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
           setLastSaved(newArticleContent.time);
         }}
         isReady={isReady}
-        criticalSectionIds={criticalSectionIds}
 
       />
 

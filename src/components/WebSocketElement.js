@@ -14,11 +14,11 @@ export type MessagePayload = {
     states: string,
 };
 
-// type Props = {
-//   isAdmin: boolean,
-// };
+type Props = {
+  articleId: boolean,
+};
 
-function WebSocketElement(): null {
+function WebSocketElement({ articleId }: Props): any {
   const consumer = useRef(createConsumer((process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + '/cable'));
   const connectionStatus = useRef('awaiting');
 
@@ -48,7 +48,9 @@ function WebSocketElement(): null {
   };
 
   useEffect(() => {
-    consumer.current.subscriptions.create({ channel: 'ArticleChannel' }, {
+    if (!articleId) return;
+
+    consumer.current.subscriptions.create({ channel: 'ArticleChannel', article_id: articleId }, {
       received(payload) {
         switch (payload.type) {
           case messageTypes.section:
@@ -111,8 +113,6 @@ function WebSocketElement(): null {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  return null;
 }
 
 export default WebSocketElement;
