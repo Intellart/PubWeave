@@ -2,11 +2,12 @@
 /* istanbul ignore file */
 import type { State as GlobalState } from '../store/globalStore';
 import type { State as UserState } from '../store/userStore';
+import type { State as ArticleState } from '../store/articleStore';
 
 export type ReduxState = {
   user: UserState,
   global: GlobalState,
-  article: any,
+  article: ArticleState,
 };
 
 export type BaseReduxAction = {

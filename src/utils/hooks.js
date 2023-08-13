@@ -2,14 +2,35 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
+  difference,
   every,
+  forEach,
   get,
   includes,
   isEqual,
+  keyBy,
+  keys,
+  map,
+  pickBy,
   size,
+  sortBy,
+  values,
 } from 'lodash';
 import { useInView } from 'react-intersection-observer';
 import apiClient from '../api/axios';
+import type {
+  Block,
+  BlockCategoriesToChange,
+  BlockFromBackend,
+  BlockFromEditor,
+  BlockToChange,
+  Blocks,
+  BlocksFromBackend,
+  BlocksFromEditor,
+  BlocksToChange,
+  SimpleBlock,
+  _BlockFromEditor,
+} from '../store/articleStore';
 
 export const regex: Object = {
   specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
@@ -106,6 +127,102 @@ export const useScreenSize = (): Object => {
     isMobile: screenSize.isMobile,
   };
 };
+
+export const convertBlockToEditorJS = (block: Block): _BlockFromEditor => ({
+  id: block.id,
+  type: block.type,
+  data: block.data,
+});
+
+// const checkIfCriticalSection = (newBlocks: any) => {
+//   // let criticalSectionFound = false;
+
+//   // const blockIds = map(blocks, (block) => get(block, 'id'));
+
+//   // if (difference(blockIds, criticalSectionIds).length > 0) {
+//   //   console.log('Critical section deleted');
+
+//   //   return true;
+//   // }
+
+//   forEach(newBlocks, (block) => {
+//     if (includes(criticalSectionIds, get(block, 'id'))) {
+//       const oldBlockInd = findIndex(blocks, (o) => get(o, 'id') === get(block, 'id'));
+//       const newBlockInd = findIndex(newBlocks, (o) => get(o, 'id') === get(block, 'id'));
+
+//       // console.log(blocks[oldBlockInd], newBlocks[newBlockInd]);
+
+//       if (isEqual(blocks[oldBlockInd], newBlocks[newBlockInd])) {
+//         // console.log('Critical section not changed');
+
+//         // return
+//       }
+
+//       // criticalSectionFound = true;
+//     }
+//   });
+
+//   return false;
+// };
+
+export const areBlocksEqual = (block1: SimpleBlock, block2: SimpleBlock): boolean => {
+  console.log(block1, block2, isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data));
+
+  return isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data);
+};
+
+export const convertToChangeBlock = (block: Block | BlockFromEditor, index: number): BlockToChange => ({
+  id: block.id,
+  type: block.type,
+  data: block.data,
+  position: block.position || index,
+});
+
+export const convertToChangeBlocks = (blocks: Blocks | BlocksFromEditor): BlocksToChange => keyBy(map(blocks, (block, index) => convertToChangeBlock(block, index)), 'id');
+
+export const getBlockChanges = (_newBlocks: BlocksFromEditor, _oldBlocks: Blocks): BlockCategoriesToChange => {
+  const newBlocks: BlocksToChange = convertToChangeBlocks(_newBlocks);
+  const oldBlocks: BlocksToChange = convertToChangeBlocks(_oldBlocks);
+
+  const blocksToChange: BlockCategoriesToChange = {
+    created: {},
+    changed: {},
+    deleted: {},
+  };
+
+  const newKeys = keys(newBlocks);
+  const oldKeys = keys(oldBlocks);
+
+  const addedKeys = difference(newKeys, oldKeys);
+  const removedKeys = difference(oldKeys, newKeys);
+  const commonKeys = difference(newKeys, addedKeys);
+
+  blocksToChange.created = pickBy(newBlocks, (block, key) => includes(addedKeys, key));
+  blocksToChange.deleted = pickBy(oldBlocks, (block, key) => includes(removedKeys, key));
+
+  forEach(commonKeys, (key) => {
+    if (!isEqual(newBlocks[key], oldBlocks[key])) {
+      blocksToChange.changed[key] = newBlocks[key];
+    }
+  });
+
+  return blocksToChange;
+};
+
+export const convertBlockFromEditorJS = (block: _BlockFromEditor, index: number): BlockFromEditor => ({
+  ...block,
+  position: index,
+});
+
+export const convertBlocksFromEditorJS = (blocks: _BlockFromEditor[]): BlocksFromEditor => keyBy(map(blocks, (block, index) => convertBlockFromEditorJS(block, index)), 'id');
+export const convertBlocksToEditorJS = (blocks: Blocks): Array<_BlockFromEditor> => map(sortBy(values(blocks), (block) => block.position), (block) => convertBlockToEditorJS(block));
+
+export const convertBlockFromBackend = (block: BlockFromBackend, index: number): BlockFromBackend => ({
+  ...block,
+  position: block.position || index,
+});
+
+export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBackend => keyBy(map(blocks, (block, index) => convertBlockFromBackend(block, index)), 'id');
 
 export const useLocationInfo = (): Object => {
   const location = useLocation();

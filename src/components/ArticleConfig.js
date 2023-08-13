@@ -7,7 +7,7 @@ import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
-import ClickAwayListener from '@mui/base/ClickAwayListener';
+import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import {
   find, get, map,
   isEqual,
@@ -112,14 +112,14 @@ function ArticleConfig(props: Props): Node {
     });
   };
 
-  const onNewTagClick = (value) => {
+  const onNewTagClick = (value: string) => {
     setTags(map(value, (t) => ({
       ...t,
       article_tag_link: includes(map(get(props.article, 'tags'), 'tag_name'), t.tag_name) ? get(find(get(props.article, 'tags'), { tag_name: t.tag_name }), 'article_tag_link') : null,
     })));
   };
 
-  const onNewTagInput = (value) => {
+  const onNewTagInput = (value: string) => {
     setNewTag(value);
   };
 

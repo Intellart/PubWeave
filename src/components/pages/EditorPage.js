@@ -5,17 +5,18 @@ import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty, keyBy, filter,
+  sum, words, get, map, isEqual, toInteger, isEmpty, sortBy,
 } from 'lodash';
 import classNames from 'classnames';
 
 import 'bulma/css/bulma.min.css';
+import { Button } from '@mui/material';
 import ArticleConfig from '../ArticleConfig';
 import type {
-  ArticleContent,
-  _ArticleContent,
   Block,
-  _Blocks,
+  BlockCategoriesToChange,
+  ArticleContentToServer,
+  BlockToServer,
 } from '../../store/articleStore';
 
 // eslint-disable-next-line no-unused-vars
@@ -48,9 +49,10 @@ function ReactEditor (): React$Element<any> {
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (articleId:number, payload:any) => dispatch(actions.updateArticle(articleId, payload));
-  const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
+  const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
   const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
+  const testWsUpdateBlock = () => dispatch(actions.testWsUpdateBlock());
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -73,86 +75,6 @@ function ReactEditor (): React$Element<any> {
   }, [article, id, isReady]);
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
-
-  const checkBlocks = (newArticleContent: _ArticleContent) : void => {
-    // console.clear();
-    const newBlocks: _Blocks = keyBy(newArticleContent.blocks, 'id');
-    const oldBlocks: _Blocks = keyBy(map(articleContent.blocks, (block: Block) => ({
-      id: block.id,
-      type: block.type,
-      data: block.data,
-    })), 'id');
-    // console.log(newArticleContent);
-    // console.log('new blocks raw', newArticleContent.blocks);
-    // console.log('new blocks', newBlocks);
-    // console.log('old blocks', oldBlocks);
-
-    if (isEqual(newBlocks, oldBlocks)) {
-      // console.log('no diff');
-
-      return;
-    }
-
-    const blocksNew = filter(newBlocks, (block, key) => {
-      if (!oldBlocks[key]) {
-        return true;
-      }
-
-      return false;
-    });
-
-    const blocksEdited = filter(newBlocks, (block, key) => {
-      if (!oldBlocks[key]) {
-        return false;
-      }
-
-      if (oldBlocks[key].type !== block.type) {
-        return true;
-      }
-      if (!isEqual(oldBlocks[key].data, block.data)) {
-        return true;
-      }
-
-      return false;
-    });
-
-    const blockDeleted = filter(oldBlocks, (block, key) => !newBlocks[key]);
-
-    if (isEmpty(blocksNew) && isEmpty(blocksEdited) && isEmpty(blockDeleted)) {
-      // console.log('no diff');
-
-      return;
-    } else {
-      // console.log('new blocks', blocksNew);
-      // console.log('edited blocks', blocksEdited);
-      // console.log('deleted blocks', blockDeleted);
-    }
-
-    updateArticleContentSilently(id, {
-      ...newArticleContent,
-      blocks: [
-        ...map(blocksNew, (block: Block) => ({
-          id: block.id,
-          type: block.type,
-          data: block.data,
-          action: 'created',
-        })),
-        ...map(blocksEdited, (block: Block) => ({
-          id: block.id,
-          type: block.type,
-          data: block.data,
-          action: 'updated',
-        })),
-        ...map(blockDeleted, (block: Block) => ({
-          id: block.id,
-          type: block.type,
-          data: block.data,
-          action: 'deleted',
-        })),
-      ],
-
-    });
-  };
 
   return (
     <main
@@ -216,18 +138,32 @@ function ReactEditor (): React$Element<any> {
         snapSidebar={sidebar.snap}
         setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
       />
+      <Button onClick={() => testWsUpdateBlock()}>Test</Button>
       <Editor
         onShowHistory={() => {
           console.log('onShowHistory');
           setSidebar({ ...sidebar, show: true });
         }}
-        onChange={(newArticleContent: _ArticleContent) => {
-          // console.log('onChange');
-          // console.log(newArticleContent);
-          checkBlocks(newArticleContent);
+        onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
+          const blocksToAdd :BlockToServer[] = sortBy([
+            ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
+            ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
+            ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
+          ], 'position');
 
-          setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
-          setLastSaved(newArticleContent.time);
+          setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
+          setLastSaved(time);
+
+          updateArticleContentSilently(id, {
+            time,
+            version,
+            blocks: map(blocksToAdd, (block) => ({
+              id: block.id,
+              type: block.type,
+              data: block.data,
+              action: block.action,
+            })),
+          });
         }}
         isReady={isReady}
 

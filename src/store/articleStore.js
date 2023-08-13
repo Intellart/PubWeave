@@ -1,48 +1,112 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map, isEqual,
+  filter, keyBy, omit, get, map, set,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 import type { User } from './userStore';
+import { convertBlocksFromBackend } from '../utils/hooks';
 // import { store } from '.';
 
-export type Block = {
+// ------------ single block --------------------------------------------
+export type SimpleBlock = {
   id: string,
   type: string,
   data: Object,
-
-  article_id: number,
-  version_number: number,
-  collaborator_id: number,
 };
 
-export type _Block = {
-  id: string,
-  type: string,
-  data: Object,
+export type Block = {|
+  ...SimpleBlock,
+  position: null | number,
+  version_number: number,
+  collaborator_id: number,
+|};
+
+export type _BlockFromEditor = {|
+  ...SimpleBlock,
+  tunes?: any,
+  |};
+
+export type BlockFromEditor = {|
+  ...SimpleBlock,
+  tunes?: any,
+  position: number,
+  |};
+
+export type BlockToChange = {|
+  ...SimpleBlock,
+  position: number,
+  |};
+
+export type BlockToServer = {|
+  ...SimpleBlock,
+  action: 'updated' | 'created' | 'deleted',
+|};
+
+// -------------- blocks ---------------------------------------
+
+export type BlockFromBackend = Block;
+
+export type BlocksFromBackend = {
+  [string]: BlockFromBackend,
 };
 
 export type Blocks = {
   [string]: Block,
 };
 
-export type _Blocks = {
-  [string]: _Block,
+export type _BlocksFromEditor = {
+  [string]: _BlockFromEditor,
 };
 
+export type BlocksToChange = {
+  [key: string]: BlockToChange,
+};
+
+export type BlocksFromEditor = {
+  [string]: BlockFromEditor,
+};
+
+export type BlocksToServer = {
+  [string]: BlockToServer,
+};
+
+// -------------- article content ---------------------------------------
+
 export type _ArticleContent = {
-  blocks: Array<_Block>,
+  blocks: Array<_BlockFromEditor>,
+  time: number,
+  version: string,
+};
+
+export type _ContentFromEditor = {
+  blocks: Array<_BlockFromEditor>,
   time: number,
   version: string,
 };
 
 export type ArticleContent = {
-  blocks: Array<Block>,
+  blocks: Blocks,
   time: number,
   version: string,
 };
+
+export type ArticleContentToServer = {
+  blocks: Array<BlockToServer>,
+  time: number,
+  version: string,
+};
+
+// -------------- categories ---------------------------------------
+
+export type BlockCategoriesToChange = {
+  created: BlocksToChange,
+  changed: BlocksToChange,
+  deleted: BlocksToChange,
+};
+
+// -------------- article ---------------------------------------
 
 export type Comment = {
   id: number,
@@ -85,8 +149,12 @@ export type Article = {
   tags: Array<any>,
 };
 
+export type BlockIdQueue = {
+  [key:string]: Block,
+};
+
 export type State = {
-  oneArticle: Article,
+  oneArticle: Article | null,
   allArticles: { [number]: Article },
   comments: { [number]: Comment },
   categories: { [string]: Category },
@@ -95,11 +163,13 @@ export type State = {
   activeBlock: {
     id:string,
   },
-  blocksToUpdate: { [string]: Block },
+  blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
 };
 
 export const types = {
+  TEST_WS_BLOCK_UPDATE: 'TEST_WS_BLOCK_UPDATE',
+
   ART_FETCH_ARTICLE: 'ART/FETCH_ARTICLE',
   ART_FETCH_ARTICLE_PENDING: 'ART/FETCH_ARTICLE_PENDING',
   ART_FETCH_ARTICLE_REJECTED: 'ART/FETCH_ARTICLE_REJECTED',
@@ -205,11 +275,14 @@ export const types = {
   WS_BLOCK_UPDATE: 'WS/BLOCK_UPDATE',
   WS_BLOCK_UPDATE_REMOVE: 'WS/BLOCK_UPDATE_REMOVE',
 
+  BLOCK_ID_QUEUE_ADD: 'BLOCK_ID_QUEUE_ADD',
+  BLOCK_ID_QUEUE_REMOVE: 'BLOCK_ID_QUEUE_REMOVE',
+  BLOCK_ID_QUEUE_COMPLETE: 'BLOCK_ID_QUEUE_COMPLETE',
 };
 
 export const selectors = {
-  article: (state: ReduxState): any => state.article.oneArticle,
-  articleContent: (state: ReduxState): any => get(state.article.oneArticle, 'content'),
+  article: (state: ReduxState): Article | null => state.article.oneArticle,
+  articleContent: (state: ReduxState): ArticleContent => get(state.article.oneArticle, 'content'),
   getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id),
   getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
@@ -219,7 +292,7 @@ export const selectors = {
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
-  getBlocksToUpdate: (state: ReduxState): any => get(state.article, 'blocksToUpdate', []),
+  getBlockIdQueue: (state: ReduxState): BlockIdQueue => state.article.blockIdQueue,
 };
 
 export const actions = {
@@ -227,10 +300,26 @@ export const actions = {
     type: types.WS_BLOCK_UPDATE,
     payload,
   }),
-  removeFromBlocksToUpdate: (blockId: string): ReduxAction => ({
-    type: types.WS_BLOCK_UPDATE_REMOVE,
+  // removeFromBlocksToUpdate: (blockId: string): ReduxAction => ({
+  //   type: types.WS_BLOCK_UPDATE_REMOVE,
+  //   payload: blockId,
+  // }),
+  blockIdQueueAdd: (blockId: string): ReduxAction => ({
+    type: types.BLOCK_ID_QUEUE_ADD,
     payload: blockId,
   }),
+  blockIdQueueRemove: (blockId: string, realId: string): ReduxAction => ({
+    type: types.BLOCK_ID_QUEUE_REMOVE,
+    payload: {
+      blockId,
+      realId,
+    },
+  }),
+  blockIdQueueComplete: (blockId: string): ReduxAction => ({
+    type: types.BLOCK_ID_QUEUE_COMPLETE,
+    payload: blockId,
+  }),
+
   setActiveBlock: (blockId:string | null): ReduxAction => ({
     type: types.BLOCK_SET_ACTIVE_BLOCK,
     payload: {
@@ -334,6 +423,9 @@ export const actions = {
         },
       }),
   }),
+  testWsUpdateBlock: (): ReduxAction => ({
+    type: types.TEST_WS_BLOCK_UPDATE,
+  }),
 
   // updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => {
   //   const oldState = keyBy(store.getState().article.oneArticle.content.blocks, 'id');
@@ -371,7 +463,7 @@ export const actions = {
   //       }),
   //   };
   // },
-  updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => ({
+  updateArticleContentSilently: (id: number, newArticleContent: ArticleContentToServer): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE_CONTENT,
     payload: API.putRequest(`pubweave/articles/${id}`,
       {
@@ -413,51 +505,102 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
-    case types.WS_BLOCK_UPDATE:
-      console.log('WS_BLOCK_UPDATE', action.payload);
-      const updatedSection = action.payload;
+    case types.TEST_WS_BLOCK_UPDATE:
+      console.log('TEST_WS_BLOCK_UPDATE');
 
-      return {
-        ...state,
-        blocksToUpdate: {
-          ...state.blocksToUpdate,
-          [updatedSection.id]: updatedSection,
-        },
-        oneArticle: {
-          ...state.oneArticle,
-          content: {
-            ...state.oneArticle.content,
-            time: updatedSection.time,
-            blocks: map(state.oneArticle.content.blocks, (block) => {
-              if (block.id === updatedSection.id && !isEqual(block.data, updatedSection.data)) {
-                return omit(updatedSection, 'time');
-              }
+      if (!state.oneArticle) {
+        return state;
+      }
 
-              return block;
-            }),
-          },
+      const randString = (Math.random() + 1).toString(36).substring(7);
+
+      const testBlock = {
+        // id: randString + 'test',
+        data: {
+          text: 'test ' + randString,
         },
-      };
-    case types.WS_BLOCK_UPDATE_REMOVE:
-      return {
-        ...state,
-        blocksToUpdate: omit(state.blocksToUpdate, action.payload),
+        position: 0,
+        type: 'paragraph',
+        realId: randString + 'test',
+        addedToEditor: false,
       };
 
-    case types.BLOCK_SET_ACTIVE_BLOCK:
-
       return {
         ...state,
-        activeBlock: {
-          id: action.payload.id,
+        // oneArticle: set(state.oneArticle, `content.blocks.${randString}test`, testBlock),
+        blockIdQueue: {
+          ...state.blockIdQueue,
+          [randString + 'test']: testBlock,
         },
       };
-    case types.ART_FETCH_VERSIONS_FULFILLED:
+    case types.BLOCK_ID_QUEUE_ADD:
       return {
         ...state,
-        versions: action.payload,
+        blockIdQueue: {
+          ...state.blockIdQueue,
+          [action.payload]: true,
+        },
       };
+    case types.BLOCK_ID_QUEUE_REMOVE:
+      const { blockId, realId } = action.payload;
 
+      return {
+        ...state,
+        oneArticle: set(state.oneArticle, `content.blocks.${realId}`, {
+          ...state.blockIdQueue[blockId],
+          id: realId,
+        }),
+        blockIdQueue: omit(state.blockIdQueue, blockId),
+      };
+    case types.BLOCK_ID_QUEUE_COMPLETE:
+      return {
+        ...state,
+        blockIdQueue: set(state.blockIdQueue, `${action.payload}.addedToEditor`, true),
+      };
+      // case types.WS_BLOCK_UPDATE:
+      //   console.log('WS_BLOCK_UPDATE', action.payload);
+      //   const updatedSection = action.payload;
+
+      //   return {
+      //     ...state,
+      //     blocksToUpdate: {
+      //       ...state.blocksToUpdate,
+      //       [updatedSection.id]: updatedSection,
+      //     },
+      //     oneArticle: {
+      //       ...state.oneArticle,
+      //       content: {
+      //         ...state.oneArticle.content,
+      //         time: updatedSection.time,
+      //         blocks: map(state.oneArticle.content.blocks, (block) => {
+      //           if (block.id === updatedSection.id && !isEqual(block.data, updatedSection.data)) {
+      //             return omit(updatedSection, 'time');
+      //           }
+
+      //           return block;
+      //         }),
+      //       },
+      //     },
+      //   };
+      // case types.WS_BLOCK_UPDATE_REMOVE:
+      //   return {
+      //     ...state,
+      //     blocksToUpdate: omit(state.blocksToUpdate, action.payload),
+      //   };
+
+      // case types.BLOCK_SET_ACTIVE_BLOCK:
+
+      //   return {
+      //     ...state,
+      //     activeBlock: {
+      //       id: action.payload.id,
+      //     },
+      //   };
+      // case types.ART_FETCH_VERSIONS_FULFILLED:
+      //   return {
+      //     ...state,
+      //     versions: action.payload,
+      //   };
     case types.ART_FLUSH_ARTICLE_FULFILLED:
       toast.success('Article flushed.');
 
@@ -467,6 +610,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
+    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
 
       const { time, version, blocks } = get(action.payload, 'content', '{}');
 
@@ -478,10 +622,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           content: {
             time,
             version,
-            blocks: map(blocks, (b) => ({
-              ...b,
-              id: b.id,
-            })),
+            blocks: convertBlocksFromBackend(blocks),
           },
           tags: map(get(action.payload, 'tags', []), (t) => ({
             article_id: t.article_id,
@@ -491,6 +632,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             tag_name: t.tag_name,
           })),
         },
+        blockIdQueue: {},
       };
 
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
@@ -508,6 +650,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_CREATE_COMMENT_FULFILLED:
       toast.success('Comment created successfully!');
 
+      if (!state.oneArticle) {
+        return state;
+      }
+
       return {
         ...state,
         oneArticle: {
@@ -523,6 +669,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.success('Comment deleted successfully!');
       console.log('delete', action.payload);
 
+      if (!state.oneArticle) {
+        return state;
+      }
+
       return {
         ...state,
         oneArticle: {
@@ -537,6 +687,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_LIKE_COMMENT_FULFILLED:
       toast.success('Comment liked successfully!');
       console.log('like', action.payload);
+
+      if (!state.oneArticle) {
+        return state;
+      }
 
       return {
         ...state,
@@ -555,6 +709,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_UNLIKE_COMMENT_FULFILLED:
       toast.success('Comment unliked successfully!');
       console.log('unlike', action.payload);
+
+      if (!state.oneArticle) {
+        return state;
+      }
 
       return {
         ...state,
@@ -577,6 +735,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.success('Article liked successfully!');
       console.log('like', action.payload);
 
+      if (!state.oneArticle) {
+        return state;
+      }
+
       return {
         ...state,
         oneArticle: {
@@ -588,6 +750,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_LIKE_ARTICLE_REMOVAL_FULFILLED:
       toast.success('Article unliked successfully!');
       console.log('unlike', action.payload);
+
+      if (!state.oneArticle) {
+        return state;
+      }
 
       return {
         ...state,
@@ -639,6 +805,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_ADD_TAG_FULFILLED:
       toast.success('Tag added successfully!');
 
+      if (!state.oneArticle) {
+        return state;
+      }
+
       return {
         ...state,
         oneArticle: {
@@ -659,6 +829,10 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_REMOVE_TAG_FULFILLED:
       const removedId: number = action.payload;
       toast.success('Tag removed successfully!');
+
+      if (!state.oneArticle) {
+        return state;
+      }
 
       return {
         ...state,
@@ -736,27 +910,11 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
       };
 
-    // ARTICLE CONTENT ----------------------------------------------------
-    // --------------------------------------------------------------------
-    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
-      // const { time: timeV, version: versionV, blocks: blocksV } = get(action.payload, 'content', '{}');
+      // ARTICLE CONTENT ----------------------------------------------------
+      // --------------------------------------------------------------------
+      //   case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
 
-      // return {
-      //   ...state,
-      //   oneArticle: {
-      //     ...state.oneArticle,
-      //     content: {
-      //       time: timeV,
-      //       version: versionV,
-      //       blocks: map(blocksV, (block) => ({
-      //         ...block,
-      //         id: block.id,
-      //       })),
-      //     },
-      //   },
-      // };
-
-      return state;
+      //     return state;
 
     default:
       return state || {};

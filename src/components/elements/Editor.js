@@ -2,15 +2,15 @@
 import React, { useEffect, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import {
+  every,
+  filter,
   find,
-  findIndex,
   forEach,
   get,
   includes,
   isEmpty,
   isEqual,
-  map,
-  some,
+  size,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
@@ -18,13 +18,24 @@ import Undo from 'editorjs-undo';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditorTools } from '../../utils/editor_constants';
-import type { ArticleContent } from '../../store/articleStore';
+import type {
+  ArticleContent,
+  BlockCategoriesToChange,
+  BlocksFromEditor,
+  _ContentFromEditor,
+} from '../../store/articleStore';
 import { actions, selectors } from '../../store/articleStore';
 import VersioningInfoCard from './VersioningInfoCard';
+import {
+  areBlocksEqual,
+  convertBlocksFromEditorJS,
+  convertBlocksToEditorJS,
+  getBlockChanges,
+} from '../../utils/hooks';
 
 type Props = {
     isReady: boolean,
-    onChange?: (newBlocks: any) => void,
+    onChange?: (newBlocks: BlockCategoriesToChange, time:number, version: string) => void,
     readOnly?: boolean,
     onShowHistory?: () => void,
 };
@@ -67,11 +78,14 @@ function Editor({
   // useCriticalSections({ blocks });
 
   const activeBlock = useSelector((state) => selectors.getActiveBlock(state), isEqual);
-  const content = useSelector((state) => selectors.articleContent(state), isEqual);
-  const blocksToUpdate = useSelector((state) => selectors.getBlocksToUpdate(state), isEqual);
+  const content: ArticleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+  const blockIdQueue = useSelector((state) => selectors.getBlockIdQueue(state), isEqual);
+
   const dispatch = useDispatch();
   const setActiveBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
-  const removeFromBlocksToUpdate = (id: string) => dispatch(actions.removeFromBlocksToUpdate(id));
+  const blockIdQueueRemove = (id: string, realId: string) => dispatch(actions.blockIdQueueRemove(id, realId));
+  const blockIdQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id));
+  // const blockIdQueueAdd = (id: string) => dispatch(actions.blockIdQueueAdd(id));
 
   // eslint-disable-next-line no-unused-vars
 
@@ -83,73 +97,44 @@ function Editor({
   }, [isReady]);
 
   useEffect(() => {
-    map(blocksToUpdate, (block, id) => {
-      const oldBlock = find(get(content, 'blocks', []), (o) => get(o, 'id') === get(block, 'id'));
-      if (isEmpty(oldBlock)) return;
-      editor.current?.blocks.update(id, block.data);
-      removeFromBlocksToUpdate(id);
-    });
+    console.log('blockIdQueue', blockIdQueue);
+    if (isReady && editor.current) {
+      forEach(blockIdQueue, (b, blockId) => {
+        console.log('block', b);
 
-    // const oldTime = get(localContent, 'time');
-    // const newTime = get(content, 'time');
+        if (b.addedToEditor) return;
 
-    // console.log(`New time: ${newTime} - Old time: ${oldTime}`);
-
-    // if (newTime !== oldTime) {
-    //   console.log('New content');
-    //   forEach(get(content, 'blocks', []), (block) => {
-    //     // const oldBlock = find(get(localContent, 'blocks', []), (o) => get(o, 'id') === get(block, 'id'));
-    //     const oldBlock = editor.current?.blocks.getById(get(block, 'id'));
-
-    //     if (!oldBlock || isEqual(oldBlock.data, block.data)) {
-    //       // console.log('Block not changed', block);
-    //     } else {
-    //       console.log('Block changed', block);
-    //       editor.current?.blocks.update(block.id, block.data);
-    //     }
-    //   });
-    // }
-
-    // const oldBlocks = editor.current?.blocks.getCurrentBlockIndex();
-
-    // console.log(oldBlocks);
-  }, [content, blocksToUpdate]);
-
-  // eslint-disable-next-line no-unused-vars
-  const checkIfCriticalSection = (newBlocks: any) => {
-    // let criticalSectionFound = false;
-
-    // const blockIds = map(blocks, (block) => get(block, 'id'));
-
-    // if (difference(blockIds, criticalSectionIds).length > 0) {
-    //   console.log('Critical section deleted');
-
-    //   return true;
-    // }
-
-    forEach(newBlocks, (block) => {
-      if (includes(criticalSectionIds, get(block, 'id'))) {
-        const oldBlockInd = findIndex(blocks, (o) => get(o, 'id') === get(block, 'id'));
-        const newBlockInd = findIndex(newBlocks, (o) => get(o, 'id') === get(block, 'id'));
-
-        // console.log(blocks[oldBlockInd], newBlocks[newBlockInd]);
-
-        if (isEqual(blocks[oldBlockInd], newBlocks[newBlockInd])) {
-          // console.log('Critical section not changed');
-
-          // return
-        }
-
-        // criticalSectionFound = true;
-      }
-    });
-
-    return false;
-  };
+        // editor.current?.blocks.update(blockId, block.data);
+        editor.current?.blocks.insert(b.type, b.data);
+        blockIdQueueComplete(blockId);
+      });
+    }
+  }, [blockIdQueue]);
 
   const handleUploadEditorContent = () => {
-    editor.current?.save().then((newArticleContent: ArticleContent) => {
-      console.log('handleUploadEditorContent');
+    editor.current?.save().then((newArticleContent: _ContentFromEditor) => {
+      console.log('handleUploadEditorContent', blockIdQueue);
+
+      const blo = filter(newArticleContent.blocks, (block) => {
+        const queueBlock = find(blockIdQueue, (qb) => areBlocksEqual(qb, block));
+
+        if (queueBlock) {
+          if (queueBlock.addedToEditor) {
+            blockIdQueueRemove(queueBlock.realId, get(block, 'id'));
+          }
+
+          return false;
+        }
+
+        return true;
+      });
+
+      console.log('blo', blo);
+
+      const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(blo);
+
+      console.log('blocksFromEditor', blocksFromEditor, get(content, 'blocks', {}));
+
       // if (checkIfCriticalSection(newArticleget(content, 'blocks', []))) {
       //   toast.error('You can\'t edit a critical section from another user');
 
@@ -160,18 +145,22 @@ function Editor({
       //   return;
       // }
 
-      const anyChanges = some(newArticleContent.blocks, (block) => {
-        const oldBlock = find(get(content, 'blocks', []), (o) => get(o, 'id') === get(block, 'id'));
-        console.log('test', oldBlock.data, block.data);
+      if (size(blo) !== size(newArticleContent.blocks)) return;
 
-        if (isEmpty(oldBlock)) return false;
+      const changedBlocks: BlockCategoriesToChange = getBlockChanges(
+        blocksFromEditor,
+        get(content, 'blocks', {}),
+      );
 
-        return !isEqual(oldBlock.data, block.data);
-      });
+      if (every(changedBlocks, (blocks) => isEmpty(blocks))) {
+        console.log('No changes');
 
-      console.log('anyChanges', anyChanges);
+        return;
+      }
 
-      if (onChange && anyChanges) onChange(newArticleContent);
+      console.log('anyChanges', changedBlocks);
+
+      if (onChange) onChange(changedBlocks, get(newArticleContent, 'time'), get(newArticleContent, 'version'));
     });
   };
 
@@ -183,7 +172,7 @@ function Editor({
         holder: 'editorjs',
         readOnly,
         data: {
-          blocks: get(content, 'blocks', []) || [],
+          blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [],
         },
         tools: EDITOR_JS_TOOLS,
         tunes: ['myTune'],
@@ -243,7 +232,7 @@ function Editor({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get(content, 'blocks', []), isReady]);
+  }, [get(content, 'blocks'), isReady, blockIdQueue]);
 
   const getTop = () => {
     const block = document.getElementsByClassName('cdx-versioning-selected')[0];

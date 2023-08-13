@@ -52,6 +52,7 @@ function WebSocketElement({ articleId }: Props): any {
 
     consumer.current.subscriptions.create({ channel: 'ArticleChannel', article_id: articleId }, {
       received(payload) {
+        console.log('payload', payload);
         switch (payload.type) {
           case messageTypes.section:
             switch (payload.method) {
