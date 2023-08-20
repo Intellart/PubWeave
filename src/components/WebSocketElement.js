@@ -26,6 +26,8 @@ function WebSocketElement({ articleId }: Props): any {
 
   const dispatch = useDispatch();
   const wsUpdateBlock = (payload: any) => dispatch(actions.wsUpdateBlock(payload));
+  const wsCreateBlock = (payload: any) => dispatch(actions.wsCreateBlock(payload));
+  const wsRemoveBlock = (payload: any) => dispatch(actions.wsRemoveBlock(payload));
   // const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);
   // const changeStateReservation = (
   //   /* reservation: Reservation,
@@ -45,6 +47,8 @@ function WebSocketElement({ articleId }: Props): any {
 
   const messageActions = {
     update: 'update',
+    create: 'create',
+    destroy: 'destroy',
   };
 
   useEffect(() => {
@@ -52,6 +56,7 @@ function WebSocketElement({ articleId }: Props): any {
 
     consumer.current.subscriptions.create({ channel: 'ArticleChannel', article_id: articleId }, {
       received(payload) {
+        // eslint-disable-next-line no-console
         console.log('payload', payload);
         switch (payload.type) {
           case messageTypes.section:
@@ -60,7 +65,12 @@ function WebSocketElement({ articleId }: Props): any {
                 // console.log('payload', payload.data);
                 wsUpdateBlock(payload.data);
                 break;
-
+              case messageActions.create:
+                wsCreateBlock(payload.data);
+                break;
+              case messageActions.destroy:
+                wsRemoveBlock(payload.data);
+                break;
               default:
                 break;
             }

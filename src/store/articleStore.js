@@ -1,12 +1,12 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map, set,
+  filter, keyBy, omit, get, map, set, includes,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 import type { User } from './userStore';
-import { convertBlocksFromBackend } from '../utils/hooks';
+import { areBlocksEqual, convertBlocksFromBackend } from '../utils/hooks';
 // import { store } from '.';
 
 // ------------ single block --------------------------------------------
@@ -39,9 +39,11 @@ export type BlockToChange = {|
   position: number,
   |};
 
+export type Action ='updated' | 'created' | 'deleted';
+
 export type BlockToServer = {|
   ...SimpleBlock,
-  action: 'updated' | 'created' | 'deleted',
+  action: Action,
 |};
 
 // -------------- blocks ---------------------------------------
@@ -149,9 +151,15 @@ export type Article = {
   tags: Array<any>,
 };
 
-export type BlockIdQueue = {
-  [key:string]: Block,
+export type BlockIds = {
+  [string]: string,
 };
+
+export type BlockIdQueue = {
+  updated: BlockIds,
+  created: BlockIds,
+  deleted: BlockIds,
+}
 
 export type State = {
   oneArticle: Article | null,
@@ -163,12 +171,15 @@ export type State = {
   activeBlock: {
     id:string,
   },
+  lastUpdatedArticleIds: Array<string>,
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
 };
 
 export const types = {
   TEST_WS_BLOCK_UPDATE: 'TEST_WS_BLOCK_UPDATE',
+
+  SET_LAST_UPDATED_ARTICLE_IDS: 'SET_LAST_UPDATED_ARTICLE_IDS',
 
   ART_FETCH_ARTICLE: 'ART/FETCH_ARTICLE',
   ART_FETCH_ARTICLE_PENDING: 'ART/FETCH_ARTICLE_PENDING',
@@ -275,6 +286,12 @@ export const types = {
   WS_BLOCK_UPDATE: 'WS/BLOCK_UPDATE',
   WS_BLOCK_UPDATE_REMOVE: 'WS/BLOCK_UPDATE_REMOVE',
 
+  WS_BLOCK_CREATE: 'WS/BLOCK_CREATE',
+  WS_BLOCK_CREATE_REMOVE: 'WS/BLOCK_CREATE_REMOVE',
+
+  WS_BLOCK_REMOVE: 'WS/BLOCK_REMOVE',
+  WS_BLOCK_REMOVE_REMOVE: 'WS/BLOCK_REMOVE_REMOVE',
+
   BLOCK_ID_QUEUE_ADD: 'BLOCK_ID_QUEUE_ADD',
   BLOCK_ID_QUEUE_REMOVE: 'BLOCK_ID_QUEUE_REMOVE',
   BLOCK_ID_QUEUE_COMPLETE: 'BLOCK_ID_QUEUE_COMPLETE',
@@ -292,7 +309,7 @@ export const selectors = {
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
-  getBlockIdQueue: (state: ReduxState): BlockIdQueue => state.article.blockIdQueue,
+  getBlockIdQueue: (state: ReduxState, action: Action): BlockIds => get(state.article.blockIdQueue, action, {}),
 };
 
 export const actions = {
@@ -300,24 +317,38 @@ export const actions = {
     type: types.WS_BLOCK_UPDATE,
     payload,
   }),
-  // removeFromBlocksToUpdate: (blockId: string): ReduxAction => ({
-  //   type: types.WS_BLOCK_UPDATE_REMOVE,
-  //   payload: blockId,
-  // }),
-  blockIdQueueAdd: (blockId: string): ReduxAction => ({
-    type: types.BLOCK_ID_QUEUE_ADD,
-    payload: blockId,
+  wsCreateBlock: (payload: any): ReduxAction => ({
+    type: types.WS_BLOCK_CREATE,
+    payload,
   }),
-  blockIdQueueRemove: (blockId: string, realId: string): ReduxAction => ({
+  wsRemoveBlock: (payload: any): ReduxAction => ({
+    type: types.WS_BLOCK_REMOVE,
+    payload,
+  }),
+  setLastUpdatedArticleIds: (payload: any): ReduxAction => ({
+    type: types.SET_LAST_UPDATED_ARTICLE_IDS,
+    payload,
+  }),
+  blockIdQueueAdd: (blockId: string, blockAction: 'updated' |'created' | 'deleted'): ReduxAction => ({
+    type: types.BLOCK_ID_QUEUE_ADD,
+    payload: {
+      blockId,
+      blockAction,
+    },
+  }),
+  blockIdQueueRemove: (blockId: string, blockAction: 'updated' |'created' | 'deleted'): ReduxAction => ({
     type: types.BLOCK_ID_QUEUE_REMOVE,
     payload: {
       blockId,
-      realId,
+      blockAction,
     },
   }),
-  blockIdQueueComplete: (blockId: string): ReduxAction => ({
+  blockIdQueueComplete: (blockId: string, blockAction: 'updated' |'created' | 'deleted'): ReduxAction => ({
     type: types.BLOCK_ID_QUEUE_COMPLETE,
-    payload: blockId,
+    payload: {
+      blockId,
+      blockAction,
+    },
   }),
 
   setActiveBlock: (blockId:string | null): ReduxAction => ({
@@ -423,46 +454,6 @@ export const actions = {
         },
       }),
   }),
-  testWsUpdateBlock: (): ReduxAction => ({
-    type: types.TEST_WS_BLOCK_UPDATE,
-  }),
-
-  // updateArticleContentSilently: (id: number, newArticleContent: ArticleContent): ReduxAction => {
-  //   const oldState = keyBy(store.getState().article.oneArticle.content.blocks, 'id');
-  //   const newState = keyBy(newArticleContent.blocks, 'id');
-
-  //   console.log('old state', oldState);
-  //   console.log('new state', newState);
-
-  //   const diff1 = filter(newState, (block, key) => {
-  //     if (!oldState[key]) {
-  //       return true;
-  //     }
-  //     if (oldState[key].type !== block.type) {
-  //       return true;
-  //     }
-  //     if (!isEqual(oldState[key].data, block.data)) {
-  //       return true;
-  //     }
-
-  //     return false;
-  //   });
-
-  //   const diff2 = filter(oldState, (block, key) => !newState[key]);
-
-  //   console.log('added/edited', diff1);
-  //   console.log('removed', diff2);
-
-  //   return {
-  //     type: types.ART_UPDATE_ARTICLE_CONTENT,
-  //     payload: API.putRequest(`pubweave/blog_articles/${id}`,
-  //       {
-  //         blog_article: {
-  //           content: JSON.stringify(newArticleContent),
-  //         },
-  //       }),
-  //   };
-  // },
   updateArticleContentSilently: (id: number, newArticleContent: ArticleContentToServer): ReduxAction => ({
     type: types.ART_UPDATE_ARTICLE_CONTENT,
     payload: API.putRequest(`pubweave/articles/${id}`,
@@ -505,57 +496,160 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
-    case types.TEST_WS_BLOCK_UPDATE:
-      console.log('TEST_WS_BLOCK_UPDATE');
+    case types.SET_LAST_UPDATED_ARTICLE_IDS:
+      return {
+        ...state,
+        lastUpdatedArticleIds: action.payload,
+      };
+    case types.WS_BLOCK_UPDATE:
+      console.log('WS_BLOCK_UPDATE');
+      console.log(state);
+
+      if (!state.oneArticle || !action.payload) {
+        return state;
+      }
+
+      if (includes(state.lastUpdatedArticleIds, action.payload.id)) {
+        return {
+          ...state,
+          lastUpdatedArticleIds: filter(state.lastUpdatedArticleIds, (id) => id !== action.payload.id),
+        };
+      }
+
+      const testBlock2 = {
+        ...action.payload,
+        id: null,
+        realId: action.payload.id,
+        addedToEditor: false,
+      };
+
+      const findBlock = get(state.oneArticle, `content.blocks.${action.payload.id}`);
+
+      if (!findBlock || areBlocksEqual(findBlock, testBlock2)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        oneArticle: set(state.oneArticle, `content.blocks.${action.payload.id}`, action.payload),
+        blockIdQueue: {
+          ...state.blockIdQueue,
+          updated: {
+            ...state.blockIdQueue.updated,
+            [action.payload.id]: false,
+          },
+        },
+      };
+    case types.WS_BLOCK_CREATE:
+      console.log('WS_BLOCK_CREATE');
 
       if (!state.oneArticle) {
         return state;
       }
 
-      const randString = (Math.random() + 1).toString(36).substring(7);
+      const findBlock2 = get(state.oneArticle, `content.blocks.${action.payload.id}`);
 
-      const testBlock = {
-        // id: randString + 'test',
-        data: {
-          text: 'test ' + randString,
-        },
-        position: 0,
-        type: 'paragraph',
-        realId: randString + 'test',
-        addedToEditor: false,
-      };
+      if (findBlock2) {
+        return state;
+      }
 
       return {
         ...state,
-        // oneArticle: set(state.oneArticle, `content.blocks.${randString}test`, testBlock),
+        oneArticle: set(state.oneArticle, `content.blocks.${action.payload.id}`, action.payload),
         blockIdQueue: {
           ...state.blockIdQueue,
-          [randString + 'test']: testBlock,
+          created: {
+            ...state.blockIdQueue.created,
+            [action.payload.id]: false,
+          },
         },
       };
+    case types.WS_BLOCK_REMOVE:
+      console.log('WS_BLOCK_REMOVE');
+
+      const findBlock3 = get(state.oneArticle, `content.blocks.${action.payload.id}`);
+
+      console.log('found block to remove', findBlock3);
+
+      if (!state.oneArticle || !findBlock3) {
+        return state;
+      }
+
+      return {
+        ...state,
+        oneArticle: set(state.oneArticle, 'content.blocks', omit(state.oneArticle.content.blocks, action.payload.id)),
+        blockIdQueue: {
+          ...state.blockIdQueue,
+          deleted: {
+            ...state.blockIdQueue.deleted,
+            [action.payload.id]: false,
+          },
+        },
+      };
+
+    case types.ART_FETCH_ARTICLE_FULFILLED:
+    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
+      const { time, version, blocks } = get(action.payload, 'content', '{}');
+
+      return {
+        ...state,
+        oneArticle: {
+          ...action.payload,
+          comments: keyBy(get(action.payload, 'comments', []), 'id'),
+          content: {
+            time,
+            version,
+            blocks: convertBlocksFromBackend(blocks),
+          },
+          tags: map(get(action.payload, 'tags', []), (t) => ({
+            article_id: t.article_id,
+            category_id: t.category_id,
+            id: null,
+            article_tag_link: t.id,
+            tag_name: t.tag_name,
+          })),
+        },
+        lastUpdatedArticleIds: [],
+        blockIdQueue: {
+          updated: {},
+          created: {},
+          deleted: {},
+        },
+      };
+
     case types.BLOCK_ID_QUEUE_ADD:
+      const { blockId: id, blockAction: act } = action.payload;
+
       return {
         ...state,
         blockIdQueue: {
           ...state.blockIdQueue,
-          [action.payload]: true,
+          [act]: {
+            ...state.blockIdQueue[act],
+            [id]: false,
+          },
         },
       };
     case types.BLOCK_ID_QUEUE_REMOVE:
-      const { blockId, realId } = action.payload;
+      const { blockId: blockToDel, blockAction: actToDel } = action.payload;
 
       return {
         ...state,
-        oneArticle: set(state.oneArticle, `content.blocks.${realId}`, {
-          ...state.blockIdQueue[blockId],
-          id: realId,
-        }),
-        blockIdQueue: omit(state.blockIdQueue, blockId),
+        // oneArticle: set(state.oneArticle, `content.blocks.${blockToDel}`, {
+        //   ...state.blockIdQueue[actToDel][blockToDel],
+        //   id: blockToDel,
+        // }),
+        blockIdQueue: {
+          ...state.blockIdQueue,
+          [actToDel]: omit(state.blockIdQueue[actToDel], blockToDel),
+        },
       };
     case types.BLOCK_ID_QUEUE_COMPLETE:
+      const { blockId: blockToComplete, blockAction: actToComplete } = action.payload;
+
       return {
         ...state,
-        blockIdQueue: set(state.blockIdQueue, `${action.payload}.addedToEditor`, true),
+        blockIdQueue: set(state.blockIdQueue, `${actToComplete}.${blockToComplete}`, true),
       };
       // case types.WS_BLOCK_UPDATE:
       //   console.log('WS_BLOCK_UPDATE', action.payload);
@@ -607,32 +701,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         oneArticle: null,
-      };
-
-    case types.ART_FETCH_ARTICLE_FULFILLED:
-    case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
-
-      const { time, version, blocks } = get(action.payload, 'content', '{}');
-
-      return {
-        ...state,
-        oneArticle: {
-          ...action.payload,
-          comments: keyBy(get(action.payload, 'comments', []), 'id'),
-          content: {
-            time,
-            version,
-            blocks: convertBlocksFromBackend(blocks),
-          },
-          tags: map(get(action.payload, 'tags', []), (t) => ({
-            article_id: t.article_id,
-            category_id: t.category_id,
-            id: null,
-            article_tag_link: t.id,
-            tag_name: t.tag_name,
-          })),
-        },
-        blockIdQueue: {},
       };
 
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:

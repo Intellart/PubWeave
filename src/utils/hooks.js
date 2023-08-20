@@ -165,11 +165,7 @@ export const convertBlockToEditorJS = (block: Block): _BlockFromEditor => ({
 //   return false;
 // };
 
-export const areBlocksEqual = (block1: SimpleBlock, block2: SimpleBlock): boolean => {
-  console.log(block1, block2, isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data));
-
-  return isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data);
-};
+export const areBlocksEqual = (block1: SimpleBlock, block2: SimpleBlock): boolean => isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data);
 
 export const convertToChangeBlock = (block: Block | BlockFromEditor, index: number): BlockToChange => ({
   id: block.id,

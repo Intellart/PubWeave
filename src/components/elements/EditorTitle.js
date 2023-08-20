@@ -77,7 +77,7 @@ export default function EditorTitle ({
         onClick={() => titleRef.current.focus()}
       >
 
-        {!titleFocus && (!inReview ? (<div />) : (
+        {!titleFocus && (!inReview ? (<div className='editor-publish-button-back' />) : (
           <Link
             onClick={(e) => {
               e.stopPropagation();

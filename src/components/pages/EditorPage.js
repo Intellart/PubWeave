@@ -10,7 +10,6 @@ import {
 import classNames from 'classnames';
 
 import 'bulma/css/bulma.min.css';
-import { Button } from '@mui/material';
 import ArticleConfig from '../ArticleConfig';
 import type {
   Block,
@@ -28,7 +27,7 @@ import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
 import WebSocketElement from '../WebSocketElement';
-
+import { selectors as userSelectors } from '../../store/userStore';
 // import ActiveUsers from '../elements/ActiveUsers';
 // import axios from '../../api/axios';
 
@@ -45,6 +44,8 @@ function ReactEditor (): React$Element<any> {
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
 
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+
   // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
@@ -52,7 +53,7 @@ function ReactEditor (): React$Element<any> {
   const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
   const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
-  const testWsUpdateBlock = () => dispatch(actions.testWsUpdateBlock());
+  const setLastUpdatedArticleIds = (articleIds:number[]) => dispatch(actions.setLastUpdatedArticleIds(articleIds));
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -138,7 +139,7 @@ function ReactEditor (): React$Element<any> {
         snapSidebar={sidebar.snap}
         setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
       />
-      <Button onClick={() => testWsUpdateBlock()}>Test</Button>
+      {/* <Button onClick={() => testWsUpdateBlock()}>Test</Button> */}
       <Editor
         onShowHistory={() => {
           console.log('onShowHistory');
@@ -154,6 +155,13 @@ function ReactEditor (): React$Element<any> {
           setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
           setLastSaved(time);
 
+          console.log('UPDATING > ');
+          console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
+          console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
+          console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
+
+          setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
+
           updateArticleContentSilently(id, {
             time,
             version,
@@ -162,6 +170,7 @@ function ReactEditor (): React$Element<any> {
               type: block.type,
               data: block.data,
               action: block.action,
+              current_editor_id: user.id,
             })),
           });
         }}
