@@ -31,6 +31,7 @@ import {
   uploadImage,
   usernameChecks,
 } from '../../utils/hooks';
+import WalletConnector from '../WalletConnector';
 
 function UserPage(): Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
@@ -516,6 +517,7 @@ function UserPage(): Node {
             </div>
           </motion.div>
         </section>
+        <WalletConnector id="wallet-connector" />
       </div>
     </main>
   );
