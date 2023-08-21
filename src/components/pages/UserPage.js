@@ -12,6 +12,7 @@ import {
   filter,
   every,
   size,
+  truncate,
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { selectors as articleSelectors, actions } from '../../store/articleStore';
@@ -23,6 +24,8 @@ import {
 import { toast } from 'react-toastify';
 import { Alert } from '@mui/material';
 import { motion } from 'framer-motion';
+import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import {
   emailChecks,
@@ -31,12 +34,12 @@ import {
   uploadImage,
   usernameChecks,
 } from '../../utils/hooks';
-import WalletConnector from '../WalletConnector';
+import UserSection from '../containers/UserSection';
 
 function UserPage(): Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-  const [expandedCard, setExpandedCard] = React.useState(null);
+  const [expandedCard, setExpandedCard] = React.useState<string | null>(null);
   const [avatarImg, setAvatarImg] = useState(get(user, 'profile_img'));
   const uploadAvatarRef = React.useRef(null);
   const [newPassword, setNewPassword] = useState({
@@ -73,14 +76,26 @@ function UserPage(): Node {
     });
   }, [user]);
 
-  console.log(user);
+  const {
+    // isEnabled,
+    isConnected,
+    // enabledWallet,
+    stakeAddress,
+    accountBalance,
+    signMessage,
+    usedAddresses,
+    enabledWallet,
+    // connect,
+    disconnect,
+    connectedCip45Wallet,
+  } = useCardano();
 
   const dispatch = useDispatch();
   // const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const updateUser = (userId : number, payload:any) => dispatch(actions.updateUser(userId, payload));
   const updateUserPassword = (userId : number, payload:any) => dispatch(actions.updateUserPassword(userId, payload));
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: any) => {
     if (!e.target.files) {
       return;
     }
@@ -188,7 +203,7 @@ function UserPage(): Node {
 
   const isOK = (!isUsernameSame || !isEmailSame || !isNameSame) && usernameOK && emailOK && nameOK;
 
-  const renderChecks = (checks, value) => map(filter(checks, (check) => !check.check(value)), (check, index) => (
+  const renderChecks = (checks: any, value: any) => map(filter(checks, (check) => !check.check(value)), (check, index) => (
     <p key={index}>{check.info}</p>
   ));
 
@@ -384,140 +399,181 @@ function UserPage(): Node {
         </section>
       </div>
       <div className="user-page-wrapper-right">
-        <section className={classNames(
-          'user-page-hero',
-          // { 'user-page-hero-expanded': expandedCard === 'user-page-hero-1' },
-        )}
+        <UserSection
+          title="Statistics"
+          expandedCard={expandedCard}
+          setExpandedCard={setExpandedCard}
+          variants={variants}
+          index={1}
         >
-          <div
-            className="user-page-header"
-            onClick={() => setExpandedCard(expandedCard === 'user-page-hero-1' ? null : 'user-page-hero-1')}
-          >
-            <p className='user-page-header-title'>Statistics</p>
-          </div>
-          <motion.div
-            className="user-page-hidden-content"
-            variants={variants}
-            initial="hidden"
-            animate={expandedCard === 'user-page-hero-1' ? 'visible' : 'hidden'}
-
-          >
-            <div className="user-page-other-info">
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title">Articles</p>
-                <p className="user-page-other-info-item-value">0</p>
-              </div>
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title">Likes</p>
-                <p className="user-page-other-info-item-value">0</p>
-              </div>
+          <div className="user-page-other-info">
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title">Articles</p>
+              <p className="user-page-other-info-item-value">0</p>
             </div>
-          </motion.div>
-        </section>
-        <section className={classNames('user-page-hero', { 'user-page-hero-expanded': expandedCard === 'user-page-hero-2' })}>
-          <div
-            className="user-page-header"
-            onClick={() => setExpandedCard(expandedCard === 'user-page-hero-2' ? null : 'user-page-hero-2')}
-          >
-            <p className='user-page-header-title'>Change password</p>
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title">Likes</p>
+              <p className="user-page-other-info-item-value">0</p>
+            </div>
           </div>
-          <motion.div
-            className="user-page-hidden-content"
+        </UserSection>
+        <UserSection
+          title="Change password"
+          expandedCard={expandedCard}
+          setExpandedCard={setExpandedCard}
+          variants={variants}
+          index={2}
+        >
+          <div className="user-page-password-change">
+            <div className="user-page-password-change-input">
+              <input
+                type="password"
+                placeholder="New password"
+                value={newPassword.password}
+                onChange={(e) => setNewPassword({ ...newPassword, password: e.target.value })}
+              />
+            </div>
+            <div className="user-page-password-change-input">
+              <input
+                type="password"
+                placeholder="Confirm new password"
+                value={newPassword.confirm}
+                onChange={(e) => setNewPassword({ ...newPassword, confirm: e.target.value })}
+              />
+            </div>
+            <div
+              onClick={changePassword}
+              type="button"
+              className="user-page-password-change-submit"
+            >Change password
+            </div>
+          </div>
+        </UserSection>
+        <UserSection
+          title="Social links"
+          expandedCard={expandedCard}
+          setExpandedCard={setExpandedCard}
+          variants={variants}
+          index={3}
+        >
+          <div className="user-page-other-info">
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faFacebook} /> Facebook</p>
+              <input
+                className="user-page-other-info-item-input"
+                type="text"
+                placeholder="Facebook link"
+                value={socialMedia.facebook}
+                onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
+              />
+            </div>
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faTwitter} /> Twitter</p>
+              <input
+                className="user-page-other-info-item-input"
+                type="text"
+                placeholder="Twitter link"
+                value={socialMedia.twitter}
+                onChange={(e) => setSocialMedia({ ...socialMedia, twitter: e.target.value })}
+              />
+            </div>
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faLinkedin} /> LinkedIn</p>
+              <input
+                className="user-page-other-info-item-input"
+                type="text"
+                placeholder="LinkedIn link"
+                value={socialMedia.linkedin}
+                onChange={(e) => setSocialMedia({ ...socialMedia, linkedin: e.target.value })}
+              />
+            </div>
+            <div className="user-page-other-info-item">
+              <p className="user-page-other-info-item-title">Personal page</p>
+              <input
+                className="user-page-other-info-item-input"
+                type="text"
+                placeholder="Personal page link"
+                value={socialMedia.website}
+                onChange={(e) => setSocialMedia({ ...socialMedia, website: e.target.value })}
+              />
+            </div>
+            <div
+              type="button"
+              className="user-page-other-info-submit"
+              onClick={updateSocialMedia}
+            >
+              Update social media links
+            </div>
+          </div>
+        </UserSection>
+        { !isConnected && (
+        <ConnectWalletButton
+          message="Please sign Augusta Ada King, Countess of Lovelace"
+          onSignMessage={(message) => signMessage(message)}
+          // onConnect={onConnect}
+          primaryColor="#11273F"
+          borderRadius={10}
+          showAccountBalance
+          customCSS={`
+        font-family: Helvetica Light,sans-serif;
+        font-size: 0.875rem;
+        font-weight: 700;
+        width: 100%;
+        padding-top: 0;
+
+        #connect-wallet-button:hover {
+          border: 1px solid white;
+        }
+        
+        max-width: 100%;
+        & > span { padding: 5px 16px; }
+
+        & > #connect-wallet-menu {
+          transition: all 1s ease;
+        }
+
+        `}
+        />
+        )
+        }
+        { isConnected
+        && (
+          <UserSection
+            title="Wallet"
+            titleIcon={getWalletIcon(enabledWallet)}
+            expandedCard={expandedCard}
+            setExpandedCard={setExpandedCard}
             variants={variants}
-            initial="hidden"
-            animate={expandedCard === 'user-page-hero-2' ? 'visible' : 'hidden'}
+            index={4}
           >
             <div className="user-page-password-change">
-              <div className="user-page-password-change-input">
-                <input
-                  type="password"
-                  placeholder="New password"
-                  value={newPassword.password}
-                  onChange={(e) => setNewPassword({ ...newPassword, password: e.target.value })}
-                />
-              </div>
-              <div className="user-page-password-change-input">
-                <input
-                  type="password"
-                  placeholder="Confirm new password"
-                  value={newPassword.confirm}
-                  onChange={(e) => setNewPassword({ ...newPassword, confirm: e.target.value })}
-                />
-              </div>
-              <div
-                onClick={changePassword}
-                type="button"
-                className="user-page-password-change-submit"
-              >Change password
-              </div>
-            </div>
-          </motion.div>
-        </section>
-        <section className={classNames('user-page-hero', { 'user-page-hero-expanded': expandedCard === 'user-page-hero-3' })}>
-          <div
-            className="user-page-header"
-            onClick={() => setExpandedCard(expandedCard === 'user-page-hero-3' ? null : 'user-page-hero-3')}
-          >
-            <p className='user-page-header-title'>Social links</p>
-          </div>
-          <motion.div
-            className="user-page-hidden-content"
-            variants={variants}
-            initial="hidden"
-            animate={expandedCard === 'user-page-hero-3' ? 'visible' : 'hidden'}
-          >
-            <div className="user-page-other-info">
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faFacebook} /> Facebook</p>
-                <input
-                  className="user-page-other-info-item-input"
-                  type="text"
-                  placeholder="Facebook link"
-                  value={socialMedia.facebook}
-                  onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
-                />
-              </div>
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faTwitter} /> Twitter</p>
-                <input
-                  className="user-page-other-info-item-input"
-                  type="text"
-                  placeholder="Twitter link"
-                  value={socialMedia.twitter}
-                  onChange={(e) => setSocialMedia({ ...socialMedia, twitter: e.target.value })}
-                />
-              </div>
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faLinkedin} /> LinkedIn</p>
-                <input
-                  className="user-page-other-info-item-input"
-                  type="text"
-                  placeholder="LinkedIn link"
-                  value={socialMedia.linkedin}
-                  onChange={(e) => setSocialMedia({ ...socialMedia, linkedin: e.target.value })}
-                />
-              </div>
-              <div className="user-page-other-info-item">
-                <p className="user-page-other-info-item-title">Personal page</p>
-                <input
-                  className="user-page-other-info-item-input"
-                  type="text"
-                  placeholder="Personal page link"
-                  value={socialMedia.website}
-                  onChange={(e) => setSocialMedia({ ...socialMedia, website: e.target.value })}
-                />
-              </div>
-              <div
-                type="button"
-                className="user-page-other-info-submit"
-                onClick={updateSocialMedia}
-              >
-                Update social media links
+              <div className="user-page-other-info">
+                <div className="user-page-other-info-item">
+                  <p className="user-page-other-info-item-title">Stake Address</p>
+                  <p className="user-page-other-info-item-value">{truncate(stakeAddress, { length: 20 })}</p>
+                </div>
+                <div className="user-page-other-info-item">
+                  <p className="user-page-other-info-item-title">Accound balance</p>
+                  <p className="user-page-other-info-item-value">{accountBalance}</p>
+                </div>
+                <div className="user-page-other-info-item">
+                  <p className="user-page-other-info-item-title">Wallet name </p>
+                  <p className="user-page-other-info-item-value">{enabledWallet}</p>
+                </div>
+                <div className="user-page-other-info-item">
+                  <p className="user-page-other-info-item-title">Used address</p>
+                  <p className="user-page-other-info-item-value">{truncate(get(usedAddresses, 0), { length: 20 })}</p>
+                </div>
+                <div
+                  onClick={disconnect}
+                  type="button"
+                  className="user-page-password-change-submit"
+                >Disconnect wallet
+                </div>
               </div>
             </div>
-          </motion.div>
-        </section>
-        <WalletConnector id="wallet-connector" />
+          </UserSection>
+        )}
       </div>
     </main>
   );
