@@ -28,6 +28,8 @@ function WebSocketElement({ articleId }: Props): any {
   const wsUpdateBlock = (payload: any) => dispatch(actions.wsUpdateBlock(payload));
   const wsCreateBlock = (payload: any) => dispatch(actions.wsCreateBlock(payload));
   const wsRemoveBlock = (payload: any) => dispatch(actions.wsRemoveBlock(payload));
+  const wsLockBlock = (payload: any) => dispatch(actions.wsLockBlock(payload));
+  const wsUnlockBlock = (payload: any) => dispatch(actions.wsUnlockBlock(payload));
   // const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);
   // const changeStateReservation = (
   //   /* reservation: Reservation,
@@ -49,6 +51,8 @@ function WebSocketElement({ articleId }: Props): any {
     update: 'update',
     create: 'create',
     destroy: 'destroy',
+    lock: 'lock',
+    unlock: 'unlock',
   };
 
   useEffect(() => {
@@ -70,6 +74,12 @@ function WebSocketElement({ articleId }: Props): any {
                 break;
               case messageActions.destroy:
                 wsRemoveBlock(payload.data);
+                break;
+              case messageActions.lock:
+                wsLockBlock(payload.data);
+                break;
+              case messageActions.unlock:
+                wsUnlockBlock(payload.data);
                 break;
               default:
                 break;

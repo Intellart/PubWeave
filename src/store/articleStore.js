@@ -149,6 +149,7 @@ export type Article = {
   updated_at: string,
   comments: { [number]: Comment },
   tags: Array<any>,
+  active_sections: {[string]: number },
 };
 
 export type BlockIds = {
@@ -171,6 +172,7 @@ export type State = {
   activeBlock: {
     id:string,
   },
+  activeSections: {[string]: number },
   lastUpdatedArticleIds: Array<string>,
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
@@ -281,6 +283,16 @@ export const types = {
   ART_FETCH_VERSIONS_REJECTED: 'ART/FETCH_VERSIONS_REJECTED',
   ART_FETCH_VERSIONS_FULFILLED: 'ART/FETCH_VERSIONS_FULFILLED',
 
+  ART_LOCK_SECTION: 'ART/LOCK_SECTION',
+  ART_LOCK_SECTION_PENDING: 'ART/LOCK_SECTION_PENDING',
+  ART_LOCK_SECTION_REJECTED: 'ART/LOCK_SECTION_REJECTED',
+  ART_LOCK_SECTION_FULFILLED: 'ART/LOCK_SECTION_FULFILLED',
+
+  ART_UNLOCK_SECTION: 'ART/UNLOCK_SECTION',
+  ART_UNLOCK_SECTION_PENDING: 'ART/UNLOCK_SECTION_PENDING',
+  ART_UNLOCK_SECTION_REJECTED: 'ART/UNLOCK_SECTION_REJECTED',
+  ART_UNLOCK_SECTION_FULFILLED: 'ART/UNLOCK_SECTION_FULFILLED',
+
   BLOCK_SET_ACTIVE_BLOCK: 'BLOCK/SET_ACTIVE_BLOCK',
 
   WS_BLOCK_UPDATE: 'WS/BLOCK_UPDATE',
@@ -295,6 +307,10 @@ export const types = {
   BLOCK_ID_QUEUE_ADD: 'BLOCK_ID_QUEUE_ADD',
   BLOCK_ID_QUEUE_REMOVE: 'BLOCK_ID_QUEUE_REMOVE',
   BLOCK_ID_QUEUE_COMPLETE: 'BLOCK_ID_QUEUE_COMPLETE',
+
+  WS_LOCK_SECTION: 'WS/LOCK_SECTION',
+  WS_UNLOCK_SECTION: 'WS/UNLOCK_SECTION',
+
 };
 
 export const selectors = {
@@ -310,9 +326,31 @@ export const selectors = {
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
   getBlockIdQueue: (state: ReduxState, action: Action): BlockIds => get(state.article.blockIdQueue, action, {}),
+  getActiveSections: (state: ReduxState): any => get(state.article, 'activeSections', []),
 };
 
 export const actions = {
+  wsLockBlock: (payload: any): ReduxAction => ({
+    type: types.WS_LOCK_SECTION,
+    payload,
+  }),
+  wsUnlockBlock: (payload: any): ReduxAction => ({
+    type: types.WS_UNLOCK_SECTION,
+    payload,
+  }),
+  lockSection: (userId: number, sectionId: string): ReduxAction => ({
+    type: types.ART_LOCK_SECTION,
+    payload: API.putRequest(`pubweave/sections/${sectionId}/lock`, {
+      user_id: userId,
+      section_id: sectionId,
+    }),
+  }),
+  unlockSection: (userId: number, sectionId: string): ReduxAction => ({
+    type: types.ART_UNLOCK_SECTION,
+    payload: API.putRequest(`pubweave/sections/${sectionId}/unlock`, {
+      user_id: userId,
+    }),
+  }),
   wsUpdateBlock: (payload: any): ReduxAction => ({
     type: types.WS_BLOCK_UPDATE,
     payload,
@@ -496,6 +534,14 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WS_LOCK_SECTION:
+    case types.WS_UNLOCK_SECTION:
+      console.log('WS_(UN)LOCK_SECTION');
+
+      return {
+        ...state,
+        activeSections: get(action.payload, 'active_sections', {}),
+      };
     case types.SET_LAST_UPDATED_ARTICLE_IDS:
       return {
         ...state,
@@ -513,6 +559,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         return {
           ...state,
           lastUpdatedArticleIds: filter(state.lastUpdatedArticleIds, (id) => id !== action.payload.id),
+          activeSections: action.payload.active_ections,
         };
       }
 
@@ -556,6 +603,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         oneArticle: set(state.oneArticle, `content.blocks.${action.payload.id}`, action.payload),
+        activeSections: action.payload.active_ections,
         blockIdQueue: {
           ...state.blockIdQueue,
           created: {
@@ -577,6 +625,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
+        activeSections: action.payload.active_ections,
         oneArticle: set(state.oneArticle, 'content.blocks', omit(state.oneArticle.content.blocks, action.payload.id)),
         blockIdQueue: {
           ...state.blockIdQueue,
@@ -609,6 +658,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             tag_name: t.tag_name,
           })),
         },
+        activeSections: get(action.payload, 'active_sections', {}),
         lastUpdatedArticleIds: [],
         blockIdQueue: {
           updated: {},

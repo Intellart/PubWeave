@@ -8,10 +8,10 @@ import {
   forEach,
   get,
   has,
-  includes,
   isEmpty,
   isEqual,
   size,
+  values,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
@@ -32,6 +32,7 @@ import {
   convertBlocksToEditorJS,
   getBlockChanges,
 } from '../../utils/hooks';
+import { selectors as userSelectors } from '../../store/userStore';
 
 type Props = {
     isReady: boolean,
@@ -46,12 +47,14 @@ type CriticalSectionProps = {
 
 // eslint-disable-next-line no-unused-vars
 const useCriticalSections = ({ blocks } : CriticalSectionProps) => {
-  const criticalSectionIds = useSelector((state) => selectors.getCriticalSectionIds(state), isEqual);
+  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const labelCriticalSections = () => {
     forEach(document.getElementsByClassName('ce-block__content'), (div, divIndex) => {
       if (div) {
-        const isCritical = includes(criticalSectionIds, get(blocks[divIndex], 'id'));
+        const isCritical = get(activeSections, get(values(blocks)[divIndex], 'id'), null)
+        && get(activeSections, get(values(blocks)[divIndex], 'id'), null) !== get(user, 'id');
 
         if (isCritical) {
           div.id = 'critical-section';
@@ -65,8 +68,9 @@ const useCriticalSections = ({ blocks } : CriticalSectionProps) => {
 
   useEffect(() => {
     labelCriticalSections();
+    console.log('activeSections', activeSections);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [criticalSectionIds]);
+  }, [activeSections]);
 };
 
 function Editor({
@@ -75,13 +79,13 @@ function Editor({
 } : Props): any {
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
-  // useCriticalSections({ blocks });
 
   const activeBlock = useSelector((state) => selectors.getActiveBlock(state), isEqual);
   const content: ArticleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const blockIdUPDATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'updated'), isEqual);
   const blockIdCREATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'created'), isEqual);
   const blockIdDELETEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'deleted'), isEqual);
+  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
 
   const dispatch = useDispatch();
   const setActiveBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
@@ -91,12 +95,13 @@ function Editor({
   const blockIdCREATEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'created'));
   const blockIdDELETEQueueRemove = (id: string) => dispatch(actions.blockIdQueueRemove(id, 'deleted'));
   const blockIdDELETEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'deleted'));
-
+  const lockSection = (userId: number, sectionId: string) => dispatch(actions.lockSection(userId, sectionId));
+  // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
+  useCriticalSections({ blocks: get(content, 'blocks', {}) });
   // const blockIdQueueAdd = (id: string) => dispatch(actions.blockIdQueueAdd(id));
-
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   // eslint-disable-next-line no-unused-vars
 
-  console.log(blockIdUPDATEQueue, blockIdCREATEQueue);
   useEffect(() => {
     if (isReady && editor.current) {
       // const block = editor.current.blocks.getById(0);
@@ -108,8 +113,6 @@ function Editor({
     console.log('UE - update queue', blockIdUPDATEQueue);
     if (isReady && editor.current) {
       forEach(blockIdUPDATEQueue, (isInEditor, blockId) => {
-        console.log('block', isInEditor);
-
         if (isInEditor) return;
 
         const block = get(content, `blocks.${blockId}`);
@@ -126,8 +129,6 @@ function Editor({
     console.log('UE - create queue', blockIdCREATEQueue);
     if (isReady && editor.current) {
       forEach(blockIdCREATEQueue, (isInEditor, blockId) => {
-        console.log('block', isInEditor);
-
         if (isInEditor) return;
 
         editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
@@ -142,11 +143,7 @@ function Editor({
     console.log('UE - delete queue', blockIdDELETEQueue);
     if (isReady && editor.current) {
       forEach(blockIdDELETEQueue, (isInEditor, blockId) => {
-        console.log('block', isInEditor);
-
         if (isInEditor) return;
-
-        console.log('delete', blockId);
 
         // editor.current?.blocks.delete(blockId);
         editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
@@ -193,15 +190,14 @@ function Editor({
         },
         );
 
-        console.log('blo', blo);
+        // console.log('blo', blo);
 
         const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(blo);
 
-        console.log(
-          'blocksFromEditor',
-          blocksFromEditor,
-          get(content, 'blocks', {}),
-        );
+        // console.log(
+        //   'blocksFromEditor',
+        //   blocksFromEditor,
+        // );
 
         // if (checkIfCriticalSection(newArticleget(content, 'blocks', []))) {
         //   toast.error('You can\'t edit a critical section from another user');
@@ -243,7 +239,7 @@ function Editor({
     if (isReady && !editor.current) {
       editor.current = new EditorJS({
         autofocus: true,
-        // logLevel: 'ERROR',
+        logLevel: 'ERROR',
         holder: 'editorjs',
         readOnly,
         data: {
@@ -320,6 +316,20 @@ function Editor({
   return (
     <div
       id="editorjs"
+      onClick={() => {
+        if (isReady && editor.current) {
+          const blockIndex = editor.current.blocks.getCurrentBlockIndex();
+          if (blockIndex >= 0 && blockIndex < size(get(content, 'blocks', []))) {
+            const block = editor.current.blocks.getBlockByIndex(blockIndex);
+            if (block) {
+              if (!has(activeSections, block.id)) {
+                console.log(blockIndex, block.id);
+                lockSection(user.id, block.id);
+              }
+            }
+          }
+        }
+      }}
       style={{
         position: 'relative',
       }}

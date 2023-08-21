@@ -27,7 +27,7 @@ import Editor from '../elements/Editor';
 import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
 import WebSocketElement from '../WebSocketElement';
-import { selectors as userSelectors } from '../../store/userStore';
+// import { selectors as userSelectors } from '../../store/userStore';
 // import ActiveUsers from '../elements/ActiveUsers';
 // import axios from '../../api/axios';
 
@@ -44,7 +44,7 @@ function ReactEditor (): React$Element<any> {
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
 
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  // const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   // dispatch
   const dispatch = useDispatch();
@@ -170,7 +170,7 @@ function ReactEditor (): React$Element<any> {
               type: block.type,
               data: block.data,
               action: block.action,
-              current_editor_id: user.id,
+              // current_editor_id: user.id,
             })),
           });
         }}
