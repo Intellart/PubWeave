@@ -172,7 +172,7 @@ export type State = {
   versions: Array<any>,
   activeBlock: {
     id:string,
-  },
+  } | null,
   activeSections: {[string]: number },
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
@@ -514,7 +514,7 @@ export const actions = {
   }),
   // this will be handled by Admin from the backend, see publish and reject actions
   publishArticle: (id: number, newStatus: string): ReduxAction => {
-    console.log('publishing article', id, newStatus);
+    // console.log('publishing article', id, newStatus);
 
     let route = '';
     if (newStatus === 'published') {

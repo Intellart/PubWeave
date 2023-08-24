@@ -41,7 +41,7 @@ function UserPage(): Node {
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [expandedCard, setExpandedCard] = React.useState<string | null>(null);
   const [avatarImg, setAvatarImg] = useState(get(user, 'profile_img'));
-  const uploadAvatarRef = React.useRef(null);
+  const uploadAvatarRef = React.useRef<HTMLInputElement | null>(null);
   const [newPassword, setNewPassword] = useState({
     password: '',
     confirm: '',

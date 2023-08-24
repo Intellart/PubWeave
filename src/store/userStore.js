@@ -143,7 +143,12 @@ const logoutUser = (): State => {
   removeItem(localStorageKeys.jwt);
   removeItem(localStorageKeys.isAdmin);
 
-  return {};
+  return {
+    profile: null,
+    currentAdmin: null,
+    selectedUser: null,
+    orcidAccount: null,
+  };
 };
 
 // const logoutAdmin = (): State => {
@@ -153,7 +158,7 @@ const logoutUser = (): State => {
 //   return {};
 // };
 
-const handleSilentLogin = (state: State, payload): State => {
+const handleSilentLogin = (state: State, payload: any): State => {
   if (payload.is_admin) {
     return {
       ...state,
@@ -204,7 +209,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
     case types.USR_REGISTER_ORCID_USER_FULFILLED:
       toast.success('Successfully connected with ORCID!');
-      console.log(action.payload);
+      // console.log(action.payload);
 
       return { ...state, ...{ orcidAccount: action.payload } };
 

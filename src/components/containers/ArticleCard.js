@@ -59,21 +59,21 @@ function ArticleCard(props : Props): Node {
   //   }
   // };
 
-  const handleDeleteArticle = (e) => {
+  const handleDeleteArticle = (e: any) => {
     e.stopPropagation();
     if (props.onDelete) {
       props.onDelete(props.article.id);
     }
   };
 
-  const handleArticleClick = (e) => {
+  const handleArticleClick = (e: any) => {
     e.preventDefault();
     if (props.onClick) {
       props.onClick();
     }
   };
 
-  const chipParams = (imageChip = false) => {
+  const chipParams = (imageChip: boolean = false) => {
     if (imageChip && !isPublished && noImage) {
       return {
         label: 'No image',

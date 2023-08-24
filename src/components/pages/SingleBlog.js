@@ -42,9 +42,9 @@ function Blogs(): Node {
   const EDITOR_JS_TOOLS = useEditorTools();
 
   const dispatch = useDispatch();
-  const fetchArticle = (artId) => dispatch(actions.fetchArticle(artId));
-  const createComment = (articleId, userId, comment, replyTo) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
-  const likeArticle = (articleId) => dispatch(actions.likeArticle(articleId));
+  const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
+  const createComment = (articleId: number, userId: number, comment: string, replyTo: number) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
+  const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
   const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
   const [contextMenu, setContextMenu] = useState({
@@ -73,7 +73,7 @@ function Blogs(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
-  const getRoute = (catId) => get(find(categories, (cat) => cat.id === catId), 'category_name');
+  const getRoute = (catId: number) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
   const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
 
@@ -81,7 +81,7 @@ function Blogs(): Node {
     setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
   }, [article, user]);
 
-  const onRightClick = (e) => {
+  const onRightClick = (e: any) => {
     e.preventDefault();
     setContextMenu({
       show: true,
@@ -118,7 +118,7 @@ function Blogs(): Node {
     toast.success('Copied to clipboard');
   };
 
-  const onEditorKeyDown = (e) => {
+  const onEditorKeyDown = (e: any) => {
     e.preventDefault();
   };
 

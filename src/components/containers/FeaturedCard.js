@@ -21,12 +21,13 @@ type Props = {
   tags?: Array<string>,
   // editable?: Function,
   // deleteable?: Function,
-  // status?: string,
+  status?: string,
   // likeable?: boolean,
 };
 
 function FeaturedCard(props : Props): Node {
   // const { isMobile } = useScreenSize();
+  console.log('FeaturedCard', props.status);
   const [showModal, setShowModal] = React.useState(false);
 
   const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';

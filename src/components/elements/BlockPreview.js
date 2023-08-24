@@ -10,7 +10,7 @@ import {
   isEqual,
 } from 'lodash';
 import { toast } from 'react-toastify';
-import Undo from 'editorjs-undo';
+// import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 
 import { useEditorTools } from '../../utils/editor_constants';
@@ -49,9 +49,7 @@ function Editor({
     },
   });
 
-  const EDITOR_JS_TOOLS = useEditorTools({
-    versioningBlockId, versionBlock, versionInfo, uncheckOldWrapper,
-  });
+  const EDITOR_JS_TOOLS = useEditorTools();
 
   useEffect(() => {
     console.log('TRIGGER', versioningBlockId);

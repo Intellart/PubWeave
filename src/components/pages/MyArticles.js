@@ -26,12 +26,13 @@ function MyArticles(): Node {
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
-  console.log(articles);
+  // console.log(articles);
 
   useEffect(() => {
     if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
       navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles, lastKnownSize]);
 
   const categories = [
@@ -48,14 +49,14 @@ function MyArticles(): Node {
 
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
-  const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
+  const deleteArticle = (id: number) => dispatch(actions.deleteArticle(id));
 
   const handleCreateArticle = () => {
     createArticle(user.id);
     setLastKnownSize(size(articles));
   };
 
-  const handleDeleteClick = (id) => {
+  const handleDeleteClick = (id: number) => {
     // eslint-disable-next-line no-restricted-globals, no-alert
     if (confirm('Are you sure you want to delete this article?')) {
       deleteArticle(id);

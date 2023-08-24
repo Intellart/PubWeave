@@ -22,7 +22,7 @@ type Props = {
 };
 
 function ShareModal(props: Props): Node {
-  console.log(window.location.href);
+  // console.log(window.location.href);
   const link = `${window.location.href}/${get(props.article, 'id', 0)}`;
 
   const shareText = get(props.article, 'title', 'Article Title');
@@ -30,7 +30,7 @@ function ShareModal(props: Props): Node {
 
   const twitterLink = `http://twitter.com/share?text=${shareText}&url=${link}&hashtags=${hashtags}`;
 
-  const openLink = (l) => {
+  const openLink = (l: string) => {
     window.open(l, '_blank');
   };
 

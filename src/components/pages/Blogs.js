@@ -41,7 +41,7 @@ function Blogs(): Node {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  const getSelectedUser = (userId) => dispatch(actions.selectUser(userId));
+  const getSelectedUser = (userId: number) => dispatch(actions.selectUser(userId));
 
   const { cat, tag, userId } = useParams();
 
@@ -52,7 +52,7 @@ function Blogs(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser]);
 
-  console.log(selectedUser);
+  // console.log(selectedUser);
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
   filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;

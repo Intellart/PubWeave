@@ -14,6 +14,7 @@ import {
   includes,
   differenceBy,
   filter,
+  subtract,
 } from 'lodash';
 // import Chip from '@mui/material/Chip';
 import {
@@ -68,7 +69,7 @@ function ArticleConfig(props: Props): Node {
   }, []);
 
   const lastSaved = new Date(props.lastSaved);
-  const dif = (currentTime - lastSaved) / 1000;
+  const dif = subtract(currentTime, lastSaved) / 1000;
 
   const lastSavedString = () => {
     if (dif < 10) {

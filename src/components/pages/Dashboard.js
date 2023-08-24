@@ -51,13 +51,13 @@ function Dashboard(): Node {
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
-  const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
-  const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
-  const updateArticle = (id, payload) => dispatch(actions.updateArticle(id, payload));
+  const deleteArticle = (id: number) => dispatch(actions.deleteArticle(id));
+  const publishArticle = (articleId: number, status: string) => dispatch(actions.publishArticle(articleId, status));
+  const updateArticle = (id: number, payload: any) => dispatch(actions.updateArticle(id, payload));
 
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<any>([]);
 
-  const handleSetStar = (id, value) => {
+  const handleSetStar = (id: number, value: number) => {
     updateArticle(id, { star: value });
   };
 
@@ -80,19 +80,19 @@ function Dashboard(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles]);
 
-  const onDeleteClick = (id) => {
+  const onDeleteClick = (id: number) => {
     deleteArticle(id);
   };
 
-  const handleChangeStatus = (id, newStatus) => {
+  const handleChangeStatus = (id: number, newStatus: string) => {
     publishArticle(id, newStatus);
   };
 
-  const handleChangeTextField = (id, field, value) => {
+  const handleChangeTextField = (id: number, field: number, value: number) => {
     updateArticle(id, { [field]: value });
   };
 
-  const handleChangeCategory = (id, value) => {
+  const handleChangeCategory = (id: number, value: number) => {
     updateArticle(id, { category_id: value });
   };
 

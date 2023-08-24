@@ -15,7 +15,7 @@ type Props = {
   setSnapSidebar: Function,
 };
 
-function SideBar(props: Props) {
+function SideBar(props: Props): React$Element<any> {
   const {
     showSidebar,
     setShowSidebar,
@@ -27,7 +27,7 @@ function SideBar(props: Props) {
 
   const [selectedVersion, setSelectedVersion] = useState(0);
 
-  if (!showSidebar) return null;
+  if (!showSidebar) return <div />;
 
   return (
     <div className='editors-sidebar'>
@@ -60,7 +60,7 @@ function SideBar(props: Props) {
           key={index}
           className='editors-sidebar-item'
           onClick={() => {
-            console.log('VERSION', version);
+            // console.log('VERSION', version);
             if (version.version_number === selectedVersion) {
               setSelectedVersion(-1);
             } else { setSelectedVersion(index); }

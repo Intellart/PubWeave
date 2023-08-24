@@ -38,8 +38,8 @@ function Navbar(props: Props): Node {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isMobile, isDesktop } = useScreenSize();
-  const ref = React.useRef(null);
-  const buttonRef = React.useRef(null);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const buttonRef = React.useRef<HTMLDivElement | null>(null);
 
   useOutsideClickEffect(() => setMobileMenuOpen(false), [ref, buttonRef]);
 

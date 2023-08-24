@@ -24,14 +24,14 @@ import type {
 } from '../types';
 import ErrorMessage from '../components/errors/ErrorMessage';
 
-const ignoreErrors = [];
+const ignoreErrors: string[] = [];
 
 const disableSanitizer = window.sessionStorage.getItem('disable_sanitizer') === 'true';
 const sanitizedPayload = 'Set REACT_APP_REDUX_SANITIZER=false';
 const actionSanitizer = (action: ReduxAction): ReduxAction => {
   if (!action.payload || disableSanitizer) return action;
 
-  const sanitizedActions = [];
+  const sanitizedActions: string[] = [];
 
   return includes(sanitizedActions, action.type) ? { ...action, payload: sanitizedPayload } : action;
 };
@@ -109,7 +109,7 @@ function dispatchRecorder(dispatchedActions: ?Array<string>): any {
   };
 }
 
-const initialReduxState = {
+const initialReduxState: ReduxState = {
   global: {
     loading:
      {
@@ -118,6 +118,28 @@ const initialReduxState = {
        [articleTypes.ART_FETCH_TAGS]: 'PENDING',
        [userTypes.USR_VALIDATE_USER]: getItem(localStorageKeys.jwt) ? 'PENDING' : 'DONE',
      },
+  },
+  user: {
+    profile: null,
+    currentAdmin: null,
+    selectedUser: null,
+    orcidAccount: null,
+  },
+  article: {
+    oneArticle: null,
+    allArticles: {},
+    comments: {},
+    categories: {},
+    tags: {},
+    versions: [],
+    activeBlock: null,
+    activeSections: {},
+    blockIdQueue: {
+      updated: {},
+      created: {},
+      deleted: {},
+    },
+    critical_section_ids: [],
   },
 };
 
