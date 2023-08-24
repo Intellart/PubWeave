@@ -5,7 +5,7 @@ import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty, sortBy,
+  sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
 import classNames from 'classnames';
 
@@ -53,7 +53,7 @@ function ReactEditor (): React$Element<any> {
   const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
   const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
-  const setLastUpdatedArticleIds = (articleIds:number[]) => dispatch(actions.setLastUpdatedArticleIds(articleIds));
+  // const setLastUpdatedArticleIds = (articleIds:number[]) => dispatch(actions.setLastUpdatedArticleIds(articleIds));
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -146,11 +146,11 @@ function ReactEditor (): React$Element<any> {
           setSidebar({ ...sidebar, show: true });
         }}
         onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
-          const blocksToAdd :BlockToServer[] = sortBy([
+          const blocksToAdd :BlockToServer[] = [
             ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
             ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
             ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
-          ], 'position');
+          ];
 
           setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
           setLastSaved(time);
@@ -160,18 +160,12 @@ function ReactEditor (): React$Element<any> {
           console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
           console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
 
-          setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
+          // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
 
           updateArticleContentSilently(id, {
             time,
             version,
-            blocks: map(blocksToAdd, (block) => ({
-              id: block.id,
-              type: block.type,
-              data: block.data,
-              action: block.action,
-              // current_editor_id: user.id,
-            })),
+            blocks: blocksToAdd,
           });
         }}
         isReady={isReady}

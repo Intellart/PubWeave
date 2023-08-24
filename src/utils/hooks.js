@@ -14,6 +14,7 @@ import {
   pickBy,
   size,
   sortBy,
+  uniq,
   values,
 } from 'lodash';
 import { useInView } from 'react-intersection-observer';
@@ -213,12 +214,25 @@ export const convertBlockFromEditorJS = (block: _BlockFromEditor, index: number)
 export const convertBlocksFromEditorJS = (blocks: _BlockFromEditor[]): BlocksFromEditor => keyBy(map(blocks, (block, index) => convertBlockFromEditorJS(block, index)), 'id');
 export const convertBlocksToEditorJS = (blocks: Blocks): Array<_BlockFromEditor> => map(sortBy(values(blocks), (block) => block.position), (block) => convertBlockToEditorJS(block));
 
-export const convertBlockFromBackend = (block: BlockFromBackend, index: number): BlockFromBackend => ({
+export const convertBlockFromBackend = (block: BlockFromBackend): BlockFromBackend => ({
   ...block,
-  position: block.position || index,
+  position: block.position,
 });
 
-export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBackend => keyBy(map(blocks, (block, index) => convertBlockFromBackend(block, index)), 'id');
+export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBackend => {
+  const newBlocks = keyBy(map(blocks, convertBlockFromBackend), 'id');
+  const positions = map(blocks, (block) => block.position);
+
+  const hasDuplicates = size(uniq(positions)) !== size(positions);
+
+  if (hasDuplicates) {
+    console.log('hasDuplicates', positions);
+  }
+
+  console.log('convertBlocksFromBackend', newBlocks);
+
+  return newBlocks;
+};
 
 export const useLocationInfo = (): Object => {
   const location = useLocation();

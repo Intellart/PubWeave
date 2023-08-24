@@ -3,8 +3,10 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { createConsumer } from '@rails/actioncable';
 import { secondsToMilliseconds } from 'date-fns';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { isEqual } from 'lodash';
 import { actions } from '../store/articleStore';
+import { selectors } from '../store/userStore';
 // import { actions } from '../store/eventStore';
 
 export type MessagePayload = {
@@ -21,13 +23,14 @@ type Props = {
 function WebSocketElement({ articleId }: Props): any {
   const consumer = useRef(createConsumer((process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + '/cable'));
   const connectionStatus = useRef('awaiting');
+  const user = useSelector((state) => selectors.getUser(state), isEqual);
 
   // console.log('isAdmin', isAdmin);
 
   const dispatch = useDispatch();
-  const wsUpdateBlock = (payload: any) => dispatch(actions.wsUpdateBlock(payload));
-  const wsCreateBlock = (payload: any) => dispatch(actions.wsCreateBlock(payload));
-  const wsRemoveBlock = (payload: any) => dispatch(actions.wsRemoveBlock(payload));
+  const wsUpdateBlock = (payload: any) => dispatch(actions.wsUpdateBlock(payload, user.id));
+  const wsCreateBlock = (payload: any) => dispatch(actions.wsCreateBlock(payload, user.id));
+  const wsRemoveBlock = (payload: any) => dispatch(actions.wsRemoveBlock(payload, user.id));
   const wsLockBlock = (payload: any) => dispatch(actions.wsLockBlock(payload));
   const wsUnlockBlock = (payload: any) => dispatch(actions.wsUnlockBlock(payload));
   // const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);

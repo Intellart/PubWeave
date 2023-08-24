@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map, set, includes,
+  filter, keyBy, omit, get, map, set, subtract,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -18,6 +18,7 @@ export type SimpleBlock = {
 
 export type Block = {|
   ...SimpleBlock,
+  time: string,
   position: null | number,
   version_number: number,
   collaborator_id: number,
@@ -173,7 +174,6 @@ export type State = {
     id:string,
   },
   activeSections: {[string]: number },
-  lastUpdatedArticleIds: Array<string>,
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
 };
@@ -349,23 +349,29 @@ export const actions = {
     type: types.ART_UNLOCK_SECTION,
     payload: API.putRequest(`pubweave/sections/${sectionId}/unlock`, {
       user_id: userId,
+      section_id: sectionId,
     }),
   }),
-  wsUpdateBlock: (payload: any): ReduxAction => ({
+  wsUpdateBlock: (payload: any, userId: number): ReduxAction => ({
     type: types.WS_BLOCK_UPDATE,
-    payload,
+    payload: {
+      payload,
+      userId,
+    },
   }),
-  wsCreateBlock: (payload: any): ReduxAction => ({
+  wsCreateBlock: (payload: any, userId: number): ReduxAction => ({
     type: types.WS_BLOCK_CREATE,
-    payload,
+    payload: {
+      payload,
+      userId,
+    },
   }),
-  wsRemoveBlock: (payload: any): ReduxAction => ({
+  wsRemoveBlock: (payload: any, userId: number): ReduxAction => ({
     type: types.WS_BLOCK_REMOVE,
-    payload,
-  }),
-  setLastUpdatedArticleIds: (payload: any): ReduxAction => ({
-    type: types.SET_LAST_UPDATED_ARTICLE_IDS,
-    payload,
+    payload: {
+      payload,
+      userId,
+    },
   }),
   blockIdQueueAdd: (blockId: string, blockAction: 'updated' |'created' | 'deleted'): ReduxAction => ({
     type: types.BLOCK_ID_QUEUE_ADD,
@@ -542,59 +548,80 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         activeSections: get(action.payload, 'active_sections', {}),
       };
-    case types.SET_LAST_UPDATED_ARTICLE_IDS:
-      return {
-        ...state,
-        lastUpdatedArticleIds: action.payload,
-      };
-    case types.WS_BLOCK_UPDATE:
+    case types.WS_BLOCK_UPDATE: {
       console.log('WS_BLOCK_UPDATE');
       console.log(state);
 
-      if (!state.oneArticle || !action.payload) {
+      const { userId, payload: _newBlock } = action.payload;
+
+      if (!state.oneArticle || !_newBlock) {
+        return state;
+      } else if (get(_newBlock, ['current_editor_id']) === userId) {
+        console.log('same author, ignoring');
+
         return state;
       }
 
-      if (includes(state.lastUpdatedArticleIds, action.payload.id)) {
-        return {
-          ...state,
-          lastUpdatedArticleIds: filter(state.lastUpdatedArticleIds, (id) => id !== action.payload.id),
-          activeSections: action.payload.active_ections,
-        };
-      }
-
-      const testBlock2 = {
-        ...action.payload,
-        id: null,
-        realId: action.payload.id,
+      const newBlock = {
+        ..._newBlock,
         addedToEditor: false,
       };
 
-      const findBlock = get(state.oneArticle, `content.blocks.${action.payload.id}`);
+      const oldBlock = get(state.oneArticle, `content.blocks.${_newBlock.id}`);
 
-      if (!findBlock || areBlocksEqual(findBlock, testBlock2)) {
+      if (!oldBlock || areBlocksEqual(newBlock, oldBlock)) {
+        console.log('same block or cant find, ignoring');
+
         return state;
+      }
+
+      const oldTime = new Date(oldBlock.time);
+      const newTime = new Date(newBlock.time);
+
+      console.log('old time', oldTime, 'new time', newTime);
+
+      // check if difference is bigger than 1 second
+      if (Math.abs(subtract(oldTime, newTime)) < 3000 && get(_newBlock, ['current_editor_id']) === userId) {
+        console.log('time difference too small, ignoring');
+
+        return {
+          ...state,
+          activeSections: newBlock.active_sections,
+        };
       }
 
       return {
         ...state,
-        oneArticle: set(state.oneArticle, `content.blocks.${action.payload.id}`, action.payload),
+        activeSections: newBlock.active_sections,
+        oneArticle: set(state.oneArticle, `content.blocks.${newBlock.id}`, {
+          ...newBlock,
+          position: oldBlock.position,
+        }),
         blockIdQueue: {
           ...state.blockIdQueue,
           updated: {
             ...state.blockIdQueue.updated,
-            [action.payload.id]: false,
+            [newBlock.id]: false,
           },
         },
       };
-    case types.WS_BLOCK_CREATE:
+    }
+    case types.WS_BLOCK_CREATE: {
       console.log('WS_BLOCK_CREATE');
+
+      const { userId, payload: _newBlock } = action.payload;
 
       if (!state.oneArticle) {
         return state;
       }
 
-      const findBlock2 = get(state.oneArticle, `content.blocks.${action.payload.id}`);
+      if (get(_newBlock, ['current_editor_id']) === userId) {
+        console.log('same author, ignoring');
+
+        return state;
+      }
+
+      const findBlock2 = get(state.oneArticle, `content.blocks.${_newBlock.id}`);
 
       if (findBlock2) {
         return state;
@@ -602,20 +629,29 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        oneArticle: set(state.oneArticle, `content.blocks.${action.payload.id}`, action.payload),
-        activeSections: action.payload.active_ections,
+        oneArticle: set(state.oneArticle, `content.blocks.${_newBlock.id}`, _newBlock),
+        activeSections: _newBlock.active_sections,
         blockIdQueue: {
           ...state.blockIdQueue,
           created: {
             ...state.blockIdQueue.created,
-            [action.payload.id]: false,
+            [_newBlock.id]: false,
           },
         },
       };
-    case types.WS_BLOCK_REMOVE:
+    }
+    case types.WS_BLOCK_REMOVE: {
       console.log('WS_BLOCK_REMOVE');
 
-      const findBlock3 = get(state.oneArticle, `content.blocks.${action.payload.id}`);
+      const { userId, payload: _newBlock } = action.payload;
+
+      if (get(_newBlock, ['current_editor_id']) === userId) {
+        console.log('same author, ignoring');
+
+        return state;
+      }
+
+      const findBlock3 = get(state.oneArticle, `content.blocks.${_newBlock.id}`);
 
       console.log('found block to remove', findBlock3);
 
@@ -625,16 +661,17 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        activeSections: action.payload.active_ections,
-        oneArticle: set(state.oneArticle, 'content.blocks', omit(state.oneArticle.content.blocks, action.payload.id)),
+        activeSections: _newBlock.active_sections,
+        oneArticle: set(state.oneArticle, 'content.blocks', omit(state.oneArticle.content.blocks, _newBlock.id)),
         blockIdQueue: {
           ...state.blockIdQueue,
           deleted: {
             ...state.blockIdQueue.deleted,
-            [action.payload.id]: false,
+            [_newBlock.id]: false,
           },
         },
       };
+    }
 
     case types.ART_FETCH_ARTICLE_FULFILLED:
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
@@ -659,7 +696,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           })),
         },
         activeSections: get(action.payload, 'active_sections', {}),
-        lastUpdatedArticleIds: [],
         blockIdQueue: {
           updated: {},
           created: {},
@@ -701,50 +737,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         blockIdQueue: set(state.blockIdQueue, `${actToComplete}.${blockToComplete}`, true),
       };
-      // case types.WS_BLOCK_UPDATE:
-      //   console.log('WS_BLOCK_UPDATE', action.payload);
-      //   const updatedSection = action.payload;
-
-      //   return {
-      //     ...state,
-      //     blocksToUpdate: {
-      //       ...state.blocksToUpdate,
-      //       [updatedSection.id]: updatedSection,
-      //     },
-      //     oneArticle: {
-      //       ...state.oneArticle,
-      //       content: {
-      //         ...state.oneArticle.content,
-      //         time: updatedSection.time,
-      //         blocks: map(state.oneArticle.content.blocks, (block) => {
-      //           if (block.id === updatedSection.id && !isEqual(block.data, updatedSection.data)) {
-      //             return omit(updatedSection, 'time');
-      //           }
-
-      //           return block;
-      //         }),
-      //       },
-      //     },
-      //   };
-      // case types.WS_BLOCK_UPDATE_REMOVE:
-      //   return {
-      //     ...state,
-      //     blocksToUpdate: omit(state.blocksToUpdate, action.payload),
-      //   };
-
-      // case types.BLOCK_SET_ACTIVE_BLOCK:
-
-      //   return {
-      //     ...state,
-      //     activeBlock: {
-      //       id: action.payload.id,
-      //     },
-      //   };
-      // case types.ART_FETCH_VERSIONS_FULFILLED:
-      //   return {
-      //     ...state,
-      //     versions: action.payload,
-      //   };
     case types.ART_FLUSH_ARTICLE_FULFILLED:
       toast.success('Article flushed.');
 
@@ -752,7 +744,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: null,
       };
-
     case types.ART_FETCH_ALL_ARTICLES_FULFILLED:
       // eslint-disable-next-line no-console
       console.log(`Fetched all articles: ${get(action.payload, 'length')} articles.`);

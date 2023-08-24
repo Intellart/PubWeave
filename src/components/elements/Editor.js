@@ -5,13 +5,14 @@ import {
   every,
   filter,
   find,
+  findKey,
   forEach,
   get,
   has,
   isEmpty,
   isEqual,
+  pickBy,
   size,
-  values,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
@@ -53,8 +54,9 @@ const useCriticalSections = ({ blocks } : CriticalSectionProps) => {
   const labelCriticalSections = () => {
     forEach(document.getElementsByClassName('ce-block__content'), (div, divIndex) => {
       if (div) {
-        const isCritical = get(activeSections, get(values(blocks)[divIndex], 'id'), null)
-        && get(activeSections, get(values(blocks)[divIndex], 'id'), null) !== get(user, 'id');
+        const sectionKey = findKey(blocks, (o) => o.position === divIndex);
+        const isCritical = get(activeSections, sectionKey, null)
+        && get(activeSections, sectionKey, null) !== get(user, 'id');
 
         if (isCritical) {
           div.id = 'critical-section';
@@ -71,6 +73,39 @@ const useCriticalSections = ({ blocks } : CriticalSectionProps) => {
     console.log('activeSections', activeSections);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSections]);
+
+  return { labelCriticalSections, activeSections };
+};
+
+type LockingProps = {
+    blocks: any,
+    editor: any,
+};
+
+const useLocking = ({ blocks, editor } : LockingProps) => {
+  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+
+  const dispatch = useDispatch();
+  const lockSection = (userId: number, sectionId: string) => dispatch(actions.lockSection(userId, sectionId));
+  // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
+
+  const checkLocks = () => {
+    const blockIndex = editor.blocks.getCurrentBlockIndex();
+    if (blockIndex >= 0 && blockIndex < size(blocks)) {
+      const blockId = get(editor.blocks.getBlockByIndex(blockIndex), 'id');
+      if (blockId) {
+        if (!has(activeSections, blockId)) {
+          console.log('CARRET AT', blockIndex, '-> ID: ', blockId);
+          lockSection(user.id, blockId);
+        } /* else {
+          unlockSection(user.id, findKey(activeSections, (o) => o === get(user, 'id')));
+        } */
+      }
+    }
+  };
+
+  return { checkLocks };
 };
 
 function Editor({
@@ -85,7 +120,7 @@ function Editor({
   const blockIdUPDATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'updated'), isEqual);
   const blockIdCREATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'created'), isEqual);
   const blockIdDELETEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'deleted'), isEqual);
-  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const dispatch = useDispatch();
   const setActiveBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
@@ -95,19 +130,10 @@ function Editor({
   const blockIdCREATEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'created'));
   const blockIdDELETEQueueRemove = (id: string) => dispatch(actions.blockIdQueueRemove(id, 'deleted'));
   const blockIdDELETEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'deleted'));
-  const lockSection = (userId: number, sectionId: string) => dispatch(actions.lockSection(userId, sectionId));
   // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
-  useCriticalSections({ blocks: get(content, 'blocks', {}) });
-  // const blockIdQueueAdd = (id: string) => dispatch(actions.blockIdQueueAdd(id));
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-  // eslint-disable-next-line no-unused-vars
 
-  useEffect(() => {
-    if (isReady && editor.current) {
-      // const block = editor.current.blocks.getById(0);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady]);
+  const { labelCriticalSections, activeSections } = useCriticalSections({ blocks: get(content, 'blocks', {}) });
+  const { checkLocks } = useLocking({ blocks: get(content, 'blocks', {}), editor: editor.current });
 
   useEffect(() => {
     console.log('UE - update queue', blockIdUPDATEQueue);
@@ -122,6 +148,7 @@ function Editor({
         blockIdUPDATEQueueComplete(blockId);
       });
     }
+    labelCriticalSections();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blockIdUPDATEQueue]);
 
@@ -170,27 +197,11 @@ function Editor({
               blockIdDELETEQueueRemove(id);
             }
 
-            return true;
+            return false;
           }
 
-          // const queueCreateBlock = find(
-          //   blockIdCREATEQueue,
-          //   qb => areBlocksEqual(qb, block),
-          // );
-
-          // if (queueCreateBlock) {
-          //   if (queueCreateBlock.addedToEditor) {
-          //     blockIdCREATEQueueRemove(get(block, 'id'));
-          //   }
-
-          //   return false;
-          // }
-
           return true;
-        },
-        );
-
-        // console.log('blo', blo);
+        });
 
         const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(blo);
 
@@ -222,11 +233,15 @@ function Editor({
           return;
         }
 
-        console.log('anyChanges', changedBlocks);
+        console.log('anyChanges', changedBlocks, get(content, 'blocks', {}), 'activeSections', activeSections);
 
         if (onChange) {
           onChange(
-            changedBlocks,
+            {
+              created: get(changedBlocks, 'created', []),
+              changed: pickBy(get(changedBlocks, 'changed', []), (block) => get(activeSections, block.id, null) && get(activeSections, block.id, null) === get(user, 'id')),
+              deleted: get(changedBlocks, 'deleted', []),
+            },
             get(newArticleContent, 'time'),
             get(newArticleContent, 'version'),
           );
@@ -242,6 +257,7 @@ function Editor({
         logLevel: 'ERROR',
         holder: 'editorjs',
         readOnly,
+        //
         data: {
           blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [],
         },
@@ -249,19 +265,14 @@ function Editor({
         tunes: ['myTune'],
 
         onReady: () => {
-          // labelCriticalSections();
+          labelCriticalSections();
+          if (editor.current) {
+            const key = findKey(activeSections, (o) => o === get(user, 'id'));
+            const currentBlock = get(content, ['blocks', key], {});
+            editor.current.caret.setToBlock(get(currentBlock, 'position', 0));
+          }
         },
-
         onChange: handleUploadEditorContent,
-        // onChange: async () => {
-        //   const newContent = await editor.current?.save();
-
-        //   console.log('onChange');
-        //   console.log(content, newContent);
-
-        //   if (onChange) onChange(newContent);
-        // },
-
         placeholder: 'Start your article here!',
       });
 
@@ -303,7 +314,7 @@ function Editor({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get(content, 'blocks'), isReady, blockIdUPDATEQueue]);
+  }, [get(content, 'blocks'), isReady, blockIdUPDATEQueue, activeSections]);
 
   const getTop = () => {
     const block = document.getElementsByClassName('cdx-versioning-selected')[0];
@@ -318,17 +329,14 @@ function Editor({
       id="editorjs"
       onClick={() => {
         if (isReady && editor.current) {
-          const blockIndex = editor.current.blocks.getCurrentBlockIndex();
-          if (blockIndex >= 0 && blockIndex < size(get(content, 'blocks', []))) {
-            const block = editor.current.blocks.getBlockByIndex(blockIndex);
-            if (block) {
-              if (!has(activeSections, block.id)) {
-                console.log(blockIndex, block.id);
-                lockSection(user.id, block.id);
-              }
-            }
-          }
+          checkLocks();
         }
+      }}
+      onBlur={() => {
+        // const activeKey = findKey(activeSections, (o) => o === get(user, 'id'));
+        // if (activeKey) {
+        //   unlockSection(user.id, activeKey);
+        // }
       }}
       style={{
         position: 'relative',
