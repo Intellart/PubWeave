@@ -109,6 +109,7 @@ export default class VersioningTune {
   }
 
   tuneClicked(): any {
+    console.log('tune clicked');
     // this.toggleButton(event);
     const blockContent = this.wrapper.querySelector('.ce-block__content');
 

@@ -155,10 +155,10 @@ function ReactEditor (): React$Element<any> {
           setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
           setLastSaved(time);
 
-          console.log('UPDATING > ');
-          console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
-          console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
-          console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
+          // console.log('UPDATING > ');
+          // console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
+          // console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
+          // console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
 
           // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
 

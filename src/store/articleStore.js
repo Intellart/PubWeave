@@ -325,7 +325,7 @@ export const selectors = {
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
-  getBlockIdQueue: (state: ReduxState, action: Action): BlockIds => get(state.article.blockIdQueue, action, {}),
+  getBlockIdQueue: (state: ReduxState): BlockIdQueue => state.article.blockIdQueue,
   getActiveSections: (state: ReduxState): any => get(state.article, 'activeSections', []),
 };
 
@@ -702,6 +702,11 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           deleted: {},
         },
       };
+    case types.BLOCK_SET_ACTIVE_BLOCK:
+      return {
+        ...state,
+        activeBlock: action.payload,
+      };
 
     case types.BLOCK_ID_QUEUE_ADD:
       const { blockId: id, blockAction: act } = action.payload;
@@ -717,25 +722,29 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         },
       };
     case types.BLOCK_ID_QUEUE_REMOVE:
+      // const { blockId: blockToDel, blockAction: actToDel } = action.payload;
+
+      // return {
+      //   ...state,
+      //   // oneArticle: set(state.oneArticle, `content.blocks.${blockToDel}`, {
+      //   //   ...state.blockIdQueue[actToDel][blockToDel],
+      //   //   id: blockToDel,
+      //   // }),
+      //   blockIdQueue: {
+      //     ...state.blockIdQueue,
+      //     [actToDel]: omit(state.blockIdQueue[actToDel], blockToDel),
+      //   },
+      // };
+      return state;
+    case types.BLOCK_ID_QUEUE_COMPLETE:
       const { blockId: blockToDel, blockAction: actToDel } = action.payload;
 
       return {
         ...state,
-        // oneArticle: set(state.oneArticle, `content.blocks.${blockToDel}`, {
-        //   ...state.blockIdQueue[actToDel][blockToDel],
-        //   id: blockToDel,
-        // }),
         blockIdQueue: {
           ...state.blockIdQueue,
           [actToDel]: omit(state.blockIdQueue[actToDel], blockToDel),
         },
-      };
-    case types.BLOCK_ID_QUEUE_COMPLETE:
-      const { blockId: blockToComplete, blockAction: actToComplete } = action.payload;
-
-      return {
-        ...state,
-        blockIdQueue: set(state.blockIdQueue, `${actToComplete}.${blockToComplete}`, true),
       };
     case types.ART_FLUSH_ARTICLE_FULFILLED:
       toast.success('Article flushed.');

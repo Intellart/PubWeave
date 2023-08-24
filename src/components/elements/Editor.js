@@ -3,8 +3,6 @@ import React, { useEffect, useRef } from 'react';
 import EditorJS from '@editorjs/editorjs';
 import {
   every,
-  filter,
-  find,
   findKey,
   forEach,
   get,
@@ -23,6 +21,7 @@ import { useEditorTools } from '../../utils/editor_constants';
 import type {
   ArticleContent,
   BlockCategoriesToChange,
+  BlockIds,
   BlocksFromEditor,
   _ContentFromEditor,
 } from '../../store/articleStore';
@@ -34,6 +33,7 @@ import {
   getBlockChanges,
 } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
+import VersioningTune from '../../utils/editorExtensions/versioningTune';
 
 type Props = {
     isReady: boolean,
@@ -115,112 +115,50 @@ function Editor({
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
 
-  const activeBlock = useSelector((state) => selectors.getActiveBlock(state), isEqual);
+  const selectedVersioningBlock = useSelector((state) => selectors.getActiveBlock(state), isEqual);
   const content: ArticleContent = useSelector((state) => selectors.articleContent(state), isEqual);
-  const blockIdUPDATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'updated'), isEqual);
-  const blockIdCREATEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'created'), isEqual);
-  const blockIdDELETEQueue = useSelector((state) => selectors.getBlockIdQueue(state, 'deleted'), isEqual);
+  const blockIdQueue = useSelector((state) => selectors.getBlockIdQueue(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const dispatch = useDispatch();
-  const setActiveBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
-  const blockIdUPDATEQueueRemove = (id: string) => dispatch(actions.blockIdQueueRemove(id, 'updated'));
-  const blockIdUPDATEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'updated'));
-  const blockIdCREATEQueueRemove = (id: string) => dispatch(actions.blockIdQueueRemove(id, 'created'));
-  const blockIdCREATEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'created'));
-  const blockIdDELETEQueueRemove = (id: string) => dispatch(actions.blockIdQueueRemove(id, 'deleted'));
-  const blockIdDELETEQueueComplete = (id: string) => dispatch(actions.blockIdQueueComplete(id, 'deleted'));
+  const setSelectedVersioningBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
+  const blockIdQueueComplete = (id: string, blockAction: 'updated' | 'created' |'deleted') => dispatch(actions.blockIdQueueComplete(id, blockAction));
   // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
 
   const { labelCriticalSections, activeSections } = useCriticalSections({ blocks: get(content, 'blocks', {}) });
   const { checkLocks } = useLocking({ blocks: get(content, 'blocks', {}), editor: editor.current });
 
   useEffect(() => {
-    console.log('UE - update queue', blockIdUPDATEQueue);
     if (isReady && editor.current) {
-      forEach(blockIdUPDATEQueue, (isInEditor, blockId) => {
-        if (isInEditor) return;
+      forEach(blockIdQueue, (blockIds: BlockIds, category: 'updated' | 'created' |'deleted') => {
+        if (size(blockIds) === 0) return;
 
-        const block = get(content, `blocks.${blockId}`);
+        forEach(blockIds, (isInEditor, blockId) => {
+          if (isInEditor) return;
 
-        editor.current?.blocks.update(blockId, block.data);
-        // editor.current?.blocks.insert(b.type, b.data);
-        blockIdUPDATEQueueComplete(blockId);
+          if (category === 'updated') {
+            const block = get(content, `blocks.${blockId}`);
+            editor.current?.blocks.update(blockId, block.data);
+          } else if (category === 'created') {
+            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+          } else if (category === 'deleted') {
+            // editor.current?.blocks.delete(blockId);
+            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+          }
+          blockIdQueueComplete(blockId, category);
+        });
       });
     }
     labelCriticalSections();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blockIdUPDATEQueue]);
-
-  useEffect(() => {
-    console.log('UE - create queue', blockIdCREATEQueue);
-    if (isReady && editor.current) {
-      forEach(blockIdCREATEQueue, (isInEditor, blockId) => {
-        if (isInEditor) return;
-
-        editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
-
-        blockIdCREATEQueueComplete(blockId);
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blockIdCREATEQueue]);
-
-  useEffect(() => {
-    console.log('UE - delete queue', blockIdDELETEQueue);
-    if (isReady && editor.current) {
-      forEach(blockIdDELETEQueue, (isInEditor, blockId) => {
-        if (isInEditor) return;
-
-        // editor.current?.blocks.delete(blockId);
-        editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
-
-        blockIdDELETEQueueComplete(blockId);
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blockIdDELETEQueue]);
+  }, [blockIdQueue]);
 
   const handleUploadEditorContent = () => {
     editor.current?.save().then(
       (newArticleContent: _ContentFromEditor) => {
-        console.log('handleUploadEditorContent', blockIdUPDATEQueue);
+        console.log('handleUploadEditorContent');
 
-        const blo = filter(newArticleContent.blocks, (block) => {
-          const id = get(block, 'id');
-          if (has(blockIdUPDATEQueue, id) || has(blockIdCREATEQueue, id) || has(blockIdDELETEQueue, id)) {
-            if (get(blockIdCREATEQueue, id)) {
-              blockIdCREATEQueueRemove(id);
-            } else if (get(blockIdUPDATEQueue, id)) {
-              blockIdUPDATEQueueRemove(id);
-            } else if (get(blockIdDELETEQueue, id)) {
-              blockIdDELETEQueueRemove(id);
-            }
-
-            return false;
-          }
-
-          return true;
-        });
-
-        const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(blo);
-
-        // console.log(
-        //   'blocksFromEditor',
-        //   blocksFromEditor,
-        // );
-
-        // if (checkIfCriticalSection(newArticleget(content, 'blocks', []))) {
-        //   toast.error('You can\'t edit a critical section from another user');
-
-        //   editor.current?.blocks.render({ blocks }).then(() => {
-        //     labelCriticalSections();
-        //   });
-
-        //   return;
-        // }
-
-        if (size(blo) !== size(newArticleContent.blocks)) return;
+        const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(newArticleContent.blocks);
 
         const changedBlocks: BlockCategoriesToChange = getBlockChanges(
           blocksFromEditor,
@@ -233,13 +171,23 @@ function Editor({
           return;
         }
 
-        console.log('anyChanges', changedBlocks, get(content, 'blocks', {}), 'activeSections', activeSections);
+        console.log('anyChanges', changedBlocks);
+
+        const allowedToEdit = pickBy(get(changedBlocks, 'changed', []), (block) => (get(activeSections, block.id, null) && get(activeSections, block.id, null) === get(user, 'id')) /* || !get(activeSections, block.id, null) */);
+
+        // if (size(allowedToEdit) !== size(get(changedBlocks, 'changed', {}))) {
+        //   editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+
+        //   toast.error('You are not allowed to edit this block');
+
+        //   return;
+        // }
 
         if (onChange) {
           onChange(
             {
               created: get(changedBlocks, 'created', []),
-              changed: pickBy(get(changedBlocks, 'changed', []), (block) => get(activeSections, block.id, null) && get(activeSections, block.id, null) === get(user, 'id')),
+              changed: size(allowedToEdit) !== size(get(changedBlocks, 'changed', {})) ? {} : allowedToEdit,
               deleted: get(changedBlocks, 'deleted', []),
             },
             get(newArticleContent, 'time'),
@@ -314,7 +262,7 @@ function Editor({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get(content, 'blocks'), isReady, blockIdUPDATEQueue, activeSections]);
+  }, [get(content, 'blocks'), isReady, blockIdQueue, activeSections]);
 
   const getTop = () => {
     const block = document.getElementsByClassName('cdx-versioning-selected')[0];
@@ -342,20 +290,20 @@ function Editor({
         position: 'relative',
       }}
     >
-      {get(activeBlock, 'id') && (
+      {get(selectedVersioningBlock, 'id') && (
       <VersioningInfoCard
         style={{
           top: getTop(),
           left: '275px',
           zIndex: 1,
         }}
-        block={find(get(content, 'blocks', []), (o) => get(o, 'id') === get(activeBlock, 'id'))}
+        block={get(content, ['blocks', selectedVersioningBlock], {})}
         // versionInfo={this.vbInfo}
         onClose={() => {
-          // VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, this.toggleClass);
-          // VersioningTune.setActiveBlockId(null);
-          // VersioningTune.previousWrapper = null;
-          setActiveBlock(null);
+          VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, 'cdx-versioning-selected');
+          VersioningTune.setActiveBlockId(null);
+          VersioningTune.previousWrapper = null;
+          setSelectedVersioningBlock(null);
         }}
       />
       ) }
