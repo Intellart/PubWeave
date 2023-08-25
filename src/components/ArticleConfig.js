@@ -1,13 +1,12 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
-import ClickAwayListener from '@mui/base/ClickAwayListener';
+import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import {
   find, get, map,
   isEqual,

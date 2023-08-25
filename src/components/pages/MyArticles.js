@@ -1,7 +1,6 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';

@@ -2,11 +2,10 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { faShare } from '@fortawesome/free-solid-svg-icons';
 // import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
-import ShareModal from './ShareModal';
+import ShareModal from './modal/ShareModal';
 // import { useScreenSize } from '../../utils/hooks';
 
 type Props = {

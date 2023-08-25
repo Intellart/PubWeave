@@ -6,7 +6,6 @@ import {
   findKey,
   forEach,
   get,
-  has,
   isEmpty,
   isEqual,
   pickBy,
@@ -15,7 +14,6 @@ import {
 import { toast } from 'react-toastify';
 import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
-
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditorTools } from '../../utils/editor_constants';
 import type {
@@ -34,83 +32,21 @@ import {
 } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
 import VersioningTune from '../../utils/editorExtensions/versioningTune';
+import useCriticalSections from '../../utils/useCriticalSections';
+import useLocking from '../../utils/useLocking';
 
 type Props = {
-    isReady: boolean,
-    onChange?: (newBlocks: BlockCategoriesToChange, time:number, version: string) => void,
-    readOnly?: boolean,
-    onShowHistory?: () => void,
-};
-
-type CriticalSectionProps = {
-    blocks: any,
-};
-
-// eslint-disable-next-line no-unused-vars
-const useCriticalSections = ({ blocks } : CriticalSectionProps) => {
-  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-
-  const labelCriticalSections = () => {
-    forEach(document.getElementsByClassName('ce-block__content'), (div, divIndex) => {
-      if (div) {
-        const sectionKey = findKey(blocks, (o) => o.position === divIndex);
-        const isCritical = get(activeSections, sectionKey, null)
-        && get(activeSections, sectionKey, null) !== get(user, 'id');
-
-        if (isCritical) {
-          div.id = 'critical-section';
-          div.onclick = null;
-        } else {
-          div.id = '';
-        }
-      }
-    });
-  };
-
-  useEffect(() => {
-    labelCriticalSections();
-    console.log('activeSections', activeSections);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSections]);
-
-  return { labelCriticalSections, activeSections };
-};
-
-type LockingProps = {
-    blocks: any,
-    editor: any,
-};
-
-const useLocking = ({ blocks, editor } : LockingProps) => {
-  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-
-  const dispatch = useDispatch();
-  const lockSection = (userId: number, sectionId: string) => dispatch(actions.lockSection(userId, sectionId));
-  // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
-
-  const checkLocks = () => {
-    const blockIndex = editor.blocks.getCurrentBlockIndex();
-    if (blockIndex >= 0 && blockIndex < size(blocks)) {
-      const blockId = get(editor.blocks.getBlockByIndex(blockIndex), 'id');
-      if (blockId) {
-        if (!has(activeSections, blockId)) {
-          console.log('CARRET AT', blockIndex, '-> ID: ', blockId);
-          lockSection(user.id, blockId);
-        } /* else {
-          unlockSection(user.id, findKey(activeSections, (o) => o === get(user, 'id')));
-        } */
-      }
-    }
-  };
-
-  return { checkLocks };
+  isReady: boolean,
+  onChange?: (newBlocks: BlockCategoriesToChange, time:number, version: string) => void,
+  readOnly?: boolean,
+  onShowHistory?: () => void,
+  isUsingLocking?: boolean,
+  isUsingCriticalSections?: boolean,
 };
 
 function Editor({
   // eslint-disable-next-line no-unused-vars
-  isReady, onChange, readOnly, onShowHistory,
+  isReady, onChange, readOnly, onShowHistory, isUsingLocking, isUsingCriticalSections,
 } : Props): any {
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
@@ -119,14 +55,16 @@ function Editor({
   const content: ArticleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const blockIdQueue = useSelector((state) => selectors.getBlockIdQueue(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const blocks = get(content, 'blocks', {});
+  const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
 
   const dispatch = useDispatch();
   const setSelectedVersioningBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
   const blockIdQueueComplete = (id: string, blockAction: 'updated' | 'created' |'deleted') => dispatch(actions.blockIdQueueComplete(id, blockAction));
   // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
 
-  const { labelCriticalSections, activeSections } = useCriticalSections({ blocks: get(content, 'blocks', {}) });
-  const { checkLocks } = useLocking({ blocks: get(content, 'blocks', {}), editor: editor.current });
+  const { labelCriticalSections } = useCriticalSections({ blocks, enabled: isUsingCriticalSections || false });
+  const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: isUsingLocking || false });
 
   useEffect(() => {
     if (isReady && editor.current) {
@@ -140,10 +78,10 @@ function Editor({
             const block = get(content, `blocks.${blockId}`);
             editor.current?.blocks.update(blockId, block.data);
           } else if (category === 'created') {
-            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(blocks) || [] });
           } else if (category === 'deleted') {
             // editor.current?.blocks.delete(blockId);
-            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+            editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(blocks) || [] });
           }
           blockIdQueueComplete(blockId, category);
         });
@@ -160,12 +98,10 @@ function Editor({
 
         const blocksFromEditor: BlocksFromEditor = convertBlocksFromEditorJS(newArticleContent.blocks);
 
-        const changedBlocks: BlockCategoriesToChange = getBlockChanges(
-          blocksFromEditor,
-          get(content, 'blocks', {}),
-        );
+        const changedBlocks: BlockCategoriesToChange = getBlockChanges(blocksFromEditor, blocks);
 
-        if (every(changedBlocks, blocks => isEmpty(blocks))) {
+        labelCriticalSections();
+        if (every(changedBlocks, blockCat => isEmpty(blockCat))) {
           console.log('No changes');
 
           return;
@@ -176,7 +112,7 @@ function Editor({
         const allowedToEdit = pickBy(get(changedBlocks, 'changed', []), (block) => (get(activeSections, block.id, null) && get(activeSections, block.id, null) === get(user, 'id')) /* || !get(activeSections, block.id, null) */);
 
         // if (size(allowedToEdit) !== size(get(changedBlocks, 'changed', {}))) {
-        //   editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [] });
+        //   editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(blocks) || [] });
 
         //   toast.error('You are not allowed to edit this block');
 
@@ -207,7 +143,7 @@ function Editor({
         readOnly,
         //
         data: {
-          blocks: convertBlocksToEditorJS(get(content, 'blocks', [])) || [],
+          blocks: convertBlocksToEditorJS(blocks) || [],
         },
         tools: EDITOR_JS_TOOLS,
         tunes: ['myTune'],
@@ -235,7 +171,7 @@ function Editor({
 
           // eslint-disable-next-line no-new
           const undo = new Undo({ editor: editor.current, config });
-          undo.initialize(get(content, 'blocks', []));
+          undo.initialize(blocks);
           // eslint-disable-next-line no-new
           // new DragDrop({ blocks, editor: editor.current, configuration: { holder: 'editorjs' } });
 
@@ -256,13 +192,11 @@ function Editor({
   }, [isReady]);
 
   useEffect(() => {
-    if (isReady) {
-      if (editor.current && editor.current.configuration) {
-        editor.current.configuration.onChange = handleUploadEditorContent;
-      }
+    if (isReady && editor.current && editor.current.configuration) {
+      editor.current.configuration.onChange = handleUploadEditorContent;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [get(content, 'blocks'), isReady, blockIdQueue, activeSections]);
+  }, [blocks, isReady, blockIdQueue, activeSections]);
 
   const getTop = () => {
     const block = document.getElementsByClassName('cdx-versioning-selected')[0];

@@ -139,7 +139,7 @@ export default function EditorTitle ({
           >
             <FontAwesomeIcon icon={faHistory} />
           </div>
-          ) }
+          )}
           <div
             onClick={(e) => {
               e.stopPropagation();

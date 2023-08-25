@@ -9,7 +9,6 @@ import {
 } from 'lodash';
 import classNames from 'classnames';
 
-import 'bulma/css/bulma.min.css';
 import ArticleConfig from '../ArticleConfig';
 import type {
   Block,
@@ -145,6 +144,8 @@ function ReactEditor (): React$Element<any> {
           console.log('onShowHistory');
           setSidebar({ ...sidebar, show: true });
         }}
+        isUsingLocking={type === 'preprints'}
+        isUsingCriticalSections={type === 'preprints'}
         onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
           const blocksToAdd :BlockToServer[] = [
             ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),

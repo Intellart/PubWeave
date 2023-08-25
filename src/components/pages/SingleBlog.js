@@ -1,7 +1,6 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faClipboard, faCopy, faGlobe, faHeart,

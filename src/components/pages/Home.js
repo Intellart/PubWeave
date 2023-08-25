@@ -2,7 +2,6 @@
 import React from 'react';
 import type { Node } from 'react';
 import { Link } from 'react-router-dom';
-import 'bulma/css/bulma.min.css';
 import chatDialoge from '../../images/chatdialoge.png';
 import AboutImg from '../../images/About.png';
 import TeamImg from '../../images/Teamwork.png';

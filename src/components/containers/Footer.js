@@ -3,7 +3,6 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { Link } from 'react-router-dom';
 
 function Footer(): Node {

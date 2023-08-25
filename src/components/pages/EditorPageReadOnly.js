@@ -16,7 +16,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { Alert, AlertTitle } from '@mui/material';
 
-import 'bulma/css/bulma.min.css';
 import ArticleConfig from '../ArticleConfig';
 // eslint-disable-next-line no-unused-vars
 import { store } from '../../store';

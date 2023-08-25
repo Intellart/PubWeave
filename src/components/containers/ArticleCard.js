@@ -1,11 +1,10 @@
 // @flow
 import React, { useState, useEffect } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faShare, faWarning, faXmark, faHeart as faHeartSolid,
+  faPencil, faPenToSquare, faShare, faWarning, faXmark, faHeart as faHeartSolid, faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
@@ -18,9 +17,10 @@ import type { Article } from '../../store/articleStore';
 // import Astronaut from '../../images/AstronautImg.png';
 // import Earth from '../../images/EarthImg.png';
 import { useScreenSize } from '../../utils/hooks';
-import ShareModal from './ShareModal';
+import ShareModal from './modal/ShareModal';
 import { actions } from '../../store/articleStore';
 import LogoImg from '../../assets/images/pubweave_logo.png';
+import CollabModal from './modal/CollabModal';
 
 // const images = [Rocket, Space, Astronaut, Earth];
 
@@ -71,6 +71,10 @@ function ArticleCard(props : Props): Node {
     if (props.onClick) {
       props.onClick();
     }
+  };
+
+  const handleAddCollabs = (e: any) => {
+    e.stopPropagation();
   };
 
   const chipParams = (imageChip: boolean = false) => {
@@ -125,10 +129,16 @@ function ArticleCard(props : Props): Node {
     }
   };
 
-  const [showModal, setShowModal] = React.useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [showCollabModal, setShowCollabModal] = useState(false);
 
   return (
     <>
+      <CollabModal
+        open={showCollabModal}
+        onClose={() => setShowCollabModal(false)}
+        article={props.article}
+      />
       <ShareModal
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -198,6 +208,12 @@ function ArticleCard(props : Props): Node {
                 ><FontAwesomeIcon icon={faPenToSquare} />
                 </a>
                 )} */}
+                {!isPublished && (
+                <a
+                  onClick={(e) => handleAddCollabs(e)}
+                ><FontAwesomeIcon icon={faUsers} />
+                </a>
+                )}
                 {!isPublished && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}

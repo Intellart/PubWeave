@@ -9,11 +9,11 @@ import {
   faTwitter,
 } from '@fortawesome/free-brands-svg-icons';
 import type { Node } from 'react';
-import { Modal } from '@mui/material';
 import { faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { get } from 'lodash';
-import type { Article } from '../../store/articleStore';
+import type { Article } from '../../../store/articleStore';
+import Modal from './Modal';
 
 type Props = {
   open: boolean,
@@ -36,11 +36,6 @@ function ShareModal(props: Props): Node {
 
   return (
     <Modal
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
       open={props.open}
       onClose={props.onClose}
     >

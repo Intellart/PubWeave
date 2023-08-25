@@ -1,7 +1,6 @@
 // @flow
 import React, { useEffect } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { useNavigate } from 'react-router-dom';
 
 type Props = {
