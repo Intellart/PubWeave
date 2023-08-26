@@ -1,43 +1,57 @@
 // @flow
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-function CollabModal (): any {
-  return ReactDOM.createPortal(
-    <div className="modal is-active">
-      <div
-        className="modal-background"
-      />
-      <div className="modal-content">
+type CollabModalProps = {
+    // article?: any,
+    isOwner: boolean,
+};
+
+function CollabModal ({ isOwner }: CollabModalProps): any {
+  return (
+    <div className="collab-modal">
+      <div className="field">
+        <label
+          className="label"
+          htmlFor="collaborator-name"
+        >Collaborator&apos;s Email
+        </label>
         <div
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          className="box"
+          className="control"
+          id="collaborator-name"
         >
-          <div className="field">
-            <label
-              className="label"
-              htmlFor="collaborator-name"
-            >Collaborator&apos;s Email
-            </label>
-            <div
-              className="control"
-              id="collaborator-name"
-            >
-              <input className="input" type="email" placeholder="e.g." />
-            </div>
-          </div>
+          <input className="input" type="email" placeholder="e.g." />
           <button
             className="button is-primary"
             type="button"
-          >Add Collaborator
+          >Add
           </button>
         </div>
       </div>
-      <button className="modal-close is-large" aria-label="close" />
-    </div>,
-    document.body,
+      <ul className="collaborators">
+        <li className="collaborator">
+          <p className="collaborator-name">John Doe</p>
+          {isOwner && (
+          <button
+            className="button is-danger"
+            type="button"
+          >Remove
+          </button>
+          ) }
+        </li>
+        <li className="collaborator">
+          <p className="collaborator-name">Jane Doe</p>
+          {isOwner && (
+          <button
+            className="button is-danger"
+            type="button"
+          >Remove
+          </button>
+          ) }
+        </li>
+      </ul>
+
+    </div>
+
   );
 }
 

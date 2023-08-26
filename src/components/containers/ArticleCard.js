@@ -4,23 +4,23 @@ import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faShare, faWarning, faXmark, faHeart as faHeartSolid, faUsers,
+  faPencil, faPenToSquare, faWarning, faXmark, faHeart as faHeartSolid, faNewspaper,
 } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
 import { find, get } from 'lodash';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
 // import Rocket from '../../images/RocketLaunch.png';
 // import Space from '../../images/SpaceImg.png';
 // import Astronaut from '../../images/AstronautImg.png';
 // import Earth from '../../images/EarthImg.png';
 import { useScreenSize } from '../../utils/hooks';
-import ShareModal from './modal/ShareModal';
 import { actions } from '../../store/articleStore';
 import LogoImg from '../../assets/images/pubweave_logo.png';
-import CollabModal from './modal/CollabModal';
+import Modal from './modal/Modal';
 
 // const images = [Rocket, Space, Astronaut, Earth];
 
@@ -33,9 +33,11 @@ type Props = {
 };
 
 function ArticleCard(props : Props): Node {
+  const navigate = useNavigate();
   const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   const status = props.article.status ? props.article.status : 'draft';
+  const workType = 'blog';
   const isPublished = status === 'published';
 
   const dispatch = useDispatch();
@@ -71,10 +73,6 @@ function ArticleCard(props : Props): Node {
     if (props.onClick) {
       props.onClick();
     }
-  };
-
-  const handleAddCollabs = (e: any) => {
-    e.stopPropagation();
   };
 
   const chipParams = (imageChip: boolean = false) => {
@@ -129,64 +127,97 @@ function ArticleCard(props : Props): Node {
     }
   };
 
-  const [showModal, setShowModal] = useState(false);
-  const [showCollabModal, setShowCollabModal] = useState(false);
+  const chipTypeParams = () => {
+    switch (workType) {
+      case 'blog':
+        return {
+          label: 'Blog',
+          color: 'info',
+          icon: <FontAwesomeIcon icon={faNewspaper} />,
+          variant: 'outlined',
+        };
+      case 'article':
+        return {
+          label: 'Article',
+          color: 'success',
+          icon: <FontAwesomeIcon icon={faNewspaper} />,
+          variant: 'default',
+        };
+      case 'preprint':
+        return {
+          label: 'Preprint',
+          color: 'warning',
+          icon: <FontAwesomeIcon icon={faNewspaper} />,
+          variant: 'outlined',
+        };
+      default:
+        return {
+          label: 'Blog',
+          color: 'info',
+          icon: <FontAwesomeIcon icon={faNewspaper} />,
+          variant: 'outlined',
+        };
+    }
+  };
 
   return (
-    <>
-      <CollabModal
-        open={showCollabModal}
-        onClose={() => setShowCollabModal(false)}
-        article={props.article}
-      />
-      <ShareModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        article={props.article}
-      />
+    <div
+      className="article-card"
+    >
       <div
         onClick={handleArticleClick}
-        className="article-card"
+        className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}
       >
-        <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
-          <img
-            src={props.article.image || LogoImg}
-            className="article-card-img"
-            alt="article"
-          />
-          {props.showPublishedChip && (isPublished || noImage) && (
+        <img
+          src={props.article.image || LogoImg}
+          className="article-card-img"
+          alt="article"
+        />
+        {props.showPublishedChip && (isPublished || noImage) && (
           <Chip
             className="article-card-img-chip"
             {...chipParams(true)}
           />
-          )}
-        </div>
-        <div className="article-right-side-content">
-          <div className="article-card-side-content-upper-wrapper">
-            <div className="article-card-side-content-title-wrapper">
-              <h4>{props.article.category || 'Category'}</h4>
-              <h2>{props.article.title}</h2>
-              <p className="author">By {props.article.author.full_name || 'Authors Name'}</p>
-            </div>
-            <div className="article-card-side-content-status-wrapper">
-              {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
-            </div>
+        )}
+      </div>
+      <div className="article-right-side-content">
+        <div className="article-card-side-content-upper-wrapper">
+          <div onClick={handleArticleClick} className="article-card-side-content-title-wrapper">
+            <h4>{props.article.category || 'Category'}</h4>
+            <h2>{props.article.title}
+            </h2>
+            <p className="author">By {props.article.author.full_name || 'Authors Name'}</p>
           </div>
-          <p className="article-card-description">{description.substring(0, isMobile ? 45 : 200)}...</p>
-          <div className='article-card-lower'>
-            <div className="date-social">
-              <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
-              <div className="article-icons-share-heart">
-                {isPublished && (
-                <FontAwesomeIcon
-                  icon={faShare}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowModal(true);
-                  }}
-                />
-                )}
-                {props.currentUserId && (
+          <div className="article-card-side-content-status-wrapper">
+            {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
+            <Chip
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate('/my-work/choose-type');
+              }}
+              className="article-card-side-content-status-chip"
+              label={workType || 'Type'}
+              {...chipTypeParams()}
+            />
+          </div>
+        </div>
+        <p className="article-card-description">{description.substring(0, isMobile ? 45 : 200)}...</p>
+        <div className='article-card-lower'>
+          <div className="date-social">
+            <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
+            <div className="article-icons-share-heart">
+              <Modal
+                enabled={isPublished}
+                type="share"
+              />
+              <Modal
+                enabled={!isPublished}
+                type="collab"
+                extendedIcon
+                isOwner
+              />
+
+              {props.currentUserId && (
                 <FontAwesomeIcon
                   onClick={(e) => {
                     e.stopPropagation();
@@ -201,32 +232,26 @@ function ArticleCard(props : Props): Node {
                   }}
                   icon={userAlreadyLiked ? faHeartSolid : faHeart}
                 />
-                ) }
-                {/* {!isPublished && (
+              ) }
+              {/* {!isPublished && (
                 <a
                   onClick={(e) => handleEditArticle(e)}
                 ><FontAwesomeIcon icon={faPenToSquare} />
                 </a>
                 )} */}
-                {!isPublished && (
-                <a
-                  onClick={(e) => handleAddCollabs(e)}
-                ><FontAwesomeIcon icon={faUsers} />
-                </a>
-                )}
-                {!isPublished && (
+
+              {!isPublished && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}
                 ><FontAwesomeIcon icon={faXmark} />
                 </a>
-                )}
-              </div>
+              )}
             </div>
-            <hr className="article-card-divider" />
           </div>
+          <hr className="article-card-divider" />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

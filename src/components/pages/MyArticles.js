@@ -21,6 +21,8 @@ function MyArticles(): Node {
 
   const { type } = useParams();
 
+  // const setting = get(workTypes, type, workTypes.articles);
+
   useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
@@ -36,6 +38,7 @@ function MyArticles(): Node {
 
   const categories = [
     { id: 'all', name: 'All' },
+    { id: 'collaborating', name: 'Collaborating' },
     { id: 'published', name: 'Published' },
     { id: 'requested', name: 'Requested' },
     { id: 'rejected', name: 'Rejected' },
@@ -66,7 +69,7 @@ function MyArticles(): Node {
     <main className="my-articles-wrapper">
       <section className="articles">
         <div className="articles-title">
-          <h1>My Articles</h1>
+          <h1>My work</h1>
           <FontAwesomeIcon
             className="add-article-icon"
             icon={faPlus}

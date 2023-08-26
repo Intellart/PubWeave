@@ -2,35 +2,30 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { map } from 'lodash';
 import { useNavigate } from 'react-router-dom';
-import work1 from '../../assets/images/div-backgrounds/work1.png';
-import work2 from '../../assets/images/div-backgrounds/work2.png';
-import work3 from '../../assets/images/div-backgrounds/work3.png';
+
 import routes from '../../routes';
+import { workTypes } from '../../constants';
 
 function ChooseType() {
-  const backgrounds = [work1, work2, work3];
-  const rotations = [-7, 2, -4];
-  const labels = ['Articles', 'Blogs', 'Preprints'];
-
   const navigate = useNavigate();
 
-  const motionItemProps = (id) => ({
+  const motionItemProps = (setting) => ({
     className: 'work-types-item',
     initial: { scale: 0, rotate: 90 },
     animate: { rotate: 0, scale: 1 },
-    onClick: () => navigate(routes.myWork.choose(labels[id].toLowerCase())),
+    onClick: () => navigate(routes.myWork.root),
     transition: {
       type: 'spring',
       stiffness: 260,
       damping: 20,
-      delay: 0.1 * id,
+      delay: 0.1 * setting.index,
     },
     whileHover: {
       scale: 1.1,
       transition: { duration: 0.5, ease: 'easeInOut' },
     },
     style: {
-      backgroundImage: `url(${backgrounds[id]})`,
+      backgroundImage: `url(${setting.background})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundRepeat: 'no-repeat',
@@ -40,20 +35,25 @@ function ChooseType() {
   return (
     <main className="work-types-wrapper">
       <section className="work-types-items-wrapper">
-        {map(labels, (label, id) => (
-          <motion.div
-            key={id}
-            {...motionItemProps(id)}
-          >
-            <div
-              className="work-types-item-title"
-              style={{
-                transform: `rotate(${rotations[id]}deg)`,
-              }}
+        {map(workTypes, (setting, key) => (
+          <div className="work-types-item-wrapper" key={key}>
+            <motion.div
+              key={key}
+              {...motionItemProps(setting, key)}
             >
-              <h1>{label}</h1>
+              <div
+                className="work-types-item-title"
+                style={{
+                  transform: `rotate(${setting.rotation}deg)`,
+                }}
+              >
+                <h1>{setting.label}</h1>
+              </div>
+            </motion.div>
+            <div className="work-types-item-content">
+              <p>{setting.content}</p>
             </div>
-          </motion.div>
+          </div>
         ))}
       </section>
     </main>

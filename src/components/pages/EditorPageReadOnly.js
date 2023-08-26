@@ -122,7 +122,7 @@ function ReactEditor () {
         inReview
         onPublishClick={() => {
           publishArticle(id, 'requested', article);
-          navigate(routes.myWork.choose(type));
+          navigate(routes.myWork.root);
         }}
         projectType={type}
       />

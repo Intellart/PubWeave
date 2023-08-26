@@ -8,7 +8,6 @@
     justify-content: space-between;
     gap: 20px;
     width: 100%;
-    cursor: pointer;
     position: relative;
 
     @media screen and (max-width: $mobile_breakpoint) {
@@ -51,6 +50,7 @@
         padding: 0;
         position: relative;
         aspect-ratio: 16/9;
+        cursor: pointer;
 
  
 
@@ -133,6 +133,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 0;
+                cursor: pointer;
                 
                 h2 {
                     font-family: 'Inter';

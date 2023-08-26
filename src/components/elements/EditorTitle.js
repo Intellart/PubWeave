@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import routes from '../../routes';
+import Modal from '../containers/modal/Modal';
 // import ActiveUsers from './ActiveUsers';
 
 type Props = {
@@ -127,6 +128,10 @@ export default function EditorTitle ({
         {!titleFocus && (
         <div className="editor-title-buttons">
           {/* <ActiveUsers /> */}
+          <Modal
+            enabled
+            type="collab"
+          />
           {!inReview && (
           <div
             onClick={(e) => {

@@ -2,9 +2,9 @@ const routes = {
   home: '/dashboard',
   myWork: {
     root: '/my-work',
-    choose: (type) => `/my-work/${type}`,
-    project: (type, id) => `/my-work/${type}/${id}`,
-    review: (type, id) => `/my-work/${type}/${id}/review`,
+    chooseType: '/my-work/choose-type',
+    project: (type, id) => `/my-work/${id}`,
+    review: (type, id) => `/my-work/${id}/review`,
   },
   user: (id) => `/user/${id}`,
   login: '/login',
