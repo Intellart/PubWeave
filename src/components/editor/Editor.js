@@ -28,25 +28,27 @@ import VersioningInfoCard from './VersioningInfoCard';
 import {
   convertBlocksFromEditorJS,
   convertBlocksToEditorJS,
+  editorPermissions,
   getBlockChanges,
+  permissions,
 } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
 import VersioningTune from '../../utils/editorExtensions/versioningTune';
 import useCriticalSections from '../../utils/useCriticalSections';
 import useLocking from '../../utils/useLocking';
+import WebSocketElement from '../WebSocketElement';
 
 type Props = {
+  status: 'inProgress' | 'inReview' | 'published',
   isReady: boolean,
   onChange?: (newBlocks: BlockCategoriesToChange, time:number, version: string) => void,
   readOnly?: boolean,
   onShowHistory?: () => void,
-  isUsingLocking?: boolean,
-  isUsingCriticalSections?: boolean,
 };
 
 function Editor({
   // eslint-disable-next-line no-unused-vars
-  isReady, onChange, readOnly, onShowHistory, isUsingLocking, isUsingCriticalSections,
+  isReady, onChange, readOnly, onShowHistory, status,
 } : Props): any {
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
@@ -57,14 +59,17 @@ function Editor({
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const blocks = get(content, 'blocks', {});
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
+  const article = useSelector((state) => selectors.article(state), isEqual);
+
+  const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: status || 'inProgress' });
 
   const dispatch = useDispatch();
   const setSelectedVersioningBlock = (id: string | null) => dispatch(actions.setActiveBlock(id));
   const blockIdQueueComplete = (id: string, blockAction: 'updated' | 'created' |'deleted') => dispatch(actions.blockIdQueueComplete(id, blockAction));
   // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
 
-  const { labelCriticalSections } = useCriticalSections({ blocks, enabled: isUsingCriticalSections || false });
-  const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: isUsingLocking || false });
+  const { labelCriticalSections } = useCriticalSections({ blocks, enabled: get(currentPermissions, permissions.criticalSections, false) });
+  const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: get(currentPermissions, permissions.locking, false) });
 
   useEffect(() => {
     if (isReady && editor.current) {
@@ -107,9 +112,15 @@ function Editor({
           return;
         }
 
+        const blockIsNOTBeingEditedBySomeoneElse = (blockId: string) => (get(activeSections, blockId, null)
+        && get(activeSections, blockId, null) === get(user, 'id')) || !get(activeSections, blockId, null);
+
         console.log('anyChanges', changedBlocks);
 
-        const allowedToEdit = pickBy(get(changedBlocks, 'changed', []), (block) => (get(activeSections, block.id, null) && get(activeSections, block.id, null) === get(user, 'id')) /* || !get(activeSections, block.id, null) */);
+        const allowedToEdit = pickBy(
+          get(changedBlocks, 'changed', []),
+          (block) => blockIsNOTBeingEditedBySomeoneElse(block.id),
+        );
 
         // if (size(allowedToEdit) !== size(get(changedBlocks, 'changed', {}))) {
         //   editor.current?.blocks.render({ blocks: convertBlocksToEditorJS(blocks) || [] });
@@ -141,7 +152,6 @@ function Editor({
         logLevel: 'ERROR',
         holder: 'editorjs',
         readOnly,
-        //
         data: {
           blocks: convertBlocksToEditorJS(blocks) || [],
         },
@@ -195,6 +205,7 @@ function Editor({
     if (isReady && editor.current && editor.current.configuration) {
       editor.current.configuration.onChange = handleUploadEditorContent;
     }
+    labelCriticalSections();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks, isReady, blockIdQueue, activeSections]);
 
@@ -224,6 +235,7 @@ function Editor({
         position: 'relative',
       }}
     >
+      {get(currentPermissions, permissions.webSockets, false) && <WebSocketElement articleId={get(article, 'id')} /> }
       {get(selectedVersioningBlock, 'id') && (
       <VersioningInfoCard
         style={{

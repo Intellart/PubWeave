@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
@@ -14,20 +13,14 @@ import type {
   ArticleContentToServer,
   BlockToServer,
 } from '../../store/articleStore';
-
-// eslint-disable-next-line no-unused-vars
-import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import routes from '../../routes';
-import WebSocketElement from '../WebSocketElement';
 import TutorialModal from '../editor/TutorialModal';
 import EditorTitle from '../editor/EditorTitle';
 import ArticleConfig from '../editor/ArticleConfig';
 import SideBar from '../editor/SideBar';
 import Editor from '../editor/Editor';
-// import { selectors as userSelectors } from '../../store/userStore';
-// import ActiveUsers from '../elements/ActiveUsers';
-// import axios from '../../api/axios';
+import { editorPermissions, permissions } from '../../utils/hooks';
 
 const cookies = new Cookies();
 
@@ -35,23 +28,20 @@ function ReactEditor (): React$Element<any> {
   const { id, type } = useParams();
   const navigate = useNavigate();
 
-  // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
 
-  // const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-
-  // dispatch
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
   const updateArticle = (articleId:number, payload:any) => dispatch(actions.updateArticle(articleId, payload));
   const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
   const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
-  // const setLastUpdatedArticleIds = (articleIds:number[]) => dispatch(actions.setLastUpdatedArticleIds(articleIds));
+
+  const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: 'inProgress' });
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
@@ -74,6 +64,7 @@ function ReactEditor (): React$Element<any> {
   }, [article, id, isReady]);
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
+  console.log('currentPermissions', currentPermissions);
 
   return (
     <main
@@ -99,7 +90,6 @@ function ReactEditor (): React$Element<any> {
       >
         <FontAwesomeIcon icon={faPlus} /> ADD
       </button> */}
-      <WebSocketElement articleId={id} />
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -111,7 +101,8 @@ function ReactEditor (): React$Element<any> {
       />
       <EditorTitle
         articleId={id}
-        onShowSidebar={(show) => setSidebar({ ...sidebar, show })}
+        articleType={get(article, 'article_type')}
+        onShowSidebar={(show) => setSidebar({ ...sidebar, show: show || !sidebar.show })}
         showSidebar={sidebar.show}
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
@@ -131,20 +122,20 @@ function ReactEditor (): React$Element<any> {
         addTag={addTag}
         removeTag={removeTag}
       />
-      <SideBar
-        showSidebar={sidebar.show}
-        setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
-        snapSidebar={sidebar.snap}
-        setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
-      />
-      {/* <Button onClick={() => testWsUpdateBlock()}>Test</Button> */}
+      {get(currentPermissions, permissions.history) && (
+        <SideBar
+          showSidebar={sidebar.show}
+          setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
+          snapSidebar={sidebar.snap}
+          setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
+        />
+      )}
       <Editor
+        status="inProgress"
         onShowHistory={() => {
           console.log('onShowHistory');
           setSidebar({ ...sidebar, show: true });
         }}
-        isUsingLocking
-        isUsingCriticalSections
         onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
           const blocksToAdd :BlockToServer[] = [
             ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),

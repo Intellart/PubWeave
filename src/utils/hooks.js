@@ -85,6 +85,55 @@ export const emailChecks = [
   checks.email,
 ];
 
+export const permissions = {
+  webSockets: 'WEB_SOCKETS',
+  criticalSections: 'CRITICAL_SECTIONS',
+  locking: 'LOCKING',
+  configMenu: 'CONFIG_MENU',
+  history: 'HISTORY',
+  collaborators: 'COLLABORATORS',
+};
+
+type EditorPermissionProps = {
+  type: 'blog_article' | 'preprint' | 'scientific_article',
+  status: 'inProgress' | 'published' | 'inReview',
+};
+
+export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
+  scientific_article: {
+    inProgress: {
+    },
+    published: {
+    },
+    inReview: {
+    },
+  },
+  preprint: {
+    inProgress: {
+      [permissions.webSockets]: true,
+      [permissions.criticalSections]: true,
+      [permissions.locking]: true,
+      [permissions.configMenu]: true,
+      [permissions.history]: true,
+      [permissions.collaborators]: true,
+    },
+    published: {
+    },
+    inReview: {
+    },
+  },
+  blog_article: {
+    inProgress: {
+      [permissions.configMenu]: true,
+    },
+    published: {
+    },
+    inReview: {
+      [permissions.configMenu]: true,
+    },
+  },
+}[type || 'blog_article'][status]);
+
 export const isProdEnv = process.env.NODE_ENV === 'production';
 
 export const buildRedirectLink = (path: string): string => window.location.origin + path;

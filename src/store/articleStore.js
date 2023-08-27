@@ -550,7 +550,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
     case types.WS_BLOCK_UPDATE: {
       console.log('WS_BLOCK_UPDATE');
-      console.log(state);
+      // console.log(state);
 
       const { userId, payload: _newBlock } = action.payload;
 
@@ -607,7 +607,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
     }
     case types.WS_BLOCK_CREATE: {
-      console.log('WS_BLOCK_CREATE');
+      console.log('WS_BLOCK_CREATE', action.payload);
 
       const { userId, payload: _newBlock } = action.payload;
 
@@ -624,8 +624,25 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       const findBlock2 = get(state.oneArticle, `content.blocks.${_newBlock.id}`);
 
       if (findBlock2) {
+        console.log('block already exists');
+
         return state;
       }
+
+      // const oldTime = new Date(oldBlock.time);
+      // const newTime = new Date(newBlock.time);
+
+      // console.log('old time', oldTime, 'new time', newTime);
+
+      // // check if difference is bigger than 1 second
+      // if (Math.abs(subtract(oldTime, newTime)) < 3000 && get(_newBlock, ['current_editor_id']) === userId) {
+      //   console.log('time difference too small, ignoring');
+
+      //   return {
+      //     ...state,
+      //     activeSections: newBlock.active_sections,
+      //   };
+      // }
 
       return {
         ...state,

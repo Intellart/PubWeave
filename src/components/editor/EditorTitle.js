@@ -5,35 +5,39 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { get } from 'lodash';
 import routes from '../../routes';
 import Modal from '../modal/Modal';
+import { editorPermissions, permissions } from '../../utils/hooks';
 // import ActiveUsers from './ActiveUsers';
 
 type Props = {
     articleId: string,
-    onShowSidebar?: () => void,
+    articleType: 'blog_article' | 'preprint' | 'scientific_article',
+    onShowSidebar?: (value:boolean) => void,
     showSidebar?: boolean,
     title: string,
     onTitleChange: (title: string) => void,
     inReview?: boolean,
     onPublishClick?: () => void,
-    projectType?: string,
 };
 
 export default function EditorTitle ({
   articleId,
+  articleType,
   onShowSidebar,
   showSidebar,
   title,
   onTitleChange,
   inReview,
   onPublishClick,
-  projectType,
-}: Props) {
+}: Props): React$Node {
   const [titleFocus, setTitleFocus] = useState(false);
-  const titleRef = React.useRef(null);
+  const titleRef = React.useRef<any>(null);
 
   const [articleTitle, setArticleTitle] = useState('');
+
+  const currentPermissions = editorPermissions({ type: articleType, status: 'inProgress' });
 
   useEffect(() => {
     if (titleRef.current) {
@@ -85,7 +89,7 @@ export default function EditorTitle ({
             onClick={(e) => {
               e.stopPropagation();
             }}
-            to={routes.myWork.project(projectType, articleId)}
+            to={routes.myWork.project(null, articleId)}
             className="editor-publish-button editor-publish-button-back"
           >
             Back to Editor
@@ -131,17 +135,19 @@ export default function EditorTitle ({
         <div className="editor-title-buttons">
           {/* <ActiveUsers /> */}
           <Modal
-            enabled
+            enabled={get(currentPermissions, permissions.collaborators)}
             type="collab"
             shape="icon"
             text="showOnline"
 
           />
-          {!inReview && (
+          {get(currentPermissions, permissions.history) && (
           <div
             onClick={(e) => {
               e.stopPropagation();
-              onShowSidebar(!showSidebar);
+              if (onShowSidebar) {
+                onShowSidebar(!showSidebar || false);
+              }
             }}
             className={classNames('editor-history-button', {
               disabled: showSidebar,
@@ -153,7 +159,7 @@ export default function EditorTitle ({
           <div
             onClick={(e) => {
               e.stopPropagation();
-              onPublishClick();
+              if (onPublishClick)onPublishClick();
             }}
             className="editor-publish-button"
           >

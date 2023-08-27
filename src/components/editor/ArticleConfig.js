@@ -104,7 +104,7 @@ function ArticleConfig(props: Props): Node {
     // console.log('to add', diff2);
 
     map(diff, (tag) => {
-      props.removeTag(tag.article_tag_link);
+      props.removeTag(props.id, tag.article_tag_link);
     });
 
     map(diff2, (tag) => {

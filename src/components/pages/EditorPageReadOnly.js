@@ -1,3 +1,4 @@
+// @flow
 import React, {
   useEffect, useState,
 } from 'react';
@@ -23,11 +24,10 @@ import Editor from '../editor/Editor';
 import EditorTitle from '../editor/EditorTitle';
 import routes from '../../routes';
 
-function ReactEditor () {
-  const { id, type } = useParams();
+function ReactEditor (): React$Element<any> {
+  const { id } = useParams();
 
   console.log('id', id);
-  console.log('type', type);
 
   const navigate = useNavigate();
 
@@ -39,15 +39,13 @@ function ReactEditor () {
 
   // dispatch
   const dispatch = useDispatch();
-  const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
-  const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
-  const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
-  const addTag = (articleId, tagId) => dispatch(actions.addTag(articleId, tagId));
-  const removeTag = (articleTagId) => dispatch(actions.removeTag(articleTagId));
+  const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
+  const updateArticle = (articleId: number, payload: any) => dispatch(actions.updateArticle(articleId, payload));
+  const publishArticle = (articleId: number, status: string) => dispatch(actions.publishArticle(articleId, status));
+  const addTag = (articleId: number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
+  const removeTag = (articleId :number, articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-
-  const [criticalSectionIds] = useState(['BLGRuTJ1nv', 'zPdYgkZpqE']);
 
   useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
@@ -115,14 +113,14 @@ function ReactEditor () {
     <main className="editor-wrapper">
       <EditorTitle
         articleId={id}
+        articleType={get(article, 'article_type')}
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
         inReview
         onPublishClick={() => {
-          publishArticle(id, 'requested', article);
+          publishArticle(id, 'requested');
           navigate(routes.myWork.root);
         }}
-        projectType={type}
       />
       <ImageSelection
         linkList={linkList}
@@ -187,10 +185,9 @@ function ReactEditor () {
       />
       )} */}
       <Editor
-        blocks={get(articleContent, 'blocks', [])}
         isReady={isReady}
-        criticalSectionIds={criticalSectionIds}
         readOnly
+        status="inReview"
 
       />
     </main>
