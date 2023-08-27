@@ -12,7 +12,7 @@ import {
   size,
 } from 'lodash';
 import { toast } from 'react-toastify';
-import Undo from 'editorjs-undo';
+// import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEditorTools } from '../../utils/editor_constants';
@@ -162,16 +162,16 @@ function Editor({
 
       editor.current.isReady
         .then(() => {
-          const config = {
-            shortcuts: {
-              undo: 'CMD+X',
-              redo: 'CMD+ALT+C',
-            },
-          };
+          // const config = {
+          //   shortcuts: {
+          //     undo: 'CMD+X',
+          //     redo: 'CMD+ALT+C',
+          //   },
+          // };
 
           // eslint-disable-next-line no-new
-          const undo = new Undo({ editor: editor.current, config });
-          undo.initialize(blocks);
+          // const undo = new Undo({ editor: editor.current, config });
+          // undo.initialize(blocks);
           // eslint-disable-next-line no-new
           // new DragDrop({ blocks, editor: editor.current, configuration: { holder: 'editorjs' } });
 

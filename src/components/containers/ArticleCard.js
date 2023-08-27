@@ -20,7 +20,7 @@ import type { Article } from '../../store/articleStore';
 import { useScreenSize } from '../../utils/hooks';
 import { actions } from '../../store/articleStore';
 import LogoImg from '../../assets/images/pubweave_logo.png';
-import Modal from './modal/Modal';
+import Modal from '../modal/Modal';
 
 // const images = [Rocket, Space, Astronaut, Earth];
 
@@ -209,11 +209,13 @@ function ArticleCard(props : Props): Node {
               <Modal
                 enabled={isPublished}
                 type="share"
+                shape="icon"
               />
               <Modal
                 enabled={!isPublished}
                 type="collab"
-                extendedIcon
+                shape="chip"
+                text="showAll"
                 isOwner
               />
 

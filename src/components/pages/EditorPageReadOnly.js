@@ -16,13 +16,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { Alert, AlertTitle } from '@mui/material';
 
-import ArticleConfig from '../ArticleConfig';
-// eslint-disable-next-line no-unused-vars
-import { store } from '../../store';
+import ArticleConfig from '../editor/ArticleConfig';
 import { actions, selectors } from '../../store/articleStore';
-import ImageSelection from '../containers/ImageSelection';
-import Editor from '../elements/Editor';
-import EditorTitle from '../elements/EditorTitle';
+import ImageSelection from '../editor/ImageSelection';
+import Editor from '../editor/Editor';
+import EditorTitle from '../editor/EditorTitle';
 import routes from '../../routes';
 
 function ReactEditor () {

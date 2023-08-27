@@ -13,7 +13,7 @@ type Props = {
   userImg?: string,
 };
 
-export default function BasicMenu(props: Props): Node {
+export default function UserDropdownMenu(props: Props): Node {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const open = Boolean(anchorEl);

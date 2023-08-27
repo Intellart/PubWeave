@@ -21,7 +21,7 @@ import {
   Autocomplete,
   /* Checkbox, */ FormControl, InputLabel, MenuItem, Select,
 } from '@mui/material';
-import type { Article } from '../store/articleStore';
+import type { Article } from '../../store/articleStore';
 
 type Props = {
   id: number,

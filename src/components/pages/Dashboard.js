@@ -11,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Alert, AlertTitle } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
+import MyDataGrid from '../containers/MyDataGrid';
 
 import { actions, selectors } from '../../store/articleStore';
 

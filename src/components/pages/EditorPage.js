@@ -8,8 +8,6 @@ import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
 import classNames from 'classnames';
-
-import ArticleConfig from '../ArticleConfig';
 import type {
   Block,
   BlockCategoriesToChange,
@@ -20,12 +18,13 @@ import type {
 // eslint-disable-next-line no-unused-vars
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
-import TutorialModal from '../containers/TutorialModal';
-import SideBar from '../elements/SideBar';
-import Editor from '../elements/Editor';
-import EditorTitle from '../elements/EditorTitle';
 import routes from '../../routes';
 import WebSocketElement from '../WebSocketElement';
+import TutorialModal from '../editor/TutorialModal';
+import EditorTitle from '../editor/EditorTitle';
+import ArticleConfig from '../editor/ArticleConfig';
+import SideBar from '../editor/SideBar';
+import Editor from '../editor/Editor';
 // import { selectors as userSelectors } from '../../store/userStore';
 // import ActiveUsers from '../elements/ActiveUsers';
 // import axios from '../../api/axios';
@@ -144,8 +143,8 @@ function ReactEditor (): React$Element<any> {
           console.log('onShowHistory');
           setSidebar({ ...sidebar, show: true });
         }}
-        isUsingLocking={type === 'preprints'}
-        isUsingCriticalSections={type === 'preprints'}
+        isUsingLocking
+        isUsingCriticalSections
         onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
           const blocksToAdd :BlockToServer[] = [
             ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),

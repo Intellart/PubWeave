@@ -20,7 +20,7 @@ import classNames from 'classnames';
 import { toast } from 'react-toastify';
 import hljs from 'highlight.js';
 import PubWeaveLogo from '../../assets/images/pubweave_logo.png';
-import CommentModal from '../containers/CommentModal';
+import CommentModal from '../comments/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';

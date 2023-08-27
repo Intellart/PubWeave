@@ -14,13 +14,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import logoImg from '../../assets/images/pubweave_logo.png';
-import BasicMenu from './UserDropdownMenu';
 import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
 // import { actions } from '../../store/userStore';
 import { store } from '../../store';
 import { actions } from '../../store/userStore';
 import { selectors } from '../../store/articleStore';
 import routes from '../../routes';
+import UserDropdownMenu from '../containers/UserDropdownMenu';
 
 type Props = {
   isAuthorized: boolean,
@@ -62,7 +62,7 @@ function Navbar(props: Props): Node {
     if (!isMobile && (props.isAuthorized || props.isAdmin)) {
       const userImage = get(props, 'user.profile_img');
 
-      return <BasicMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
+      return <UserDropdownMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>

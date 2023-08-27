@@ -19,12 +19,12 @@ import { selectors as userSelectors } from '../store/userStore';
 import { selectors as globalSelectors } from '../store/globalStore';
 import Loader from './containers/Loader';
 
-import Navbar from './containers/Navbar';
 import CatchAllRoute from './pages/CatchAllRoute';
 import UserPage from './pages/UserPage';
-import Footer from './containers/Footer';
 import RegisterPage from './pages/RegisterPage';
 import ChooseType from './pages/ChooseType';
+import Navbar from './navigation/Navbar';
+import Footer from './navigation/Footer';
 
 function App(): Node {
   useScrollTopEffect();

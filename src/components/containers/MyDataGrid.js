@@ -23,8 +23,8 @@ import {
   map, get, find, filter,
 } from 'lodash';
 import { Link } from 'react-router-dom';
-import { statuses } from '../../pages/Dashboard';
-import { useScreenSize } from '../../../utils/hooks';
+import { statuses } from '../pages/Dashboard';
+import { useScreenSize } from '../../utils/hooks';
 // import { toast } from 'react-toastify';
 
 type Props = {

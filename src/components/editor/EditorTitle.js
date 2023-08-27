@@ -1,10 +1,12 @@
+// @flow
+
 import { faHistory, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import routes from '../../routes';
-import Modal from '../containers/modal/Modal';
+import Modal from '../modal/Modal';
 // import ActiveUsers from './ActiveUsers';
 
 type Props = {
@@ -131,6 +133,9 @@ export default function EditorTitle ({
           <Modal
             enabled
             type="collab"
+            shape="icon"
+            text="showOnline"
+
           />
           {!inReview && (
           <div
