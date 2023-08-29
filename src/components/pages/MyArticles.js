@@ -14,6 +14,7 @@ import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
 import { useScrollTopEffect } from '../../utils/hooks';
 import routes from '../../routes';
+import type { Article } from '../../store/articleStore';
 
 function MyArticles(): Node {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
@@ -65,6 +66,14 @@ function MyArticles(): Node {
     }
   };
 
+  const handleArticleClick = (article: Article) => {
+    if (article.status === 'published') {
+      navigate(routes.blogs.blog(article.id));
+    } else {
+      navigate(routes.myWork.project(type, article.id));
+    }
+  };
+
   return (
     <main className="my-articles-wrapper">
       <section className="articles">
@@ -96,7 +105,7 @@ function MyArticles(): Node {
               article={a}
               showPublishedChip
               onDelete={handleDeleteClick}
-              onClick={() => navigate(routes.myWork.project(type, a.id))}
+              onClick={() => handleArticleClick(a)}
             />
           ))}
         </div>

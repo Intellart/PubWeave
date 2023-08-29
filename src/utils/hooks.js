@@ -125,6 +125,12 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
   blog_article: {
     inProgress: {
       [permissions.configMenu]: true,
+      [permissions.webSockets]: true,
+      [permissions.criticalSections]: true,
+      [permissions.locking]: true,
+      [permissions.configMenu]: true,
+      [permissions.history]: true,
+      [permissions.collaborators]: true,
     },
     published: {
     },
@@ -275,10 +281,10 @@ export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBacken
   const hasDuplicates = size(uniq(positions)) !== size(positions);
 
   if (hasDuplicates) {
-    console.log('hasDuplicates', positions);
+    console.log('hasDuplicates', positions, newBlocks);
   }
 
-  console.log('convertBlocksFromBackend', newBlocks);
+  // console.log('convertBlocksFromBackend', newBlocks);
 
   return newBlocks;
 };

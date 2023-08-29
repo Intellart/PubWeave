@@ -27,7 +27,7 @@ import routes from '../../routes';
 function ReactEditor (): React$Element<any> {
   const { id } = useParams();
 
-  console.log('id', id);
+  // console.log('id', id);
 
   const navigate = useNavigate();
 
@@ -109,6 +109,10 @@ function ReactEditor (): React$Element<any> {
     },
   ];
 
+  const handleImageSelection = (href: string) => {
+    updateArticle(id, { image: href });
+  };
+
   return (
     <main className="editor-wrapper">
       <EditorTitle
@@ -124,10 +128,7 @@ function ReactEditor (): React$Element<any> {
       />
       <ImageSelection
         linkList={linkList}
-        onImageSelection={(href) => {
-          // console.log('Image selected' + href);
-          updateArticle(id, { image_url: href });
-        }}
+        onImageSelection={handleImageSelection}
         currentImage={get(article, 'image', '')}
       />
       <div

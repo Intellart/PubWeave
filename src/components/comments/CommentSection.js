@@ -1,50 +1,58 @@
 /* eslint-disable camelcase */
+// @flow
 import { Alert, AlertTitle, Chip } from '@mui/material';
 import {
   filter,
   find,
-  get, includes, isEmpty, map, uniqBy,
+  get, includes, isEmpty, isEqual, map, uniqBy,
 } from 'lodash';
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Link } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 
+import { useDispatch, useSelector } from 'react-redux';
 import Comment from './Comment';
+import { actions, selectors } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 
 type Props = {
-  comments: { key: Object},
-  createComment: Function,
   articleId: number,
-  authorId: number,
-  currentUserId: number,
-  author: Object,
-  currentUser: Object,
 };
 
-function CommentSection(props: Props): Node {
-  const [tempComment, setTempComment] = useState({});
-  const [expandedComment, setExpandedComment] = useState(null);
+function CommentSection(props: Props): React$Node {
+  const [tempComment, setTempComment] = useState<any>({});
+  const [expandedComment, setExpandedComment] = useState<number | null>(null);
   const tempCommentRef = useRef(null);
   const [newCommentContent, setNewCommentContent] = useState('');
 
-  // console.log('comments', props.comments);
+  const article = useSelector((state) => selectors.article(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
-  const refCallback = useCallback((node: T) => {
+  const dispatch = useDispatch();
+  const createComment = (articleId: number, userId: number, comment: string, replyTo?: number) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
+
+  const comments = get(article, 'comments', []);
+  const userId = get(user, 'id');
+  const author = get(article, 'author');
+
+  const refCallback = useCallback((node: any) => {
     if (node !== null) {
       tempCommentRef.current = node;
       tempCommentRef.current.focus();
       setTimeout(() => {
-        tempCommentRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center',
-        });
+        if (tempCommentRef.current) {
+          tempCommentRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          });
+        }
       }, 200);
     }
   }, []);
 
-  const handleExpand = (id) => {
+  const handleExpand = (id: number) => {
     if (expandedComment === id) {
       setExpandedComment(null);
     } else {
@@ -56,17 +64,17 @@ function CommentSection(props: Props): Node {
     setTempComment({});
   };
 
-  const handleSaveReply = (replyContent, replyTo) => {
+  const handleSaveReply = (replyContent: string, replyTo: number) => {
     if (isEmpty(replyContent) || replyContent === '') {
       return;
     }
-    props.createComment(props.articleId, props.currentUserId, replyContent, replyTo);
+    createComment(props.articleId, userId, replyContent, replyTo);
     setTempComment({});
   };
 
-  const renderedComments = () => filter(map(props.comments, (comment) => {
+  const renderedComments = () => filter(map(comments, (comment) => {
     const { id } = comment;
-    const replies = filter(props.comments, (reply) => get(reply.reply_to, 'id') === id);
+    const replies = filter(comments, (reply) => get(reply, 'reply_to_id') === id);
     const renderTempComment = (id === tempComment.replyTo || includes(map(replies, 'id'), tempComment.replyTo));
 
     return {
@@ -76,18 +84,18 @@ function CommentSection(props: Props): Node {
         ...renderTempComment ? [tempComment] : [],
       ],
     };
-  }), (comment) => !get(comment, 'reply_to.id'));
+  }), (comment) => !get(comment, 'reply_to_id'));
 
   const commenters = uniqBy([
-    ...map(props.comments, (comment) => ({
+    ...map(comments, (comment) => ({
       user_id: get(comment, 'commenter.id'),
       id: get(comment, 'commenter.username'),
       display: get(comment, 'commenter.first_name') + ' ' + get(comment, 'commenter.last_name'),
     })),
     {
-      user_id: get(props.author, 'id'),
-      id: get(props.author, 'username'),
-      display: get(props.author, 'full_name'),
+      user_id: get(author, 'id'),
+      id: get(author, 'username'),
+      display: get(author, 'full_name'),
     },
     ...!isEmpty(tempComment) ? [{
       user_id: get(tempComment, 'commenter.id'),
@@ -151,7 +159,7 @@ function CommentSection(props: Props): Node {
   };
 
   const doesUserHasUsername = () => {
-    const username = get(props.currentUser, 'username');
+    const username = get(user, 'username');
 
     if (username && username.length > 0) {
       return true;
@@ -160,12 +168,12 @@ function CommentSection(props: Props): Node {
     return false;
   };
 
-  const handleNewEmptyReply = (replyContent, parentId) => {
+  const handleNewEmptyReply = (replyContent: any, parentId:number) => {
     // console.log('handleReply', replyContent);
     setExpandedComment(parentId);
     // console.log(replyContent);
 
-    const parentComment = find(props.comments, { id: parentId });
+    const parentComment = find(comments, { id: parentId });
 
     setTempComment({
       id: 999,
@@ -178,8 +186,8 @@ function CommentSection(props: Props): Node {
       isTempComment: true,
       updated_at: new Date(),
       commenter: {
-        id: props.currentUserId,
-        ...props.currentUser,
+        id: userId,
+        ...user,
       },
     });
   };
@@ -189,11 +197,11 @@ function CommentSection(props: Props): Node {
       return;
     }
     setTempComment({});
-    props.createComment(props.articleId, props.currentUserId, newCommentContent);
+    createComment(props.articleId, userId, newCommentContent);
     setNewCommentContent('');
   };
 
-  console.log('r', renderedComments());
+  // console.log('r', renderedComments());
 
   return (
     <div className="comment-section-wrapper">
@@ -217,7 +225,7 @@ function CommentSection(props: Props): Node {
                   style={{ backgroundColor: focused ? '#cee4e5' : 'transparent' }}
                 >
                   {display} ({id})
-                  {user_id === props.authorId && (
+                  {user_id === get(author, 'id') && (
                     <Chip
                       sx={{
                         ml: 1, height: 20, padding: 0, fontSize: 12,
@@ -246,7 +254,7 @@ function CommentSection(props: Props): Node {
           <Alert severity="info">
             <AlertTitle>You can&apos;t comment yet</AlertTitle>
             You need to&nbsp;
-            <Link to={`/user/${props.currentUserId}`}>
+            <Link to={`/user/${userId}`}>
               set your username in your profile
             </Link>
             &nbsp;to be able to comment.
@@ -262,8 +270,8 @@ function CommentSection(props: Props): Node {
           onCancel={handleCancel}
           onExpand={() => handleExpand(comment.id)}
           replyCount={get(comment, 'replies', []).length}
-          currentUserId={props.currentUserId}
-          authorId={props.authorId}
+          currentUserId={userId}
+          authorId={get(author, 'id')}
           commenters={commenters}
         >
           {expandedComment === comment.id && map(get(comment, 'replies', []), (reply) => (
@@ -275,8 +283,8 @@ function CommentSection(props: Props): Node {
               onReply={(content) => handleNewEmptyReply(content, comment.id)}
               onCancel={handleCancel}
               onSave={(content) => handleSaveReply(content, comment.id)}
-              currentUserId={props.currentUserId}
-              authorId={props.authorId}
+              currentUserId={userId}
+              authorId={get(author, 'id')}
               commenters={commenters}
             />
           ))}

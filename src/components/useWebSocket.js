@@ -17,10 +17,13 @@ export type MessagePayload = {
 };
 
 type Props = {
-  articleId: boolean,
+  articleId: number,
+  enabled: boolean,
 };
 
-function WebSocketElement({ articleId }: Props): any {
+function useWebSocket({ articleId, enabled = false }: Props): any {
+  console.log(articleId, enabled);
+
   const consumer = useRef(createConsumer((process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + '/cable'));
   const connectionStatus = useRef('awaiting');
   const user = useSelector((state) => selectors.getUser(state), isEqual);
@@ -33,6 +36,7 @@ function WebSocketElement({ articleId }: Props): any {
   const wsRemoveBlock = (payload: any) => dispatch(actions.wsRemoveBlock(payload, user.id));
   const wsLockBlock = (payload: any) => dispatch(actions.wsLockBlock(payload));
   const wsUnlockBlock = (payload: any) => dispatch(actions.wsUnlockBlock(payload));
+
   // const createReservation = (/* reservation: Reservation, userRole:string */) => dispatch(/* actions.wsCreateReservation(reservation, userRole) */);
   // const changeStateReservation = (
   //   /* reservation: Reservation,
@@ -59,7 +63,7 @@ function WebSocketElement({ articleId }: Props): any {
   };
 
   useEffect(() => {
-    if (!articleId) return;
+    if (!articleId || !enabled) return;
 
     consumer.current.subscriptions.create({ channel: 'ArticleChannel', article_id: articleId }, {
       received(payload) {
@@ -111,6 +115,7 @@ function WebSocketElement({ articleId }: Props): any {
       if (connected && (connectionStatus.current === status.awaiting || connectionStatus.current === status.disconnected)) {
         connectionStatus.current = status.connected;
         // toast.success('ActionCable connected');
+        // eslint-disable-next-line no-console
         console.log('ActionCable connected');
       }
 
@@ -136,7 +141,7 @@ function WebSocketElement({ articleId }: Props): any {
       consumer.current.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [articleId, enabled]);
 }
 
-export default WebSocketElement;
+export default useWebSocket;

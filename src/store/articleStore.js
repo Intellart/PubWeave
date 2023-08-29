@@ -417,6 +417,10 @@ export const actions = {
     type: types.ART_LIKE_COMMENT,
     payload: API.putRequest(`pubweave/comments/${commentId}/like`),
   }),
+  unlikeComment: (commentId: number): ReduxAction => ({
+    type: types.ART_UNLIKE_COMMENT,
+    payload: API.putRequest(`pubweave/comments/${commentId}/dislike`),
+  }),
   deleteComment: (commentId: number): ReduxAction => ({
     type: types.ART_DELETE_COMMENT,
     payload: API.deleteRequest(`pubweave/comments/${commentId}`),
@@ -448,7 +452,7 @@ export const actions = {
     type: types.ART_FETCH_TAGS,
     payload: API.getRequest('tags'),
   }),
-  createComment: (articleId: number, userId: number, content: string, replyTo: number): ReduxAction => ({
+  createComment: (articleId: number, userId: number, content: string, replyTo?: number): ReduxAction => ({
     type: types.ART_CREATE_COMMENT,
     payload: API.postRequest('pubweave/comments',
       {
@@ -870,15 +874,20 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.success('Article liked successfully!');
       console.log('like', action.payload);
 
-      if (!state.oneArticle) {
-        return state;
-      }
-
       return {
         ...state,
-        oneArticle: {
-          ...state.oneArticle,
-          likes: action.payload.likes,
+        ...state.oneArticle && {
+          oneArticle: {
+            ...state.oneArticle,
+            likes: action.payload.likes,
+          },
+        },
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: {
+            ...state.allArticles[action.payload.id],
+            likes: action.payload.likes,
+          },
         },
       };
 
@@ -886,15 +895,20 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.success('Article unliked successfully!');
       console.log('unlike', action.payload);
 
-      if (!state.oneArticle) {
-        return state;
-      }
-
       return {
         ...state,
-        oneArticle: {
-          ...state.oneArticle,
-          likes: action.payload.likes,
+        ...state.oneArticle && {
+          oneArticle: {
+            ...state.oneArticle,
+            likes: action.payload.likes,
+          },
+        },
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: {
+            ...state.allArticles[action.payload.id],
+            likes: action.payload.likes,
+          },
         },
       };
 

@@ -64,7 +64,7 @@ function ReactEditor (): React$Element<any> {
   }, [article, id, isReady]);
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
-  console.log('currentPermissions', currentPermissions);
+  // console.log('currentPermissions', currentPermissions);
 
   return (
     <main

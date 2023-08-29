@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
+  // height: 100vh;
   align-items: center;
   justify-content: space-between;
 
@@ -68,7 +68,7 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
-      margin: 20px;
+      margin: 80px 20px;
       border: 1px solid #11273f6b;
       box-shadow: 0 0 10px #11273f6b;
       background-color: #fff;
@@ -76,6 +76,7 @@
       position: relative;
       padding: 80px 50px 50px 50px;
       gap: 20px;
+
 
       @media screen and (max-width: $mobile_breakpoint) {
         width: 95vw;

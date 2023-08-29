@@ -21,7 +21,7 @@ function ErrorMessage(props: ApiError): Node {
   const { error } = props;
   const code = get(error, 'response.status', 400);
   const title = get(error, 'response.statusText', 'Error');
-  const detail = get(error, 'response.data', 'Unexpected problem...');
+  const detail = get(error, 'response.data.message', 'Unexpected problem...');
 
   return (
     <div className="error-wrapper">

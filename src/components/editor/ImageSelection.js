@@ -9,7 +9,6 @@ import {
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { uploadImage } from '../../utils/hooks';
 
 type Props = {
   linkList: Array<string>,
@@ -58,20 +57,6 @@ function ImageSelection (props: Props) {
     }
 
     setCustomImageUrl(URL.createObjectURL(e.target.files[0]));
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const uploadNewImage = (e) => {
-    if (!e.target.files) {
-      return;
-    }
-
-    const file: File = e.target.files[0];
-
-    uploadImage(file).then((url) => {
-      setCustomImageUrl(url);
-      props.onImageSelection(url);
-    });
   };
 
   return (

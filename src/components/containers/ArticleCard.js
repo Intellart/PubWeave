@@ -1,28 +1,19 @@
 // @flow
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faWarning, faXmark, faHeart as faHeartSolid, faNewspaper,
+  faPencil, faPenToSquare, faWarning, faXmark, faNewspaper,
 } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
-import { find, get } from 'lodash';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
-// import Rocket from '../../images/RocketLaunch.png';
-// import Space from '../../images/SpaceImg.png';
-// import Astronaut from '../../images/AstronautImg.png';
-// import Earth from '../../images/EarthImg.png';
 import { useScreenSize } from '../../utils/hooks';
-import { actions } from '../../store/articleStore';
 import LogoImg from '../../assets/images/pubweave_logo.png';
 import Modal from '../modal/Modal';
-
-// const images = [Rocket, Space, Astronaut, Earth];
+import LikeButton from './LikeButton';
 
 type Props = {
   article: Article,
@@ -40,15 +31,11 @@ function ArticleCard(props : Props): Node {
   const workType = 'blog';
   const isPublished = status === 'published';
 
-  const dispatch = useDispatch();
-  const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
-  const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
+  // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 
-  const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
-
-  useEffect(() => {
-    setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
-  }, [props.article, props.currentUserId]);
+  // useEffect(() => {
+  //   setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
+  // }, [props.article, props.currentUserId]);
 
   const noImage = props.article.image === null;
 
@@ -218,30 +205,12 @@ function ArticleCard(props : Props): Node {
                 text="showAll"
                 isOwner
               />
-
-              {props.currentUserId && (
-                <FontAwesomeIcon
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (userAlreadyLiked) {
-                      removeArticleLike(get(props.article.id));
-                    } else {
-                      likeArticle(get(props.article.id));
-                    }
-                  }}
-                  style={{
-                    color: userAlreadyLiked ? '#FF0000' : '#11273F',
-                  }}
-                  icon={userAlreadyLiked ? faHeartSolid : faHeart}
-                />
-              ) }
-              {/* {!isPublished && (
-                <a
-                  onClick={(e) => handleEditArticle(e)}
-                ><FontAwesomeIcon icon={faPenToSquare} />
-                </a>
-                )} */}
-
+              <LikeButton
+                enabled={isPublished && !!props.currentUserId}
+                article={props.article}
+                userId={props.currentUserId}
+                iconType="default"
+              />
               {!isPublished && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}

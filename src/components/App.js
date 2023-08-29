@@ -79,12 +79,13 @@ function App(): Node {
           <Route path="/blogs" element={<Blogs />} />
           <Route path="/blogs/:cat" element={<Blogs />} />
           <Route path="/blogs/:cat/:tag" element={<Blogs />} />
-          <Route path="/blogs/user/:userId" element={<Blogs />} />
+          <Route path="/users/:userId" element={<Blogs />} />
           <Route path="/about" element={<About />} />
+          <Route path="/my-work/choose-type" element={<ChooseType />} />
 
           {isAuthorized && (
             <>
-              <Route path="/my-work/choose-type" element={<ChooseType />} />
+
               <Route path="/my-work/" element={<MyArticles />} />
               <Route path="/my-work/:id" element={<EditorPage />} />
               <Route path="/my-work/:id/review" element={<EditorPageReadOnly />} />

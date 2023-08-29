@@ -6,14 +6,18 @@ import { useNavigate } from 'react-router-dom';
 import routes from '../../routes';
 import { workTypes } from '../../constants';
 
-function ChooseType() {
+type Props = {
+  isUser: boolean,
+};
+
+function ChooseType({ isUser }: Props) {
   const navigate = useNavigate();
 
   const motionItemProps = (setting) => ({
     className: 'work-types-item',
     initial: { scale: 0, rotate: 90 },
     animate: { rotate: 0, scale: 1 },
-    onClick: () => navigate(routes.myWork.root),
+    onClick: () => (isUser ? navigate(routes.myWork.root) : navigate(routes.login)),
     transition: {
       type: 'spring',
       stiffness: 260,

@@ -14,20 +14,20 @@ export const workTypes = {
     background: blogImg,
     rotation: 2,
     index: 0,
-    content: 'Create a simple blog post with a images, videos, text, and more, and share it with others.',
+    content: '1. Create a simple blog post with a images, videos, text, and more, and share it with others.',
   },
   preprints: {
     label: 'Preprints',
     background: preprintImg,
     rotation: -4,
     index: 1,
-    content: 'Create a preprint where you can share your research with other collaborators and get feedback.',
+    content: '2. Create a preprint where you can share your research with other collaborators and get feedback.',
   },
   articles: {
     label: 'Articles',
     background: articleImg,
     rotation: -7,
     index: 2,
-    content: 'Convert your preprint into a full article and publish it to the world.',
+    content: '3. Convert your preprint into a full article and publish it to the world.',
   },
 };

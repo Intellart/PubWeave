@@ -64,7 +64,7 @@ function Blogs(): Node {
   const [page, setPage] = React.useState(1);
 
   if (userId) {
-    filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
+    filteredArticles = filter(articles, (a) => get(a, 'user.id') === parseInt(userId, 10));
   }
   console.log(selectedUser);
 
@@ -154,7 +154,7 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(filteredArticles) && (
+      {!isEmpty(featuredArticles) && (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {!userId && (
           <>
@@ -169,7 +169,7 @@ function Blogs(): Node {
                   title={a.title}
                   category={get(a, 'category', '')}
                   description={get(a, 'description', '')}
-                  author={get(a, 'user.full_name', '')}
+                  author={get(a, 'author.full_name', '')}
                   tags={get(a, 'tags', [])}
                   date={a.date}
                 />

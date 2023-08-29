@@ -28,7 +28,7 @@ function Modal(props: Props): React$Node {
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const [open, setOpen] = useState(false);
-  const onlineNum = useDebounce(size(omit(invert(activeSections), user.id)), 1000);
+  const onlineNum = useDebounce(size(omit(invert(activeSections), get(user, 'id'))), 1000);
 
   if (!props.enabled) {
     return null;

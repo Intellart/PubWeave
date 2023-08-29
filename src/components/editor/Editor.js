@@ -36,7 +36,7 @@ import { selectors as userSelectors } from '../../store/userStore';
 import VersioningTune from '../../utils/editorExtensions/versioningTune';
 import useCriticalSections from '../../utils/useCriticalSections';
 import useLocking from '../../utils/useLocking';
-import WebSocketElement from '../WebSocketElement';
+import useWebSocket from '../useWebSocket';
 
 type Props = {
   status: 'inProgress' | 'inReview' | 'published',
@@ -70,6 +70,7 @@ function Editor({
 
   const { labelCriticalSections } = useCriticalSections({ blocks, enabled: get(currentPermissions, permissions.criticalSections, false) });
   const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: get(currentPermissions, permissions.locking, false) });
+  useWebSocket({ articleId: get(article, 'id'), enabled: get(currentPermissions, permissions.webSockets, false) });
 
   useEffect(() => {
     if (isReady && editor.current) {
@@ -148,7 +149,6 @@ function Editor({
   useEffect(() => {
     if (isReady && !editor.current) {
       editor.current = new EditorJS({
-        autofocus: true,
         logLevel: 'ERROR',
         holder: 'editorjs',
         readOnly,
@@ -235,23 +235,22 @@ function Editor({
         position: 'relative',
       }}
     >
-      {get(currentPermissions, permissions.webSockets, false) && <WebSocketElement articleId={get(article, 'id')} /> }
       {get(selectedVersioningBlock, 'id') && (
-      <VersioningInfoCard
-        style={{
-          top: getTop(),
-          left: '275px',
-          zIndex: 1,
-        }}
-        block={get(content, ['blocks', selectedVersioningBlock], {})}
+        <VersioningInfoCard
+          style={{
+            top: getTop(),
+            left: '275px',
+            zIndex: 1,
+          }}
+          block={get(content, ['blocks', selectedVersioningBlock], {})}
         // versionInfo={this.vbInfo}
-        onClose={() => {
-          VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, 'cdx-versioning-selected');
-          VersioningTune.setActiveBlockId(null);
-          VersioningTune.previousWrapper = null;
-          setSelectedVersioningBlock(null);
-        }}
-      />
+          onClose={() => {
+            VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, 'cdx-versioning-selected');
+            VersioningTune.setActiveBlockId(null);
+            VersioningTune.previousWrapper = null;
+            setSelectedVersioningBlock(null);
+          }}
+        />
       ) }
     </div>
 

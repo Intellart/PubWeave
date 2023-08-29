@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faClipboard, faCopy, faGlobe, faHeart,
+  faClipboard, faCopy, faGlobe,
 } from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
@@ -14,11 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   find, get, isEmpty, isEqual, map, size, toInteger,
 } from 'lodash';
-import { createReactEditorJS } from 'react-editor-js';
 import { Chip, Popover } from '@mui/material';
 import classNames from 'classnames';
 import { toast } from 'react-toastify';
-import hljs from 'highlight.js';
 import PubWeaveLogo from '../../assets/images/pubweave_logo.png';
 import CommentModal from '../comments/CommentModal';
 import { store } from '../../store';
@@ -26,9 +24,8 @@ import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
 import OrcIDButton from '../elements/OrcIDButton';
-import { useEditorTools } from '../../utils/editor_constants';
-
-const ReactEditorJS = createReactEditorJS();
+import Editor from '../editor/Editor';
+import LikeButton from '../containers/LikeButton';
 
 function Blogs(): Node {
   useScrollTopEffect();
@@ -38,13 +35,10 @@ function Blogs(): Node {
 
   // eslint-disable-next-line no-unused-vars
 
-  const EDITOR_JS_TOOLS = useEditorTools();
-
   const dispatch = useDispatch();
   const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
-  const createComment = (articleId: number, userId: number, comment: string, replyTo: number) => dispatch(actions.createComment(articleId, userId, comment, replyTo));
-  const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
-  const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
+  // const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
+  // const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
   const [contextMenu, setContextMenu] = useState({
     show: false,
@@ -54,7 +48,6 @@ function Blogs(): Node {
   });
 
   const article = useSelector((state) => selectors.article(state), isEqual);
-  const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
@@ -74,11 +67,11 @@ function Blogs(): Node {
 
   const getRoute = (catId: number) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
-  const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
+  // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
 
-  useEffect(() => {
-    setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
-  }, [article, user]);
+  // useEffect(() => {
+  //   setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
+  // }, [article, user]);
 
   const onRightClick = (e: any) => {
     e.preventDefault();
@@ -121,6 +114,8 @@ function Blogs(): Node {
     e.preventDefault();
   };
 
+  const author = get(article, 'author', {});
+
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <main className="single-blog-wrapper">
@@ -147,40 +142,40 @@ function Blogs(): Node {
           </div>
           <div className="single-blog-highlight-text-right">
             <div className="single-blog-highlight-text-right-social-icons">
-              {get(article, 'user.social_tw')
+              {get(author, 'social_tw')
               && (
-              <a target="_blank" href={get(article, 'user.social_tw')}>
+              <a target="_blank" href={get(author, 'social_tw')}>
                 <FontAwesomeIcon icon={faTwitter} style={{ width: 35, height: 35 }} />
               </a>
               )}
-              {get(article, 'user.social_ln')
+              {get(author, 'social_ln')
               && (
-                <a href={get(article, 'user.social_ln')}>
+                <a href={get(author, 'social_ln')}>
                   <FontAwesomeIcon icon={faLinkedin} style={{ width: 35, height: 35 }} />
                 </a>
               )}
-              {get(article, 'user.social_fb')
+              {get(author, 'social_fb')
               && (
-                <a target="_blank" href={get(article, 'user.social_fb')}>
+                <a target="_blank" href={get(author, 'social_fb')}>
                   <FontAwesomeIcon icon={faFacebook} style={{ width: 35, height: 35 }} />
                 </a>
               )}
-              {get(article, 'user.social_web')
+              {get(author, 'social_web')
               && (
-                <a target="_blank" href={get(article, 'user.social_web')}>
+                <a target="_blank" href={get(author, 'social_web')}>
                   <FontAwesomeIcon icon={faGlobe} style={{ width: 35, height: 35 }} />
                 </a>
               )}
             </div>
-            {get(article, 'user.orcid_id') && (
+            {get(author, 'orcid_id') && (
               <OrcIDButton
-                orcid={get(article, 'user.orcid_id')}
+                orcid={get(author, 'orcid_id')}
               />
             )}
             <div className="single-blog-highlight-text-right-author">
-              <Avatar alt="Remy Sharp" src={get(article, 'user.profile_img', '')} className="single-blog-highlight-text-right-author-img" />
+              <Avatar alt="Remy Sharp" src={get(author, 'profile_img', '')} className="single-blog-highlight-text-right-author-img" />
               <div className="single-blog-highlight-text-right-author-text">
-                <p className="single-blog-highlight-text-right-author-text-name">{get(article, 'user.full_name', '')}</p>
+                <p className="single-blog-highlight-text-right-author-text-name">{get(author, 'full_name', '')}</p>
                 <p className="single-blog-highlight-text-right-author-text-date">{new Date(get(article, 'created_at', '')).toDateString()}</p>
               </div>
             </div>
@@ -198,19 +193,10 @@ function Blogs(): Node {
           onContextMenu={(event) => onRightClick(event)}
           className="editorjs-wrapper"
         >
-          <ReactEditorJS
-            holder='editorjs'
+          <Editor
             readOnly
-            onReady={() => {
-              hljs.highlightAll();
-              const editor = document.getElementById('editorjs');
-              if (editor) { editor.setAttribute('spellcheck', 'false'); }
-            }}
-            defaultValue={{
-              blocks: get(articleContent, 'blocks', []),
-            }}
-            tools={EDITOR_JS_TOOLS}
-            minHeight={0}
+            isReady={isReady}
+            status='published'
           />
           <Popover
             className='editorjs-context-menu-popover unselectable'
@@ -249,7 +235,7 @@ function Blogs(): Node {
         </div>
       )}
       <div className="reaction-icons unselectable">
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
           onClick={() => {
             if (!user) return;
@@ -265,18 +251,18 @@ function Blogs(): Node {
             color: userAlreadyLiked ? '#FF0000' : '#11273F',
           }}
         />
-        <p>{size(get(article, 'likes', 0))}</p>
+        <p>{size(get(article, 'likes', 0))}</p> */}
+        <LikeButton
+          enabled={!isEmpty(user)}
+          article={article}
+          userId={get(user, 'id', 1)}
+          iconType='solid'
+        />
         {user ? (
           <>
             <CommentModal
-              className="reaction-icon reaction-icon-comment"
-              comments={get(article, 'comments', [])}
-              createComment={createComment}
+              enabled={!isEmpty(user)}
               articleId={id}
-              authorId={get(article, 'user.id', 1)}
-              currentUserId={get(user, 'id', 1)}
-              author={get(article, 'user')}
-              currentUser={user}
             />
             <p>{size(get(article, 'comments', []))}</p>
           </>

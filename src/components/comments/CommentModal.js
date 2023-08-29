@@ -1,3 +1,4 @@
+// @flow
 import * as React from 'react';
 // import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
@@ -27,18 +28,18 @@ const style = {
 };
 
 type Props = {
-  comments: { key: Object},
-  createComment: Function,
+  enabled: boolean,
   articleId: number,
-  authorId: number,
-  currentUserId: number,
-  author: Object,
-  currentUser: Object,
 };
-export default function CommentModal(props: Props) {
+
+export default function CommentModal(props: Props): React$Node {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  if (!props.enabled) {
+    return null;
+  }
 
   return (
     <div>
@@ -69,13 +70,7 @@ export default function CommentModal(props: Props) {
         <Fade in={open}>
           <Box sx={style} className="comment-modal">
             <CommentSection
-              comments={props.comments}
-              createComment={props.createComment}
               articleId={props.articleId}
-              authorId={props.authorId}
-              currentUserId={props.currentUserId}
-              author={props.author}
-              currentUser={props.currentUser}
             />
           </Box>
         </Fade>

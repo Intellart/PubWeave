@@ -1,4 +1,5 @@
-/* eslint-disable react/no-unused-prop-types */ import React, {
+// @flow
+import React, {
   forwardRef,
   useEffect,
   useState,
@@ -19,32 +20,30 @@ import { useDispatch } from 'react-redux';
 import { actions } from '../../store/articleStore';
 
 type Props = {
-  children?: React.Node,
-  onReply?: Function,
-  onCancel?: Function,
-  onSave?: Function,
-  onExpand?: Function,
+  children?: React$Node,
+  onReply: Function,
+  onCancel: Function,
+  onSave: Function,
+  onExpand: Function,
   comment: Object,
   isReply?: boolean,
-  replyCount?: number,
+  replyCount: number,
   currentUserId?: number,
   authorId?: number,
   commenters?: Array<Object>,
 };
 
-const Comment = forwardRef((props: Props, ref) => {
+const Comment: any = forwardRef((props: Props, ref) : React$Node => {
   const [content, setContent] = useState(props.comment.comment || '');
   const [editMode, setEditMode] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(!!find(props.comment.likes, { user_id: props.currentUserId }));
 
+  console.log(props.isReply, props.authorId);
+
   const dispatch = useDispatch();
-  const likeComment = (commentId, userId) => dispatch(actions.likeComment(commentId, userId));
-  // eslint-disable-next-line no-unused-vars
-  const unlikeComment = (commentId, userId) => dispatch(actions.unlikeComment(commentId, userId));
-  const deleteComment = (commentId) => dispatch(actions.deleteComment(commentId));
-  // const unlikeComment = (commentId) => dispatch(props.unlikeComment(commentId));
-  // const dislikeComment = (commentId) => dispatch(props.dislikeComment(commentId));
-  // const undislikeComment = (commentId) => dispatch(props.undislikeComment(commentId));
+  const likeComment = (commentId: number) => dispatch(actions.likeComment(commentId));
+  const unlikeComment = (commentId: number) => dispatch(actions.unlikeComment(commentId));
+  const deleteComment = (commentId: number) => dispatch(actions.deleteComment(commentId));
 
   useEffect(() => {
     setContent(props.comment.comment || '');
@@ -59,7 +58,7 @@ const Comment = forwardRef((props: Props, ref) => {
     setAlreadyVoted(!!find(props.comment.likes, { user_id: props.currentUserId }));
   }, [props.comment.likes, props.currentUserId]);
 
-  const formatText = (text) => {
+  const formatText = (text: string) => {
     // console.log('formatText', text);
     // const newContent = text.split(/((?:#|@|https?:\/\/[^\s]+)[a-zA-Z]+)/);
     const newContent = text.split(/(@\[[a-zA-Z ]+\]\([a-zA-Z0-9]+\))/);
@@ -90,7 +89,7 @@ const Comment = forwardRef((props: Props, ref) => {
         return (
           <Link
             key={userId}
-            to={`/blogs/user/${userId}`}
+            to={`/users/${userId}`}
             className="text-cyanBlue/80 hover:text-cyanBlue"
           >
             {'@' + name}
@@ -171,7 +170,7 @@ const Comment = forwardRef((props: Props, ref) => {
             <div className="comment-content-upper-user-text">
               <div className="comment-content-upper-user-text-upper">
                 <Link
-                  to={`/blogs/user/${get(props.comment, 'commenter.id')}`}
+                  to={`/users/${get(props.comment, 'commenter.id')}`}
                 >
                   <p className='comment-content-upper-user-text-username'>{get(props.comment, 'commenter.username', 'USERNAME N/A')}</p>
 
@@ -255,12 +254,9 @@ const Comment = forwardRef((props: Props, ref) => {
               })}
               onClick={() => {
                 if (alreadyVoted) {
-                  const likeId = find(props.comment.likes, { user_id: props.currentUserId }).id;
-
-                  unlikeComment(likeId);
+                  unlikeComment(props.comment.id);
                 } else {
-                  // props.onVote(props.comment.id);
-                  likeComment(props.comment.id, props.currentUserId);
+                  likeComment(props.comment.id);
                 }
               }
             }

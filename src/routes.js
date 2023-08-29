@@ -6,6 +6,10 @@ const routes = {
     project: (type, id) => `/my-work/${id}`,
     review: (type, id) => `/my-work/${id}/review`,
   },
+  blogs: {
+    root: '/blogs',
+    blog: (id) => `/singleblog/${id}`,
+  },
   user: (id) => `/user/${id}`,
   login: '/login',
   adminLogin: '/admin-login',
