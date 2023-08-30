@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { isEqual } from 'lodash';
 import { actions } from '../store/articleStore';
 import { selectors } from '../store/userStore';
+import { getItem } from '../localStorage';
 // import { actions } from '../store/eventStore';
 
 export type MessagePayload = {
@@ -22,9 +23,11 @@ type Props = {
 };
 
 function useWebSocket({ articleId, enabled = false }: Props): any {
-  console.log(articleId, enabled);
+  const jwt = getItem('jwt');
 
-  const consumer = useRef(createConsumer((process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + '/cable'));
+  const consumer = useRef(createConsumer(
+    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${jwt ? '?jwt=' + jwt : ''}`));
+
   const connectionStatus = useRef('awaiting');
   const user = useSelector((state) => selectors.getUser(state), isEqual);
 
@@ -65,7 +68,11 @@ function useWebSocket({ articleId, enabled = false }: Props): any {
   useEffect(() => {
     if (!articleId || !enabled) return;
 
-    consumer.current.subscriptions.create({ channel: 'ArticleChannel', article_id: articleId }, {
+    consumer.current.subscriptions.create({
+      channel: 'ArticleChannel',
+      jwt,
+      article_id: articleId,
+    }, {
       received(payload) {
         // eslint-disable-next-line no-console
         console.log('payload', payload);
@@ -116,7 +123,7 @@ function useWebSocket({ articleId, enabled = false }: Props): any {
         connectionStatus.current = status.connected;
         // toast.success('ActionCable connected');
         // eslint-disable-next-line no-console
-        console.log('ActionCable connected');
+        console.log('WebSocket connection established');
       }
 
       if (!connected && connectionStatus.current === status.connected) {
