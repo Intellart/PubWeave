@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { isEqual } from 'lodash';
 import { actions } from '../store/articleStore';
 import { selectors } from '../store/userStore';
-import { getItem } from '../localStorage';
 // import { actions } from '../store/eventStore';
 
 export type MessagePayload = {
@@ -23,13 +22,11 @@ type Props = {
 };
 
 function useWebSocket({ articleId, enabled = false }: Props): any {
-  const jwt = getItem('jwt');
-
+  const user = useSelector((state) => selectors.getUser(state), isEqual);
   const consumer = useRef(createConsumer(
-    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${jwt ? '?jwt=' + jwt : ''}`));
+    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${user.email ? '?id=' + user.email : ''}`));
 
   const connectionStatus = useRef('awaiting');
-  const user = useSelector((state) => selectors.getUser(state), isEqual);
 
   // console.log('isAdmin', isAdmin);
 
@@ -70,7 +67,7 @@ function useWebSocket({ articleId, enabled = false }: Props): any {
 
     consumer.current.subscriptions.create({
       channel: 'ArticleChannel',
-      jwt,
+      user_email: user.email,
       article_id: articleId,
     }, {
       received(payload) {
