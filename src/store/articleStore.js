@@ -401,7 +401,7 @@ export const actions = {
       id: blockId,
     },
   }),
-  fetchVersions: (id: number): ReduxAction => ({
+  fetchVersions: (id: string): ReduxAction => ({
     type: types.ART_FETCH_VERSIONS,
     payload: API.getRequest(`pubweave/sections/${id}/version_data`),
   }),
@@ -544,6 +544,14 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_FETCH_VERSIONS_FULFILLED:
+      console.log('ART_FETCH_VERSIONS_FULFILLED');
+      console.log(action.payload);
+
+      return {
+        ...state,
+        versions: action.payload,
+      };
     case types.WS_LOCK_SECTION:
     case types.WS_UNLOCK_SECTION:
       console.log('WS_(UN)LOCK_SECTION');

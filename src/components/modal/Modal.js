@@ -1,5 +1,5 @@
 // @flow
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Chip, Modal as MUIModal } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -13,13 +13,17 @@ import CollabModal from './CollabModal';
 import { selectors } from '../../store/articleStore';
 import { useDebounce } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
+import VersioningInfoCard from '../editor/VersioningInfoCard';
 
 type Props = {
-    shape: 'chip' | 'icon',
+    shape?: 'chip' | 'icon',
     text?: 'showAll' | 'showOnline',
     enabled: boolean,
     isOwner?: boolean,
-    type: 'share' | 'collab',
+    type: 'share' | 'collab' | 'versioning',
+    sectionId?: string,
+    onClose?: () => void,
+    onViewHistory?: () => void,
 };
 
 function Modal(props: Props): React$Node {
@@ -29,6 +33,13 @@ function Modal(props: Props): React$Node {
 
   const [open, setOpen] = useState(false);
   const onlineNum = useDebounce(size(omit(invert(activeSections), get(user, 'id'))), 1000);
+
+  useEffect(() => {
+    if (!props.shape) {
+      setOpen(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.enabled]);
 
   if (!props.enabled) {
     return null;
@@ -48,6 +59,10 @@ function Modal(props: Props): React$Node {
       collab: {
         showAll: '3 Collaborators',
         showOnline: `${onlineNum} Online`,
+      },
+      versioning: {
+        showAll: 'Versioning',
+        showOnline: 'Versioning',
       },
     };
 
@@ -98,9 +113,25 @@ function Modal(props: Props): React$Node {
     const titles = {
       share: 'Share',
       collab: 'Collaborators',
+      versioning: 'Section info',
     };
 
     return get(titles, props.type, '');
+  };
+
+  const handleOnClose = () => {
+    setOpen(false);
+    if (props.onClose) {
+      props.onClose();
+    }
+  };
+
+  const handleViewHistory = () => {
+    if (props.onViewHistory) {
+      props.onViewHistory();
+    }
+
+    handleOnClose();
   };
 
   const getContent = () => {
@@ -116,12 +147,21 @@ function Modal(props: Props): React$Node {
           isOwner={props.isOwner || false}
         />
       );
+    } else if (props.type === 'versioning') {
+      return (
+        <VersioningInfoCard
+          sectionId={props.sectionId}
+          onViewHistory={handleViewHistory}
+          // versionInfo={this.vbInfo}
+
+        />
+      );
     }
   };
 
   return (
     <>
-      {props.shape === 'chip' ? chip : icon}
+      {props.shape && (props.shape === 'chip' ? chip : icon)}
       <MUIModal
         sx={{
           display: 'flex',
@@ -129,7 +169,7 @@ function Modal(props: Props): React$Node {
           justifyContent: 'center',
         }}
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleOnClose}
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -140,7 +180,7 @@ function Modal(props: Props): React$Node {
             <FontAwesomeIcon
               className="icon"
               icon={faXmark}
-              onClick={() => setOpen(false)}
+              onClick={handleOnClose}
             />
           </div>
           <hr />

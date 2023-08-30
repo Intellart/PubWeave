@@ -45,6 +45,7 @@ function ReactEditor (): React$Element<any> {
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
+  const [historySectionId, setHistorySectionId] = useState<string | null>(null);
 
   const [sidebar, setSidebar] = useState({
     show: false,
@@ -124,6 +125,7 @@ function ReactEditor (): React$Element<any> {
       />
       {get(currentPermissions, permissions.history) && (
         <SideBar
+          sectionId={historySectionId}
           showSidebar={sidebar.show}
           setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
           snapSidebar={sidebar.snap}
@@ -132,8 +134,8 @@ function ReactEditor (): React$Element<any> {
       )}
       <Editor
         status="inProgress"
-        onShowHistory={() => {
-          console.log('onShowHistory');
+        onShowHistory={(sectionId: string) => {
+          setHistorySectionId(sectionId);
           setSidebar({ ...sidebar, show: true });
         }}
         onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {

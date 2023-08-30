@@ -1,14 +1,15 @@
 // @flow
 import { faThumbtack, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   isEqual, map,
 } from 'lodash';
-import { selectors } from '../../store/articleStore';
+import { actions, selectors } from '../../store/articleStore';
 
 type Props = {
+  sectionId: string | null,
   showSidebar: boolean,
   setShowSidebar: Function,
   snapSidebar: boolean,
@@ -23,7 +24,19 @@ function SideBar(props: Props): React$Element<any> {
     setSnapSidebar,
   } = props;
 
+  const dispatch = useDispatch();
+  const fetchVersions = (sectionId: string) => dispatch(actions.fetchVersions(sectionId));
+
+  useEffect(() => {
+    if (props.sectionId) {
+      fetchVersions(props.sectionId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.sectionId]);
+
   const versions = useSelector((state) => selectors.getVersions(state), isEqual);
+
+  console.log('VERSIONS', versions, props.sectionId);
 
   const [selectedVersion, setSelectedVersion] = useState(0);
 

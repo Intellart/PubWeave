@@ -1,67 +1,77 @@
+// @flow
+import { get, isEqual } from 'lodash';
+
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { selectors } from '../../store/articleStore';
+import type { ArticleContent } from '../../store/articleStore';
 
 type VersioningInfoCardProps = {
-    // block: any,
-    onClose: any,
-    // versionInfo: any,
-    style: any,
+    sectionId?: string,
+    onViewHistory?: () => void,
   };
 
-export default function VersioningInfoCard(props:VersioningInfoCardProps) {
-  // console.log(props.versionInfo);
+export default function VersioningInfoCard(props:VersioningInfoCardProps): React$Node {
+  const content: ArticleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+
+  const currentBlock = get(content, ['blocks', props.sectionId], {});
+
+  console.log(props.sectionId, currentBlock);
+
+  const currentlyBeingEditedBy = get(currentBlock, 'current_editor_id', '');
+  const collaboratorId = get(currentBlock, 'collaborator_id', '');
 
   return (
     <div
-      className='cdx-versioning-info-card'
-      style={props.style}
+      className='versioning-modal'
     >
-      <div
-        className="cdx-versioning-info-card-close"
-        onClick={() => {
-          props.onClose();
-        }}
-      > Close
-      </div>
-      <button
-        type="button"
-        className="cdx-versioning-info-card-button"
-        onClick={() => {
-          // props.versionInfo.current.onViewVersions();
-        }}
-      >
-        Show history
-      </button>
 
-      <div className="cdx-versioning-info-card-row">
-        <div className="cdx-versioning-info-card-row-item">
-          <p className="cdx-versioning-info-card-row-item-title">Block ID</p>
+      <div className="versioning-modal-row">
+        <div className="versioning-modal-row-item">
+          <p className="versioning-modal-row-item-title">Block ID</p>
           <p
-            className="cdx-versioning-info-card-row-item-value"
-            id="cdx-versioning-info-card-block-id"
+            className="versioning-modal-row-item-value"
           >
-            {/* {props.block.id} */}
+            {get(currentBlock, 'id', '')}
           </p>
         </div>
-        <div className="cdx-versioning-info-card-row-item">
-          <p className="cdx-versioning-info-card-row-item-title">Last updated</p>
+        <div className="versioning-modal-row-item">
+          <p className="versioning-modal-row-item-title">Last updated</p>
           <p
-            className="cdx-versioning-info-card-row-item-value"
-            id="cdx-versioning-info-card-last-updated"
+            className="versioning-modal-row-item-value"
           >
-            {/* {props.versionInfo.current.lastUpdated} */}
+            {get(currentBlock, 'time', '')}
           </p>
         </div>
       </div>
-      <div className="cdx-versioning-info-card-row">
-        <div className="cdx-versioning-info-card-row-item">
-          <p className="cdx-versioning-info-card-row-item-title">Author name</p>
-          <p
-            className="cdx-versioning-info-card-row-item-value"
-            id="cdx-versioning-info-card-author-name"
-          >
-            {/* {props.versionInfo.current.author} */}
+      <div className="versioning-modal-row">
+        <div className="versioning-modal-row-item">
+          <p className="versioning-modal-row-item-title">Author</p>
+          <p className="versioning-modal-row-item-value">
+            {collaboratorId || ''}
           </p>
         </div>
+        <div className="versioning-modal-row-item">
+          <p className="versioning-modal-row-item-title">Currently editing</p>
+          <p className="versioning-modal-row-item-value">
+            {currentlyBeingEditedBy || '/'}
+          </p>
+        </div>
+
+      </div>
+      <div className="versioning-modal-row">
+        <div className="versioning-modal-row-item">
+          <p className="versioning-modal-row-item-title">Version number</p>
+          <p className="versioning-modal-row-item-value">
+            v{get(currentBlock, 'version_number', '')}
+          </p>
+        </div>
+        <button
+          className="versioning-modal-row-item versioning-modal-row-item-button"
+          onClick={props.onViewHistory}
+        >
+          View history
+        </button>
 
       </div>
 

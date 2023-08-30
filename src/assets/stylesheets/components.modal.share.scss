@@ -271,3 +271,72 @@
   }
 
 }
+
+.versioning-modal{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  gap: 20px;
+
+  .versioning-modal-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+
+    .versioning-modal-row-item{
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      width: 100%;
+      gap: 10px;
+
+      &.versioning-modal-row-item-button{
+        background-color: rgba($pubWeaveBlue,0.5);
+        color: $white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        padding: 0 10px;
+        border-radius: 5px;
+        height: 40px;
+        align-self: center;
+        justify-content: center;
+        text-align: center;
+
+        &:hover{
+          background-color: $pubWeaveBlue;
+          color: $white;
+        }
+      }
+
+      .versioning-modal-row-item-title{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .versioning-modal-row-item-value {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        font-size: 18px;
+        font-weight: 400;
+      }
+
+    }
+  }
+
+}

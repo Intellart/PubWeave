@@ -24,7 +24,6 @@ import type {
   _ContentFromEditor,
 } from '../../store/articleStore';
 import { actions, selectors } from '../../store/articleStore';
-import VersioningInfoCard from './VersioningInfoCard';
 import {
   convertBlocksFromEditorJS,
   convertBlocksToEditorJS,
@@ -37,13 +36,14 @@ import VersioningTune from '../../utils/editorExtensions/versioningTune';
 import useCriticalSections from '../../utils/useCriticalSections';
 import useLocking from '../../utils/useLocking';
 import useWebSocket from '../useWebSocket';
+import Modal from '../modal/Modal';
 
 type Props = {
   status: 'inProgress' | 'inReview' | 'published',
   isReady: boolean,
   onChange?: (newBlocks: BlockCategoriesToChange, time:number, version: string) => void,
   readOnly?: boolean,
-  onShowHistory?: () => void,
+  onShowHistory?: (sectionId: string) => void,
 };
 
 function Editor({
@@ -209,50 +209,47 @@ function Editor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks, isReady, blockIdQueue, activeSections]);
 
-  const getTop = () => {
-    const block = document.getElementsByClassName('cdx-versioning-selected')[0];
-    const blockTop = get(block, 'offsetTop');
-    const blockHeight = get(block, 'offsetHeight');
+  // const getTop = () => {
+  //   const block = document.getElementsByClassName('cdx-versioning-selected')[0];
+  //   const blockTop = get(block, 'offsetTop');
+  //   const blockHeight = get(block, 'offsetHeight');
 
-    return `${blockTop + blockHeight + 10}px`;
-  };
+  //   return `${blockTop + blockHeight + 10}px`;
+  // };
 
   return (
-    <div
-      id="editorjs"
-      onClick={() => {
-        if (isReady && editor.current) {
-          checkLocks();
-        }
-      }}
-      onBlur={() => {
+    <>
+      <Modal
+        type="versioning"
+        sectionId={get(selectedVersioningBlock, 'id')}
+        enabled={!!get(selectedVersioningBlock, 'id')}
+        // versionInfo={this.vbInfo}
+        onClose={() => {
+          VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, 'cdx-versioning-selected');
+          VersioningTune.setActiveBlockId(null);
+          VersioningTune.previousWrapper = null;
+          setSelectedVersioningBlock(null);
+        }}
+        onViewHistory={() => onShowHistory && onShowHistory(get(selectedVersioningBlock, 'id'))}
+      />
+      <div
+        id="editorjs"
+        onClick={() => {
+          if (isReady && editor.current) {
+            checkLocks();
+          }
+        }}
+        onBlur={() => {
         // const activeKey = findKey(activeSections, (o) => o === get(user, 'id'));
         // if (activeKey) {
         //   unlockSection(user.id, activeKey);
         // }
-      }}
-      style={{
-        position: 'relative',
-      }}
-    >
-      {get(selectedVersioningBlock, 'id') && (
-        <VersioningInfoCard
-          style={{
-            top: getTop(),
-            left: '275px',
-            zIndex: 1,
-          }}
-          block={get(content, ['blocks', selectedVersioningBlock], {})}
-        // versionInfo={this.vbInfo}
-          onClose={() => {
-            VersioningTune.uncheckOldWrapper(VersioningTune.previousWrapper, 'cdx-versioning-selected');
-            VersioningTune.setActiveBlockId(null);
-            VersioningTune.previousWrapper = null;
-            setSelectedVersioningBlock(null);
-          }}
-        />
-      ) }
-    </div>
+        }}
+        style={{
+          position: 'relative',
+        }}
+      />
+    </>
 
   );
 }
