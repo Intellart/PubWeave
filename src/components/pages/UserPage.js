@@ -438,9 +438,28 @@ function UserPage(): Node {
         font-weight: 700;
         width: 100%;
         padding-top: 0;
+        font-size: 20px;
+        font-weight: 600;
+        transition: all 1s ease;
+
+        #connect-wallet-button {
+          font-size: 20px;
+          font-weight: 600;
+          background-color: #fff !important;
+          color: #11273F !important;
+        }
 
         #connect-wallet-button:hover {
-          border: 1px solid white;
+          transition: all 1s ease;
+        }
+
+        #connect-wallet-menu {
+          animation: fadein 1s;
+
+          @keyframes fadein {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+          }
         }
         
         max-width: 100%;

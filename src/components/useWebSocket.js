@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { createConsumer } from '@rails/actioncable';
 import { secondsToMilliseconds } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
-import { isEqual } from 'lodash';
+import { get, isEqual } from 'lodash';
 import { actions } from '../store/articleStore';
 import { selectors } from '../store/userStore';
 // import { actions } from '../store/eventStore';
@@ -23,8 +23,6 @@ type Props = {
 
 function useWebSocket({ articleId, enabled = false }: Props): any {
   const user = useSelector((state) => selectors.getUser(state), isEqual);
-  const consumer = useRef(createConsumer(
-    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${user.email ? '?id=' + user.email : ''}`));
 
   const connectionStatus = useRef('awaiting');
 
@@ -61,6 +59,9 @@ function useWebSocket({ articleId, enabled = false }: Props): any {
     lock: 'lock',
     unlock: 'unlock',
   };
+
+  const consumer = useRef(createConsumer(
+    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${get(user, 'email') ? '?id=' + get(user, 'email') : ''}`));
 
   useEffect(() => {
     if (!articleId || !enabled) return;

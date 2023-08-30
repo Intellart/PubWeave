@@ -116,6 +116,8 @@ function Blogs(): Node {
 
   const author = get(article, 'author', {});
 
+  console.log(author);
+
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <main className="single-blog-wrapper">

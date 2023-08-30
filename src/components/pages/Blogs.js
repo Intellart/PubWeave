@@ -64,9 +64,9 @@ function Blogs(): Node {
   const [page, setPage] = React.useState(1);
 
   if (userId) {
-    filteredArticles = filter(articles, (a) => get(a, 'user.id') === parseInt(userId, 10));
+    filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
-  console.log(selectedUser);
+  console.log(filteredArticles);
 
   return (
     <main className="blogs-wrapper">
