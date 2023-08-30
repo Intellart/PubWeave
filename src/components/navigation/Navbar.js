@@ -114,7 +114,7 @@ function Navbar(props: Props): Node {
           if (searchParam === 'article') {
             navigate(`/singleblog/${newValue.id}`);
           } else {
-            navigate(`/blogs/user/${newValue.id}`);
+            navigate(`/users/${newValue.id}`);
           }
 
           setSearchValue('');

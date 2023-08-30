@@ -34,6 +34,9 @@ import {
   usernameChecks,
 } from '../../utils/hooks';
 import UserSection from '../containers/UserSection';
+import UserInfoItem from '../elements/UserInfoItem';
+import UserInfoButton from '../elements/UserInfoButton';
+import UserInfoInput from '../elements/UserInfoInput';
 
 function UserPage(): Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
@@ -233,6 +236,7 @@ function UserPage(): Node {
           <div className="user-page-header">
             <p className='user-page-header-title'>User info</p>
           </div>
+          {!isEditing && (
           <div className="user-page-info">
             <input
               type="file"
@@ -240,7 +244,6 @@ function UserPage(): Node {
               onChange={handleFileChange}
               style={{ display: 'none' }}
             />
-            {!isEditing && (
             <div
               className="user-page-info-avatar"
               onClick={uploadAvatar}
@@ -251,127 +254,74 @@ function UserPage(): Node {
               />
               {avatarImg && <img src={avatarImg} alt="avatar" /> }
             </div>
-            )}
-            {!isEditing && (
-              <div className="user-page-info-text">
-                <h1 className="user-page-header-info-name">{get(user, 'full_name')}</h1>
-                <p className="user-page-header-info-email">{get(user, 'email')}</p>
-                <p
-                  className={classNames('user-page-header-info-username')}
-                >
-                  {get(user, 'username') || 'No username'}
-                </p>
-              </div>
-            )}
-            {isEditing && (
-            <div className="user-page-editing">
-              <p className="user-page-editing-label">
-                Full name:
-              </p>
-              <div className="user-name-editing-input-wrapper">
-                <input
-                  type="text"
-                  className="user-page-editing-input"
-                  value={editFields.name}
-                  onChange={(e) => setEditFields({ ...editFields, name: e.target.value })}
-                />
-                <div className="user-page-editing-input-checks-wrapper">
-                  <FontAwesomeIcon
-                    className={classNames('user-page-editing-input-icon')}
-                    icon={nameOK ? faCircleCheck : faCircleXmark}
-                    // eslint-disable-next-line no-nested-ternary
-                    style={{ color: isNameSame ? 'grey' : nameOK ? 'green' : 'red' }}
-                  />
-                  {!nameOK && (
-                  <div className="user-page-editing-input-checks">
-                    {renderChecks(nameChecks, editFields.name)}
-                  </div>
-                  ) }
-                </div>
-              </div>
-              <p className="user-page-editing-label">
-                Email:
-              </p>
-              <div className="user-name-editing-input-wrapper">
-                <input
-                  type="text"
-                  className="user-page-editing-input"
-                  value={editFields.email}
-                  onChange={(e) => setEditFields({ ...editFields, email: e.target.value })}
-                />
-                <div className="user-page-editing-input-checks-wrapper">
-                  <FontAwesomeIcon
-                    className={classNames('user-page-editing-input-icon')}
-                    icon={emailOK ? faCircleCheck : faCircleXmark}
-                    // eslint-disable-next-line no-nested-ternary
-                    style={{ color: isEmailSame ? 'grey' : emailOK ? 'green' : 'red' }}
-                  />
-                  {!emailOK && (
-                  <div className="user-page-editing-input-checks">
-                    {renderChecks(emailChecks, editFields.email)}
-                  </div>
-                  ) }
-                </div>
-              </div>
-              <p className="user-page-editing-label">
-                Username:
-              </p>
-              <div className="user-name-editing-input-wrapper">
-                <input
-                  type="text"
-                  placeholder='Enter username'
-                  className="user-page-editing-input"
-                  value={editFields.username}
-                  onChange={(e) => setEditFields({ ...editFields, username: e.target.value })}
-                />
-                <div className="user-page-editing-input-checks-wrapper">
-                  <FontAwesomeIcon
-                    className={classNames('user-page-editing-input-icon')}
-                    icon={usernameOK ? faCircleCheck : faCircleXmark}
-                    // eslint-disable-next-line no-nested-ternary
-                    style={{ color: isUsernameSame ? 'grey' : usernameOK ? 'green' : 'red' }}
-                  />
-                  {!usernameOK && (
-                  <div className="user-page-editing-input-checks">
-                    {renderChecks(usernameChecks, editFields.username)}
-                  </div>
-                  ) }
-                </div>
-              </div>
-              <div className="user-page-editing-icons">
-                <FontAwesomeIcon
-                  onClick={() => isOK && updateUserFields()}
-                  className="user-page-editing-icon-ok"
-                  icon={faCheck}
-                  style={{ color: isOK ? '#00BFA6' : '#BDBDBD' }}
-                />
-                <FontAwesomeIcon
-                  onClick={() => clearEditing()}
-                  className="user-page-editing-icon-x"
-                  icon={faXmark}
-                />
-              </div>
-            </div>
-            )}
 
-            {!isEditing && (
+            <div className="user-page-info-text">
+              <h1 className="user-page-header-info-name">{get(user, 'full_name')}</h1>
+              <p className="user-page-header-info-email">{get(user, 'email')}</p>
+              <p
+                className={classNames('user-page-header-info-username')}
+              >
+                {get(user, 'username') || 'No username'}
+              </p>
+            </div>
+
             <FontAwesomeIcon
               onClick={() => isEditingName()}
               className="user-page-info-edit-icon"
               icon={faPencil}
             />
-            )}
-
           </div>
+          )}
+          {isEditing && (
+            <div className="user-section-wrapper">
+              <UserInfoInput
+                label="Name"
+                value={editFields.name}
+                onClick={(e: any) => setEditFields({ ...editFields, name: e.target.value })}
+                check={nameOK}
+                checkInfo={renderChecks(nameChecks, editFields.name)}
+                isValueSame={isNameSame}
+              />
+              <UserInfoInput
+                label="Email"
+                value={editFields.email}
+                onClick={(e: any) => setEditFields({ ...editFields, email: e.target.value })}
+                check={emailOK}
+                checkInfo={renderChecks(emailChecks, editFields.email)}
+                isValueSame={isEmailSame}
+              />
 
-          <hr />
-          <div className="user-page-other-info">
+              <UserInfoInput
+                label="Username"
+                value={editFields.username}
+                onClick={(e: any) => setEditFields({ ...editFields, username: e.target.value })}
+                check={usernameOK}
+                checkInfo={renderChecks(usernameChecks, editFields.username)}
+                isValueSame={isUsernameSame}
+              />
+              <div className="user-section-wrapper-icons">
+                <FontAwesomeIcon
+                  onClick={() => isOK && updateUserFields()}
+                  className={classNames('user-section-wrapper-icons-ok',
+                    { 'user-section-wrapper-icons-disabled': !isOK })}
+                  icon={faCheck}
+                  style={{ color: isOK ? '#00BFA6' : '#BDBDBD' }}
+                />
+                <FontAwesomeIcon
+                  onClick={() => clearEditing()}
+                  className="user-section-wrapper-icons-x"
+                  icon={faXmark}
+                />
+              </div>
+            </div>
+          )}
+          <div className="user-section-wrapper">
             {!isEditing && (get(user, 'username') === '' || !get(user, 'username')) && (
               <Alert
                 severity="warning"
                 sx={{
-                  width: '330px',
-                  boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)',
+                  width: '100%',
+                  // boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.25)',
                   borderRadius: '5px',
                 }}
               >
@@ -379,20 +329,19 @@ function UserPage(): Node {
               </Alert>
             )}
             {get(user, 'orcid_id') && (
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">ORCID</p>
-              <p className="user-page-other-info-item-value">{get(user, 'orcid_id')}</p>
-            </div>
-            )
-            }
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">Created at</p>
-              <p className="user-page-other-info-item-value">{new Date(get(user, 'created_at')).toLocaleDateString()}</p>
-            </div>
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">Last updated</p>
-              <p className="user-page-other-info-item-value">{new Date(get(user, 'updated_at')).toLocaleDateString()}</p>
-            </div>
+              <UserInfoItem
+                label="ORCID"
+                value={get(user, 'orcid_id')}
+              />
+            )}
+            <UserInfoItem
+              label="Created at"
+              value={new Date(get(user, 'created_at')).toLocaleDateString()}
+            />
+            <UserInfoItem
+              label="Last updated"
+              value={new Date(get(user, 'updated_at')).toLocaleDateString()}
+            />
           </div>
           <div className="user-page-content" />
         </section>
@@ -405,16 +354,18 @@ function UserPage(): Node {
           variants={variants}
           index={1}
         >
-          <div className="user-page-other-info">
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">Articles</p>
-              <p className="user-page-other-info-item-value">0</p>
-            </div>
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">Likes</p>
-              <p className="user-page-other-info-item-value">0</p>
-            </div>
-          </div>
+          <UserInfoItem
+            label="Articles"
+            value="0"
+          />
+          <UserInfoItem
+            label="Comments"
+            value="0"
+          />
+          <UserInfoItem
+            label="Likes"
+            value="0"
+          />
         </UserSection>
         <UserSection
           title="Change password"
@@ -423,30 +374,20 @@ function UserPage(): Node {
           variants={variants}
           index={2}
         >
-          <div className="user-page-password-change">
-            <div className="user-page-password-change-input">
-              <input
-                type="password"
-                placeholder="New password"
-                value={newPassword.password}
-                onChange={(e) => setNewPassword({ ...newPassword, password: e.target.value })}
-              />
-            </div>
-            <div className="user-page-password-change-input">
-              <input
-                type="password"
-                placeholder="Confirm new password"
-                value={newPassword.confirm}
-                onChange={(e) => setNewPassword({ ...newPassword, confirm: e.target.value })}
-              />
-            </div>
-            <div
-              onClick={changePassword}
-              type="button"
-              className="user-page-password-change-submit"
-            >Change password
-            </div>
-          </div>
+          <UserInfoInput
+            label="New password"
+            value={newPassword.password}
+            onClick={(e: any) => setNewPassword({ ...newPassword, password: e.target.value })}
+          />
+          <UserInfoInput
+            label="Confirm new password"
+            value={newPassword.confirm}
+            onClick={(e: any) => setNewPassword({ ...newPassword, confirm: e.target.value })}
+          />
+          <UserInfoButton
+            label="Change password"
+            onClick={changePassword}
+          />
         </UserSection>
         <UserSection
           title="Social links"
@@ -455,55 +396,33 @@ function UserPage(): Node {
           variants={variants}
           index={3}
         >
-          <div className="user-page-other-info">
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faFacebook} /> Facebook</p>
-              <input
-                className="user-page-other-info-item-input"
-                type="text"
-                placeholder="Facebook link"
-                value={socialMedia.facebook}
-                onChange={(e) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
-              />
-            </div>
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faTwitter} /> Twitter</p>
-              <input
-                className="user-page-other-info-item-input"
-                type="text"
-                placeholder="Twitter link"
-                value={socialMedia.twitter}
-                onChange={(e) => setSocialMedia({ ...socialMedia, twitter: e.target.value })}
-              />
-            </div>
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title"><FontAwesomeIcon icon={faLinkedin} /> LinkedIn</p>
-              <input
-                className="user-page-other-info-item-input"
-                type="text"
-                placeholder="LinkedIn link"
-                value={socialMedia.linkedin}
-                onChange={(e) => setSocialMedia({ ...socialMedia, linkedin: e.target.value })}
-              />
-            </div>
-            <div className="user-page-other-info-item">
-              <p className="user-page-other-info-item-title">Personal page</p>
-              <input
-                className="user-page-other-info-item-input"
-                type="text"
-                placeholder="Personal page link"
-                value={socialMedia.website}
-                onChange={(e) => setSocialMedia({ ...socialMedia, website: e.target.value })}
-              />
-            </div>
-            <div
-              type="button"
-              className="user-page-other-info-submit"
-              onClick={updateSocialMedia}
-            >
-              Update social media links
-            </div>
-          </div>
+          <UserInfoInput
+            label="Facebook"
+            value={socialMedia.facebook}
+            onClick={(e: any) => setSocialMedia({ ...socialMedia, facebook: e.target.value })}
+            icon={faFacebook}
+          />
+          <UserInfoInput
+            label="Twitter"
+            value={socialMedia.twitter}
+            onClick={(e: any) => setSocialMedia({ ...socialMedia, twitter: e.target.value })}
+            icon={faTwitter}
+          />
+          <UserInfoInput
+            label="LinkedIn"
+            value={socialMedia.linkedin}
+            onClick={(e: any) => setSocialMedia({ ...socialMedia, linkedin: e.target.value })}
+            icon={faLinkedin}
+          />
+          <UserInfoInput
+            label="Personal page"
+            value={socialMedia.website}
+            onClick={(e: any) => setSocialMedia({ ...socialMedia, website: e.target.value })}
+          />
+          <UserInfoButton
+            label="Update social media links"
+            onClick={updateSocialMedia}
+          />
         </UserSection>
         { !isConnected && (
         <ConnectWalletButton
@@ -545,32 +464,34 @@ function UserPage(): Node {
             variants={variants}
             index={4}
           >
-            <div className="user-page-password-change">
-              <div className="user-page-other-info">
-                <div className="user-page-other-info-item">
-                  <p className="user-page-other-info-item-title">Stake Address</p>
-                  <p className="user-page-other-info-item-value">{truncate(stakeAddress, { length: 20 })}</p>
-                </div>
-                <div className="user-page-other-info-item">
-                  <p className="user-page-other-info-item-title">Accound balance</p>
-                  <p className="user-page-other-info-item-value">{accountBalance}</p>
-                </div>
-                <div className="user-page-other-info-item">
-                  <p className="user-page-other-info-item-title">Wallet name </p>
-                  <p className="user-page-other-info-item-value">{enabledWallet}</p>
-                </div>
-                <div className="user-page-other-info-item">
-                  <p className="user-page-other-info-item-title">Used address</p>
-                  <p className="user-page-other-info-item-value">{truncate(get(usedAddresses, 0), { length: 20 })}</p>
-                </div>
-                <div
-                  onClick={disconnect}
-                  type="button"
-                  className="user-page-password-change-submit"
-                >Disconnect wallet
-                </div>
-              </div>
-            </div>
+            <UserInfoItem
+              label="Stake Address"
+              value={stakeAddress}
+              onClick={() => {
+                navigator.clipboard.writeText(stakeAddress);
+                toast.success('Copied to clipboard');
+              }}
+            />
+            <UserInfoItem
+              label="Account balance"
+              value={accountBalance}
+            />
+            <UserInfoItem
+              label="Wallet name"
+              value={enabledWallet}
+            />
+            <UserInfoItem
+              label="Used addresses"
+              value={usedAddresses}
+              onClick={(index) => {
+                navigator.clipboard.writeText(usedAddresses[index]);
+                toast.success('Copied to clipboard');
+              }}
+            />
+            <UserInfoButton
+              label="Disconnect wallet"
+              onClick={disconnect}
+            />
           </UserSection>
         )}
       </div>

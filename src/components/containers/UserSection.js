@@ -32,7 +32,9 @@ function UserSection ({
         initial="hidden"
         animate={expandedCard === `user-page-hero-${index}` ? 'visible' : 'hidden'}
       >
-        {children}
+        <div className="user-section-wrapper">
+          {children}
+        </div>
       </motion.div>
     </section>
   );
