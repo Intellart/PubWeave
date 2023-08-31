@@ -22,6 +22,7 @@ type Props = {
     isOwner?: boolean,
     type: 'share' | 'collab' | 'versioning',
     sectionId?: string,
+    articleId?: number,
     onClose?: () => void,
     onViewHistory?: () => void,
 };
@@ -145,7 +146,7 @@ function Modal(props: Props): React$Node {
     } else if (props.type === 'collab') {
       return (
         <CollabModal
-          articleId={get(article, 'id')}
+          articleId={get(article, 'id') || props.articleId}
           isOwner={props.isOwner || false}
           collaborators={get(article, 'collaborators')}
         />

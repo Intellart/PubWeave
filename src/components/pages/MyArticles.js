@@ -101,17 +101,19 @@ function MyArticles(): Node {
         </div>
         <div className="articles-list">
           {map(slice(filter(articles, a => a.status === statusCategory || statusCategory === 'all'), (page - 1) * itemsPerPage, page * itemsPerPage), (a) => (
-            <ArticleCard
-              key={a.id}
-              article={a}
-              showPublishedChip
-              onDelete={handleDeleteClick}
-              onClick={() => handleArticleClick(a)}
-              onConvert={() => {
-                convertArticle(a.id);
-                window.location.reload();
-              }}
-            />
+            <React.Fragment key={a.id}>
+              <ArticleCard
+                article={a}
+                showPublishedChip
+                onDelete={handleDeleteClick}
+                onClick={() => handleArticleClick(a)}
+                onConvert={() => {
+                  convertArticle(a.id);
+                  window.location.reload();
+                }}
+              />
+              <hr />
+            </React.Fragment>
           ))}
         </div>
         <Pagination

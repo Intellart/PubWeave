@@ -167,6 +167,7 @@ function ArticleCard(props : Props): Node {
                 type="collab"
                 shape="chip"
                 text="showAll"
+                articleId={props.article.id}
                 isOwner
               />
               <LikeButton
