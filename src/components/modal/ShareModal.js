@@ -12,7 +12,7 @@ import type { Node } from 'react';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { get } from 'lodash';
-import type { Article } from '../../../store/articleStore';
+import type { Article } from '../../store/articleStore';
 
 type Props = {
   article: Article,

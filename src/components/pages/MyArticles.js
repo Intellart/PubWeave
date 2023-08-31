@@ -53,6 +53,7 @@ function MyArticles(): Node {
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const deleteArticle = (id: number) => dispatch(actions.deleteArticle(id));
+  const convertArticle = (id: number) => dispatch(actions.convertArticle(id));
 
   const handleCreateArticle = () => {
     createArticle(user.id);
@@ -106,6 +107,7 @@ function MyArticles(): Node {
               showPublishedChip
               onDelete={handleDeleteClick}
               onClick={() => handleArticleClick(a)}
+              onConvert={() => convertArticle(a.id)}
             />
           ))}
         </div>

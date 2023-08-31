@@ -208,6 +208,11 @@ export const types = {
   ART_DELETE_ARTICLE_REJECTED: 'ART/DELETE_ARTICLE_REJECTED',
   ART_DELETE_ARTICLE_FULFILLED: 'ART/DELETE_ARTICLE_FULFILLED',
 
+  ART_CONVERT_ARTICLE: 'ART/CONVERT_ARTICLE',
+  ART_CONVERT_ARTICLE_PENDING: 'ART/CONVERT_ARTICLE_PENDING',
+  ART_CONVERT_ARTICLE_REJECTED: 'ART/CONVERT_ARTICLE_REJECTED',
+  ART_CONVERT_ARTICLE_FULFILLED: 'ART/CONVERT_ARTICLE_FULFILLED',
+
   ART_PUBLISH_ARTICLE: 'ART/PUBLISH_ARTICLE',
   ART_PUBLISH_ARTICLE_PENDING: 'ART/PUBLISH_ARTICLE_PENDING',
   ART_PUBLISH_ARTICLE_REJECTED: 'ART/PUBLISH_ARTICLE_REJECTED',
@@ -515,6 +520,10 @@ export const actions = {
   deleteArticle: (id: number): ReduxAction => ({
     type: types.ART_DELETE_ARTICLE,
     payload: API.deleteRequest(`pubweave/articles/${id}`),
+  }),
+  convertArticle: (id: number): ReduxAction => ({
+    type: types.ART_CONVERT_ARTICLE,
+    payload: API.putRequest(`pubweave/articles/${id}/convert`),
   }),
   // this will be handled by Admin from the backend, see publish and reject actions
   publishArticle: (id: number, newStatus: string): ReduxAction => {

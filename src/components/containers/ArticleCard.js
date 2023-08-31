@@ -4,16 +4,17 @@ import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faWarning, faXmark, faNewspaper,
+  faPencil, faPenToSquare, faWarning, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
-import { useNavigate } from 'react-router-dom';
+import { get } from 'lodash';
 import type { Article } from '../../store/articleStore';
 import { useScreenSize } from '../../utils/hooks';
 import LogoImg from '../../assets/images/pubweave_logo.png';
 import Modal from '../modal/Modal';
 import LikeButton from './LikeButton';
+import ArticleTypeModal from '../modal/ArticleTypeModal';
 
 type Props = {
   article: Article,
@@ -21,14 +22,14 @@ type Props = {
   showPublishedChip?: boolean,
   onClick?: () => void,
   currentUserId?: number,
+  onConvert: () => void,
 };
 
 function ArticleCard(props : Props): Node {
-  const navigate = useNavigate();
   const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   const status = props.article.status ? props.article.status : 'draft';
-  const workType = 'blog';
+  const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
 
   // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
@@ -114,39 +115,6 @@ function ArticleCard(props : Props): Node {
     }
   };
 
-  const chipTypeParams = () => {
-    switch (workType) {
-      case 'blog':
-        return {
-          label: 'Blog',
-          color: 'info',
-          icon: <FontAwesomeIcon icon={faNewspaper} />,
-          variant: 'outlined',
-        };
-      case 'article':
-        return {
-          label: 'Article',
-          color: 'success',
-          icon: <FontAwesomeIcon icon={faNewspaper} />,
-          variant: 'default',
-        };
-      case 'preprint':
-        return {
-          label: 'Preprint',
-          color: 'warning',
-          icon: <FontAwesomeIcon icon={faNewspaper} />,
-          variant: 'outlined',
-        };
-      default:
-        return {
-          label: 'Blog',
-          color: 'info',
-          icon: <FontAwesomeIcon icon={faNewspaper} />,
-          variant: 'outlined',
-        };
-    }
-  };
-
   return (
     <div
       className="article-card"
@@ -177,14 +145,10 @@ function ArticleCard(props : Props): Node {
           </div>
           <div className="article-card-side-content-status-wrapper">
             {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
-            <Chip
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate('/my-work/choose-type');
-              }}
-              className="article-card-side-content-status-chip"
-              label={workType || 'Type'}
-              {...chipTypeParams()}
+            <ArticleTypeModal
+              enabled={!isPublished}
+              type={workType}
+              onConvert={props.onConvert}
             />
           </div>
         </div>

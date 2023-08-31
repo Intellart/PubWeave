@@ -56,6 +56,45 @@
 
 }
 
+.are-you-sure-modal{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;  
+  gap: 20px;
+  width: 100%;
+
+  .modal-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+
+    button{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 40px;
+      border-radius: 5px;
+      background-color: rgba($pubWeaveBlue,0.5);
+      color: $white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover{
+        background-color: $pubWeaveBlue;
+        color: $white;
+      }
+    }
+  }
+}
+
 .share-modal{
   .share-modal-subtitle{
     display: flex;
@@ -191,6 +230,10 @@
         padding: 0 10px;
         font-size: 14px;
         font-weight: 600;
+
+        &::placeholder{
+          color: #e6e6e6;
+        }
       }
 
       .button{
