@@ -145,6 +145,7 @@ function Modal(props: Props): React$Node {
     } else if (props.type === 'collab') {
       return (
         <CollabModal
+          articleId={get(article, 'id')}
           isOwner={props.isOwner || false}
           collaborators={get(article, 'collaborators')}
         />

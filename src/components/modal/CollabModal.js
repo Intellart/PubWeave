@@ -1,13 +1,21 @@
 // @flow
 import { map, size } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { actions } from '../../store/articleStore';
 
 type CollabModalProps = {
+    articleId: number,
     collaborators: any,
     isOwner: boolean,
 };
 
-function CollabModal ({ isOwner, collaborators }: CollabModalProps): any {
+function CollabModal ({ isOwner, collaborators, articleId }: CollabModalProps): any {
+  const dispatch = useDispatch();
+  const addCollaborator = (email: string) => dispatch(actions.addCollaborator(articleId, email));
+
+  const [collaboratorEmail, setCollaboratorEmail] = useState('');
+
   return (
     <div className="collab-modal">
       <div className="field">
@@ -20,10 +28,19 @@ function CollabModal ({ isOwner, collaborators }: CollabModalProps): any {
           className="control"
           id="collaborator-name"
         >
-          <input className="input" type="email" placeholder="e.g." />
+          <input
+            value={collaboratorEmail}
+            onChange={(e) => setCollaboratorEmail(e.target.value)}
+            className="input"
+            type="email"
+            placeholder="e.g."
+          />
           <button
             className="button is-primary"
             type="button"
+            onClick={() => {
+              addCollaborator(collaboratorEmail);
+            }}
           >Add
           </button>
         </div>

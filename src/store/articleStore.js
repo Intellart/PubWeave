@@ -184,6 +184,11 @@ export const types = {
 
   SET_LAST_UPDATED_ARTICLE_IDS: 'SET_LAST_UPDATED_ARTICLE_IDS',
 
+  ART_ADD_COLLABORATOR: 'ART/ADD_COLLABORATOR',
+  ART_ADD_COLLABORATOR_PENDING: 'ART/ADD_COLLABORATOR_PENDING',
+  ART_ADD_COLLABORATOR_REJECTED: 'ART/ADD_COLLABORATOR_REJECTED',
+  ART_ADD_COLLABORATOR_FULFILLED: 'ART/ADD_COLLABORATOR_FULFILLED',
+
   ART_FETCH_ARTICLE: 'ART/FETCH_ARTICLE',
   ART_FETCH_ARTICLE_PENDING: 'ART/FETCH_ARTICLE_PENDING',
   ART_FETCH_ARTICLE_REJECTED: 'ART/FETCH_ARTICLE_REJECTED',
@@ -470,7 +475,19 @@ export const actions = {
         },
       }),
   }),
-
+  addCollaborator: (articleId: number, userEmail: string): ReduxAction => ({
+    type: types.ART_ADD_COLLABORATOR,
+    payload: API.putRequest(`pubweave/articles/${articleId}/add_collaborator`,
+      {
+        article: {
+          collaborators: [
+            {
+              collaborator_email: userEmail,
+            },
+          ],
+        },
+      }),
+  }),
   createArticle: (userId: number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
     payload: API.postRequest('pubweave/articles',

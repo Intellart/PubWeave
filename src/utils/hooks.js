@@ -112,6 +112,12 @@ type EditorPermissionProps = {
 export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
   scientific_article: {
     inProgress: {
+      [permissions.webSockets]: true,
+      [permissions.criticalSections]: true,
+      [permissions.locking]: true,
+      [permissions.configMenu]: true,
+      [permissions.history]: true,
+      [permissions.collaborators]: true,
     },
     published: {
     },
@@ -135,11 +141,6 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
   blog_article: {
     inProgress: {
       [permissions.configMenu]: true,
-      [permissions.webSockets]: true,
-      [permissions.criticalSections]: true,
-      [permissions.locking]: true,
-      [permissions.history]: true,
-      [permissions.collaborators]: true,
     },
     published: {
     },
