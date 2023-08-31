@@ -71,7 +71,7 @@ function ArticleTypeModal(props: Props): React$Node {
     <>
       <Chip
         onClick={(e) => {
-          if (!props.enabled) {
+          if (!props.enabled || !props.type || props.type === 'scientific_article') {
             return;
           }
           e.stopPropagation();

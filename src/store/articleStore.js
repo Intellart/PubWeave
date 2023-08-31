@@ -135,6 +135,7 @@ export type Tag = {
 };
 
 export type Article = {
+  article_type: string,
   id: number,
   title: string,
   subtitle: string,
@@ -553,6 +554,21 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_CONVERT_ARTICLE_FULFILLED:
+      console.log('ART_CONVERT_ARTICLE_FULFILLED');
+
+      console.log(action.payload);
+      console.log(state.allArticles);
+
+      return {
+        ...state,
+        oneArticle: set(state.oneArticle, 'article_type', action.payload.article_type),
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: set(state.allArticles[action.payload.id], 'article_type', action.payload.article_type),
+        },
+      };
+
     case types.ART_FETCH_VERSIONS_FULFILLED:
       console.log('ART_FETCH_VERSIONS_FULFILLED');
       console.log(action.payload);

@@ -36,7 +36,7 @@ function SideBar(props: Props): React$Element<any> {
 
   const versions = useSelector((state) => selectors.getVersions(state), isEqual);
 
-  console.log('VERSIONS', versions, props.sectionId);
+  // console.log('VERSIONS', versions, props.sectionId);
 
   const [selectedVersion, setSelectedVersion] = useState(0);
 

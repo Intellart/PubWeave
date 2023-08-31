@@ -99,6 +99,16 @@ type EditorPermissionProps = {
   status: 'inProgress' | 'published' | 'inReview',
 };
 
+// // eslint-disable-next-line no-unused-vars
+// export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
+//   [permissions.webSockets]: true,
+//   [permissions.criticalSections]: true,
+//   [permissions.locking]: true,
+//   [permissions.configMenu]: true,
+//   [permissions.history]: true,
+//   [permissions.collaborators]: true,
+// });
+
 export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
   scientific_article: {
     inProgress: {
@@ -128,7 +138,6 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
       [permissions.webSockets]: true,
       [permissions.criticalSections]: true,
       [permissions.locking]: true,
-      [permissions.configMenu]: true,
       [permissions.history]: true,
       [permissions.collaborators]: true,
     },

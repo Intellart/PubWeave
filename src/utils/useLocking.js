@@ -21,7 +21,9 @@ const useLocking = ({ blocks, editor, enabled } : LockingProps): { checkLocks: (
   // const unlockSection = (userId: number, sectionId: string) => dispatch(actions.unlockSection(userId, sectionId));
 
   const checkLocks = () => {
-    if (!enabled) return;
+    if (!enabled || !editor) {
+      return;
+    }
     const blockIndex = editor.blocks.getCurrentBlockIndex();
     if (blockIndex >= 0 && blockIndex < size(blocks)) {
       const blockId = get(editor.blocks.getBlockByIndex(blockIndex), 'id');

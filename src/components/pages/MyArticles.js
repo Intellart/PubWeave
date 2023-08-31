@@ -107,7 +107,10 @@ function MyArticles(): Node {
               showPublishedChip
               onDelete={handleDeleteClick}
               onClick={() => handleArticleClick(a)}
-              onConvert={() => convertArticle(a.id)}
+              onConvert={() => {
+                convertArticle(a.id);
+                window.location.reload();
+              }}
             />
           ))}
         </div>

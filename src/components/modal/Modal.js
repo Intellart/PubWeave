@@ -33,6 +33,7 @@ function Modal(props: Props): React$Node {
 
   const [open, setOpen] = useState(false);
   const onlineNum = useDebounce(size(omit(invert(activeSections), get(user, 'id'))), 1000);
+  const allNum = useDebounce(size(get(article, 'collaborators')), 1000);
 
   useEffect(() => {
     if (!props.shape) {
@@ -57,7 +58,7 @@ function Modal(props: Props): React$Node {
         showOnline: 'Share',
       },
       collab: {
-        showAll: '3 Collaborators',
+        showAll: `${allNum === 0 ? 'No' : allNum} Collaborators`,
         showOnline: `${onlineNum} Online`,
       },
       versioning: {
@@ -145,6 +146,7 @@ function Modal(props: Props): React$Node {
       return (
         <CollabModal
           isOwner={props.isOwner || false}
+          collaborators={get(article, 'collaborators')}
         />
       );
     } else if (props.type === 'versioning') {

@@ -1,12 +1,13 @@
 // @flow
+import { map, size } from 'lodash';
 import React from 'react';
 
 type CollabModalProps = {
-    // article?: any,
+    collaborators: any,
     isOwner: boolean,
 };
 
-function CollabModal ({ isOwner }: CollabModalProps): any {
+function CollabModal ({ isOwner, collaborators }: CollabModalProps): any {
   return (
     <div className="collab-modal">
       <div className="field">
@@ -28,27 +29,23 @@ function CollabModal ({ isOwner }: CollabModalProps): any {
         </div>
       </div>
       <ul className="collaborators">
-        <li className="collaborator">
-          <p className="collaborator-name">John Doe</p>
-          {isOwner && (
-          <button
-            className="button is-danger"
-            type="button"
-          >Remove
-          </button>
-          ) }
-        </li>
-        <li className="collaborator">
-          <p className="collaborator-name">Jane Doe</p>
-          {isOwner && (
-          <button
-            className="button is-danger"
-            type="button"
-          >Remove
-          </button>
-          ) }
-        </li>
+        {map(collaborators, (collaborator) => (
+          <li className="collaborator">
+            <p className="collaborator-name">{collaborator.name}</p>
+            {isOwner && (
+            <button
+              className="button is-danger"
+              type="button"
+            >Remove
+            </button>
+            ) }
+          </li>
+        ))}
+
       </ul>
+      {size(collaborators) === 0 && (
+      <p className="no-collaborators">No collaborators yet</p>
+      )}
 
     </div>
 
