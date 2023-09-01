@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, map, set, subtract,
+  filter, keyBy, omit, get, set, subtract,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -126,12 +126,20 @@ export type Category = {
   category_name: string,
 };
 
+export type Categories = {
+  [string]: Category,
+};
+
 export type Tag = {
   id: number,
   tag: string,
-  category: Category,
+  category_id: Category,
   created_at: string,
   updated_at: string,
+};
+
+export type Tags = {
+  [number]: Tag,
 };
 
 export type Article = {
@@ -150,7 +158,7 @@ export type Article = {
   created_at: string,
   updated_at: string,
   comments: { [number]: Comment },
-  tags: Array<any>,
+  tags: Tags,
   active_sections: {[string]: number },
 };
 
@@ -168,7 +176,7 @@ export type State = {
   oneArticle: Article | null,
   allArticles: { [number]: Article },
   comments: { [number]: Comment },
-  categories: { [string]: Category },
+  categories: Categories,
   tags: { [number]: Tag },
   versions: Array<any>,
   activeBlock: {
@@ -332,7 +340,7 @@ export const selectors = {
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
-  getTags: (state: ReduxState): any => state.article.tags,
+  getTags: (state: ReduxState): Tags => state.article.tags,
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
@@ -758,13 +766,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
             version,
             blocks: convertBlocksFromBackend(blocks),
           },
-          tags: map(get(action.payload, 'tags', []), (t) => ({
-            article_id: t.article_id,
-            category_id: t.category_id,
-            id: null,
-            article_tag_link: t.id,
-            tag_name: t.tag_name,
-          })),
+          tags: keyBy(get(action.payload, 'tags', []), 'id'),
         },
         activeSections: get(action.payload, 'active_sections', {}),
         blockIdQueue: {
@@ -989,11 +991,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        tags: keyBy(map(action.payload, (tag) => ({
-          tag_name: tag.tag,
-          category_id: tag.category_id,
-          id: tag.id,
-        })), 'id'),
+        tags: keyBy(action.payload, 'id'),
       };
 
     case types.ART_FETCH_TAGS_REJECTED:
@@ -1012,21 +1010,11 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          tags: [
-            ...state.oneArticle.tags,
-            {
-              id: action.payload.tag.id,
-              article_tag_link: action.payload.id,
-              tag_name: action.payload.tag_name,
-              category_id: action.payload.category_id,
-              article_id: action.payload.article_id,
-            },
-          ],
+          tags: keyBy(get(action.payload, 'tags', []), 'id'),
         },
       };
 
     case types.ART_REMOVE_TAG_FULFILLED:
-      const removedId: number = action.payload;
       toast.success('Tag removed successfully!');
 
       if (!state.oneArticle) {
@@ -1037,7 +1025,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         oneArticle: {
           ...state.oneArticle,
-          tags: filter(state.oneArticle.tags, (tag) => tag.article_tag_link !== removedId),
+          tags: keyBy(get(action.payload, 'tags', []), 'id'),
         },
       };
 

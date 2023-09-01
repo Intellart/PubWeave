@@ -60,7 +60,6 @@ function Editor({
   const blocks = get(content, 'blocks', {});
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
-
   const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: status || 'inProgress' });
 
   const dispatch = useDispatch();

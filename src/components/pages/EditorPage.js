@@ -112,17 +112,18 @@ function ReactEditor (): React$Element<any> {
         }}
 
       />
+      {article && (
       <ArticleConfig
-        id={id}
         wordCount={wordCount}
         lastSaved={lastSaved}
         updateArticle={updateArticle}
         article={article}
         categories={categories}
-        tags={tags}
+        allTags={tags}
         addTag={addTag}
         removeTag={removeTag}
       />
+      )}
       {get(currentPermissions, permissions.history) && (
         <SideBar
           sectionId={historySectionId}

@@ -43,7 +43,7 @@ function ReactEditor (): React$Element<any> {
   const updateArticle = (articleId: number, payload: any) => dispatch(actions.updateArticle(articleId, payload));
   const publishArticle = (articleId: number, status: string) => dispatch(actions.publishArticle(articleId, status));
   const addTag = (articleId: number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
-  const removeTag = (articleId :number, articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
+  const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
@@ -163,13 +163,12 @@ function ReactEditor (): React$Element<any> {
         </Alert>
       </div>
       <ArticleConfig
-        id={id}
         wordCount={wordCount}
         lastSaved={lastSaved}
         updateArticle={updateArticle}
         article={article}
         categories={categories}
-        tags={tags}
+        allTags={tags}
         addTag={addTag}
         removeTag={removeTag}
       />

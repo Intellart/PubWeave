@@ -21,6 +21,7 @@ const useCriticalSections = ({ blocks, enabled } : CriticalSectionProps): { labe
 
   const labelCriticalSections = () => {
     if (!enabled) return;
+    console.log('activeSections', activeSections);
     forEach(document.getElementsByClassName('ce-block__content'), (div, divIndex) => {
       if (div) {
         const sectionKey = findKey(blocks, (o) => o.position === divIndex);
@@ -39,7 +40,6 @@ const useCriticalSections = ({ blocks, enabled } : CriticalSectionProps): { labe
 
   useEffect(() => {
     labelCriticalSections();
-    console.log('activeSections', activeSections);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSections, blockIdQueue, content]);
 

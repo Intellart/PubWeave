@@ -6,14 +6,16 @@ import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
-import { ClickAwayListener } from '@mui/base/ClickAwayListener';
+import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
-  find, get, map,
+  get, map,
   isEqual,
-  includes,
-  differenceBy,
-  filter,
   subtract,
+  find,
+  keys,
+  pickBy,
+  omitBy,
+  size,
 } from 'lodash';
 // import Chip from '@mui/material/Chip';
 import {
@@ -21,43 +23,58 @@ import {
   Autocomplete,
   /* Checkbox, */ FormControl, InputLabel, MenuItem, Select,
 } from '@mui/material';
-import type { Article } from '../../store/articleStore';
+import type {
+  Article,
+  Categories,
+  Category,
+  Tag,
+  Tags,
+} from '../../store/articleStore';
 
 type Props = {
-  id: number,
   wordCount: number,
   lastSaved: number,
   updateArticle: Function,
   article: Article,
-  categories: { [number]: any },
-  tags: { [number]: any },
+  categories: Categories,
+  allTags: Tags,
   addTag: Function,
-  removeTag: Function,
+  removeTag: (articleTagId: number) => void,
 };
 
-function ArticleConfig(props: Props): Node {
+type BasicOption = {
+  label: string,
+  value: number,
+};
+
+function ArticleConfig({
+  allTags, article, lastSaved: _lastSaved, wordCount,
+  updateArticle, categories, addTag, removeTag,
+}: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { tags: allTags } = props;
-  const [/* newTag */, setNewTag] = useState('');
+  // const [/* newTag */, setNewTag] = useState('');
+  // const [/* star */, setStar] = useState(get(article, 'star', false) || false);
+  const [description, setDescription] = useState(get(article, 'description', ''));
 
-  const [tags, setTags] = useState(map(get(props.article, 'tags', []), (t) => ({
-    ...t,
-    id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
-  })));
-  const [description, setDescription] = useState(get(props.article, 'description', ''));
-  const [/* star */, setStar] = useState(get(props.article, 'star', false) || false);
+  const articleId = get(article, 'id', 0);
+  const articleTags = get(article, 'tags', []);
+  const [tags, setTags] = useState(articleTags);
 
   const SECOND_MS = 1000;
 
+  // console.log('tags', tags);
+  // console.log('alltags', allTags);
+
+  const tagsChanged = !isEqual(keys(tags), keys(articleTags));
+
+  const category: Category = find(categories, (c) => c.category_name === get(article, 'category', null));
+
   useEffect(() => {
-    setTags(map(get(props.article, 'tags', []), (t) => ({
-      ...t,
-      id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
-    })) || []);
-    setDescription(get(props.article, 'description', ''));
-    setStar(get(props.article, 'star', false) || false);
-  }, [props.article, allTags]);
+    setTags(articleTags);
+    setDescription(get(article, 'description', ''));
+    // setStar(get(article, 'star', false) || false);
+  }, [article, allTags, articleTags]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -67,7 +84,7 @@ function ArticleConfig(props: Props): Node {
     return () => clearInterval(interval);
   }, []);
 
-  const lastSaved = new Date(props.lastSaved);
+  const lastSaved = new Date(_lastSaved);
   const dif = subtract(currentTime, lastSaved) / 1000;
 
   const lastSavedString = () => {
@@ -85,50 +102,47 @@ function ArticleConfig(props: Props): Node {
   };
 
   const handleResetTags = () => {
-    setTags(map(get(props.article, 'tags', []), (t) => ({
-      ...t,
-      id: get(find(allTags, { tag_name: t.tag_name }), 'id'),
-    })));
+    setTags(articleTags);
   };
 
-  const articleTagIds = map(get(props.article, 'tags', []), 'tag_name');
-  const tagIds = map(tags, 'tag_name');
+  const tagValues = map(tags, (tag: Tag) => ({
+    label: tag.tag,
+    value: tag.id,
+  }));
 
-  const tagsChanged = !isEqual(articleTagIds, tagIds);
+  const tagOptions = map(pickBy(allTags, (tag: Tag) => tag.category_id === category?.id), (tag: Tag) => ({
+    label: tag.tag,
+    value: tag.id,
+  }));
 
   const handleSaveTags = () => {
-    const diff = differenceBy(get(props.article, 'tags', []), tags, 'tag_name');
-    const diff2 = differenceBy(tags, get(props.article, 'tags', []), 'tag_name');
+    console.log('handleSaveTags');
+    const tagsToRemove: Tags = omitBy(articleTags, (tag) => get(tags, tag.id, null));
+    const tagsToAdd: Tags = omitBy(tags, (tag) => get(articleTags, tag.id, null));
 
-    // console.log('to remove', diff);
-    // console.log('to add', diff2);
+    console.log('tagsToAdd', tagsToAdd);
+    console.log('tagsToRemove', tagsToRemove);
 
-    map(diff, (tag) => {
-      props.removeTag(props.id, tag.article_tag_link);
-    });
+    if (size(tagsToRemove) > 0) {
+      map(tagsToRemove, (tag: Tag) => {
+        removeTag(tag.id);
+      });
+    }
 
-    map(diff2, (tag) => {
-      props.addTag(props.id, tag.id);
-    });
+    if (size(tagsToAdd) > 0) {
+      map(tagsToAdd, (tag: Tag) => {
+        addTag(articleId, tag.id);
+      });
+    }
   };
 
-  const onNewTagClick = (value: string) => {
-    setTags(map(value, (t) => ({
-      ...t,
-      article_tag_link: includes(map(get(props.article, 'tags'), 'tag_name'), t.tag_name) ? get(find(get(props.article, 'tags'), { tag_name: t.tag_name }), 'article_tag_link') : null,
-    })));
+  const onNewTagClick = (values: BasicOption[]) => {
+    setTags(pickBy(allTags, (tag) => find(values, (v: BasicOption) => v.value === tag.id)));
   };
 
   const onNewTagInput = (value: string) => {
-    setNewTag(value);
+    console.log('onNewTagInput', value);
   };
-
-  const category: number = get(find(props.categories, (c) => c.category_name === get(props.article, 'category', '')), 'id', '');
-
-  const tagOptionsToShow = map(filter(get(props, 'tags', []), (tag) => tag.category_id === category), (t) => ({
-    ...t,
-    article_tag_link: null,
-  }));
 
   return (
     <>
@@ -143,11 +157,11 @@ function ArticleConfig(props: Props): Node {
       >
         <div className="article-config-item">
           <FontAwesomeIcon className='article-config-icon' icon={faPen} />
-          <h6>{props.wordCount} words</h6>
+          <h6>{wordCount} words</h6>
         </div>
         <div className="article-config-item">
           <FontAwesomeIcon className='article-config-icon' icon={faClock} />
-          <h6>{props.lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
+          <h6>{_lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
         </div>
         <div className="article-config-item">
           <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
@@ -189,13 +203,13 @@ function ArticleConfig(props: Props): Node {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={category}
+                value={get(category, 'id', '')}
                 label="Category"
                 onChange={(e) => {
-                  props.updateArticle(props.id, { category_id: e.target.value });
+                  updateArticle(articleId, { category_id: e.target.value });
                 }}
               >
-                {map(props.categories, (c) => (
+                {map(categories, (c: Category) => (
                   <MenuItem key={c.id} value={c.id}>{c.category_name}</MenuItem>
                 ))}
               </Select>
@@ -215,7 +229,7 @@ function ArticleConfig(props: Props): Node {
               }}
               onBlur={(e) => {
                 setDescription(e.target.value);
-                props.updateArticle(props.id, { description });
+                updateArticle(articleId, { description });
               }}
             />
           </div>
@@ -230,12 +244,11 @@ function ArticleConfig(props: Props): Node {
                 multiple
                 limitTags={2}
                 id="combo-box-demo"
-                onChange={(e, value) => onNewTagClick(value)}
+                onChange={(e, values) => onNewTagClick(values)}
                 onInputChange={(e, value) => onNewTagInput(value)}
-                value={tags}
-                getOptionLabel={(option) => option.tag_name}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                options={tagOptionsToShow}
+                value={tagValues}
+                isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
+                options={tagOptions}
                 sx={{
                   minWidth: 200, display: 'flex', alignItems: 'center',
                 }}
@@ -291,7 +304,7 @@ function ArticleConfig(props: Props): Node {
         ) } */}
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon' icon={faPen} />
-            <h6>{props.wordCount} words</h6>
+            <h6>{wordCount} words</h6>
           </div>
           <div className="article-config-item">
             <FontAwesomeIcon className='article-config-icon' icon={faClock} />

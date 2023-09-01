@@ -129,7 +129,10 @@ export function useEditorTools (): { [toolName: string]: any} {
     quote: Quote,
     checklist: CheckList,
     delimiter: Delimiter,
-    inlineCode: InlineCode,
+    inlineCode: {
+      class: InlineCode,
+      shortcut: 'CMD+SHIFT+O',
+    },
     wordCount: WordCounter,
     footnotes: FootnotesTune,
   // latexInline: LatexInline,
