@@ -61,7 +61,12 @@ export function useEditorTools (): { [toolName: string]: any} {
     },
     embed: {
       class: Embed,
-      inlineToolbar: true,
+      config: {
+        services: {
+          youtube: true,
+          coub: true,
+        },
+      },
     },
     paragraph: {
       tunes: ['footnotes', 'myTune'],

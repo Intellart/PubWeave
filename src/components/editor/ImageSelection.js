@@ -4,11 +4,12 @@ import React, {
   useRef,
 } from 'react';
 import {
-  isEmpty, map, indexOf,
+  isEmpty, map, indexOf, filter, includes,
 } from 'lodash';
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert } from '@mui/material';
 
 type Props = {
   linkList: Array<string>,
@@ -19,7 +20,9 @@ type Props = {
 function ImageSelection (props: Props) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(-1);
 
-  const oldSelectedImageIndex = indexOf(props.linkList, props.currentImage);
+  const _linkList = filter(props.linkList, (link) => includes(link, 'http://res.cloudinary.com'));
+
+  const oldSelectedImageIndex = indexOf(_linkList, props.currentImage);
 
   const parentRef = useRef(null);
   const selectedImageRef = useRef(null);
@@ -47,7 +50,7 @@ function ImageSelection (props: Props) {
   };
 
   const linkList = [
-    ...props.linkList,
+    ..._linkList,
   ];
 
   // eslint-disable-next-line no-unused-vars
@@ -61,7 +64,17 @@ function ImageSelection (props: Props) {
 
   return (
     <div className='editor-wrapper-image-selection-wrapper'>
-      {!isEmpty(props.linkList) && (
+      <Alert
+        sx={{
+          width: 'calc(100% - 150px)',
+          marginTop: '20px',
+
+        }}
+        severity="warning"
+      >
+        For thumbnail, please use (local) image you have already used in your article.
+      </Alert>
+      {!isEmpty(_linkList) && (
       <>
         <div
           onClick={() => {

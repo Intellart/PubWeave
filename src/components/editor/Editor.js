@@ -151,6 +151,7 @@ function Editor({
         logLevel: 'ERROR',
         holder: 'editorjs',
         readOnly,
+        spellcheck: false,
         data: {
           blocks: convertBlocksToEditorJS(blocks) || [],
         },

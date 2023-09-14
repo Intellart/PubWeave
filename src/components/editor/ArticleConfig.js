@@ -6,7 +6,6 @@ import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
-import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {
   get, map,
   isEqual,
@@ -146,7 +145,10 @@ function ArticleConfig({
 
   return (
     <>
-      <div className={classNames('article-config-backdrop', { hidden: !articleSettingsExpanded })} />
+      <div
+        onClick={() => setArticleSettingsExpanded(false)}
+        className={classNames('article-config-backdrop', { hidden: !articleSettingsExpanded })}
+      />
       <div
         style={{
           top: 80,
@@ -167,112 +169,88 @@ function ArticleConfig({
           <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
         </div>
       </div>
-      <ClickAwayListener
-        onClickAway={() => {
-          setArticleSettingsExpanded(false);
-        }}
-        mouseEvent="onMouseDown"
-        touchEvent="onTouchStart"
-      >
-        <div
-          className={classNames('article-config-large', { hidden: !articleSettingsExpanded })}
-        >
-          {/* Bookmark
-        <Checkbox
-          aria-label="checkmark"
-          checked={star}
-          onChange={(e) => {
-            props.updateArticle(props.id, { star: e.target.checked });
-          }}
-          icon={(
-            <FontAwesomeIcon
-              icon={faBook}
-              style={{ color: 'gray' }}
-            />
-            )}
-          checkedIcon={<FontAwesomeIcon icon={faBook} />}
-        /> */}
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon' icon={faPen} />
-            <FormControl
-              className='article-config-category-select'
-              sx={{ m: 2, minWidth: 200 }}
-              size="small"
-            >
-              <InputLabel>Category</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={get(category, 'id', '')}
-                label="Category"
-                onChange={(e) => {
-                  updateArticle(articleId, { category_id: e.target.value });
-                }}
-              >
-                {map(categories, (c: Category) => (
-                  <MenuItem key={c.id} value={c.id}>{c.category_name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-          <div className='article-config-item'>
-            <FontAwesomeIcon className='article-config-icon' icon={faBook} />
-            <TextField
-              sx={{ m: 2, minWidth: 200 }}
-              variant="outlined"
-              size="small"
-              id="standard-basic"
-              label="Description"
-              value={description || ''}
+      <div className={classNames('article-config-large', { hidden: !articleSettingsExpanded })}>
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon' icon={faPen} />
+          <FormControl
+            className='article-config-category-select'
+            sx={{ m: 2, minWidth: 200 }}
+            size="small"
+          >
+            <InputLabel>Category</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={get(category, 'id', '')}
+              label="Category"
               onChange={(e) => {
-                setDescription(e.target.value);
+                updateArticle(articleId, { category_id: e.target.value });
               }}
-              onBlur={(e) => {
-                setDescription(e.target.value);
-                updateArticle(articleId, { description });
+            >
+              {map(categories, (c: Category) => (
+                <MenuItem key={c.id} value={c.id}>{c.category_name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </div>
+        <div className='article-config-item'>
+          <FontAwesomeIcon className='article-config-icon' icon={faBook} />
+          <TextField
+            sx={{ m: 2, minWidth: 200 }}
+            variant="outlined"
+            size="small"
+            id="standard-basic"
+            label="Description"
+            value={description || ''}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+            onBlur={(e) => {
+              setDescription(e.target.value);
+              updateArticle(articleId, { description });
+            }}
+          />
+        </div>
+
+        {!category && <Alert severity="info">To use tags, add category first.</Alert>}
+        <div className='article-config-item'>
+          <FontAwesomeIcon className='article-config-icon' icon={faBook} />
+          <div className='article-config-item-tags'>
+            <Autocomplete
+              disablePortal
+              disabled={!category}
+              multiple
+              limitTags={2}
+              id="combo-box-demo"
+              onChange={(e, values) => onNewTagClick(values)}
+              onInputChange={(e, value) => onNewTagInput(value)}
+              value={tagValues}
+              isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
+              options={tagOptions}
+              sx={{
+                minWidth: 200, display: 'flex', alignItems: 'center',
               }}
+              size="small"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  className='article-config-item-input'
+                  variant="outlined"
+                  size="small"
+                  label="Tags"
+                />
+              )}
             />
-          </div>
 
-          {!category && <Alert severity="info">To use tags, add category first.</Alert>}
-          <div className='article-config-item'>
-            <FontAwesomeIcon className='article-config-icon' icon={faBook} />
-            <div className='article-config-item-tags'>
-              <Autocomplete
-                disablePortal
-                disabled={!category}
-                multiple
-                limitTags={2}
-                id="combo-box-demo"
-                onChange={(e, values) => onNewTagClick(values)}
-                onInputChange={(e, value) => onNewTagInput(value)}
-                value={tagValues}
-                isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
-                options={tagOptions}
-                sx={{
-                  minWidth: 200, display: 'flex', alignItems: 'center',
-                }}
-                size="small"
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    className='article-config-item-input'
-                    variant="outlined"
-                    size="small"
-                    label="Tags"
-                  />
-                )}
-              />
-
-              {/* value={newTag}
+            {/* value={newTag}
             onChange={(e) => {
               setNewTag(e.target.value);
             }}
             id="standard-basic" */}
-              <div
-                className='article-config-item-tags-buttons'
-              >
-                {tagsChanged && (
+            <div
+              className='article-config-item-tags-buttons'
+            >
+              {tagsChanged && (
                 <div
                   className='article-config-item-ok'
                   onClick={() => handleResetTags()}
@@ -280,9 +258,9 @@ function ArticleConfig({
                   Reset
                 </div>
 
-                )
+              )
               }
-                {tagsChanged && (
+              {tagsChanged && (
                 <div
                   className='article-config-item-ok'
                   onClick={() => handleSaveTags()}
@@ -290,30 +268,21 @@ function ArticleConfig({
                   Save tag changes
                 </div>
 
-                )
+              )
           }
-              </div>
             </div>
           </div>
-          {/* {!isEmpty(tags) && (
-        <div className="all-chips">
-          {map(tags, (tag, index) => (
-            <Chip key={index} label={tag.tag_name} onDelete={() => {}} />
-          ))}
         </div>
-        ) } */}
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon' icon={faPen} />
-            <h6>{wordCount} words</h6>
-          </div>
-          <div className="article-config-item">
-            <FontAwesomeIcon className='article-config-icon' icon={faClock} />
-            <h6>{lastSavedString()}</h6>
-          </div>
-
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon' icon={faPen} />
+          <h6>{wordCount} words</h6>
+        </div>
+        <div className="article-config-item">
+          <FontAwesomeIcon className='article-config-icon' icon={faClock} />
+          <h6>{lastSavedString()}</h6>
         </div>
 
-      </ClickAwayListener>
+      </div>
     </>
   );
 }

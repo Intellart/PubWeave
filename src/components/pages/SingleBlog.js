@@ -52,8 +52,6 @@ function Blogs(): Node {
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
-  // console.log(article);
-
   useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   }, [article, id]);
@@ -62,6 +60,10 @@ function Blogs(): Node {
     if (!isReady) {
       fetchArticle(id);
     }
+    if (document.body) {
+      document.body.spellcheck = false;
+    }
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
@@ -81,6 +83,12 @@ function Blogs(): Node {
       y: e.clientY,
       selection: window.getSelection().toString(),
     });
+  };
+
+  const onMouseDown = (e: any) => {
+    if (e.target && get(e.target, 'tagName') === 'A') {
+      window.open(e.target.href, '_blank');
+    }
   };
 
   const copySelectedToClipboard = () => {
@@ -193,6 +201,7 @@ function Blogs(): Node {
         <div
           onKeyDown={(event) => onEditorKeyDown(event)}
           onContextMenu={(event) => onRightClick(event)}
+          onClick={(event) => onMouseDown(event)}
           className="editorjs-wrapper"
         >
           <Editor

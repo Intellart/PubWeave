@@ -72,6 +72,11 @@
     transform: translateY(-50px);
     // min-height: calc(80vh - 210px);
 
+    a {
+      color: $pubWeaveBlue;
+      border-bottom: 1px solid $pubWeaveBlue;
+    }
+
     .ce-block__content,
     .ce-toolbar__content {
       max-width: min(calc(100% - 200px), 950px);
@@ -271,15 +276,15 @@
   .single-blog-img {
     width: calc(100% - 200px);
     max-width: 1000px;
-    height: 350px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 10px;
     object-position: center;
     transform: translateY(-100px);
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
 
     &.single-blog-img-no-image {
-      background: #11273F;
+      background: #0e2033;
+      max-height: 350px;
     }
 
     @media screen and (max-width: $mobile_breakpoint) {
