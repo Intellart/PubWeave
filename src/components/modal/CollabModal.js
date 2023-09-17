@@ -1,7 +1,10 @@
 // @flow
-import { map, size } from 'lodash';
+import {
+  includes, map, size, trim,
+} from 'lodash';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 import { actions } from '../../store/articleStore';
 
 type CollabModalProps = {
@@ -12,9 +15,22 @@ type CollabModalProps = {
 
 function CollabModal ({ isOwner, collaborators, articleId }: CollabModalProps): any {
   const dispatch = useDispatch();
+
   const addCollaborator = (email: string) => dispatch(actions.addCollaborator(articleId, email));
 
   const [collaboratorEmail, setCollaboratorEmail] = useState('');
+
+  const handleAddColab = () => {
+    if (includes(map(collaborators, 'email'), trim(collaboratorEmail))) {
+      toast.error('User already added.');
+      setCollaboratorEmail('');
+
+      return;
+    }
+    addCollaborator(collaboratorEmail);
+  };
+
+  console.log(collaborators);
 
   return (
     <div className="collab-modal">
@@ -38,19 +54,19 @@ function CollabModal ({ isOwner, collaborators, articleId }: CollabModalProps): 
           <button
             className="button is-primary"
             type="button"
-            onClick={() => {
-              addCollaborator(collaboratorEmail);
-            }}
+            onClick={handleAddColab}
           >Add
           </button>
         </div>
       </div>
       <ul className="collaborators">
         {map(collaborators, (collaborator) => (
-          <li className="collaborator">
-            <p className="collaborator-name">{collaborator.name}</p>
+          <li className="collaborator" key={collaborator.id}>
+            <p className="collaborator-name">{collaborator.full_name}</p>
+            <p className="collaborator-name">{collaborator.email}</p>
             {isOwner && (
             <button
+              disabled
               className="button is-danger"
               type="button"
             >Remove

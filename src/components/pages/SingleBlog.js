@@ -134,16 +134,17 @@ function Blogs(): Node {
           <div className="single-blog-highlight-text-left">
             <h1 className="single-blog-highlight-category">{get(article, 'category', '')}</h1>
             <h2 className="single-blog-highlight-title">{get(article, 'title', 'No title')}</h2>
+            <p className="single-blog-highlight-description">{get(article, 'description', '')}</p>
             <div className="single-blog-highlight-text-left-tags">
               {map(get(article, 'tags', []), (tag, index) => (
                 <Link
                   key={index}
-                  to={`/blogs/${getRoute(tag.category_id)}/${tag.tag_name}`}
+                  to={`/blogs/${getRoute(tag.category_id)}/${tag.tag}`}
                 >
                   <Chip
                     variant='outlined'
                     key={tag.id}
-                    label={tag.tag_name}
+                    label={tag.tag}
                     className="single-blog-highlight-text-left-tags-chip"
                   />
                 </Link>

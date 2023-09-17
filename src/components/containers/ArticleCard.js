@@ -163,7 +163,7 @@ function ArticleCard(props : Props): Node {
                 shape="icon"
               />
               <Modal
-                enabled={!isPublished}
+                enabled={!isPublished && workType !== 'blog_article'}
                 type="collab"
                 shape="chip"
                 text="showAll"

@@ -29,12 +29,16 @@ type Props = {
 
 function Modal(props: Props): React$Node {
   const article = useSelector((state) => selectors.article(state), isEqual);
+  const articles = useSelector((state) => selectors.getAllArticles(state), isEqual);
+
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   const [open, setOpen] = useState(false);
   const onlineNum = useDebounce(size(omit(invert(activeSections), get(user, 'id'))), 1000);
-  const allNum = useDebounce(size(get(article, 'collaborators')), 1000);
+
+  const collaborators = get(article, 'collaborators') || get(articles, [props.articleId, 'collaborators']);
+  const allNum = useDebounce(size(collaborators), 1000);
 
   useEffect(() => {
     if (!props.shape) {
@@ -148,7 +152,7 @@ function Modal(props: Props): React$Node {
         <CollabModal
           articleId={get(article, 'id') || props.articleId}
           isOwner={props.isOwner || false}
-          collaborators={get(article, 'collaborators')}
+          collaborators={collaborators}
         />
       );
     } else if (props.type === 'versioning') {

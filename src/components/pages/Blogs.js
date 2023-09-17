@@ -54,7 +54,7 @@ function Blogs(): Node {
   // console.log(selectedUser);
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
-  filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
+  filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag').includes(tag)) : filteredArticles;
 
   const categoryTags = cat ? filter(tags, (t) => get(categories, [t.category_id, 'category_name']) === cat) : [];
 
@@ -136,15 +136,15 @@ function Blogs(): Node {
               return (
                 <Link
                   key={index}
-                  to={`/blogs/${catName}/${t.tag_name}`}
+                  to={`/blogs/${catName}/${t.tag}`}
                 >
                   <Chip
                     className="chip"
-                    id={t.tag_name}
-                    label={t.tag_name}
-                    variant={tag === t.tag_name ? 'default' : 'outlined'}
+                    id={t.tag}
+                    label={t.tag}
+                    variant={tag === t.tag ? 'default' : 'outlined'}
                     sx={{
-                      backgroundColor: tag === t.tag_name ? 'primary.main' : 'transparent',
+                      backgroundColor: tag === t.tag ? 'primary.main' : 'transparent',
                       color: 'white',
                     }}
                   />

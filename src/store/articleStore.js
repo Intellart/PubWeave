@@ -147,6 +147,9 @@ export type Article = {
   id: number,
   title: string,
   subtitle: string,
+  collaborators: {
+    [key:number]: User
+  },
   content: ArticleContent,
   author: User,
   likes: Array<Object>,
@@ -488,11 +491,7 @@ export const actions = {
     payload: API.putRequest(`pubweave/articles/${articleId}/add_collaborator`,
       {
         article: {
-          collaborators: [
-            {
-              collaborator_email: userEmail,
-            },
-          ],
+          collaborator_email: userEmail,
         },
       }),
   }),
@@ -579,6 +578,15 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_ADD_COLLABORATOR_FULFILLED:
+      return {
+        ...state,
+        oneArticle: set(state.oneArticle, 'collaborators', keyBy(action.payload.collaborators, 'id')),
+        allArticles: {
+          ...state.allArticles,
+          [action.payload.id]: set(state.allArticles[action.payload.id], 'collaborators', keyBy(action.payload.collaborators, 'id')),
+        },
+      };
     case types.ART_CONVERT_ARTICLE_FULFILLED:
       console.log('ART_CONVERT_ARTICLE_FULFILLED');
 
@@ -982,12 +990,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_FETCH_TAGS_FULFILLED:
       // eslint-disable-next-line no-console
       console.log(`Fetched all tags: ${get(action.payload, 'length')} tags.`);
-
-      // console.log(keyBy(map(action.payload, (tag) => ({
-      //   tag_name: tag.tag,
-      //   category_id: tag.category_id,
-      //   id: tag.id,
-      // })), 'id'));
 
       return {
         ...state,
