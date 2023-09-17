@@ -16,12 +16,14 @@ import FootnotesTune from '@editorjs/footnotes';
 import AttachesTool from '@editorjs/attaches';
 import InlineImage from 'editorjs-inline-image';
 
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
 import LatexPlugin from './latex_plugin';
 import { ImageWrapper } from './editorExtensions/imageWrapper';
 import { WordCounter } from './editorExtensions/wordCounter';
 import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
+
 // import { MyTune } from './editorExtensions/tuneVersioning';
 // import Code from '@editorjs/code';
 // import editorjsCodeflask from '@calumk/editorjs-codeflask';
@@ -37,6 +39,16 @@ export function useEditorTools (): { [toolName: string]: any} {
       class: VersioningTune,
       config: {
 
+      },
+    },
+    alignmentTune: {
+      class: AlignmentTuneTool,
+      config: {
+        default: 'left',
+        blocks: {
+          header: 'left',
+          list: 'left',
+        },
       },
     },
     tooltip: {
@@ -69,7 +81,7 @@ export function useEditorTools (): { [toolName: string]: any} {
       },
     },
     paragraph: {
-      tunes: ['footnotes', 'myTune'],
+      tunes: ['footnotes', 'myTune', 'alignmentTune'],
     },
     table: Table,
     marker: Marker,
@@ -130,7 +142,10 @@ export function useEditorTools (): { [toolName: string]: any} {
       },
     },
     raw: Raw,
-    header: HeaderAPI,
+    header: {
+      class: HeaderAPI,
+      tunes: ['alignmentTune'],
+    },
     quote: Quote,
     checklist: CheckList,
     delimiter: Delimiter,

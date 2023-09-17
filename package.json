@@ -60,6 +60,7 @@
     "editorjs-drag-drop": "^1.1.13",
     "editorjs-inline-image": "^1.2.4",
     "editorjs-math": "^1.0.2",
+    "editorjs-text-alignment-blocktune": "^1.0.3",
     "editorjs-tooltip": "^1.1.15",
     "editorjs-undo": "^2.0.22",
     "eslint-config-airbnb": "^19.0.4",
