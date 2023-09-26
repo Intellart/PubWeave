@@ -6,6 +6,7 @@ import {
   get, isEqual, map,
   isEmpty,
   slice,
+  includes,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -14,6 +15,7 @@ import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
@@ -45,6 +47,16 @@ function Blogs(): Node {
   const { cat, tag, userId } = useParams();
 
   useEffect(() => {
+    if (cat) {
+      if (!includes(map(categories, 'category_name'), cat)) {
+        toast.error('Error: You selected an invalid category.');
+        navigate('/blogs');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cat]);
+
+  useEffect(() => {
     if (userId && !selectedUser) {
       getSelectedUser(userId);
     }
@@ -66,7 +78,6 @@ function Blogs(): Node {
   if (userId) {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
-  console.log(filteredArticles);
 
   return (
     <main className="blogs-wrapper">
