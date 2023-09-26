@@ -88,6 +88,11 @@ function Blogs(): Node {
   const onMouseDown = (e: any) => {
     if (e.target && get(e.target, 'tagName') === 'A') {
       window.open(e.target.href, '_blank');
+
+      return;
+    }
+    if (e.target && get(e.target, 'parentElement.tagName') === 'A') {
+      window.open(e.target.parentElement.href, '_blank');
     }
   };
 
@@ -123,8 +128,6 @@ function Blogs(): Node {
   };
 
   const author = get(article, 'author', {});
-
-  console.log(author);
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
