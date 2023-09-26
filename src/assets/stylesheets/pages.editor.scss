@@ -52,6 +52,20 @@
     //   }
     // }
 
+    .ce-inline-tool {
+      min-width: 20px;
+    }
+
+    sub {
+      font-size: 0.7em;
+    }
+
+    sup {
+      font-size: 0.7em;
+      vertical-align: super;
+      
+    }
+
     .codeBoxHolder {
       overflow: inherit;
     }

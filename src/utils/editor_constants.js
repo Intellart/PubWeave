@@ -23,6 +23,8 @@ import { WordCounter } from './editorExtensions/wordCounter';
 import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
+import Superscript from './editorExtensions/superscript';
+import Subscript from './editorExtensions/subscript';
 
 // import { MyTune } from './editorExtensions/tuneVersioning';
 // import Code from '@editorjs/code';
@@ -41,6 +43,8 @@ export function useEditorTools (): { [toolName: string]: any} {
 
       },
     },
+    subscript: Subscript,
+    superscript: Superscript,
     alignmentTune: {
       class: AlignmentTuneTool,
       config: {
@@ -88,6 +92,7 @@ export function useEditorTools (): { [toolName: string]: any} {
     list: {
       class: List,
       tunes: ['footnotes', 'myTune'],
+      inlineToolbar: true,
     },
     math: {
       class: LatexPlugin,
@@ -145,6 +150,7 @@ export function useEditorTools (): { [toolName: string]: any} {
     header: {
       class: HeaderAPI,
       tunes: ['alignmentTune'],
+      inlineToolbar: true,
     },
     quote: Quote,
     checklist: CheckList,

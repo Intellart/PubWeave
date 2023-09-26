@@ -15,9 +15,7 @@ import {
   find, get, isEmpty, isEqual, map, size, toInteger,
 } from 'lodash';
 import { Chip, Popover } from '@mui/material';
-import classNames from 'classnames';
 import { toast } from 'react-toastify';
-import PubWeaveLogo from '../../assets/images/pubweave_logo.png';
 import CommentModal from '../comments/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
@@ -196,11 +194,11 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      <img
+      {/* <img
         src={get(article, 'image') || PubWeaveLogo}
         className={classNames('single-blog-img', { 'single-blog-img-no-image': !get(article, 'image') })}
         alt="single blog"
-      />
+      /> */}
       {isReady && (
         <div
           onKeyDown={(event) => onEditorKeyDown(event)}
