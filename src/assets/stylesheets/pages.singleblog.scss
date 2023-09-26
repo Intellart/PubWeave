@@ -72,6 +72,23 @@
     transform: translateY(-50px);
     // min-height: calc(80vh - 210px);
 
+    .image-tool__caption{
+      border: none;
+      box-shadow: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      color: rgb(114, 114, 114);
+      font-size: 14px;
+      font-weight: 400;
+      font-family: 'Inter';
+      padding: 0px 10px;
+      margin: 0px 0px 10px;
+      width: 100%;
+      
+    }
+
     a {
       color: $pubWeaveBlue;
       border-bottom: 1px solid $pubWeaveBlue;

@@ -5,7 +5,7 @@ export class ImageWrapper extends Image {
     if (this.readOnly) {
       const wrapper = this.ui.render(this.data);
       // remove div from wrapper
-      wrapper.querySelector('.cdx-input').remove();
+      // wrapper.querySelector('.cdx-input').remove();
       wrapper.querySelector('.cdx-button').remove();
 
       return wrapper;
