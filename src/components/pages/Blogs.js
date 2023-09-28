@@ -99,7 +99,7 @@ function Blogs(): Node {
                 {get(selectedUser, 'full_name', '')} (@{get(selectedUser, 'username', '')})
               </h1>
               <p className="blogs-user-header-subtitle">
-                Sample bio: I am a software engineer at Google. I love to write about my experiences in the tech industry.
+                Bio goes here.
               </p>
             </div>
             <div className="blogs-user-header-right">

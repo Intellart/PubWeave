@@ -1,4 +1,4 @@
-class Subscript {
+export class Subscript {
   /**
        * Class name for term-tag
        *
@@ -169,5 +169,3 @@ class Subscript {
     };
   }
 }
-
-module.exports = Subscript;

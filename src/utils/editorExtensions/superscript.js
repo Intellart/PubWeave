@@ -1,4 +1,4 @@
-class Superscript {
+export class Superscript {
   /**
      * Class name for term-tag
      *
@@ -169,5 +169,3 @@ class Superscript {
     };
   }
 }
-
-module.exports = Superscript;
