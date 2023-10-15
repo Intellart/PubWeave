@@ -86,10 +86,7 @@ function Blogs(): Node {
   const onMouseDown = (e: any) => {
     if (e.target && get(e.target, 'tagName') === 'A') {
       window.open(e.target.href, '_blank');
-
-      return;
-    }
-    if (e.target && get(e.target, 'parentElement.tagName') === 'A') {
+    } else if (e.target && get(e.target, 'parentElement.tagName') === 'A') {
       window.open(e.target.parentElement.href, '_blank');
     }
   };
