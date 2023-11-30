@@ -118,11 +118,31 @@ function Blogs(): Node {
     toast.success('Copied to clipboard');
   };
 
-  const onEditorKeyDown = (e: any) => {
-    e.preventDefault();
-  };
+  // const onEditorKeyDown = (e: any) => {
+  //   console.log(e);
+  //   e.preventDefault();
+  // };
 
   const author = get(article, 'author', {});
+
+  // useEffect(() => {
+  //   const e = (
+  //     <Editor
+  //       readOnly
+  //       isReady={isReady}
+  //       status='published'
+  //     />
+  //   );
+
+  //   if (isReady && e) {
+  //     const div = document.getElementById('editorjs');
+  //     ReactDOM.render(e, div);
+
+  //     // return () => {
+  //     //   ReactDOM.unmountComponentAtNode(div);
+  //     // };
+  //   }
+  // }, [isReady]);
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -198,7 +218,7 @@ function Blogs(): Node {
       /> */}
       {isReady && (
         <div
-          onKeyDown={(event) => onEditorKeyDown(event)}
+          // onKeyDown={(event) => onEditorKeyDown(event)}
           onContextMenu={(event) => onRightClick(event)}
           onClick={(event) => onMouseDown(event)}
           className="editorjs-wrapper"

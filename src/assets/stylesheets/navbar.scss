@@ -30,7 +30,7 @@
     align-items: center;
     justify-content: center;
     background: $white;
-    width: calc(100% - 20px);
+    // width: calc(100% - 20px);
     margin: 10px;
     border-radius: 15px;
     box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
@@ -62,7 +62,7 @@
 
         .mobile-menu-items-buttons{
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             width: 100%;
@@ -103,7 +103,10 @@
             }
 
             .search-type{
+                width: 100%;
+
                 .search-type-button{
+                    width: 100%;
                     .search-type-button-icon{
                         width: 20px;
                         height: 20px;
@@ -136,14 +139,14 @@
     position: relative;
     // border: 1px solid black;
     // justify-content: space-between;
-    gap: 50px;
+    gap: 20px;
     background: $white;
-    height: 70px;
+    height: 80px;
     width: 100%;
     box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
 
-    @media screen and (max-width: $tablet_breakpoint) {
-        gap: 5px;
+    @media screen and (max-width: 900px) {
+        padding: 0  20px;
     }
 
     @media screen and (max-width: $mobile_breakpoint) {
@@ -154,7 +157,7 @@
         width: 100%;
         height: 70px;
         z-index: 100; 
-        border-radius: 15px 15px 0px 0px;
+        // border-radius: 15px 15px 0px 0px;
         box-shadow: 0px -2.98256px 7.4564px rgba(0, 0, 0, 0.1);
         padding: 0 20px;
     }
@@ -176,8 +179,9 @@
             
 
             &.burger-icon-open{
-                background: $pubWeaveBlue;
-                height: 3px;
+                color: gray;
+                opacity: 0.5;
+                // height: 3px;
             }
         }
 

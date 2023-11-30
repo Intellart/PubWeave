@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 type CategoryItemProps = {
   name:string,
   articleCount:number,
-  isActive:boolean
+  isActive:boolean,
 };
 
 export function CategoryItem(props: CategoryItemProps): Node {
@@ -39,7 +39,8 @@ export function CategoryItem(props: CategoryItemProps): Node {
 
 type CategoryListProps = {
   categories: Array<Object>,
-  activeCategory?: string
+  activeCategory?: string,
+  undefinedArticles?:number,
 };
 
 export function CategoryList(props: CategoryListProps): Node {
@@ -53,7 +54,6 @@ export function CategoryList(props: CategoryListProps): Node {
     if (categoryListRef.current) {
       maxScrollWidth.current = categoryListRef.current.scrollWidth;
       clientScrollWidth.current = categoryListRef.current.clientWidth;
-      console.log(categoryListRef.current?.clientWidth);
     }
   }, [categoryListRef]);
 
@@ -66,7 +66,9 @@ export function CategoryList(props: CategoryListProps): Node {
   }, [scrollLeft]);
 
   return (
-    <div className='category-list-wrapper'>
+    <div className={classNames('category-list-wrapper',
+      { 'category-list-wrapper-empty': !props.activeCategory })}
+    >
       <div
         className='category-list-side-block-left'
         onClick={() => {
@@ -87,6 +89,15 @@ export function CategoryList(props: CategoryListProps): Node {
         ) }
       </div>
       <div ref={categoryListRef} className='category-list-inner'>
+        {props.undefinedArticles
+        && (
+        <CategoryItem
+          key='Undefined'
+          isActive={props.activeCategory === 'Undefined'}
+          name='Undefined'
+          articleCount={props.undefinedArticles}
+        />
+        )}
         {map(props.categories, (c, index) => (
           <CategoryItem
             key={index}

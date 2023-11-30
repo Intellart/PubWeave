@@ -36,7 +36,7 @@ function Navbar(props: Props): Node {
   const [searchValue, setSearchValue] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const { isMobile, isDesktop } = useScreenSize();
+  const { isMobile } = useScreenSize();
   const ref = React.useRef<HTMLDivElement | null>(null);
   const buttonRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -92,29 +92,35 @@ function Navbar(props: Props): Node {
     }
   };
 
+  const searchOptions = map(options, (option) => ({
+    label: option.label,
+    value: option.id,
+  }));
+
   const renderSearch = () => (
     <div className="search-wrapper">
 
-      {isDesktop && <Link to="/"><img src={logoImg} alt="PubWeave Logo" className="nav--logo" width="40px" /></Link> }
+      {!isMobile
+      && <Link to="/"><img src={logoImg} alt="PubWeave Logo" className="nav--logo" width="40px" /></Link>}
 
       <Autocomplete
         disablePortal
         size="small"
         value={searchValue}
-        onInputChange={(event, newInputValue) => {
-          setSearchValue(newInputValue);
-        }}
+        // onInputChange={(event, newInputValue) => {
+        //   setSearchValue('2');
+        // }}
         className="navbar-search"
-        options={options}
-        isOptionEqualToValue={(option, value) => option.full_name === value.value}
+        options={searchOptions}
+        isOptionEqualToValue={(option, value) => option.value === value.value}
         onChange={(event, newValue) => {
-          if (!newValue || !newValue.id) {
+          if (!newValue || !newValue.value) {
             return;
           }
           if (searchParam === 'article') {
-            navigate(`/singleblog/${newValue.id}`);
+            navigate(`/singleblog/${newValue.value}`);
           } else {
-            navigate(`/users/${newValue.id}`);
+            navigate(`/users/${newValue.value}`);
           }
 
           setSearchValue('');

@@ -71,6 +71,16 @@ function Editor({
   const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: get(currentPermissions, permissions.locking, false) });
   useWebSocket({ articleId: get(article, 'id'), enabled: get(currentPermissions, permissions.webSockets, false) });
 
+  // useEffect(() => {
+  //   const defaultEditor = document.getElementById('editorjs');
+  //   const readOnlyEditor = document.getElementById('readonly-editorjs');
+  //   console.log('readonly', readOnlyEditor);
+  //   console.log('ref', defaultEditor);
+  //   if (defaultEditor && readOnlyEditor) {
+  //     readOnlyEditor.innerHTML = defaultEditor.innerHTML;
+  //   }
+  // }, []);
+
   useEffect(() => {
     if (isReady && editor.current) {
       forEach(blockIdQueue, (blockIds: BlockIds, category: 'updated' | 'created' |'deleted') => {
@@ -247,8 +257,13 @@ function Editor({
         }}
         style={{
           position: 'relative',
+          // display: 'none',
         }}
       />
+      {/* <div
+        className='readonly-editor-wrapper'
+        id="readonly-editorjs"
+      /> */}
     </>
 
   );

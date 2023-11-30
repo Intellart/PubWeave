@@ -75,7 +75,16 @@
       z-index: 1000;
     }
 
-
+    .cdx-block.image-tool {
+      &.image-tool--center{
+        .image-tool__image{
+          display: flex;
+          justify-content: center;
+        
+        }
+  
+      }
+    }
 
     .cdx-versioning-selected {
       .ce-block__content{
@@ -91,7 +100,6 @@
 
         .cdx-block{
           padding: 10px;
-
           transition : all 0.3s ease;
         }
       }
