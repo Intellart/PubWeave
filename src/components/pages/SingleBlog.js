@@ -195,17 +195,11 @@ function Blogs(): Node {
           userId={get(user, 'id', 1)}
           iconType='solid'
         />
-        {user ? (
-          <>
-            <CommentModal
-              enabled={!isEmpty(user)}
-              articleId={id}
-            />
-            <p>{size(get(article, 'comments', []))}</p>
-          </>
-        ) : (
-          <p>You must be logged in to see comments.</p>
-        )}
+        <CommentModal
+          enabled
+          articleId={id}
+        />
+        <p>{size(get(article, 'comments', []))}</p>
 
       </div>
     </main>

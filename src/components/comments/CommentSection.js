@@ -203,6 +203,26 @@ function CommentSection(props: Props): React$Node {
 
   // console.log('r', renderedComments());
 
+  const dontHaveAccount = (
+    <Alert severity="info">
+      <AlertTitle>You don&apos;t have an account yet</AlertTitle>
+      <Link to="/login">
+        You can create one here
+      </Link>
+    </Alert>
+  );
+
+  const dontHaveUsername = (
+    <Alert severity="info">
+      <AlertTitle>You can&apos;t comment yet</AlertTitle>
+      You need to&nbsp;
+      <Link to={`/user/${userId}`}>
+        set your username in your profile
+      </Link>
+  &nbsp;to be able to comment.
+    </Alert>
+  );
+
   return (
     <div className="comment-section-wrapper">
       {doesUserHasUsername() ? (
@@ -251,14 +271,7 @@ function CommentSection(props: Props): React$Node {
         </div>
       ) : (
         <div className="comment-section-notification-username-wrapper">
-          <Alert severity="info">
-            <AlertTitle>You can&apos;t comment yet</AlertTitle>
-            You need to&nbsp;
-            <Link to={`/user/${userId}`}>
-              set your username in your profile
-            </Link>
-            &nbsp;to be able to comment.
-          </Alert>
+          {userId ? dontHaveUsername : dontHaveAccount}
         </div>
       )}
 

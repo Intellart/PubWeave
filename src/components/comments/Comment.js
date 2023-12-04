@@ -5,6 +5,8 @@ import React, {
   useState,
 } from 'react';
 
+import { useSelector, useDispatch } from 'react-redux';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -14,10 +16,12 @@ import {
 import classNames from 'classnames';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Chip } from '@mui/material';
-import { find, get, size } from 'lodash';
+import {
+  find, get, size, isEqual,
+} from 'lodash';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { actions } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 
 type Props = {
   children?: React$Node,
@@ -37,6 +41,7 @@ const Comment: any = forwardRef((props: Props, ref) : React$Node => {
   const [content, setContent] = useState(props.comment.comment || '');
   const [editMode, setEditMode] = useState(false);
   const [alreadyVoted, setAlreadyVoted] = useState(!!find(props.comment.likes, { user_id: props.currentUserId }));
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
 
   console.log(props.isReply, props.authorId);
 
@@ -157,7 +162,7 @@ const Comment: any = forwardRef((props: Props, ref) : React$Node => {
 
   };
 
-  console.log('c', props.comment);
+  // console.log('c', props.comment);
 
   return (
     <div className="comment-wrapper">
@@ -251,8 +256,10 @@ const Comment: any = forwardRef((props: Props, ref) : React$Node => {
             <FontAwesomeIcon
               className={classNames('comment-content-lower-vote', {
                 'comment-content-lower-vote-active': alreadyVoted,
+                'comment-content-lower-vote-disabled': !user,
               })}
               onClick={() => {
+                if (!user) return;
                 if (alreadyVoted) {
                   unlikeComment(props.comment.id);
                 } else {
@@ -298,6 +305,7 @@ const Comment: any = forwardRef((props: Props, ref) : React$Node => {
             &nbsp;Delete comment
           </div>
           )}
+          {user && (
           <div
             onClick={() => {
               props.onReply({
@@ -316,6 +324,7 @@ const Comment: any = forwardRef((props: Props, ref) : React$Node => {
             />
             &nbsp;Reply
           </div>
+          ) }
         </div>
         )}
       </div>
