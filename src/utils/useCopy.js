@@ -34,7 +34,6 @@ const useCopy = ({ enabled } : CopyProps): any => {
   };
 
   const onMouseDown = (e: any) => {
-    console.log('onMouseDown', e);
     if (e.target && get(e.target, 'tagName') === 'A') {
       window.open(e.target.href, '_blank');
     } else if (e.target && get(e.target, 'parentElement.tagName') === 'A') {

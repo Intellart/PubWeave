@@ -52,6 +52,11 @@
     //   }
     // }
 
+    a {
+      color: $pubWeaveBlue;
+      border-bottom: 1px solid $pubWeaveBlue;
+    }
+
     .ce-inline-tool {
       min-width: 20px;
     }
