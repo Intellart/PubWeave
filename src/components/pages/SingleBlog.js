@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faClipboard, faCopy, faGlobe,
-} from '@fortawesome/free-solid-svg-icons';
+import { faGlobe } from '@fortawesome/free-solid-svg-icons';
 // import FeaturedImg from '../../images/featured-card.png';
 // import { faComment } from '@fortawesome/free-regular-svg-icons';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -14,8 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   find, get, isEmpty, isEqual, map, size, toInteger,
 } from 'lodash';
-import { Chip, Popover } from '@mui/material';
-import { toast } from 'react-toastify';
+import { Chip } from '@mui/material';
 import CommentModal from '../comments/CommentModal';
 import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
@@ -37,13 +34,6 @@ function Blogs(): Node {
   const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
   // const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
   // const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
-
-  const [contextMenu, setContextMenu] = useState({
-    show: false,
-    x: 0,
-    y: 0,
-    selection: '',
-  });
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
@@ -72,56 +62,6 @@ function Blogs(): Node {
   // useEffect(() => {
   //   setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
   // }, [article, user]);
-
-  const onRightClick = (e: any) => {
-    e.preventDefault();
-    setContextMenu({
-      show: true,
-      x: e.clientX,
-      y: e.clientY,
-      selection: window.getSelection().toString(),
-    });
-  };
-
-  const onMouseDown = (e: any) => {
-    if (e.target && get(e.target, 'tagName') === 'A') {
-      window.open(e.target.href, '_blank');
-    } else if (e.target && get(e.target, 'parentElement.tagName') === 'A') {
-      window.open(e.target.parentElement.href, '_blank');
-    }
-  };
-
-  const copySelectedToClipboard = () => {
-    navigator.clipboard.writeText(contextMenu.selection);
-    setContextMenu({
-      show: false,
-      x: 0,
-      y: 0,
-      selection: '',
-    });
-
-    toast.success('Copied to clipboard');
-  };
-
-  const referenceSelectedText = () => {
-    const text = contextMenu.selection;
-    const url = window.location.href;
-    const reference = `${text} (${url})`;
-    navigator.clipboard.writeText(reference);
-    setContextMenu({
-      show: false,
-      x: 0,
-      y: 0,
-      selection: '',
-    });
-
-    toast.success('Copied to clipboard');
-  };
-
-  // const onEditorKeyDown = (e: any) => {
-  //   console.log(e);
-  //   e.preventDefault();
-  // };
 
   const author = get(article, 'author', {});
 
@@ -219,8 +159,8 @@ function Blogs(): Node {
       {isReady && (
         <div
           // onKeyDown={(event) => onEditorKeyDown(event)}
-          onContextMenu={(event) => onRightClick(event)}
-          onClick={(event) => onMouseDown(event)}
+          // onContextMenu={(event) => onRightClick(event)}
+          // onClick={(event) => onMouseDown(event)}
           className="editorjs-wrapper"
         >
           <Editor
@@ -228,40 +168,7 @@ function Blogs(): Node {
             isReady={isReady}
             status='published'
           />
-          <Popover
-            className='editorjs-context-menu-popover unselectable'
-            open={contextMenu.show}
-            anchorReference="anchorPosition"
-            anchorPosition={{ top: contextMenu.y, left: contextMenu.x }}
-            onClose={() => setContextMenu({
-              show: false, x: 0, y: 0, selection: '',
-            })}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-          >
-            <div className="editorjs-context-menu">
-              <div
-                onClick={() => {
-                  copySelectedToClipboard();
-                }}
-                className="editorjs-context-menu-item"
-              >
-                <FontAwesomeIcon icon={faCopy} style={{ width: 20, height: 20, marginRight: 10 }} />
-                <p>Copy</p>
-              </div>
-              <div
-                onClick={() => {
-                  referenceSelectedText();
-                }}
-                className="editorjs-context-menu-item"
-              >
-                <FontAwesomeIcon icon={faClipboard} style={{ width: 20, height: 20, marginRight: 10 }} />
-                <p>Reference</p>
-              </div>
-            </div>
-          </Popover>
+
         </div>
       )}
       <div className="reaction-icons unselectable">
