@@ -14,6 +14,7 @@ type CategoryItemProps = {
   name:string,
   articleCount:number,
   isActive:boolean,
+  onClick:Function,
 };
 
 export function CategoryItem(props: CategoryItemProps): Node {
@@ -23,7 +24,7 @@ export function CategoryItem(props: CategoryItemProps): Node {
     <motion.div
       className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}
       layoutId={props.isActive ? 'category-list-item-active' : null}
-      onClick={() => navigate(`/blogs/${props.name}`)}
+      onClick={() => props.onClick(props.name)}
     >
       <div className='category-list-item-block-left' />
       <div className='category-list-item-inner-overlay'>
@@ -41,6 +42,7 @@ type CategoryListProps = {
   categories: Array<Object>,
   activeCategory?: string,
   undefinedArticles?:number,
+  onClick:Function,
 };
 
 export function CategoryList(props: CategoryListProps): Node {
@@ -96,6 +98,7 @@ export function CategoryList(props: CategoryListProps): Node {
           isActive={props.activeCategory === 'Undefined'}
           name='Undefined'
           articleCount={props.undefinedArticles}
+          onClick={props.onClick}
         />
         )}
         {map(props.categories, (c, index) => (
@@ -104,6 +107,7 @@ export function CategoryList(props: CategoryListProps): Node {
             isActive={c.name === props.activeCategory}
             name={c.name}
             articleCount={c.count}
+            onClick={props.onClick}
           />
         ))}
       </div>

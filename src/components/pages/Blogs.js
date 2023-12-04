@@ -58,13 +58,6 @@ function Blogs(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cat]);
 
-  useEffect(() => {
-    if (userId && !selectedUser) {
-      getSelectedUser(userId);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedUser]);
-
   const showedCategories = filter(categories, (c) => some(articles, (a) => a.category === c.category_name));
   const unGroupedArticles = filter(articles, (a) => !a.category || a.category === '');
 
@@ -78,6 +71,14 @@ function Blogs(): Node {
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
 
+  useEffect(() => {
+    if (userId && !selectedUser) {
+      getSelectedUser(userId);
+    }
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, selectedUser]);
+
   if (userId) {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
@@ -90,6 +91,10 @@ function Blogs(): Node {
     <main className="blogs-wrapper">
       {!userId && (
         <CategoryList
+          onClick={(c) => {
+            navigate(`/blogs/${c}`);
+            setPage(1);
+          }}
           categories={map(showedCategories, (c) => ({
             name: c.category_name,
             count: filter(articles, (a) => a.category === c.category_name).length,
