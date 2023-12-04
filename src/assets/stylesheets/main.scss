@@ -59,10 +59,10 @@ html {
       .application-wrapper {
         display: flex;
         flex-direction: column;
-        height: fit-content;
         position: relative;
         width: 100%;
         position: relative;
+        flex: 1;
 
         @media screen and (max-width: $tablet_breakpoint) {
           height: auto;

@@ -57,32 +57,7 @@ function Blogs(): Node {
 
   const getRoute = (catId: number) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
-  // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
-
-  // useEffect(() => {
-  //   setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === get(user, 'id', '')));
-  // }, [article, user]);
-
   const author = get(article, 'author', {});
-
-  // useEffect(() => {
-  //   const e = (
-  //     <Editor
-  //       readOnly
-  //       isReady={isReady}
-  //       status='published'
-  //     />
-  //   );
-
-  //   if (isReady && e) {
-  //     const div = document.getElementById('editorjs');
-  //     ReactDOM.render(e, div);
-
-  //     // return () => {
-  //     //   ReactDOM.unmountComponentAtNode(div);
-  //     // };
-  //   }
-  // }, [isReady]);
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -151,16 +126,8 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {/* <img
-        src={get(article, 'image') || PubWeaveLogo}
-        className={classNames('single-blog-img', { 'single-blog-img-no-image': !get(article, 'image') })}
-        alt="single blog"
-      /> */}
       {isReady && (
         <div
-          // onKeyDown={(event) => onEditorKeyDown(event)}
-          // onContextMenu={(event) => onRightClick(event)}
-          // onClick={(event) => onMouseDown(event)}
           className="editorjs-wrapper"
         >
           <Editor
@@ -172,23 +139,6 @@ function Blogs(): Node {
         </div>
       )}
       <div className="reaction-icons unselectable">
-        {/* <FontAwesomeIcon
-          className={classNames('reaction-icon reaction-icon-like', { 'reaction-icon-like-active': userAlreadyLiked })}
-          onClick={() => {
-            if (!user) return;
-
-            if (userAlreadyLiked) {
-              removeArticleLike(id);
-            } else {
-              likeArticle(id);
-            }
-          }}
-          icon={faHeart}
-          style={{
-            color: userAlreadyLiked ? '#FF0000' : '#11273F',
-          }}
-        />
-        <p>{size(get(article, 'likes', 0))}</p> */}
         <LikeButton
           enabled={!isEmpty(user)}
           article={article}
