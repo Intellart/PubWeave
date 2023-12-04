@@ -34,6 +34,7 @@ const useCopy = ({ enabled } : CopyProps): any => {
   };
 
   const onMouseDown = (e: any) => {
+    console.log('onMouseDown', e);
     if (e.target && get(e.target, 'tagName') === 'A') {
       window.open(e.target.href, '_blank');
     } else if (e.target && get(e.target, 'parentElement.tagName') === 'A') {
@@ -80,10 +81,22 @@ const useCopy = ({ enabled } : CopyProps): any => {
     const editorWrapper = document.querySelector('.editorjs-wrapper');
     if (editorWrapper && enabled) {
       editorWrapper.addEventListener('contextmenu', onRightClick);
-      editorWrapper.addEventListener('click', onMouseDown);
       editorWrapper.addEventListener('keydown', onEditorKeyDown);
+      editorWrapper.addEventListener('mousedown', (e) => {
+        if (e.button === 0 || e.button === 1) {
+          onMouseDown(e);
+        }
+      });
     }
-  }, []);
+
+    return () => {
+      if (editorWrapper) {
+        editorWrapper.removeEventListener('contextmenu', onRightClick);
+        editorWrapper.removeEventListener('mousedown', onMouseDown);
+        editorWrapper.removeEventListener('keydown', onEditorKeyDown);
+      }
+    };
+  }, [enabled]);
 
   if (!enabled) return null;
 
