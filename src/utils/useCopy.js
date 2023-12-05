@@ -7,9 +7,10 @@ import { toast } from 'react-toastify';
 import { Popover } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faClipboard, faCopy,
+  faClipboard, faCopy, faImage,
 } from '@fortawesome/free-solid-svg-icons';
 import { useHotkeys } from 'react-hotkeys-hook';
+import classNames from 'classnames';
 
 type CopyProps = {
     enabled: boolean,
@@ -21,7 +22,20 @@ const useCopy = ({ enabled } : CopyProps): any => {
     x: 0,
     y: 0,
     selection: '',
+    isImage: false,
+    imageSrc: '',
   });
+
+  const clearContextMenu = () => {
+    setContextMenu({
+      show: false,
+      x: 0,
+      y: 0,
+      selection: '',
+      isImage: false,
+      imageSrc: '',
+    });
+  };
 
   const onRightClick = (e: MouseEvent) => {
     e.preventDefault();
@@ -30,6 +44,8 @@ const useCopy = ({ enabled } : CopyProps): any => {
       x: e.clientX,
       y: e.clientY,
       selection: window.getSelection().toString(),
+      isImage: get(e.target, 'tagName') === 'IMG',
+      imageSrc: get(e.target, 'src'),
     });
   };
 
@@ -42,13 +58,10 @@ const useCopy = ({ enabled } : CopyProps): any => {
   };
 
   const copySelectedToClipboard = (text?: string) => {
+    if (!contextMenu.selection) return;
+
     navigator.clipboard.writeText(text || contextMenu.selection);
-    setContextMenu({
-      show: false,
-      x: 0,
-      y: 0,
-      selection: '',
-    });
+    clearContextMenu();
 
     toast.success('Copied to clipboard');
   };
@@ -58,16 +71,13 @@ const useCopy = ({ enabled } : CopyProps): any => {
   });
 
   const referenceSelectedText = () => {
+    if (!contextMenu.selection) return;
+
     const text = contextMenu.selection;
     const url = window.location.href;
     const reference = `${text} (${url})`;
     navigator.clipboard.writeText(reference);
-    setContextMenu({
-      show: false,
-      x: 0,
-      y: 0,
-      selection: '',
-    });
+    clearContextMenu();
 
     toast.success('Copied to clipboard');
   };
@@ -105,20 +115,34 @@ const useCopy = ({ enabled } : CopyProps): any => {
       open={contextMenu.show}
       anchorReference="anchorPosition"
       anchorPosition={{ top: contextMenu.y, left: contextMenu.x }}
-      onClose={() => setContextMenu({
-        show: false, x: 0, y: 0, selection: '',
-      })}
+      onClose={() => clearContextMenu()}
       anchorOrigin={{
         vertical: 'bottom',
         horizontal: 'left',
       }}
     >
       <div className="editorjs-context-menu">
+        {contextMenu.isImage && (
+        <div
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = contextMenu.imageSrc;
+            link.download = contextMenu.imageSrc;
+            link.click();
+          }}
+          className={classNames('editorjs-context-menu-item',
+            { 'editorjs-context-menu-item-disabled': !contextMenu.selection })}
+        >
+          <FontAwesomeIcon icon={faImage} style={{ width: 20, height: 20, marginRight: 10 }} />
+          <p>Save image</p>
+        </div>
+        ) }
         <div
           onClick={() => {
             copySelectedToClipboard();
           }}
-          className="editorjs-context-menu-item"
+          className={classNames('editorjs-context-menu-item',
+            { 'editorjs-context-menu-item-disabled': !contextMenu.selection })}
         >
           <FontAwesomeIcon icon={faCopy} style={{ width: 20, height: 20, marginRight: 10 }} />
           <p>Copy</p>
@@ -127,7 +151,8 @@ const useCopy = ({ enabled } : CopyProps): any => {
           onClick={() => {
             referenceSelectedText();
           }}
-          className="editorjs-context-menu-item"
+          className={classNames('editorjs-context-menu-item',
+            { 'editorjs-context-menu-item-disabled': !contextMenu.selection })}
         >
           <FontAwesomeIcon icon={faClipboard} style={{ width: 20, height: 20, marginRight: 10 }} />
           <p>Reference</p>
