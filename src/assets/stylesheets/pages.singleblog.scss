@@ -33,6 +33,12 @@
       background: #32B4FC;
       color: #FFFFFF;
     }
+
+    &.editorjs-context-menu-item-disabled {
+      cursor: default;
+      background: #FFFFFF;
+      color: gray;
+    }
   }
 }
 
@@ -83,22 +89,40 @@
       
     }
 
-    .image-tool__caption{
-      border: none;
-      box-shadow: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      color: rgb(114, 114, 114);
-      font-size: 14px;
-      font-weight: 400;
-      font-family: 'Inter';
-      padding: 0px 10px;
-      margin: 0px 0px 10px;
-      width: 100%;
-      
+    .cdx-block.image-tool {
+      &.image-tool--center{
+      .image-tool__image{
+        display: flex;
+        justify-content: center;
+        }
+      }
+
+      .image-tool__caption{
+        border: none;
+        box-shadow: none;
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+        justify-content: center;
+        color: rgb(114, 114, 114);
+        font-size: 14px;
+        font-weight: 400;
+        font-family: 'Inter';
+        padding: 0px 10px;
+        margin: 0px 0px 10px;
+        width: 100%;
+  
+        * {
+          display: inline;
+        }
+        
+      }
     }
+
+
+
+
 
     a {
       color: $pubWeaveBlue;

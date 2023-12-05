@@ -130,8 +130,7 @@ const useCopy = ({ enabled } : CopyProps): any => {
             link.download = contextMenu.imageSrc;
             link.click();
           }}
-          className={classNames('editorjs-context-menu-item',
-            { 'editorjs-context-menu-item-disabled': !contextMenu.selection })}
+          className='editorjs-context-menu-item'
         >
           <FontAwesomeIcon icon={faImage} style={{ width: 20, height: 20, marginRight: 10 }} />
           <p>Save image</p>

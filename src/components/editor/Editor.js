@@ -250,6 +250,7 @@ function Editor({
       />
       <div
         id="editorjs"
+        className={`editorjs-${status}`}
         onClick={() => {
           if (isReady && editor.current) {
             checkLocks();

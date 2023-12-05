@@ -52,6 +52,42 @@
     //   }
     // }
 
+    .cdx-block.image-tool.image-tool--center{
+      .image-tool__image{
+        display: flex;
+        justify-content: center;
+      }
+    }
+
+    &.editorjs-inReview{
+      .image-tool__caption{
+        border: none;
+        box-shadow: none;
+        display: flex;
+        flex-direction: row;
+        // gap: 5px;
+        align-items: center;
+        justify-content: center;
+        color: rgb(114, 114, 114);
+        font-size: 14px;
+        font-weight: 400;
+        font-family: 'Inter';
+        padding: 0px 10px;
+        margin: 0px 0px 10px;
+        width: 100%;
+
+        a{
+          margin: 0 5px;
+        }
+  
+        * {
+          display: inline;
+        }
+      }
+      
+
+    }
+
     a {
       color: $pubWeaveBlue;
       border-bottom: 1px solid $pubWeaveBlue;
@@ -78,17 +114,6 @@
 
     .ce-toolbar{
       z-index: 1000;
-    }
-
-    .cdx-block.image-tool {
-      &.image-tool--center{
-        .image-tool__image{
-          display: flex;
-          justify-content: center;
-        
-        }
-  
-      }
     }
 
     .cdx-versioning-selected {
