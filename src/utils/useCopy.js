@@ -58,7 +58,7 @@ const useCopy = ({ enabled } : CopyProps): any => {
   };
 
   const copySelectedToClipboard = (text?: string) => {
-    if (!contextMenu.selection) return;
+    if (!contextMenu.selection && !text) return;
 
     navigator.clipboard.writeText(text || contextMenu.selection);
     clearContextMenu();
