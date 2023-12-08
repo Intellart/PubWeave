@@ -33,6 +33,12 @@
       background: #32B4FC;
       color: #FFFFFF;
     }
+
+    &.editorjs-context-menu-item-disabled {
+      cursor: default;
+      background: #FFFFFF;
+      color: gray;
+    }
   }
 }
 
@@ -42,7 +48,7 @@
   align-items: center;
   justify-content: flex-start;
   padding-bottom: 30px;
-  min-height: calc(100vh - 270px);
+  flex: 1;
 
 
   .reaction-icons {
@@ -66,100 +72,6 @@
 
   .editorjs-wrapper{
     width: 100%;
-  }
-
-  #editorjs {
-    margin-top: 20px;
-    // transform: translateY(-50px);
-    // min-height: calc(80vh - 210px);
-
-    sub {
-      font-size: 0.7em;
-    }
-
-    sup {
-      font-size: 0.7em;
-      vertical-align: super;
-      
-    }
-
-    .image-tool__caption{
-      border: none;
-      box-shadow: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      color: rgb(114, 114, 114);
-      font-size: 14px;
-      font-weight: 400;
-      font-family: 'Inter';
-      padding: 0px 10px;
-      margin: 0px 0px 10px;
-      width: 100%;
-      
-    }
-
-    a {
-      color: $pubWeaveBlue;
-      border-bottom: 1px solid $pubWeaveBlue;
-    }
-
-    .ce-block__content,
-    .ce-toolbar__content {
-      max-width: min(calc(100% - 200px), 950px);
-
-      @media screen and (max-width: $mobile_breakpoint) {
-        max-width: 92vw;
-      }
-    }
-
-
-
-    .codex-editor {
-      caret-color: transparent !important;
-
-      // transform: translateY(-700px);
-
-      h1 {
-        font-size: 2.5em;
-      }
-
-      h2 {
-        font-size: 2em;
-      }
-
-      h3 {
-        font-size: 1.5em;
-      }
-
-      h4 {
-        font-size: 1.25em;
-      }
-
-      h5 {
-        font-size: 1em;
-      }
-
-      h6 {
-        font-size: 0.75em;
-      }
-
-      .text-node {
-        border: 1px solid rgb(114, 114, 114);
-        border-radius: 5px;
-        display: flex;
-        min-width: 500px !important;
-
-        &:where([hidden]) {
-          display: none;
-        }
-
-        .ML__container {
-          min-width: 500px !important;
-        }
-      }
-    }
   }
 
   .single-blog-highlight {

@@ -23,6 +23,7 @@ import { WordCounter } from './editorExtensions/wordCounter';
 import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
+
 import { Superscript } from './editorExtensions/superscript';
 import { Subscript } from './editorExtensions/subscript';
 
@@ -113,8 +114,17 @@ export function useEditorTools (): { [toolName: string]: any} {
     // linkTool: LinkTool,
     image: {
       class: ImageWrapper,
-      inlineToolbar: ['link'],
+      inlineToolbar: true,
       config: {
+        // actions: [
+        //   {
+        //     name: 'center',
+        //     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><!-- Alignment Icon - Left --><rect x="10" y="20" width="20" height="60" fill="#333" /><!-- Alignment Icon - Center --><rect x="40" y="30" width="20" height="40" fill="#333" /><rect x="40" y="30" width="20" height="40" fill="#fff" opacity="0.5" /><!-- Alignment Icon - Right --><rect x="70" y="20" width="20" height="60" fill="#333" /><!-- Alignment Icon - Justify --><rect x="20" y="80" width="60" height="10" fill="#333" /><rect x="20" y="80" width="60" height="10" fill="#fff" opacity="0.5" /></svg>',
+        //     title: 'Center Image',
+        //     toggle: true,
+
+        //   },
+        // ],
 
         uploader: {
           uploadByFile: (file: File) => uploadByFile(file, 'file'),
@@ -138,7 +148,7 @@ export function useEditorTools (): { [toolName: string]: any} {
       inlineToolbar: true,
       config: {
         embed: {
-          display: true,
+          display: false,
         },
         unsplash: {
           appName: 'Science editor image plugin',

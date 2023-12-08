@@ -127,6 +127,9 @@
     padding: 0;
   }
 
+  .comment-section-notification-username-wrapper{
+    width: 100%;
+  }
 
   .comment-section-new-comment-wrapper{
     display: flex;
@@ -382,6 +385,16 @@
             color: gray;
             &.comment-content-lower-vote-active{
               color: #11273F;
+            }
+
+            &.comment-content-lower-vote-disabled{
+              color: gray;
+
+              &:hover{
+                color: gray;
+                animation: none;
+                cursor: default;
+              }
             }
 
             &:hover{

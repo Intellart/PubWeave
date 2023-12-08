@@ -7,6 +7,8 @@ import {
   isEmpty,
   slice,
   includes,
+  some,
+  size,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -48,7 +50,7 @@ function Blogs(): Node {
 
   useEffect(() => {
     if (cat) {
-      if (!includes(map(categories, 'category_name'), cat)) {
+      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Undefined') {
         toast.error('Error: You selected an invalid category.');
         navigate('/blogs');
       }
@@ -56,14 +58,8 @@ function Blogs(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cat]);
 
-  useEffect(() => {
-    if (userId && !selectedUser) {
-      getSelectedUser(userId);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedUser]);
-
-  // console.log(selectedUser);
+  const showedCategories = filter(categories, (c) => some(articles, (a) => a.category === c.category_name));
+  const unGroupedArticles = filter(articles, (a) => !a.category || a.category === '');
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
   filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag').includes(tag)) : filteredArticles;
@@ -75,21 +71,38 @@ function Blogs(): Node {
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
 
+  useEffect(() => {
+    if (userId && !selectedUser) {
+      getSelectedUser(userId);
+    }
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, selectedUser]);
+
   if (userId) {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
+  }
+
+  if (cat === 'Undefined') {
+    filteredArticles = unGroupedArticles;
   }
 
   return (
     <main className="blogs-wrapper">
       {!userId && (
-      <CategoryList
-        categories={map(categories, (c) => ({
-          name: c.category_name,
-          count: filter(articles, (a) => a.category === c.category_name).length,
-        }),
-        )}
-        activeCategory={cat}
-      />
+        <CategoryList
+          onClick={(c) => {
+            navigate(`/blogs/${c}`);
+            setPage(1);
+          }}
+          categories={map(showedCategories, (c) => ({
+            name: c.category_name,
+            count: filter(articles, (a) => a.category === c.category_name).length,
+          }),
+          )}
+          undefinedArticles={size(unGroupedArticles)}
+          activeCategory={cat}
+        />
       )}
       {userId && (
         <section className="blogs-user-header">
@@ -199,6 +212,7 @@ function Blogs(): Node {
             <ArticleCard
               key={index}
               article={a}
+              onConvert={() => {}}
               currentUserId={get(user, 'id', null)}
               onClick={() => navigate(`/singleblog/${a.id}`)}
             />

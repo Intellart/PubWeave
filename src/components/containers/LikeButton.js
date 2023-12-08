@@ -32,16 +32,16 @@ function LikeButton({
     setUserAlreadyLiked(find(get(article, 'likes', []), (like) => like.user_id === userId) || false);
   }, [article, userId]);
 
-  if (!enabled) {
-    return null;
-  }
+  // if (!enabled) {
+  //   return null;
+  // }
 
   return (
     <div className="like-button-container">
       <FontAwesomeIcon
         className={classNames('like-button-icon', { 'like-button-icon-active': userAlreadyLiked })}
         onClick={() => {
-          if (!userId) { return; }
+          if (!userId || !enabled) { return; }
 
           if (userAlreadyLiked) {
             removeArticleLike(article.id);

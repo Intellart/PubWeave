@@ -236,6 +236,12 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return state;
 
+      // case types.USR_REGISTER_USER_REJECTED:
+      //   toast.error('Registration failed!');
+      //   console.log(action.payload);
+
+      //   return state;
+
     case types.USR_LOGOUT_USER_FULFILLED:
       toast.success('User successfully logged out!');
 

@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import {
   isEmpty,
-  isEqual, join, map, size, split, get,
+  isEqual, join, map, size, split, get, some, every,
 } from 'lodash';
 import { Alert } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +17,45 @@ import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions, selectors } from '../../store/userStore';
 import orcidImg from '../../assets/images/orcid_logo.png';
 import { orcidOAuthLink } from '../../utils/hooks';
+
+type InputFieldProps = {
+  label: string,
+  value: string,
+  onChange: (value: HTMLInputElement) => void,
+  type?: string,
+  placeholder?: string,
+  className?: string,
+  disabled?: boolean,
+  required?: boolean,
+  name?: string,
+};
+
+function InputField (props: InputFieldProps): Node {
+  return (
+    <div className={classNames('input-field-wrapper', props.className, {
+      disabled: props.disabled,
+      required: props.required,
+    },
+    )}
+    >
+      <label
+        className="input-field-label"
+      >
+        {props.label} {props.required ? <span className='input-field-label-required'>*</span> : <span className='input-field-label-required'>(optional)</span> }
+      </label>
+      <div className='input-field-input-wrapper'>
+        <input
+          type={props.type || 'text'}
+          placeholder={props.placeholder || props.label}
+          name={props.name}
+          className="input-field-input"
+          value={props.value}
+          onChange={(e: any) => props.onChange((e.target: HTMLInputElement))}
+        />
+      </div>
+    </div>
+  );
+}
 
 type User = {
   email: string,
@@ -29,11 +68,17 @@ type Props = {
 }
 
 function RegistrationPage({ forAdmin }: Props): Node {
-  const [username, setUserName] = useState(''); // useState(forAdmin ? 'a@a.com' : 'test@test.com');
-  const [password, setPassword] = useState(''); // useState('123456');
-  const [fullName, setFullName] = useState('');
   const [orcidId, setOrcidId] = useState('');
-  const [confirmedPassword, setConfirmedPassword] = useState('');
+
+  const [registerForm, setRegisterForm] = useState({
+    email: '',
+    userName: '',
+    firstName: '',
+    lastName: '',
+    orcidId: '',
+    password: '',
+    confirmedPassword: '',
+  });
 
   const navigate = useNavigate();
 
@@ -43,15 +88,58 @@ function RegistrationPage({ forAdmin }: Props): Node {
   const registerUser = (user: any) => dispatch(actions.registerUser(user));
   const registerORCIDUser = (user: any) => dispatch(actions.registerORCIDUser(user));
 
+  const hanldeRegisterFormEdit = (name: string, value: string) => {
+    setRegisterForm((regForm) => ({
+      ...regForm,
+      [name]: value,
+    }));
+  };
+
+  const hanldeRegisterFormChange = (target: HTMLInputElement) => {
+    const { name, value } = target;
+
+    hanldeRegisterFormEdit(name, value);
+
+    if (name === 'email') {
+      hanldeRegisterFormEdit('userName', value.split('@')[0]);
+    }
+  };
+
+  const clearForm = () => {
+    hanldeRegisterFormEdit('email', '');
+    hanldeRegisterFormEdit('password', '');
+    hanldeRegisterFormEdit('confirmedPassword', '');
+    hanldeRegisterFormEdit('firstName', '');
+    hanldeRegisterFormEdit('lastName', '');
+  };
+
   useEffect(() => {
     if (!isEmpty(orcidAccount)) {
-      setUserName(get(orcidAccount, 'person.emails.email[0].email', ''));
-      setFullName(get(orcidAccount, 'person.name.given-names.value', '') + ' ' + get(orcidAccount, 'person.name.family-name.value', ''));
+      hanldeRegisterFormEdit('email', get(orcidAccount, 'person.emails.email[0].email', ''));
+      hanldeRegisterFormEdit('firstName', get(orcidAccount, 'person.name.given-names.value', '') || '');
+      hanldeRegisterFormEdit('lastName', get(orcidAccount, 'person.name.family-name.value', ''));
       setOrcidId(get(orcidAccount, 'orcid-identifier.path', ''));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orcidAccount]);
 
-  const isDisabled = !username || !password || !confirmedPassword || !fullName;
+  const mandatoryFields = [
+    'email',
+    'password',
+    'confirmedPassword',
+    'firstName',
+  ];
+
+  const checkPasswords = () => [
+    { rule: !(registerForm.password === '' || registerForm.confirmedPassword === ''), text: "Can't be empty" },
+    { rule: isEqual(registerForm.password, registerForm.confirmedPassword) && !(registerForm.password === '' || registerForm.confirmedPassword === ''), text: 'Password match' },
+    { rule: size(registerForm.password) >= 6, text: 'At least 6 characters' },
+    { rule: /\d/g.test(registerForm.password), text: 'At least 1 number' },
+  ];
+
+  const isPassValid = every(map(checkPasswords(), 'rule'));
+
+  const isDisabled = some(mandatoryFields, (field) => isEmpty(registerForm[field])) || !isPassValid;
 
   const handleSubmit = () => {
     if (isDisabled) {
@@ -62,27 +150,16 @@ function RegistrationPage({ forAdmin }: Props): Node {
     //   return;
     // }
 
-    const name = fullName.replace(/^[ ]+$/g, '');
-
-    const firstName = split(name, ' ')[0];
-    let lastName = '';
-
-    if (size(split(fullName, ' ')) > 1) {
-      lastName = join(split(fullName, ' ').slice(1), ' ');
-    }
-
     registerUser({
-      email: username,
-      password,
-      first_name: firstName,
-      last_name: lastName,
+      email: registerForm.email,
+      password: registerForm.password,
+      first_name: registerForm.firstName,
+      last_name: registerForm.lastName,
+      username: registerForm.userName,
       orcid_id: orcidId,
     });
 
-    setUserName('');
-    setPassword('');
-    setFullName('');
-    setConfirmedPassword('');
+    clearForm();
 
     navigate('/login');
   };
@@ -105,19 +182,6 @@ function RegistrationPage({ forAdmin }: Props): Node {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const toggleRegister = () => {
-    setUserName('');
-    setPassword('');
-    setFullName('');
-  };
-
-  const checkPasswords = () => [
-    { rule: !(password === '' || confirmedPassword === ''), text: "Can't be empty" },
-    { rule: isEqual(password, confirmedPassword) && !(password === '' || confirmedPassword === ''), text: 'Password match' },
-    { rule: size(password) >= 6, text: 'At least 6 characters' },
-    { rule: /\d/g.test(password), text: 'At least 1 number' },
-  ];
 
   return (
     <main className="login-page-wrapper">
@@ -168,63 +232,48 @@ function RegistrationPage({ forAdmin }: Props): Node {
             </Alert>
           </div>
           ) }
-          <div className="login-email">
-            <label htmlFor="full-name" className="login-email-label">
-              Full name
-            </label>
-            <div className='login-email-input-wrapper'>
-              <input
-                type="text"
-                placeholder="Your full name"
-                className="login-email-input"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="login-email">
-            <label htmlFor="email" className="login-email-label">
-              Email
-            </label>
-            <div className='login-email-input-wrapper'>
-              <input
-                type="email"
-                placeholder="Email"
-                className="login-email-input"
-                value={username}
-                onChange={e => setUserName(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="login-password">
-            <label htmlFor="password" className="login-password-label">
-              Password
-            </label>
-            <div className='login-password-input-wrapper'>
-              <input
-                type="password"
-                placeholder="Password"
-                className="login-password-input"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="login-password">
-            <label htmlFor="password" className="login-password-label">
-              Confirm Password
-            </label>
-            <div className='login-password-input-wrapper'>
-              <input
-                type="password"
-                placeholder="Password"
-                className="login-password-input"
-                value={confirmedPassword}
-                onChange={e => setConfirmedPassword(e.target.value)}
-              />
-            </div>
-          </div>
+          <InputField
+            label="First name"
+            value={registerForm.firstName}
+            onChange={hanldeRegisterFormChange}
+            name='firstName'
+            required
+          />
+          <InputField
+            label="Last name"
+            value={registerForm.lastName}
+            onChange={hanldeRegisterFormChange}
+            name='lastName'
+          />
+          <InputField
+            label="Email"
+            value={registerForm.email}
+            name='email'
+            onChange={hanldeRegisterFormChange}
+            required
+          />
+          <InputField
+            label="Username"
+            name='userName'
+            value={registerForm.userName}
+            onChange={hanldeRegisterFormChange}
+          />
+          <InputField
+            label="Password"
+            name='password'
+            value={registerForm.password}
+            onChange={hanldeRegisterFormChange}
+            type="password"
+            required
+          />
+          <InputField
+            label="Confirm Password"
+            name='confirmedPassword'
+            value={registerForm.confirmedPassword}
+            onChange={hanldeRegisterFormChange}
+            type="password"
+            required
+          />
 
           <Alert
             severity="warning"
@@ -274,7 +323,7 @@ function RegistrationPage({ forAdmin }: Props): Node {
           </button>
           <Link
             to="/login"
-            onClick={() => toggleRegister()}
+            onClick={() => clearForm()}
             className="login-signup"
           >
 

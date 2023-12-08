@@ -2,6 +2,156 @@
 @import 'colors';
 .home-wrapper {
 
+  .hero-section {
+    background-color: #11273F;
+    padding-bottom: 40px;
+
+    .hero-section-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+      height: calc(100vh - 130px);
+  
+      @media screen and (max-width: $tablet_breakpoint) {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: auto;
+      }
+
+
+      .hero-section-left {
+        display: flex;
+        gap: 40px;
+        padding: 30px;
+        justify-content: space-around;
+        flex-direction: column;
+    
+        @media screen and (max-width: $tablet_breakpoint) {
+          width: 100%;
+        }
+    
+    
+        h1 {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 700;
+          font-size: 86px;
+          line-height: 115px;
+          /* or 134% */
+          letter-spacing: -0.02em;
+          color: #FFFFFF;
+          max-width: 500px;
+    
+          @media screen and (max-width: $tablet_breakpoint) {
+            font-size: 50px;
+            line-height: 80px;
+            margin: 20px;
+            max-width: 100%;
+            text-align: center;
+          }
+    
+        }
+    
+        h4 {
+          font-family: 'Inter';
+          font-style: normal;
+          font-weight: 400;
+          font-size: 26px;
+          line-height: 30px;
+          // margin-top: 50px;
+          color: #FFFFFF;
+    
+          @media screen and (max-width: $tablet_breakpoint) {
+            text-align: center;
+          }
+        }
+    
+        .explore {
+          background-color: white;
+          height: 59px;
+          left: 140px;
+          top: 631px;
+          border-radius: 54.4615px;
+          padding: 5px;
+          color: #11273F;
+          width: 195px;
+          text-align: center;
+          font-family: Inter;
+          font-weight: 500;
+          font-size: 23px;
+          line-height: 27px;
+        }
+    
+        .our-mission {
+          border-color: white;
+          border-style: solid;
+          height: 59px;
+          left: 140px;
+          top: 631px;
+          border-radius: 54.4615px;
+          padding: 5px;
+          color: white;
+          width: 195px;
+          text-align: center;
+          font-family: Inter;
+          font-weight: 500;
+          font-size: 23px;
+          line-height: 27px;
+        }
+    
+    
+        @media screen and (max-width: $mobile_breakpoint) {
+          gap: 25px;
+          .explore, .our-mission {
+            width: 150px;
+            font-size: 20px;
+          }
+        }
+
+        .hero-section-left-buttons {
+          display: flex;
+          gap: 20px;
+          padding: 30px;
+      
+          @media screen and (max-width: $tablet_breakpoint) {
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            height: auto;
+            width: calc(100vw - 40px);
+            // margin: 0 20px;
+      
+          }
+        }
+      }
+
+      .hero-section-right {
+        width: 500px;
+        aspect-ratio: 1/1;
+        margin-top: 50px;
+    
+        @media screen and (max-width: $mobile_breakpoint) {
+          width: 100%;
+        }
+    
+      }
+    }
+
+    .arrow-down {
+      width: 0;
+      height: 0;
+      border-left: 40px solid transparent;
+      border-right: 40px solid transparent;
+      border-top: 40px solid white;
+      margin-left: auto;
+      margin-right: auto;
+      animation: fadeinout 1100ms infinite;
+      cursor: pointer;
+    }
+  }
+
   .timeline{
     @media screen and (max-width: $mobile_breakpoint) {
       display: none;
@@ -160,150 +310,19 @@
         }
       }
   }
-  .hero-section {
-    background-color: #11273F;
-    padding-bottom: 40px;
-  }
-
-  .punchline-cta-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-    height: calc(100vh - 150px);
-
-    @media screen and (max-width: $tablet_breakpoint) {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: auto;
-    }
-  }
-
-  .chat-dialoge {
-    width: 500px;
-    height: 500px;
-    margin-top: 50px;
-
-    @media screen and (max-width: $mobile_breakpoint) {
-      width: 300px;
-      height: 300px;
-    }
-
-  }
-
-  .punchline {
-    display: flex;
-    gap: 40px;
-    flex-direction: column;
 
 
-    h1 {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 700;
-      font-size: 86px;
-      line-height: 115px;
-      /* or 134% */
-      letter-spacing: -0.02em;
-      color: #FFFFFF;
-      max-width: 500px;
-
-      @media screen and (max-width: $mobile_breakpoint) {
-        font-size: 50px;
-        line-height: 80px;
-        margin: 20px;
-        max-width: 100%;
-      }
-
-    }
-
-    h4 {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 400;
-      font-size: 26px;
-      line-height: 30px;
-      // margin-top: 50px;
-      color: #FFFFFF;
-
-      @media screen and (max-width: $mobile_breakpoint) {
-        margin: 20px;
-      }
-    }
-
-    .explore {
-      background-color: white;
-      height: 59px;
-      left: 140px;
-      top: 631px;
-      border-radius: 54.4615px;
-      padding: 5px;
-      color: #11273F;
-      width: 195px;
-      text-align: center;
-      font-family: Inter;
-      font-weight: 500;
-      font-size: 23px;
-      line-height: 27px;
-    }
-
-    .our-mission {
-      border-color: white;
-      border-style: solid;
-      height: 59px;
-      left: 140px;
-      top: 631px;
-      border-radius: 54.4615px;
-      padding: 5px;
-      color: white;
-      width: 195px;
-      text-align: center;
-      font-family: Inter;
-      font-weight: 500;
-      font-size: 23px;
-      line-height: 27px;
-    }
 
 
-    @media screen and (max-width: $mobile_breakpoint) {
-      gap: 25px;
-      .explore, .our-mission {
-        width: 150px;
-        font-size: 20px;
-      }
-    }
-  }
 
 
-  .cta-buttons {
-    display: flex;
-    // margin-top: 50px;
-    gap: 20px;
 
-    @media screen and (max-width: $mobile_breakpoint) {
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      height: auto;
-      width: calc(100vw - 40px);
-      margin: 0 20px;
 
-    }
-  }
 
-  .arrow-down {
-    width: 0;
-    height: 0;
-    border-left: 40px solid transparent;
-    border-right: 40px solid transparent;
-    border-top: 40px solid white;
-    margin-left: auto;
-    margin-right: auto;
-    animation: fadeinout 1100ms infinite;
-    cursor: pointer;
 
-  }
+
+
+
 
   @keyframes fadeinout {
     0% {

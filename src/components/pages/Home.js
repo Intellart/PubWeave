@@ -25,11 +25,11 @@ function Home(): Node {
         }}
       >
         <section className="hero-section">
-          <div className="punchline-cta-buttons">
-            <div className="punchline">
+          <div className="hero-section-row">
+            <div className="hero-section-left">
               <h1>Your proof  of Science </h1>
               <h4>Fast, reliable & unlimited scientific projects.</h4>
-              <div className="cta-buttons">
+              <div className="hero-section-left-buttons">
                 <Link to="/blogs"><button className='explore'>Explore</button></Link>
                 <button
                   onClick={() => {
@@ -44,7 +44,7 @@ function Home(): Node {
             </div>
             <img
               src={chatDialoge}
-              className="chat-dialoge"
+              className="hero-section-right"
               alt="chatDialoge"
             />
           </div>

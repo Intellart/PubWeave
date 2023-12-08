@@ -37,6 +37,7 @@ import useCriticalSections from '../../utils/useCriticalSections';
 import useLocking from '../../utils/useLocking';
 import useWebSocket from '../useWebSocket';
 import Modal from '../modal/Modal';
+import useCopy from '../../utils/useCopy';
 
 type Props = {
   status: 'inProgress' | 'inReview' | 'published',
@@ -70,6 +71,21 @@ function Editor({
   const { labelCriticalSections } = useCriticalSections({ blocks, enabled: get(currentPermissions, permissions.criticalSections, false) });
   const { checkLocks } = useLocking({ blocks, editor: editor.current, enabled: get(currentPermissions, permissions.locking, false) });
   useWebSocket({ articleId: get(article, 'id'), enabled: get(currentPermissions, permissions.webSockets, false) });
+  const popover = useCopy({ enabled: readOnly || false });
+
+  // useEffect(() => {
+  //   const defaultEditor = document.getElementById('editorjs');
+  //   const readOnlyEditor = document.getElementById('readonly-editorjs');
+  //   console.log('readonly', readOnlyEditor);
+  //   console.log('ref', defaultEditor);
+  //   if (defaultEditor && readOnlyEditor) {
+  //     readOnlyEditor.innerHTML = defaultEditor.innerHTML;
+  //     console.log('readonly', readOnlyEditor);
+  //   }
+
+  //   const blockContents = document.getElementsByClassName('ce-block__content');
+  //   console.log('blockContents', blockContents);
+  // }, []);
 
   useEffect(() => {
     if (isReady && editor.current) {
@@ -234,6 +250,7 @@ function Editor({
       />
       <div
         id="editorjs"
+        className={`editorjs-${status}`}
         onClick={() => {
           if (isReady && editor.current) {
             checkLocks();
@@ -247,8 +264,14 @@ function Editor({
         }}
         style={{
           position: 'relative',
+          // display: 'none',
         }}
-      />
+      >
+        {popover}
+      </div>
+      {/* <div
+        id="readonly-editorjs"
+      /> */}
     </>
 
   );
