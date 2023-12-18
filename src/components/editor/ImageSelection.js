@@ -4,7 +4,7 @@ import React, {
   useRef,
 } from 'react';
 import {
-  isEmpty, map, indexOf, filter, includes,
+  isEmpty, map, indexOf, filter, includes, size,
 } from 'lodash';
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -21,6 +21,8 @@ function ImageSelection (props: Props) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(-1);
 
   const _linkList = filter(props.linkList, (link) => includes(link, 'http://res.cloudinary.com'));
+
+  const hasNonCloudinaryLinks = size(props.linkList) !== size(_linkList);
 
   const oldSelectedImageIndex = indexOf(_linkList, props.currentImage);
 
@@ -64,6 +66,7 @@ function ImageSelection (props: Props) {
 
   return (
     <div className='editor-wrapper-image-selection-wrapper'>
+      {hasNonCloudinaryLinks && (
       <Alert
         sx={{
           width: 'calc(100% - 150px)',
@@ -74,6 +77,7 @@ function ImageSelection (props: Props) {
       >
         For thumbnail, please use (local) image you have already used in your article.
       </Alert>
+      )}
       {!isEmpty(_linkList) && (
       <>
         <div

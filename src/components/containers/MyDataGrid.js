@@ -373,6 +373,32 @@ export default function MyDataGrid(props: Props) {
       },
     },
     {
+      field: 'edit_link',
+      headerName: 'Edit',
+      width: 30,
+      editable: false,
+      renderCell: (params) => {
+        // console.log(params);
+        if (get(params, 'row.status.value') === 'published') {
+          return (
+            <Link
+              to={`/my-work/${params.row.id}`}
+            >
+              <FontAwesomeIcon icon={faPencil} />
+            </Link>
+          );
+        }
+
+        return (
+          <Link
+            to={`/my-work/${params.row.id}`}
+          >
+            <FontAwesomeIcon icon={faPen} />
+          </Link>
+        );
+      },
+    },
+    {
       field: 'status',
       headerName: 'Status',
       width: 175,
@@ -495,8 +521,8 @@ export default function MyDataGrid(props: Props) {
       sx={{
         height: 500,
         width: '90%',
-        borderRadius: '18px',
-        boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
+        borderRadius: '4px',
+        // boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
         border: '1px solid #e0e0e0',
         padding: isMobile ? '0px' : '20px',
         margin: isMobile ? '0px' : '10px',

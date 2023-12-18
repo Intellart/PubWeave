@@ -416,12 +416,24 @@ export function uploadByFile(file: any, type:string):any {
 }
 
 export function uploadByUrl(url: any): any {
-  return new Promise((resolve) => {
-    resolve({
+  return fetch(url).then((res) => res.blob()).then((blob) => {
+    const data = new FormData();
+    data.append('file', blob);
+
+    return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
       success: 1,
       file: {
-        url,
+        url: res.data,
       },
-    });
+    }));
   });
+
+  // return new Promise((resolve) => {
+  //   resolve({
+  //     success: 1,
+  //     file: {
+  //       url,
+  //     },
+  //   });
+  // });
 }
