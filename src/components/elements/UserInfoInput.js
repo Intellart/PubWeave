@@ -13,10 +13,12 @@ type Props = {
     check?: boolean,
     checkInfo?: React$Node,
     isValueSame?: boolean,
+    type?: string,
+    after?: string,
 };
 
 function UserInfoInput({
-  label, value, onClick, icon, check, checkInfo, isValueSame,
+  label, value, onClick, icon, check, checkInfo, isValueSame, type, after,
 }: Props): React$Node {
   return (
     <>
@@ -25,11 +27,16 @@ function UserInfoInput({
       >
         <p className="user-info-item-title">{icon ? <FontAwesomeIcon icon={icon} /> : null}{label}</p>
         <input
-          className="user-info-item-value user-info-item-value-input"
+          className={classNames('user-info-item-value user-info-item-value-input',
+            type === 'date' ? 'user-info-item-value-input-date' : null)}
           value={value}
           onChange={onClick}
           placeholder={label}
+          type={type || 'text'}
         />
+        {after && (
+        <p className="user-info-item-after">{after}</p>
+        )}
         {check !== undefined && (
         <div className="user-info-item-checks-wrapper">
           <FontAwesomeIcon

@@ -25,6 +25,7 @@ import RegisterPage from './pages/RegisterPage';
 import ChooseType from './pages/ChooseType';
 import Navbar from './navigation/Navbar';
 import Footer from './navigation/Footer';
+import ArticleSettings from './pages/ArticleSettings';
 
 function App(): Node {
   useScrollTopEffect();
@@ -89,6 +90,7 @@ function App(): Node {
               <Route path="/my-work/" element={<MyArticles />} />
               <Route path="/my-work/:id" element={<EditorPage />} />
               <Route path="/my-work/:id/review" element={<EditorPageReadOnly />} />
+              <Route path="/my-work/:id/settings" element={<ArticleSettings />} />
 
               <Route path="/user/:id" element={<UserPage />} />
               {/* <Route path="/submit-work" element={<MyArticles />} /> */}

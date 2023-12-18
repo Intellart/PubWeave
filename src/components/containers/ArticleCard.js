@@ -4,11 +4,13 @@ import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
+  faGear,
   faPencil, faPenToSquare, faWarning, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
 import { get } from 'lodash';
+import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
 import { useScreenSize } from '../../utils/hooks';
 import LogoImg from '../../assets/images/pubweave_logo.png';
@@ -176,6 +178,9 @@ function ArticleCard(props : Props): Node {
                 userId={props.currentUserId}
                 iconType="default"
               />
+              <Link to={`/my-work/${props.article.id}/settings`} className="article-card-link">
+                <FontAwesomeIcon icon={faGear} />
+              </Link>
               {!isPublished && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}
