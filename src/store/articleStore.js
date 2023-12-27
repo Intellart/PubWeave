@@ -188,6 +188,7 @@ export type State = {
   activeSections: {[string]: number },
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
+  reviewers: Array<User>,
 };
 
 export const types = {
@@ -209,6 +210,11 @@ export const types = {
   ART_FETCH_ALL_ARTICLES_PENDING: 'ART/FETCH_ALL_ARTICLES_PENDING',
   ART_FETCH_ALL_ARTICLES_REJECTED: 'ART/FETCH_ALL_ARTICLES_REJECTED',
   ART_FETCH_ALL_ARTICLES_FULFILLED: 'ART/FETCH_ALL_ARTICLES_FULFILLED',
+
+  ART_FETCH_ALL_REVIEWERS: 'ART/FETCH_ALL_REVIEWERS',
+  ART_FETCH_ALL_REVIEWERS_PENDING: 'ART/FETCH_ALL_REVIEWERS_PENDING',
+  ART_FETCH_ALL_REVIEWERS_REJECTED: 'ART/FETCH_ALL_REVIEWERS_REJECTED',
+  ART_FETCH_ALL_REVIEWERS_FULFILLED: 'ART/FETCH_ALL_REVIEWERS_FULFILLED',
 
   ART_UPDATE_ARTICLE: 'ART/UPDATE_ARTICLE',
   ART_UPDATE_ARTICLE_PENDING: 'ART/UPDATE_ARTICLE_PENDING',
@@ -349,6 +355,7 @@ export const selectors = {
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
   getBlockIdQueue: (state: ReduxState): BlockIdQueue => state.article.blockIdQueue,
   getActiveSections: (state: ReduxState): any => get(state.article, 'activeSections', []),
+  getReviewers: (state: ReduxState): any => get(state.article, 'reviewers', []),
 };
 
 export const actions = {
@@ -434,6 +441,10 @@ export const actions = {
   fetchAllArticles: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_ARTICLES,
     payload: API.getRequest('pubweave/articles'),
+  }),
+  fetchAllReviewers: (): ReduxAction => ({
+    type: types.ART_FETCH_ALL_REVIEWERS,
+    payload: API.getRequest('pubweave/users/reviewers'),
   }),
   likeComment: (commentId: number): ReduxAction => ({
     type: types.ART_LIKE_COMMENT,
@@ -578,6 +589,13 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_FETCH_ALL_REVIEWERS_FULFILLED:
+      console.log('ART_FETCH_ALL_REVIEWERS_FULFILLED');
+
+      return {
+        ...state,
+        reviewers: action.payload,
+      };
     case types.ART_ADD_COLLABORATOR_FULFILLED:
       return {
         ...state,

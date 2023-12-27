@@ -213,12 +213,17 @@ function ArticleSettings(): Node {
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
+  const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
 
   const article = useSelector((state) => selectors.article(state), isEqual);
+  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+
+  console.log('reviewers', reviewers);
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
   useEffect(() => {
+    fetchAllReviewers();
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   }, [article, id]);
 
