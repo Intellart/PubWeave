@@ -44,6 +44,8 @@ function UserPage(): Node {
   const [expandedCard, setExpandedCard] = React.useState<string | null>(null);
   const [avatarImg, setAvatarImg] = useState(get(user, 'profile_img'));
   const uploadAvatarRef = React.useRef<HTMLInputElement | null>(null);
+
+  // console.log('user', user);
   const [newPassword, setNewPassword] = useState({
     password: '',
     confirm: '',
@@ -109,6 +111,23 @@ function UserPage(): Node {
       updateUser(get(user, 'id'), { profile_img: url });
       setAvatarImg(url);
     });
+  };
+
+  const setNewAddress = (newValue: string | null) => {
+    updateUser(get(user, 'id'), { wallet_address: newValue });
+  };
+
+  useEffect(() => {
+    console.log('usedAddresses', usedAddresses);
+    if (size(usedAddresses) > 0 && !get(user, 'wallet_address')) {
+      setNewAddress(usedAddresses[0]);
+    } else if (size(usedAddresses) === 0 && get(user, 'wallet_address')) {
+      setNewAddress(null);
+    }
+  }, [usedAddresses[0]]);
+
+  const disconnectWallet = () => {
+    disconnect();
   };
 
   const uploadAvatar = () => {
@@ -342,6 +361,10 @@ function UserPage(): Node {
               label="Last updated"
               value={new Date(get(user, 'updated_at')).toLocaleDateString()}
             />
+            <UserInfoItem
+              label="Saved wallet address"
+              value={get(user, 'wallet_address') || 'No saved address'}
+            />
           </div>
           <div className="user-page-content" />
         </section>
@@ -426,9 +449,11 @@ function UserPage(): Node {
         </UserSection>
         { !isConnected && (
         <ConnectWalletButton
-          message="Please sign Augusta Ada King, Countess of Lovelace"
+          message="Connect wallet"
           onSignMessage={(message) => signMessage(message)}
-          // onConnect={onConnect}
+          onConnect={(cip45Wallet) => {
+            console.log('cip45Wallet', cip45Wallet);
+          }}
           primaryColor="#11273F"
           borderRadius={10}
           showAccountBalance
@@ -509,7 +534,7 @@ function UserPage(): Node {
             />
             <UserInfoButton
               label="Disconnect wallet"
-              onClick={disconnect}
+              onClick={disconnectWallet}
             />
           </UserSection>
         )}
