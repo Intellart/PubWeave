@@ -444,7 +444,7 @@ export const actions = {
   }),
   fetchAllReviewers: (): ReduxAction => ({
     type: types.ART_FETCH_ALL_REVIEWERS,
-    payload: API.getRequest('pubweave/users/reviewers'),
+    payload: API.getRequest('intellart/users/reviewers'),
   }),
   likeComment: (commentId: number): ReduxAction => ({
     type: types.ART_LIKE_COMMENT,

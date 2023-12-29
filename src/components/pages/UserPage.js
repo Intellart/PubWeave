@@ -121,12 +121,11 @@ function UserPage(): Node {
     console.log('usedAddresses', usedAddresses);
     if (size(usedAddresses) > 0 && !get(user, 'wallet_address')) {
       setNewAddress(usedAddresses[0]);
-    } else if (size(usedAddresses) === 0 && get(user, 'wallet_address')) {
-      setNewAddress(null);
     }
   }, [usedAddresses[0]]);
 
   const disconnectWallet = () => {
+    setNewAddress(null);
     disconnect();
   };
 

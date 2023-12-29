@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faGear, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
 import UserInfoInput from '../elements/UserInfoInput';
 
@@ -262,6 +262,13 @@ function ArticleSettings(): Node {
             onClick={(e: any) => console.log('clicked', e)}
           />
         </div>
+        <Button
+          variant="contained"
+          size='small'
+          className='article-settings-button'
+        >
+          <FontAwesomeIcon icon={faGear} />
+        </Button>
       </section>
 
       <section className="article-settings">
