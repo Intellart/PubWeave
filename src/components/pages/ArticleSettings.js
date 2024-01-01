@@ -16,8 +16,10 @@ import {
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faGear, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router';
 import { actions, selectors } from '../../store/articleStore';
 import UserInfoInput from '../elements/UserInfoInput';
+import UserInfoItem from '../elements/UserInfoItem';
 
 function NewReview() {
   const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
@@ -209,7 +211,7 @@ function Review(props: any) {
 
 function ArticleSettings(): Node {
   const { id } = useParams();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
@@ -249,23 +251,22 @@ function ArticleSettings(): Node {
           </Alert>
         </div>
         <div className="article-settings-content">
-          <UserInfoInput
+          <UserInfoItem
             label="Total Amount"
             value="150"
             after="ADA"
-            onClick={(e: any) => console.log('clicked', e)}
           />
-          <UserInfoInput
+          <UserInfoItem
             label="Max transaction limit"
             value="10"
             after="ADA"
-            onClick={(e: any) => console.log('clicked', e)}
           />
         </div>
         <Button
           variant="contained"
           size='small'
           className='article-settings-button'
+          onClick={() => navigate('/user')}
         >
           <FontAwesomeIcon icon={faGear} />
         </Button>

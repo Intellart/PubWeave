@@ -75,6 +75,7 @@
           width: 100%;
           background: rgba($pubWeaveBlue, 0.05);
           border-radius: 5px;
+          gap: 10px;
 
           .user-section-wrapper-icons-ok,
           .user-section-wrapper-icons-x{
@@ -322,11 +323,14 @@
   &.user-info-item-button{
     cursor: pointer;
     // transition: 0.3s ease-in-out;
+    background: $pubWeaveBlue;
+    color: #fff;
+    border: 1px solid #fff;
 
     &:hover{
-      background: $pubWeaveBlue;
-      color: #fff;
-      border: 1px solid #fff;
+      background: rgba(#11273F, 0.05);
+      color: #11273F;
+      border: 1px solid #11273F;
     }
 
     .user-info-item-title{

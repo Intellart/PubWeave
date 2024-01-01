@@ -24,8 +24,8 @@ import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
 
-import { Superscript } from './editorExtensions/superscript';
-import { Subscript } from './editorExtensions/subscript';
+// import { Superscript } from './editorExtensions/superscript';
+// import { Subscript } from './editorExtensions/subscript';
 
 // import { MyTune } from './editorExtensions/tuneVersioning';
 // import Code from '@editorjs/code';
@@ -44,8 +44,8 @@ export function useEditorTools (): { [toolName: string]: any} {
 
       },
     },
-    subscript: Subscript,
-    superscript: Superscript,
+    // subscript: Subscript,
+    // superscript: Superscript,
     alignmentTune: {
       class: AlignmentTuneTool,
       config: {
@@ -59,7 +59,7 @@ export function useEditorTools (): { [toolName: string]: any} {
     tooltip: {
       class: Tooltip,
       config: {
-        location: 'left',
+        // location: 'left',
         highlightColor: '#FFEFD5',
         underline: true,
         backgroundColor: '#154360',

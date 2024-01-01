@@ -92,7 +92,7 @@ function App(): Node {
               <Route path="/my-work/:id/review" element={<EditorPageReadOnly />} />
               <Route path="/my-work/:id/settings" element={<ArticleSettings />} />
 
-              <Route path="/user/:id" element={<UserPage />} />
+              <Route path="/user" element={<UserPage />} />
               {/* <Route path="/submit-work" element={<MyArticles />} /> */}
               {/* <Route path="/submit-work/:id" element={<EditorPage />} /> */}
             </>

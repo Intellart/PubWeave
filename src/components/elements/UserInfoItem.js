@@ -7,9 +7,12 @@ type Props = {
     label: string,
     value: string | Array<string>,
     onClick?: (index?: number) => void,
+    after?: string,
 };
 
-function UserInfoItem({ label, value, onClick }: Props): React$Node {
+function UserInfoItem({
+  label, value, after, onClick,
+}: Props): React$Node {
   const isValueArray = isArray(value);
 
   return (
@@ -38,7 +41,7 @@ function UserInfoItem({ label, value, onClick }: Props): React$Node {
           ))}
         </div>
       )
-        : <p className="user-info-item-value">{truncate(value, { length: 20 })}</p>}
+        : <p className="user-info-item-value">{truncate(value, { length: 20 })} {after}</p>}
     </div>
   );
 }

@@ -14,7 +14,7 @@ import {
 } from 'lodash';
 import { Chip } from '@mui/material';
 import CommentModal from '../comments/CommentModal';
-import { store } from '../../store';
+// import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
@@ -26,7 +26,7 @@ function Blogs(): Node {
   useScrollTopEffect();
   const { id } = useParams();
 
-  store.getState();
+  // store.getState();
 
   // eslint-disable-next-line no-unused-vars
 

@@ -9,7 +9,6 @@ import { actions } from '../../store/userStore';
 
 type Props = {
   isAdmin: boolean,
-  userId?: number,
   userImg?: string,
 };
 
@@ -27,7 +26,7 @@ export default function UserDropdownMenu(props: Props): Node {
 
   const handleProfile = () => {
     setAnchorEl(null);
-    navigate(`/user/${props.userId}`);
+    navigate('/user');
   };
 
   const handleLogout = () => {

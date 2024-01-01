@@ -18,10 +18,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import classNames from 'classnames';
 import {
-  faCamera, faCheck, faCircleCheck, faCircleXmark, faPencil, faXmark,
+  faCamera, faCheck, faCircleCheck, faCircleXmark, faGear, faPencil, faRedo, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
-import { Alert } from '@mui/material';
+import { Alert, Button, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
@@ -55,6 +55,11 @@ function UserPage(): Node {
     name: '',
     email: '',
     username: '',
+  });
+
+  const [treasury, setTreasury] = useState({
+    totalAmount: '',
+    transactionLimit: '',
   });
 
   const [socialMedia, setSocialMedia] = useState({
@@ -360,10 +365,6 @@ function UserPage(): Node {
               label="Last updated"
               value={new Date(get(user, 'updated_at')).toLocaleDateString()}
             />
-            <UserInfoItem
-              label="Saved wallet address"
-              value={get(user, 'wallet_address') || 'No saved address'}
-            />
           </div>
           <div className="user-page-content" />
         </section>
@@ -495,10 +496,8 @@ function UserPage(): Node {
 
         `}
         />
-        )
-        }
-        { isConnected
-        && (
+        )}
+        { isConnected && (
           <UserSection
             title="Wallet"
             titleIcon={getWalletIcon(enabledWallet)}
@@ -507,6 +506,15 @@ function UserPage(): Node {
             variants={variants}
             index={4}
           >
+            <Chip
+              label={`Address ${get(user, 'wallet_address') ? '' : ' not'} synced with backend`}
+              variant='outlined'
+              color={get(user, 'wallet_address') ? 'success' : 'error'}
+              style={{
+                width: '100%',
+                marginBottom: '10px',
+              }}
+            />
             <UserInfoItem
               label="Stake Address"
               value={stakeAddress}
@@ -535,6 +543,51 @@ function UserPage(): Node {
               label="Disconnect wallet"
               onClick={disconnectWallet}
             />
+          </UserSection>
+        )}
+        { isConnected && (
+          <UserSection
+            title="Treasury"
+            expandedCard={expandedCard}
+            setExpandedCard={setExpandedCard}
+            variants={variants}
+            index={5}
+          >
+            <UserInfoInput
+              label="Total amount"
+              type="number"
+              value={treasury.totalAmount}
+              onClick={(e: any) => setTreasury({ ...treasury, totalAmount: e.target.value })}
+              check={treasury.totalAmount !== ''}
+              checkInfo="Total amount cannot be empty"
+            />
+            <UserInfoInput
+              label="Per Transaction limit"
+              type="number"
+              value={treasury.transactionLimit}
+              onClick={(e: any) => setTreasury({ ...treasury, transactionLimit: e.target.value })}
+              check={treasury.transactionLimit !== ''}
+              checkInfo="Per transaction limit cannot be empty"
+            />
+            <div className="user-section-wrapper-icons">
+              <Button
+                style={{ width: '100%', gap: '10px' }}
+                variant="outlined"
+                className='article-settings-button'
+                onClick={() => console.log('treasury')}
+              >
+                <FontAwesomeIcon icon={faRedo} /> Refresh
+              </Button>
+              <Button
+                style={{ width: '100%', gap: '10px' }}
+                disabled={treasury.totalAmount === '' || treasury.transactionLimit === ''}
+                variant="contained"
+                className='article-settings-button'
+                onClick={() => console.log('treasury')}
+              >
+                <FontAwesomeIcon icon={faCheck} /> Update
+              </Button>
+            </div>
           </UserSection>
         )}
       </div>

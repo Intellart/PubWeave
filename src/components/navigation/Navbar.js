@@ -66,7 +66,7 @@ function Navbar(props: Props): Node {
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>
-          <Link onClick={onClick} to={`/user/${get(props, 'user.id')}`}>
+          <Link onClick={onClick} to="/user">
             Profile
           </Link>
           <Link

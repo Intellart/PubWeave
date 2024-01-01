@@ -216,7 +216,7 @@ function CommentSection(props: Props): React$Node {
     <Alert severity="info">
       <AlertTitle>You can&apos;t comment yet</AlertTitle>
       You need to&nbsp;
-      <Link to={`/user/${userId}`}>
+      <Link to="/user">
         set your username in your profile
       </Link>
   &nbsp;to be able to comment.

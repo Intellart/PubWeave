@@ -10,7 +10,7 @@ const routes = {
     root: '/blogs',
     blog: (id) => `/singleblog/${id}`,
   },
-  user: (id) => `/user/${id}`,
+  user: () => '/user/',
   login: '/login',
   adminLogin: '/admin-login',
   projects: {

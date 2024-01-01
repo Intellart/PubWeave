@@ -13,6 +13,18 @@
     // min-height: calc(80vh - 210px);
   }
 
+  &.editorjs-inProgress{
+    /* revert for bug in Chromium browsers
+     - fix for the content editable attribute will work properly. */
+      :where([contenteditable]) {
+        -moz-user-modify: read-write;
+        -webkit-line-break: after-white-space;
+        -webkit-user-modify: read-write;
+        overflow-wrap: break-word;
+      }
+
+  }
+
 
   // IMAGE PLUGIN > center property
   .cdx-block.image-tool.image-tool--center{
