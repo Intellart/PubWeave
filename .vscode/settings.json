@@ -1,1 +1,15 @@
-{}
+{
+  // disable typescript checking
+  "typescript.validate.enable": false,
+  "javascript.validate.enable": false,
+
+  // // trailing comma
+  // "prettier.trailingComma": "all",
+
+  // //line break
+  // "prettier.proseWrap": "always",
+
+  // // implicit arrow line break
+  // "prettier.arrowParens": "avoid",
+
+}

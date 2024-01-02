@@ -32,6 +32,8 @@ import type {
   SimpleBlock,
   _BlockFromEditor,
 } from '../store/articleStore';
+import { EditorStatus } from '../components/editor/Editor';
+import type { EditorStatusType } from '../components/editor/Editor';
 
 export const regex: Object = {
   specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
@@ -96,7 +98,7 @@ export const permissions = {
 
 type EditorPermissionProps = {
   type: 'blog_article' | 'preprint' | 'scientific_article',
-  status: 'inProgress' | 'published' | 'inReview',
+  status: EditorStatusType,
 };
 
 // // eslint-disable-next-line no-unused-vars
@@ -109,9 +111,9 @@ type EditorPermissionProps = {
 //   [permissions.collaborators]: true,
 // });
 
-export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
+export const editorPermissions = ({ type, status }: EditorPermissionProps): any => ({
   scientific_article: {
-    inProgress: {
+    [EditorStatus.IN_PROGRESS]: {
       [permissions.webSockets]: true,
       [permissions.criticalSections]: true,
       [permissions.locking]: true,
@@ -119,13 +121,13 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
       [permissions.history]: true,
       [permissions.collaborators]: true,
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
     },
-    inReview: {
+    [EditorStatus.PREVIEW]: {
     },
   },
   preprint: {
-    inProgress: {
+    [EditorStatus.IN_PROGRESS]: {
       [permissions.webSockets]: true,
       [permissions.criticalSections]: true,
       [permissions.locking]: true,
@@ -133,22 +135,22 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
       [permissions.history]: true,
       [permissions.collaborators]: true,
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
     },
-    inReview: {
+    [EditorStatus.PREVIEW]: {
     },
   },
   blog_article: {
-    inProgress: {
+    [EditorStatus.IN_PROGRESS]: {
       [permissions.configMenu]: true,
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
     },
-    inReview: {
+    [EditorStatus.PREVIEW]: {
       [permissions.configMenu]: true,
     },
   },
-}[type || 'blog_article'][status]);
+}[type || 'blog_article'][(status:string)]);
 
 export const isProdEnv = process.env.NODE_ENV === 'production';
 

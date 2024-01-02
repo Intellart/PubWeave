@@ -1,13 +1,12 @@
-/* eslint-disable no-console */
-/* eslint-disable no-unused-vars */
 // @flow
 import React, { useEffect, useState } from 'react';
-import type { Node } from 'react';
-import { /* useDispatch */ useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  get, includes, isEqual, join, split,
+  get,
+  isEqual,
+  join,
+  split,
   map,
-  mapValues,
   filter,
   every,
   size,
@@ -18,18 +17,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import classNames from 'classnames';
 import {
-  faCamera, faCheck, faCircleCheck, faCircleXmark, faGear, faPencil, faRedo, faXmark,
+  faCamera, faCheck, faPencil, faRedo, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { Alert, Button, Chip } from '@mui/material';
-import { motion } from 'framer-motion';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
-import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
+import { NetworkType, getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import {
   emailChecks,
   nameChecks,
-  regex,
   uploadImage,
   usernameChecks,
 } from '../../utils/hooks';
@@ -38,7 +35,7 @@ import UserInfoItem from '../elements/UserInfoItem';
 import UserInfoButton from '../elements/UserInfoButton';
 import UserInfoInput from '../elements/UserInfoInput';
 
-function UserPage(): Node {
+function UserPage(): React$Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [expandedCard, setExpandedCard] = React.useState<string | null>(null);
@@ -91,13 +88,16 @@ function UserPage(): Node {
     // enabledWallet,
     stakeAddress,
     accountBalance,
-    signMessage,
+    // signMessage,
     usedAddresses,
     enabledWallet,
-    // connect,
+    installedExtensions,
+    connect,
     disconnect,
-    connectedCip45Wallet,
-  } = useCardano();
+    // connectedCip45Wallet,
+  } = useCardano({
+    limitNetwork: NetworkType.TESTNET,
+  });
 
   const dispatch = useDispatch();
   // const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
@@ -412,6 +412,17 @@ function UserPage(): Node {
             onClick={changePassword}
           />
         </UserSection>
+        <Button
+          style={{ width: '100%', gap: '10px' }}
+          variant="contained"
+          className='article-settings-button'
+          onClick={() => {
+            connect('nami');
+            console.log('connect', installedExtensions);
+          }}
+        >
+          Login
+        </Button>
         <UserSection
           title="Social links"
           expandedCard={expandedCard}
@@ -450,7 +461,8 @@ function UserPage(): Node {
         { !isConnected && (
         <ConnectWalletButton
           message="Connect wallet"
-          onSignMessage={(message) => signMessage(message)}
+          limitNetwork={NetworkType.TESTNET}
+          // onSignMessage={(message) => signMessage(message)}
           onConnect={(cip45Wallet) => {
             console.log('cip45Wallet', cip45Wallet);
           }}
@@ -506,15 +518,6 @@ function UserPage(): Node {
             variants={variants}
             index={4}
           >
-            <Chip
-              label={`Address ${get(user, 'wallet_address') ? '' : ' not'} synced with backend`}
-              variant='outlined'
-              color={get(user, 'wallet_address') ? 'success' : 'error'}
-              style={{
-                width: '100%',
-                marginBottom: '10px',
-              }}
-            />
             <UserInfoItem
               label="Stake Address"
               value={stakeAddress}
@@ -531,14 +534,33 @@ function UserPage(): Node {
               label="Wallet name"
               value={enabledWallet}
             />
-            <UserInfoItem
-              label="Used addresses"
-              value={usedAddresses}
-              onClick={(index) => {
-                navigator.clipboard.writeText(usedAddresses[index]);
-                toast.success('Copied to clipboard');
+            <p className="user-info-item user-info-item-label">
+              Used addresses:
+            </p>
+            {map(usedAddresses, (address, index) => (
+              <Chip
+                key={index}
+                label={truncate(address, { length: 30 })}
+                variant='outlined'
+                color='success'
+                style={{
+                  width: '100%',
+                }}
+                onClick={() => {
+                  navigator.clipboard.writeText(address);
+                  toast.success('Copied to clipboard');
+                }}
+              />
+            ))}
+            <Alert
+              severity={get(user, 'wallet_address') ? 'success' : 'error'}
+              sx={{
+                width: '100%',
+                borderRadius: '5px',
               }}
-            />
+            >
+              Address {get(user, 'wallet_address') ? '' : ' not'} synced with backend
+            </Alert>
             <UserInfoButton
               label="Disconnect wallet"
               onClick={disconnectWallet}

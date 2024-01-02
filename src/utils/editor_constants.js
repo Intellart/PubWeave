@@ -11,7 +11,6 @@ import Marker from '@editorjs/marker';
 import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
-import Tooltip from 'editorjs-tooltip';
 import FootnotesTune from '@editorjs/footnotes';
 import AttachesTool from '@editorjs/attaches';
 import InlineImage from 'editorjs-inline-image';
@@ -23,6 +22,7 @@ import { WordCounter } from './editorExtensions/wordCounter';
 import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
+import ReviewTool from './editorExtensions/reviewTool';
 
 // import { Superscript } from './editorExtensions/superscript';
 // import { Subscript } from './editorExtensions/subscript';
@@ -56,17 +56,18 @@ export function useEditorTools (): { [toolName: string]: any} {
         },
       },
     },
-    tooltip: {
-      class: Tooltip,
-      config: {
-        // location: 'left',
-        highlightColor: '#FFEFD5',
-        underline: true,
-        backgroundColor: '#154360',
-        textColor: '#FDFEFE',
-        holder: 'editorjs',
-      },
-    },
+    // tooltip: {
+    //   class: MyTooltip,
+    //   config: {
+    //     // location: 'left',
+    //     highlightColor: '#FFEFD5',
+    //     underline: true,
+    //     backgroundColor: '#154360',
+    //     textColor: '#FDFEFE',
+    //     holder: 'editorjs',
+    //   },
+    // },
+    myReview: ReviewTool,
     attaches: {
       class: AttachesTool,
       config: {

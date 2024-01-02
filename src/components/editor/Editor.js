@@ -37,8 +37,17 @@ import useWebSocket from '../useWebSocket';
 import Modal from '../modal/Modal';
 // import useCopy from '../../utils/useCopy';
 
+export const EditorStatus = {
+  IN_PROGRESS: 'in-progress',
+  IN_REVIEW: 'in-review',
+  PUBLISHED: 'published',
+  PREVIEW: 'preview',
+};
+
+export type EditorStatusType = $Values<typeof EditorStatus>;
+
 type Props = {
-  status: 'inProgress' | 'inReview' | 'published',
+  status: EditorStatusType,
   isReady: boolean,
   onChange?: (
     newBlocks: BlockCategoriesToChange,
@@ -81,7 +90,7 @@ function Editor({
   const article = useSelector((state) => selectors.article(state), isEqual);
   const currentPermissions = editorPermissions({
     type: get(article, 'article_type'),
-    status: status || 'inProgress',
+    status: status || EditorStatus.IN_PROGRESS,
   });
 
   const dispatch = useDispatch();
@@ -159,23 +168,31 @@ function Editor({
 
     const events = Array.isArray(event) ? event : [event];
 
-    const data = mapValues(groupBy(await Promise.all(map(events, async (e) => ({
-      action: e.type, // block-changed , block-added, block-removed
-      position: e.detail.index,
-      type: e.detail.target.name,
-      ...await e.detail.target.save(),
-    }))), 'id'), (blockArray) => {
-      if (blockArray.length === 1) {
-        return blockArray[0];
-      } else if (blockArray.length === 2) {
-        const createdBlockIndex = blockArray[0].action === 'block-added' ? 0 : 1;
+    const data = mapValues(
+      groupBy(
+        await Promise.all(
+          map(events, async (e) => ({
+            action: e.type, // block-changed , block-added, block-removed
+            position: e.detail.index,
+            type: e.detail.target.name,
+            ...(await e.detail.target.save()),
+          })),
+        ),
+        'id',
+      ),
+      (blockArray) => {
+        if (blockArray.length === 1) {
+          return blockArray[0];
+        } else if (blockArray.length === 2) {
+          const createdBlockIndex = blockArray[0].action === 'block-added' ? 0 : 1;
 
-        return {
-          ...blockArray[createdBlockIndex],
-          data: blockArray[createdBlockIndex === 0 ? 1 : 0].data,
-        };
-      }
-    });
+          return {
+            ...blockArray[createdBlockIndex],
+            data: blockArray[createdBlockIndex === 0 ? 1 : 0].data,
+          };
+        }
+      },
+    );
 
     console.log('data', data);
 
@@ -184,14 +201,23 @@ function Editor({
     const blockIsNOTBeingEditedBySomeoneElse = (blockId: string) => {
       const activeBlockId = get(activeSections, blockId, null);
 
-      return (activeBlockId && activeBlockId === get(user, 'id')) || !activeBlockId;
+      return (
+        (activeBlockId && activeBlockId === get(user, 'id')) || !activeBlockId
+      );
     };
 
-    const allowedToEdit = pickBy(data, (block) => blockIsNOTBeingEditedBySomeoneElse(block.id) && block.action === 'block-changed');
+    const allowedToEdit = pickBy(
+      data,
+      (block) => blockIsNOTBeingEditedBySomeoneElse(block.id)
+        && block.action === 'block-changed',
+    );
 
     console.log('allowedToEdit', allowedToEdit);
 
-    if (size(allowedToEdit) !== size(pickBy(data, (block) => block.action === 'block-changed'))) {
+    if (
+      size(allowedToEdit)
+      !== size(pickBy(data, (block) => block.action === 'block-changed'))
+    ) {
       editor.current?.blocks.render({
         blocks: convertBlocksToEditorJS(blocks) || [],
       });
@@ -222,8 +248,8 @@ function Editor({
         data: {
           blocks: convertBlocksToEditorJS(blocks) || [],
         },
-        tools: EDITOR_JS_TOOLS,
-        tunes: ['myTune'],
+        tools: status === EditorStatus.IN_REVIEW ? EDITOR_JS_TOOLS : EDITOR_JS_TOOLS,
+        tunes: ['myTune', 'footnotes', 'alignmentTune'],
 
         onReady: () => {
           labelCriticalSections();
@@ -304,9 +330,19 @@ function Editor({
       <div
         id="editorjs"
         className={`editorjs-${status}`}
-        onClick={() => {
+        onClick={(e) => {
           if (isReady && editor.current) {
             checkLocks();
+          }
+
+          if (e.target.tagName === 'M') {
+            console.log(e);
+            // select all text in the element
+            const range = document.createRange();
+            range.selectNodeContents(e.target);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
           }
         }}
         onBlur={() => {

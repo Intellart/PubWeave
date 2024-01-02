@@ -297,6 +297,12 @@
   border: 1px transparent solid;
   width: 100%;
 
+  &.user-info-item-label {
+    background: transparent;
+    justify-content: flex-start;
+    padding: 0 0 0 10px;
+  }
+
   &.user-info-item-clickable{
     // transition: 0.1s ease-in-out;
     cursor: pointer;

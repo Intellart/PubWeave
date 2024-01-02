@@ -19,7 +19,7 @@ import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
 import OrcIDButton from '../elements/OrcIDButton';
-import Editor from '../editor/Editor';
+import Editor, { EditorStatus } from '../editor/Editor';
 import LikeButton from '../containers/LikeButton';
 
 function Blogs(): Node {
@@ -133,7 +133,7 @@ function Blogs(): Node {
           <Editor
             readOnly
             isReady={isReady}
-            status='published'
+            status={EditorStatus.PUBLISHED}
           />
 
         </div>
