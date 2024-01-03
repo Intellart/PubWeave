@@ -11,12 +11,15 @@ import {
   pickBy,
   mapValues,
   size,
+  includes,
 } from 'lodash';
 import { toast } from 'react-toastify';
+
 // import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 import { useDispatch, useSelector } from 'react-redux';
 // import type { API, CustomEvent } from '@editorjs/editorjs';
+import classNames from 'classnames';
 import { useEditorTools } from '../../utils/editor_constants';
 import type {
   ArticleContent,
@@ -54,7 +57,7 @@ type Props = {
     time: number,
     version: string
   ) => void,
-  readOnly?: boolean,
+  showMessages?: boolean,
   onShowHistory?: (sectionId: string) => void,
 };
 
@@ -62,12 +65,20 @@ function Editor({
   // eslint-disable-next-line no-unused-vars
   isReady,
   onChange,
-  readOnly,
   onShowHistory,
   status,
+  showMessages,
 }: Props): any {
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
+
+  const printMessage = (...args: any) => {
+    if (showMessages) {
+      console.log(...args);
+    }
+  };
+
+  const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.PUBLISHED], status);
 
   const selectedVersioningBlock = useSelector(
     (state) => selectors.getActiveBlock(state),
@@ -114,21 +125,6 @@ function Editor({
     articleId: get(article, 'id'),
     enabled: get(currentPermissions, permissions.webSockets, false),
   });
-  // const popover = useCopy({ enabled: readOnly || false });
-
-  // useEffect(() => {
-  //   const defaultEditor = document.getElementById('editorjs');
-  //   const readOnlyEditor = document.getElementById('readonly-editorjs');
-  //   console.log('readonly', readOnlyEditor);
-  //   console.log('ref', defaultEditor);
-  //   if (defaultEditor && readOnlyEditor) {
-  //     readOnlyEditor.innerHTML = defaultEditor.innerHTML;
-  //     console.log('readonly', readOnlyEditor);
-  //   }
-
-  //   const blockContents = document.getElementsByClassName('ce-block__content');
-  //   console.log('blockContents', blockContents);
-  // }, []);
 
   useEffect(() => {
     if (isReady && editor.current) {
@@ -163,7 +159,7 @@ function Editor({
   }, [blockIdQueue]);
 
   const handleUploadEditorContent = async (api: any, event: any) => {
-    console.log('API', api.blocks.getBlockByIndex(0));
+    printMessage('API', api.blocks.getBlockByIndex(0));
     console.log('EVENT', event);
 
     const events = Array.isArray(event) ? event : [event];
@@ -194,7 +190,7 @@ function Editor({
       },
     );
 
-    console.log('data', data);
+    printMessage('data', data);
 
     labelCriticalSections();
 
@@ -212,7 +208,7 @@ function Editor({
         && block.action === 'block-changed',
     );
 
-    console.log('allowedToEdit', allowedToEdit);
+    printMessage('allowedToEdit', allowedToEdit);
 
     if (
       size(allowedToEdit)
@@ -245,11 +241,12 @@ function Editor({
         holder: 'editorjs',
         readOnly,
         spellcheck: false,
+        inlineToolbar: status === EditorStatus.IN_REVIEW ? ['myReview'] : true,
         data: {
           blocks: convertBlocksToEditorJS(blocks) || [],
         },
-        tools: status === EditorStatus.IN_REVIEW ? EDITOR_JS_TOOLS : EDITOR_JS_TOOLS,
-        tunes: ['myTune', 'footnotes', 'alignmentTune'],
+        tools: EDITOR_JS_TOOLS,
+        tunes: ['myTune', 'alignmentTune'],
 
         onReady: () => {
           labelCriticalSections();
@@ -329,14 +326,16 @@ function Editor({
       />
       <div
         id="editorjs"
-        className={`editorjs-${status}`}
+        className={classNames({
+          'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW,
+        }, `editorjs-${status}`)}
         onClick={(e) => {
           if (isReady && editor.current) {
             checkLocks();
           }
 
           if (e.target.tagName === 'M') {
-            console.log(e);
+            printMessage(e);
             // select all text in the element
             const range = document.createRange();
             range.selectNodeContents(e.target);

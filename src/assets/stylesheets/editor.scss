@@ -7,37 +7,32 @@
   //   }
   // }
 
-  &.editorjs-published {
-    margin-top: 20px;
-    // transform: translateY(-50px);
-    // min-height: calc(80vh - 210px);
-  }
 
-  /* revert for bug in Chromium browsers
-         - fix for the content editable attribute will work properly. */
-  &.editorjs-in-progress,
-  &.editorjs-in-review {
+  /* 
+    revert for bug in Chromium browsers
+    fix for the content editable attribute will work properly. 
+  */
+  &:not(.editorjs-read-only) {
     :where([contenteditable]) {
       -moz-user-modify: read-write;
       -webkit-line-break: after-white-space;
       -webkit-user-modify: read-write;
       overflow-wrap: break-word;
     }
-
   }
 
+  &.editorjs-read-only {
 
-  // IMAGE PLUGIN > center property
-  .cdx-block.image-tool.image-tool--center {
-    .image-tool__image {
-      display: flex;
-      justify-content: center;
+    .ce-toolbar__actions,
+    .ce-inline-toolbar__dropdown {
+      display: none;
     }
-  }
 
-  // IMAGE PLUGIN > convert caption input to div
-  &.editorjs-inReview,
-  &.editorjs-published {
+    .codex-editor__redactor {
+      padding-bottom: 0 !important;
+    }
+
+    // IMAGE PLUGIN > convert caption input to div
     .image-tool__caption {
       border: none;
       box-shadow: none;
@@ -63,45 +58,95 @@
       * {
         display: inline;
       }
+
     }
-
-
   }
+
+  &.editorjs-published {
+    margin-top: 20px;
+    // transform: translateY(-50px);
+    // min-height: calc(80vh - 210px);
+  }
+
+  // IMAGE PLUGIN > center property
+  .cdx-block.image-tool.image-tool--center {
+    .image-tool__image {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+
 
   .cdx-review {
     background-color: #7fcbd1;
-    padding: 2px;
+    padding: 2px 4px;
     margin: 0 4px;
     border-radius: 5px;
     position: relative;
     transition: all 0.3s ease;
 
+    &[data-note=""] {
+      background: none;
+      background-color: #7fcfd34b;
 
+      &:hover {
+        &[data-note]:before {
+          display: none;
+        }
+
+      }
+    }
 
     &:hover {
+
+      &[data-reviewer-name]:after,
       &[data-note]:before {
-        content: attr(data-note);
-        visibility: visible;
+        transition: all 0.3s ease;
+        animation: reviewTooltipFadeIn 0.3s ease forwards;
         position: absolute;
-        bottom: 30px;
-        right: 0;
-        transform: translateX(50%);
-        background-color: #080b26;
-        color: #bbbdcf;
+        background-color: #fff;
+        // transform: translateX(50%);
+        box-shadow: 0 3px 15px -3px rgba(13, 20, 33, .13);
+        border: 1px solid #E8E8EB;
         border-radius: 5px;
         padding: 5px;
         z-index: 1000;
         display: flex;
+        color: #5b5b5b;
         flex-direction: column;
         gap: 5px;
-        font-size: 0.8em;
-        line-height: 1.2em;
+        right: 0;
+        font-size: 12px;
+        line-height: 14px;
         font-weight: 500;
-        width: 250px;
+      }
+
+
+      &[data-reviewer-name]:after {
+        content: attr(data-reviewer-name);
+        bottom: 25px;
+        width: fit-content;
+      }
+
+      &[data-note]:before {
+        content: attr(data-note);
+        bottom: 55px;
+        width: 200px; //min(200px, fit-content);
+      }
+
+      @keyframes reviewTooltipFadeIn {
+        0% {
+          opacity: 0;
+          transform: translateX(50%);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateX(0%);
+        }
       }
     }
-
-
   }
 
 

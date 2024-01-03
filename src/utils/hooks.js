@@ -90,6 +90,7 @@ export const emailChecks = [
 export const permissions = {
   webSockets: 'WEB_SOCKETS',
   criticalSections: 'CRITICAL_SECTIONS',
+  review: 'REVIEW',
   locking: 'LOCKING',
   configMenu: 'CONFIG_MENU',
   history: 'HISTORY',
@@ -148,6 +149,9 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): any 
     },
     [EditorStatus.PREVIEW]: {
       [permissions.configMenu]: true,
+    },
+    [EditorStatus.IN_REVIEW]: {
+      [permissions.review]: true,
     },
   },
 }[type || 'blog_article'][(status:string)]);

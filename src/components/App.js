@@ -8,7 +8,7 @@ import { isEmpty, isEqual } from 'lodash';
 import Home from './pages/Home';
 import { useScreenSize, useScrollTopEffect } from '../utils/hooks';
 import EditorPage from './pages/EditorPage';
-import EditorPageReadOnly from './pages/EditorPageReadOnly';
+import EditorPreview from './pages/EditorPreview';
 import Blogs from './pages/Blogs';
 import MyArticles from './pages/MyArticles';
 import SingleBlog from './pages/SingleBlog';
@@ -26,6 +26,7 @@ import ChooseType from './pages/ChooseType';
 import Navbar from './navigation/Navbar';
 import Footer from './navigation/Footer';
 import ArticleSettings from './pages/ArticleSettings';
+import EditorReview from './pages/EditorReview';
 
 function App(): Node {
   useScrollTopEffect();
@@ -89,7 +90,8 @@ function App(): Node {
 
               <Route path="/my-work/" element={<MyArticles />} />
               <Route path="/my-work/:id" element={<EditorPage />} />
-              <Route path="/my-work/:id/review" element={<EditorPageReadOnly />} />
+              <Route path="/my-work/:id/preview" element={<EditorPreview />} />
+              <Route path="/my-work/:id/review" element={<EditorReview />} />
               <Route path="/my-work/:id/settings" element={<ArticleSettings />} />
 
               <Route path="/user" element={<UserPage />} />

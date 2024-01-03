@@ -40,6 +40,7 @@ function MyArticles(): Node {
   const categories = [
     { id: 'all', name: 'All' },
     { id: 'collaborating', name: 'Collaborating' },
+    { id: 'reviewing', name: 'Reviewing' },
     { id: 'published', name: 'Published' },
     { id: 'requested', name: 'Requested' },
     { id: 'rejected', name: 'Rejected' },

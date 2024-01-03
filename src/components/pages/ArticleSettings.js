@@ -285,7 +285,7 @@ function ArticleSettings(): Node {
             <p className='article-settings-alert-content'>Can&apos;t connect to the wallet</p>
           </Alert>
         </div>
-        <div className="article-settings-content">
+        <div className="article-settings-content article-settings-content-grid">
           <Review id={1} amount={8} />
           <Review id={2} amount={9.31} />
           <Review id={2} amount={4.523} />

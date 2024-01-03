@@ -11,11 +11,13 @@ import Marker from '@editorjs/marker';
 import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
-import FootnotesTune from '@editorjs/footnotes';
+// import FootnotesTune from '@editorjs/footnotes';
 import AttachesTool from '@editorjs/attaches';
 import InlineImage from 'editorjs-inline-image';
 
 import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
+import { useSelector } from 'react-redux';
+import { isEqual } from 'lodash';
 import LatexPlugin from './latex_plugin';
 import { ImageWrapper } from './editorExtensions/imageWrapper';
 import { WordCounter } from './editorExtensions/wordCounter';
@@ -23,7 +25,7 @@ import CodeTool from './editorExtensions/codeHighlight';
 import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
 import ReviewTool from './editorExtensions/reviewTool';
-
+import { selectors } from '../store/userStore';
 // import { Superscript } from './editorExtensions/superscript';
 // import { Subscript } from './editorExtensions/subscript';
 
@@ -36,6 +38,8 @@ import ReviewTool from './editorExtensions/reviewTool';
 // import type { ToolConstructable, ToolSettings } from '@editorjs/editorjs';
 
 export function useEditorTools (): { [toolName: string]: any} {
+  const user = useSelector((state) => selectors.getUser(state), isEqual);
+
   return {
   // textVariant: TextVariantTune,
     myTune: {
@@ -56,18 +60,13 @@ export function useEditorTools (): { [toolName: string]: any} {
         },
       },
     },
-    // tooltip: {
-    //   class: MyTooltip,
-    //   config: {
-    //     // location: 'left',
-    //     highlightColor: '#FFEFD5',
-    //     underline: true,
-    //     backgroundColor: '#154360',
-    //     textColor: '#FDFEFE',
-    //     holder: 'editorjs',
-    //   },
-    // },
-    myReview: ReviewTool,
+    myReview: {
+      class: ReviewTool,
+      config: {
+        userName: user.full_name,
+        userId: user.id,
+      },
+    },
     attaches: {
       class: AttachesTool,
       config: {
@@ -87,20 +86,26 @@ export function useEditorTools (): { [toolName: string]: any} {
       },
     },
     paragraph: {
-      tunes: ['footnotes', 'myTune', 'alignmentTune'],
+      tunes: ['myTune', 'alignmentTune'],
     },
-    table: Table,
-    marker: Marker,
+    table: {
+      class: Table,
+    },
+    marker: {
+      class: Marker,
+    },
     list: {
       class: List,
-      tunes: ['footnotes', 'myTune'],
+      tunes: ['myTune'],
       inlineToolbar: true,
     },
     math: {
       class: LatexPlugin,
       inlineToolbar: true,
     },
-    warning: Warning,
+    warning: {
+      class: Warning,
+    },
     // code: editorjsCodeflask,
     // codeBox: {
     //   class: CodeBox,
@@ -111,7 +116,9 @@ export function useEditorTools (): { [toolName: string]: any} {
     //   },
     // },
     // code: Code,
-    myCode: CodeTool,
+    myCode: {
+      class: CodeTool,
+    },
     // linkTool: LinkTool,
     image: {
       class: ImageWrapper,
@@ -157,21 +164,32 @@ export function useEditorTools (): { [toolName: string]: any} {
         },
       },
     },
-    raw: Raw,
+    raw: {
+      class: Raw,
+      inlineToolbar: true,
+    },
     header: {
       class: HeaderAPI,
       tunes: ['alignmentTune'],
       inlineToolbar: true,
     },
-    quote: Quote,
-    checklist: CheckList,
-    delimiter: Delimiter,
+    quote: {
+      class: Quote,
+    },
+    checklist: {
+      class: CheckList,
+    },
+    delimiter: {
+      class: Delimiter,
+    },
     inlineCode: {
       class: InlineCode,
       shortcut: 'CMD+SHIFT+O',
     },
-    wordCount: WordCounter,
-    footnotes: FootnotesTune,
+    wordCount: {
+      class: WordCounter,
+    },
+    // footnotes: FootnotesTune,
   // latexInline: LatexInline,
   };
 }

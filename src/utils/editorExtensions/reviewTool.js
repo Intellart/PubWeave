@@ -15,8 +15,9 @@ export default class MarkerTool {
     this.button.classList.toggle(this.api.styles.inlineToolButtonActive, state);
   }
 
-  constructor({ api }) {
+  constructor({ api, config }) {
     this.api = api;
+    this.config = config;
     this.button = null;
     this._state = false;
 
@@ -24,6 +25,8 @@ export default class MarkerTool {
     this.class = 'cdx-review';
 
     this.note = null;
+    this.reviewerName = null;
+    this.reviewerId = null;
 
     this.nodes = {
       inputWrapper: null,
@@ -56,6 +59,9 @@ export default class MarkerTool {
     const mark = document.createElement(this.tag);
 
     mark.classList.add(this.class);
+    mark.dataset.note = '';
+    mark.dataset.reviewerName = this.config.userName;
+    mark.dataset.reviewerId = this.config.userId;
     mark.appendChild(selectedText);
     range.insertNode(mark);
 
@@ -63,7 +69,6 @@ export default class MarkerTool {
   }
 
   unwrap(range) {
-    console.log('unwrap');
     const mark = this.api.selection.findParentTag(this.tag, this.class);
     const text = range.extractContents();
 
@@ -105,14 +110,17 @@ export default class MarkerTool {
   showActions(mark) {
     this.nodes.input.value = this.note || mark.dataset.note || '';
     this.note = this.nodes.input.value;
+    this.reviewerName = mark.dataset.reviewerName || '';
+    this.reviewerId = mark.dataset.reviewerId || '';
 
     this.nodes.input.onchange = () => {
       this.note = this.nodes.input.value;
     };
 
     this.nodes.inputConfirm.onclick = () => {
-      console.log('confirm', this.note);
       mark.dataset.note = this.note;
+      mark.dataset.reviewerName = this.config.userName;
+      mark.dataset.reviewerId = this.config.userId;
 
       // remove all ranges
       document.getSelection().removeAllRanges();

@@ -2,7 +2,7 @@
 @import "./scrollbars";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-.article-settings-wrapper{
+.article-settings-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -14,7 +14,7 @@
   padding: 0 40px;
 
   .title-wrapper {
-    display:flex;
+    display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
@@ -28,7 +28,7 @@
     }
   }
 
-  section.article-settings{
+  section.article-settings {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -41,12 +41,13 @@
     width: 100%;
 
 
-    .article-settings-subtitle{
+    .article-settings-subtitle {
       font-size: 1.2rem;
       font-weight: 600;
       margin: 0;
       padding: 0;
-      &:after{
+
+      &:after {
         content: "";
         display: block;
         width: 100%;
@@ -57,7 +58,7 @@
       }
     }
 
-    .article-settings-conditions{
+    .article-settings-conditions {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -65,16 +66,30 @@
       gap: 10px;
     }
 
-    .article-settings-content{
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+    .article-settings-content {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
+      width: fit-content;
+
+      &.article-settings-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .user-info-item {
+        .user-info-item-title {
+          white-space: normal;
+        }
+      }
+
+
 
     }
   }
 
 
-  section.review-modal{
+  section.review-modal {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -84,12 +99,12 @@
     border-radius: 5px;
     padding: 10px;
 
-    .review-modal-autocomplete{
+    .review-modal-autocomplete {
       width: 100%;
       margin-top: 10px;
     }
 
-    .review-modal-button{
+    .review-modal-button {
       width: 100%;
     }
 
@@ -102,12 +117,12 @@
         cursor: pointer;
         background-color: rgb(245, 245, 245);
 
-        .review-modal-title{
+        .review-modal-title {
           color: rgb(0, 0, 0);
         }
       }
 
-      .review-modal-title{
+      .review-modal-title {
         transition: all 0.3s ease-in-out;
         display: flex;
         flex-direction: row;
@@ -120,14 +135,14 @@
       }
     }
 
-    .review-modal-title{
+    .review-modal-title {
       font-size: 1rem;
       font-weight: 550;
       margin: 0;
       padding: 0;
     }
 
-    .review-modal-content{
+    .review-modal-content {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -135,13 +150,13 @@
       gap: 10px;
       width: 100%;
 
-      .user-info-item{
+      .user-info-item {
         .user-info-item-title {
           width: 100%;
         }
       }
 
-      .review-modal-table{
+      .review-modal-table {
         width: 100%;
         min-width: 450px;
       }

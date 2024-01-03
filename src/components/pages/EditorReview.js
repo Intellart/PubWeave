@@ -132,7 +132,7 @@ function Blogs(): Node {
         >
           <Editor
             isReady={isReady}
-            status={EditorStatus.PUBLISHED}
+            status={EditorStatus.IN_REVIEW}
           />
 
         </div>

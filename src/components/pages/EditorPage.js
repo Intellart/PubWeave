@@ -108,7 +108,7 @@ function ReactEditor (): React$Element<any> {
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
         onPublishClick={() => {
-          navigate(routes.myWork.review(type, id));
+          navigate(routes.myWork.preview(type, id));
         }}
 
       />
