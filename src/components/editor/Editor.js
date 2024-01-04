@@ -177,15 +177,21 @@ function Editor({
         'id',
       ),
       (blockArray) => {
-        if (blockArray.length === 1) {
-          return blockArray[0];
-        } else if (blockArray.length === 2) {
-          const createdBlockIndex = blockArray[0].action === 'block-added' ? 0 : 1;
+        switch (blockArray.length) {
+          case 1:
+            return {
+              ...blockArray[0],
+              action: size(blocks) ? blockArray[0].action : 'block-added',
+            };
+          case 2:
+            const createdBlockIndex = blockArray[0].action === 'block-added' ? 0 : 1;
 
-          return {
-            ...blockArray[createdBlockIndex],
-            data: blockArray[createdBlockIndex === 0 ? 1 : 0].data,
-          };
+            return {
+              ...blockArray[createdBlockIndex],
+              data: blockArray[createdBlockIndex === 0 ? 1 : 0].data,
+            };
+          default:
+            return null;
         }
       },
     );

@@ -83,7 +83,7 @@ function LoginPage({ forAdmin }: Props): Node {
             aliquam nisl nunc vel nisl. Sed malesuada, nisl eget aliquam
           </p>
         </div>
-        <div className="login-wrapper">
+        <form className="login-wrapper" onSubmit={handleSubmit}>
           <div className="login-image-wrapper">
             <img src={logoImg} alt="PubWeave Logo" className="login-image" width="40px" />
           </div>
@@ -135,8 +135,7 @@ function LoginPage({ forAdmin }: Props): Node {
           )}
 
           <button
-            onClick={handleSubmit}
-            type="button"
+            type="submit"
             className={classNames('login-button', {
               disabled: isDisabled,
             })}
@@ -156,7 +155,7 @@ function LoginPage({ forAdmin }: Props): Node {
 
           </Link>
           )}
-        </div>
+        </form>
       </section>
     </main>
   );

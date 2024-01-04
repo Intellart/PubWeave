@@ -189,6 +189,7 @@ export type State = {
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
   reviewers: Array<User>,
+  reviews: Array<any>,
 };
 
 export const types = {
@@ -311,6 +312,11 @@ export const types = {
   ART_FETCH_VERSIONS_REJECTED: 'ART/FETCH_VERSIONS_REJECTED',
   ART_FETCH_VERSIONS_FULFILLED: 'ART/FETCH_VERSIONS_FULFILLED',
 
+  ART_FETCH_REVIEWS: 'ART/FETCH_REVIEWS',
+  ART_FETCH_REVIEWS_PENDING: 'ART/FETCH_REVIEWS_PENDING',
+  ART_FETCH_REVIEWS_REJECTED: 'ART/FETCH_REVIEWS_REJECTED',
+  ART_FETCH_REVIEWS_FULFILLED: 'ART/FETCH_REVIEWS_FULFILLED',
+
   ART_LOCK_SECTION: 'ART/LOCK_SECTION',
   ART_LOCK_SECTION_PENDING: 'ART/LOCK_SECTION_PENDING',
   ART_LOCK_SECTION_REJECTED: 'ART/LOCK_SECTION_REJECTED',
@@ -349,6 +355,7 @@ export const selectors = {
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
+  getReviews: (state: ReduxState): any => state.article.reviews,
   getTags: (state: ReduxState): Tags => state.article.tags,
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
@@ -373,6 +380,10 @@ export const actions = {
       user_id: userId,
       section_id: sectionId,
     }),
+  }),
+  fetchReviews: (articleId: number): ReduxAction => ({
+    type: types.ART_FETCH_REVIEWS,
+    payload: API.getRequest(`pubweave/reviews/${articleId}`),
   }),
   unlockSection: (userId: number, sectionId: string): ReduxAction => ({
     type: types.ART_UNLOCK_SECTION,
@@ -589,6 +600,13 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_FETCH_REVIEWS_FULFILLED:
+      console.log('ART_FETCH_REVIEWS_FULFILLED');
+
+      return {
+        ...state,
+        reviews: action.payload,
+      };
     case types.ART_FETCH_ALL_REVIEWERS_FULFILLED:
       console.log('ART_FETCH_ALL_REVIEWERS_FULFILLED');
 

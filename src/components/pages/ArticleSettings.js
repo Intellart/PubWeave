@@ -6,7 +6,7 @@ import type { Node } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  isEqual, get, toInteger, isEmpty, map, uniqBy,
+  isEqual, get, toInteger, isEmpty, map, find,
 } from 'lodash';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -15,19 +15,16 @@ import {
 } from '@mui/material';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faGear, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronRight, faGear, faPencil, faPlus, faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router';
 import { actions, selectors } from '../../store/articleStore';
 import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
 
 function NewReview() {
-  const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
-
-  const userItems = uniqBy(map(articles, (article) => ({
-    ...article.author,
-    label: article.author.full_name,
-  })), 'id');
+  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
   // eslint-disable-next-line no-unused-vars
   const [deadline, setDeadline] = useState('');
@@ -36,6 +33,15 @@ function NewReview() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+
+  if (isEmpty(reviewers)) {
+    return null;
+  }
+  const userItems = map(reviewers, (reviewer) => ({
+    label: reviewer.full_name,
+    value: reviewer.id,
+  }));
+
   const searchOptions = map(userItems, (option) => ({
     label: option.label,
     value: option.id,
@@ -48,7 +54,11 @@ function NewReview() {
     >
       {isModalOpen ? (
         <>
-          <p className='review-modal-title'>New review</p>
+          <div className="review-modal-top">
+            <p className='review-modal-title'>New review</p>
+            <FontAwesomeIcon icon={faXmark} className='review-modal-close' onClick={() => setIsModalOpen(false)} />
+          </div>
+
           <div className="review-modal-content">
             <UserInfoInput
               label="Amount"
@@ -108,25 +118,31 @@ function NewReview() {
 }
 
 function Review(props: any) {
+  // const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
+
+  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+
+  const [editMode, setEditMode] = useState(false);
+
   const reviewStatus = {
     IN_PROGRESS: 'in_progress',
-    WAITING_FOR_APPROVAL: 'waiting_for_approval',
+    AWAITING_APPROVAL: 'awaiting_approval',
     REJECTED: 'rejected',
-    APPROVED: 'approved',
+    ACCEPTED: 'accepted',
   };
 
   const statusColors = {
     [reviewStatus.IN_PROGRESS]: '#FFC107',
-    [reviewStatus.WAITING_FOR_APPROVAL]: '#FFC107',
+    [reviewStatus.AWAITING_APPROVAL]: '#FFC107',
     [reviewStatus.REJECTED]: '#F44336',
-    [reviewStatus.APPROVED]: '#4CAF50',
+    [reviewStatus.ACCEPTED]: '#4CAF50',
   };
 
   const statusText = {
     [reviewStatus.IN_PROGRESS]: 'In progress',
-    [reviewStatus.WAITING_FOR_APPROVAL]: 'Waiting for approval',
+    [reviewStatus.AWAITING_APPROVAL]: 'Awaiting approval',
     [reviewStatus.REJECTED]: 'Rejected',
-    [reviewStatus.APPROVED]: 'Approved',
+    [reviewStatus.ACCEPTED]: 'Accepted',
   };
 
   const columns: any[] = [
@@ -136,7 +152,6 @@ function Review(props: any) {
       description: 'This column has a value getter and is not sortable.',
       sortable: false,
       width: 160,
-      valueGetter: (params: any) => `${params.row.firstName || ''} ${params.row.lastName || ''}`,
     },
     {
       field: 'amount',
@@ -168,42 +183,112 @@ function Review(props: any) {
     },
   ];
 
-  const rows = [
-    {
-      id: 1, lastName: 'Snow', firstName: 'Jon', amount: props.amount, status: reviewStatus.IN_PROGRESS,
-    },
-    {
-      id: 2, lastName: 'Lannister', firstName: 'Cersei', amount: props.amount, status: reviewStatus.WAITING_FOR_APPROVAL,
-    },
-    {
-      id: 3, lastName: 'Lannister', firstName: 'Jaime', amount: props.amount, status: reviewStatus.REJECTED,
-    },
-  ];
+  const userItems = map(reviewers, (reviewer) => ({
+    label: reviewer.full_name,
+    value: reviewer.id,
+  }));
+
+  const [searchValue, setSearchValue] = useState('');
+  const searchOptions = map(userItems, (option) => ({
+    label: option.label,
+    value: option.id,
+  }));
+
+  if (isEmpty(reviewers)) {
+    return null;
+  }
+
+  const rows = map(props.review.user_reviews, (userReview) => {
+    const user = find(reviewers, (reviewer) => reviewer.id === userReview.user_id);
+
+    console.log('user', user);
+
+    return {
+      status: userReview.status,
+      fullName: user.full_name,
+      amount: props.review.amount,
+      id: userReview.id,
+    };
+  });
+
+  console.log('rows', rows);
 
   return (
     <section className="review-modal">
-      <p className='review-modal-title'>Review #{props.id}</p>
+      <div className="review-modal-top">
+        <p className='review-modal-title'>Review #{props.review.id}</p>
+        <FontAwesomeIcon
+          icon={faPencil}
+          className={classNames('review-modal-close',
+            { 'review-modal-close-active': editMode })}
+          onClick={() => setEditMode(!editMode)}
+        />
+      </div>
+
       <div className="review-modal-content">
         <UserInfoInput
           label="Amount"
-          value={props.amount}
+          value={props.review.amount}
           after="ADA"
           onClick={(e: any) => console.log('clicked', e)}
         />
         <UserInfoInput
           label="Deadline"
           type="date"
-          value="2021-10-10"
+          value={props.review.deadline}
           onClick={(e: any) => console.log('clicked', e)}
         />
-        <DataGrid
-          className='review-modal-table'
-          rows={rows}
-          columns={columns}
-          autoHeight
-          hideFooter
-          sx={{ '&, [class^=MuiDataGrid]': { border: 'none' } }}
-        />
+
+        {editMode ? (
+          <>
+            <Autocomplete
+              disablePortal
+              disabled={false}
+              multiple
+              limitTags={3}
+              value={map(rows, (row) => ({
+                label: row.fullName,
+                value: row.id,
+              })) || []}
+              className='review-modal-autocomplete'
+              // onChange={(e, values) => onNewTagClick(values)}
+              // onInputChange={(e, value) => onNewTagInput(value)}
+              searchValue={searchValue}
+              onInputChange={(e, value) => setSearchValue(value)}
+              // isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
+              options={searchOptions}
+              sx={{
+                minWidth: 200, display: 'flex', alignItems: 'center',
+              }}
+              size="small"
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  className='article-config-item-input'
+                  variant="outlined"
+                  size="small"
+                  label="Reviewers"
+                />
+              )}
+            />
+            <Button
+              variant="contained"
+              className='review-modal-button'
+              onClick={() => setEditMode(false)}
+            >
+              Submit
+            </Button>
+          </>
+        ) : (
+          <DataGrid
+            className='review-modal-table'
+            rows={rows}
+            columns={columns}
+            autoHeight
+            hideFooter
+            sx={{ '&, [class^=MuiDataGrid]': { border: 'none' } }}
+          />
+        )}
       </div>
     </section>
   );
@@ -216,11 +301,18 @@ function ArticleSettings(): Node {
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
   const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
+  const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
 
+  const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
   console.log('reviewers', reviewers);
+  console.log('reviews', reviews);
+
+  useEffect(() => {
+    fetchReviews(id);
+  }, [id]);
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
@@ -286,9 +378,12 @@ function ArticleSettings(): Node {
           </Alert>
         </div>
         <div className="article-settings-content article-settings-content-grid">
-          <Review id={1} amount={8} />
+          {map(reviews, (review) => (
+            <Review review={review} key={review.id} />
+          ))}
+          {/* <Review id={1} amount={8} />
           <Review id={2} amount={9.31} />
-          <Review id={2} amount={4.523} />
+          <Review id={2} amount={4.523} /> */}
           <NewReview />
         </div>
       </section>
