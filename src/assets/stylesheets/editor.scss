@@ -87,22 +87,9 @@
     position: relative;
     transition: all 0.3s ease;
 
-    &[data-note=""] {
-      background: none;
-      background-color: #7fcfd34b;
-
-      &:hover {
-        &[data-note]:before {
-          display: none;
-        }
-
-      }
-    }
-
     &[data-color="1"] {
       background-color: #f5e2a4;
     }
-
 
     &[data-color="2"] {
       background-color: #f9d6d6;
@@ -130,6 +117,51 @@
 
     &[data-color="8"] {
       background-color: #e8d6f9;
+    }
+
+    &[data-note=""] {
+
+      // lighter shade
+      &[data-color="1"] {
+        background-color: #f6eac6;
+      }
+
+      &[data-color="2"] {
+        background-color: #f9e2e2;
+      }
+
+      &[data-color="3"] {
+        background-color: #c6eaf6;
+      }
+
+      &[data-color="4"] {
+        background-color: #e2f9e8;
+      }
+
+      &[data-color="5"] {
+        background-color: #e2f9f9;
+      }
+
+      &[data-color="6"] {
+        background-color: #e2e8f9;
+      }
+
+      &[data-color="7"] {
+        background-color: #e2e2f9;
+      }
+
+      &[data-color="8"] {
+        background-color: #e8e2f9;
+      }
+
+
+
+      &:hover {
+        &[data-note]:before {
+          display: none;
+        }
+
+      }
     }
 
     &:hover {
@@ -161,6 +193,7 @@
         content: attr(data-reviewer-name);
         bottom: 25px;
         width: fit-content;
+        white-space: nowrap;
       }
 
       &[data-note]:before {

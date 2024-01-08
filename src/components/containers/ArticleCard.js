@@ -10,14 +10,19 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
-import { get } from 'lodash';
+import { get, includes } from 'lodash';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
-import { useScreenSize } from '../../utils/hooks';
+import {
+  editorPermissions,
+  permissions,
+  useScreenSize,
+} from '../../utils/hooks';
 import LogoImg from '../../assets/images/pubweave_logo.png';
 import Modal from '../modal/Modal';
 import LikeButton from './LikeButton';
 import ArticleTypeModal from '../modal/ArticleTypeModal';
+import { EditorStatus } from '../editor/Editor';
 
 type Props = {
   article: Article,
@@ -29,26 +34,30 @@ type Props = {
 };
 
 function ArticleCard(props : Props): Node {
-  const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
+  const { isMobile } = useScreenSize();
 
+  const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
   const status = props.article.status ? props.article.status : 'draft';
   const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
-  const isInReview = status === 'reviewing';
+  const noImage = props.article.image === null;
 
-  const validOwner = props.currentUserId === props.article.author.id;
+  const currentPermissions = editorPermissions({
+    type: workType,
+    status: status || EditorStatus.IN_PROGRESS,
+    userId: props.currentUserId,
+    ownerId: props.article.author.id,
+    isReviewer: includes(props.article.reviewers, props.currentUserId),
+  });
 
-  console.log('validOwner', props.currentUserId);
+  console.log('status', props.article.status);
+  console.log('currentPermissions', currentPermissions);
 
   // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 
   // useEffect(() => {
   //   setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
   // }, [props.article, props.currentUserId]);
-
-  const noImage = props.article.image === null;
-
-  const { isMobile } = useScreenSize();
 
   // const handleEditArticle = (e) => {
   //   e.stopPropagation();
@@ -161,7 +170,7 @@ function ArticleCard(props : Props): Node {
           <div className="article-card-side-content-status-wrapper">
             {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
             <ArticleTypeModal
-              enabled={false}
+              enabled={get(currentPermissions, permissions.SWITCH_ARTICLE_TYPE, false)}
               type={workType}
               onConvert={props.onConvert}
             />
@@ -173,32 +182,31 @@ function ArticleCard(props : Props): Node {
             <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
             <div className="article-icons-share-heart">
               <Modal
-                enabled={isPublished}
+                enabled={get(currentPermissions, permissions.LIKE_ARTICLE, false)}
                 type="share"
                 shape="icon"
               />
               <Modal
-                enabled={!isPublished && !isInReview && workType !== 'blog_article'}
+                enabled={get(currentPermissions, permissions.collaborators, false)}
                 type="collab"
                 shape="chip"
                 text="showAll"
                 articleId={props.article.id}
                 isOwner
               />
-              {isPublished && (
+              {get(currentPermissions, permissions.LIKE_ARTICLE, false) && (
               <LikeButton
-                enabled={isPublished && !!props.currentUserId}
                 article={props.article}
                 userId={props.currentUserId}
                 iconType="default"
               />
               ) }
-              {validOwner && (
+              {get(currentPermissions, permissions.ARTICLE_SETTINGS, false) && (
               <Link to={`/my-work/${props.article.id}/settings`} className="article-card-link">
                 <FontAwesomeIcon icon={faGear} />
               </Link>
               ) }
-              {!isPublished && validOwner && (
+              {get(currentPermissions, permissions.DELETE_ARTICLE, false) && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}
                 ><FontAwesomeIcon icon={faXmark} />

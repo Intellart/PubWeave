@@ -13,6 +13,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
+import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+import { NetworkType } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
 // import { actions } from '../../store/userStore';
@@ -28,6 +30,12 @@ type Props = {
   user?: any,
 };
 function Navbar(props: Props): Node {
+  const {
+    disconnect,
+  } = useCardano({
+    limitNetwork: NetworkType.TESTNET,
+  });
+
   const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
 
   const navigate = useNavigate();
@@ -54,7 +62,7 @@ function Navbar(props: Props): Node {
 
   const options = searchParam === 'author' ? userItems : articleItems;
 
-  const onClick = () => {
+  const handleClick = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
@@ -62,18 +70,29 @@ function Navbar(props: Props): Node {
     if (!isMobile && (props.isAuthorized || props.isAdmin)) {
       const userImage = get(props, 'user.profile_img');
 
-      return <UserDropdownMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
+      return (
+        <UserDropdownMenu
+          isAdmin={props.isAdmin}
+          userId={get(props, 'user.id')}
+          userImg={userImage}
+          onLogout={() => {
+            disconnect();
+            store.dispatch(actions.logoutUser());
+          }}
+        />
+      );
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>
-          <Link onClick={onClick} to="/user">
+          <Link onClick={handleClick} to="/user">
             Profile
           </Link>
           <Link
             to="/home"
             onClick={() => {
+              disconnect();
               store.dispatch(actions.logoutUser());
-              onClick();
+              handleClick();
             }}
           >
             Logout
@@ -83,7 +102,7 @@ function Navbar(props: Props): Node {
     } else {
       return (
         <Link
-          onClick={onClick}
+          onClick={handleClick}
           className="login-button"
           to="/login"
         >Login
@@ -186,12 +205,12 @@ function Navbar(props: Props): Node {
         {!isMobile && renderSearch()}
 
         <div className="navigation">
-          <NavLink onClick={onClick} to="/">Home</NavLink>
-          <NavLink onClick={onClick} to="/blogs">Blogs </NavLink>
-          {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
+          <NavLink onClick={handleClick} to="/">Home</NavLink>
+          <NavLink onClick={handleClick} to="/blogs">Blogs </NavLink>
+          {(props.isAdmin) && <NavLink onClick={handleClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {!isMobile && props.isAuthorized && <Link onClick={onClick} to={routes.myWork.root} className='submit-work'>My Work</Link>}
+          {!isMobile && props.isAuthorized && <Link onClick={handleClick} to={routes.myWork.root} className='submit-work'>My Work</Link>}
           {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">
@@ -213,7 +232,7 @@ function Navbar(props: Props): Node {
             {renderSearch()}
             <hr />
             <div className="mobile-menu-items-buttons">
-              {props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
+              {props.isAuthorized && <Link onClick={handleClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
               {renderLoginButton()}
             </div>
           </div>

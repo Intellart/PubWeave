@@ -22,6 +22,7 @@ export type Block = {|
   position: null | number,
   version_number: number,
   collaborator_id: number,
+  action: string,
 |};
 
 export type _BlockFromEditor = {|
@@ -157,6 +158,7 @@ export type Article = {
   description: string,
   image: string,
   star: boolean,
+  reviewers: Array<User>,
   category: string,
   created_at: string,
   updated_at: string,

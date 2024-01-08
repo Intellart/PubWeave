@@ -54,7 +54,7 @@ function MyArticles(): Node {
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
   const deleteArticle = (id: number) => dispatch(actions.deleteArticle(id));
-  // const convertArticle = (id: number) => dispatch(actions.convertArticle(id));
+  const convertArticle = (id: number) => dispatch(actions.convertArticle(id));
 
   const handleCreateArticle = () => {
     createArticle(user.id);
@@ -115,9 +115,8 @@ function MyArticles(): Node {
                 onClick={() => handleArticleClick(a)}
                 currentUserId={user.id}
                 onConvert={() => {
-
-                  // convertArticle(a.id);
-                  // window.location.reload();
+                  convertArticle(a.id);
+                  window.location.reload();
                 }}
               />
               <hr />

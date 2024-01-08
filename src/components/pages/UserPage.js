@@ -10,7 +10,6 @@ import {
   filter,
   every,
   size,
-  truncate,
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { selectors as articleSelectors, actions } from '../../store/articleStore';
@@ -20,7 +19,9 @@ import {
   faCamera, faCheck, faPencil, faRedo, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
-import { Alert, Button, Chip } from '@mui/material';
+import {
+  Alert, AlertTitle, Button, Chip,
+} from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { NetworkType, getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import { actions, selectors as userSelectors } from '../../store/userStore';
@@ -123,8 +124,11 @@ function UserPage(): React$Node {
   };
 
   useEffect(() => {
-    console.log('usedAddresses', usedAddresses);
-    if (size(usedAddresses) > 0 && !get(user, 'wallet_address')) {
+    console.log('usedAddresses', usedAddresses[0], get(user, 'wallet_address'));
+
+    if (size(usedAddresses) > 0
+    && (!get(user, 'wallet_address')
+    || get(user, 'wallet_address') !== usedAddresses[0])) {
       setNewAddress(usedAddresses[0]);
     }
   }, [usedAddresses[0]]);
@@ -447,6 +451,29 @@ function UserPage(): React$Node {
             onClick={updateSocialMedia}
           />
         </UserSection>
+        <Alert
+          severity={get(user, 'wallet_address') ? 'success' : 'error'}
+          sx={{
+            width: '100%',
+            borderRadius: '5px',
+          }}
+        >
+          <AlertTitle>
+            Address {get(user, 'wallet_address') ? '' : ' not'} synced with backend
+          </AlertTitle>
+          <Chip
+            label={get(user, 'wallet_address') || 'No address'}
+            variant='outlined'
+            color={get(user, 'wallet_address') ? 'success' : 'error'}
+            style={{
+              width: '100%',
+            }}
+            onClick={() => {
+              navigator.clipboard.writeText(get(user, 'wallet_address'));
+              toast.success('Copied to clipboard');
+            }}
+          />
+        </Alert>
         { !isConnected && (
         <ConnectWalletButton
           message="Connect wallet"
@@ -529,7 +556,7 @@ function UserPage(): React$Node {
             {map(usedAddresses, (address, index) => (
               <Chip
                 key={index}
-                label={truncate(address, { length: 30 })}
+                label={address}
                 variant='outlined'
                 color='success'
                 style={{
@@ -541,15 +568,6 @@ function UserPage(): React$Node {
                 }}
               />
             ))}
-            <Alert
-              severity={get(user, 'wallet_address') ? 'success' : 'error'}
-              sx={{
-                width: '100%',
-                borderRadius: '5px',
-              }}
-            >
-              Address {get(user, 'wallet_address') ? '' : ' not'} synced with backend
-            </Alert>
             <UserInfoButton
               label="Disconnect wallet"
               onClick={disconnectWallet}

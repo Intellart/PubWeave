@@ -90,29 +90,31 @@ export const emailChecks = [
 export const permissions = {
   webSockets: 'WEB_SOCKETS',
   criticalSections: 'CRITICAL_SECTIONS',
-  review: 'REVIEW',
+  REVIEW_OR_EDIT_BLOCKS: 'REVIEW_OR_EDIT_BLOCKS',
+  ADD_OR_REMOVE_BLOCKS: 'ADD_OR_REMOVE_BLOCKS',
   locking: 'LOCKING',
   configMenu: 'CONFIG_MENU',
   history: 'HISTORY',
   collaborators: 'COLLABORATORS',
+  DELETE_ARTICLE: 'DELETE_ARTICLE',
+  ARTICLE_SETTINGS: 'ARTICLE_SETTINGS',
+  LIKE_ARTICLE: 'LIKE_ARTICLE',
+  SHARE_ARTICLE: 'SHARE_ARTICLE',
+  COMMENT_ARTICLE: 'COMMENT_ARTICLE',
+  SWITCH_ARTICLE_TYPE: 'SWITCH_ARTICLE_STATUS',
 };
 
 type EditorPermissionProps = {
   type: 'blog_article' | 'preprint' | 'scientific_article',
   status: EditorStatusType,
+  userId?: number,
+  ownerId?: number,
+  isReviewer?: boolean,
 };
 
-// // eslint-disable-next-line no-unused-vars
-// export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
-//   [permissions.webSockets]: true,
-//   [permissions.criticalSections]: true,
-//   [permissions.locking]: true,
-//   [permissions.configMenu]: true,
-//   [permissions.history]: true,
-//   [permissions.collaborators]: true,
-// });
-
-export const editorPermissions = ({ type, status }: EditorPermissionProps): any => ({
+export const editorPermissions = ({
+  type, status, userId, ownerId, isReviewer,
+}: EditorPermissionProps): any => ({
   scientific_article: {
     [EditorStatus.IN_PROGRESS]: {
       [permissions.webSockets]: true,
@@ -144,14 +146,20 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): any 
   blog_article: {
     [EditorStatus.IN_PROGRESS]: {
       [permissions.configMenu]: true,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: true,
+      [permissions.DELETE_ARTICLE]: userId === ownerId,
     },
     [EditorStatus.PUBLISHED]: {
+      [permissions.LIKE_ARTICLE]: userId !== ownerId,
+
     },
     [EditorStatus.PREVIEW]: {
       [permissions.configMenu]: true,
     },
     [EditorStatus.IN_REVIEW]: {
-      [permissions.review]: true,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: true,
+      [permissions.DELETE_ARTICLE]: false,
     },
   },
 }[type || 'blog_article'][(status:string)]);
@@ -297,7 +305,7 @@ export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBacken
   const hasDuplicates = size(uniq(positions)) !== size(positions);
 
   if (hasDuplicates) {
-    console.log('hasDuplicates', positions, newBlocks);
+    // console.log('hasDuplicates', positions, newBlocks);
   }
 
   // console.log('convertBlocksFromBackend', newBlocks);

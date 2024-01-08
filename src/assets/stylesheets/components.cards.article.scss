@@ -15,14 +15,14 @@
         justify-content: flex-start;
     }
 
-    &:hover{
-        
+    &:hover {
+
         .article-right-side-content {
-            .article-card-side-content-title-wrapper{
-                h2{
+            .article-card-side-content-title-wrapper {
+                h2 {
                     // color: #4A7DAD;
                     border-bottom: 1px solid #4A7DAD !important;
-                    
+
 
                     // &:after{
                     //     content: "";
@@ -36,7 +36,7 @@
                     //     background: rgba(255, 255, 255, 0.117);
                     //     border-radius: 12px;
                     //     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1);
-                        
+
                     // }
                 }
             }
@@ -52,9 +52,9 @@
         aspect-ratio: 16/9;
         cursor: pointer;
 
- 
 
-        .article-card-img-chip{
+
+        .article-card-img-chip {
             display: flex;
             position: absolute;
             top: 50%;
@@ -67,13 +67,13 @@
         @media screen and (max-width: $mobile_breakpoint) {
             width: 250px;
 
-            .article-card-img-chip{
+            .article-card-img-chip {
                 font-size: 14px;
             }
         }
 
-        &.article-card-img-wrapper-published{
-            &:after{
+        &.article-card-img-wrapper-published {
+            &:after {
                 content: "";
                 position: absolute;
                 top: 0;
@@ -94,7 +94,7 @@
             width: 100%;
             border-radius: 12px;
             object-fit: cover;
-            
+
         }
     }
 
@@ -112,29 +112,29 @@
             padding-bottom: 5px;
 
 
-            .article-card-divider{
+            .article-card-divider {
                 display: none;
             }
         }
 
-        .article-card-description{
+        .article-card-description {
             display: block;
             height: 55px;
         }
-    
-        .article-card-side-content-upper-wrapper{
+
+        .article-card-side-content-upper-wrapper {
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-    
+
             .article-card-side-content-title-wrapper {
                 display: flex;
                 flex-direction: column;
                 gap: 0;
                 cursor: pointer;
-                
+
                 h2 {
                     font-family: 'Inter';
                     font-style: normal;
@@ -143,7 +143,7 @@
                     line-height: 20px;
                     color: #11273F;
                     border-bottom: 1px solid transparent;
-                    
+
                 }
 
 
@@ -165,14 +165,14 @@
                     line-height: 15px;
                     color: rgba(17, 39, 63, 0.6);
                 }
-                
+
             }
-    
-            .article-card-side-content-status-wrapper{
+
+            .article-card-side-content-status-wrapper {
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
-                align-items: center;
+                align-items: flex-end;
                 justify-content: center;
                 font-family: 'Inter';
                 font-style: normal;
@@ -180,7 +180,7 @@
                 font-size: 14px;
                 line-height: 14px;
 
-                .article-card-side-content-status-chip{
+                .article-card-side-content-status-chip {
                     display: flex;
                     flex-direction: row;
                     align-items: center;
@@ -190,14 +190,14 @@
                 }
             }
         }
-    
-        .article-card-lower{
+
+        .article-card-lower {
             .date-social {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
-        
+
                 p {
                     font-family: 'Inter';
                     font-style: normal;
@@ -206,7 +206,7 @@
                     line-height: 15px;
                     color: rgba(17, 39, 63, 0.4);
                 }
-        
+
                 .article-icons-share-heart {
                     color: #4A7DAD;
                     display: flex;
@@ -215,29 +215,28 @@
                     justify-content: space-between;
                     gap: 10px;
 
-                    svg{
+                    svg {
                         cursor: pointer;
                         width: 20px;
                         height: 20px;
 
-                        &:hover{
+                        &:hover {
                             color: $pubWeaveBlue;
                         }
                     }
                 }
             }
 
-            hr.article-card-divider{
+            hr.article-card-divider {
                 margin: 0.5rem 0;
             }
         }
-        
-    
 
-    
 
-    
-        
+
+
+
+
+
     }
 }
-
