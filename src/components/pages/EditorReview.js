@@ -10,17 +10,21 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  find, get, isEmpty, isEqual, map, size, toInteger,
+  find, get, isEmpty, isEqual, map, toInteger,
 } from 'lodash';
 import { Chip } from '@mui/material';
-import CommentModal from '../comments/CommentModal';
 // import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
-import { selectors as userSelectors } from '../../store/userStore';
+// import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
 import OrcIDButton from '../elements/OrcIDButton';
 import Editor, { EditorStatus } from '../editor/Editor';
-import LikeButton from '../containers/LikeButton';
+import type {
+  ArticleContentToServer,
+  Block,
+  BlockCategoriesToChange,
+  BlockToServer,
+} from '../../store/articleStore';
 
 function Blogs(): Node {
   useScrollTopEffect();
@@ -34,10 +38,11 @@ function Blogs(): Node {
   const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
   // const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
   // const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
+  const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  // const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
   useEffect(() => {
@@ -133,11 +138,31 @@ function Blogs(): Node {
           <Editor
             isReady={isReady}
             status={EditorStatus.IN_REVIEW}
+            onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
+              const blocksToAdd :BlockToServer[] = [
+                ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
+                ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
+                ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
+              ];
+
+              // console.log('UPDATING > ');
+              // console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
+              // console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
+              // console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
+
+              // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
+
+              updateArticleContentSilently(id, {
+                time,
+                version,
+                blocks: blocksToAdd,
+              });
+            }}
           />
 
         </div>
       )}
-      <div className="reaction-icons unselectable">
+      {/* <div className="reaction-icons unselectable">
         <LikeButton
           enabled={!isEmpty(user)}
           article={article}
@@ -150,7 +175,7 @@ function Blogs(): Node {
         />
         <p>{size(get(article, 'comments', []))}</p>
 
-      </div>
+      </div> */}
     </main>
   );
 }

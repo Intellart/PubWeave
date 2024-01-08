@@ -164,6 +164,11 @@ function Editor({
 
     const events = Array.isArray(event) ? event : [event];
 
+    // const totalNumberOfBlocks = api.blocks.getBlocksCount() - filter(blocks, (b) => b.action === 'block-removed').length
+    // + filter(blocks, (b) => b.action === 'block-added').length;
+
+    // console.log('size', totalNumberOfBlocks);
+
     const data = mapValues(
       groupBy(
         await Promise.all(
@@ -179,9 +184,11 @@ function Editor({
       (blockArray) => {
         switch (blockArray.length) {
           case 1:
+            // const isFirstBlock = blockArray[0].position === 0 && totalNumberOfBlocks === 1;
+
             return {
               ...blockArray[0],
-              action: size(blocks) ? blockArray[0].action : 'block-added',
+              action: blockArray[0].action,
             };
           case 2:
             const createdBlockIndex = blockArray[0].action === 'block-added' ? 0 : 1;
@@ -196,7 +203,7 @@ function Editor({
       },
     );
 
-    printMessage('data', data);
+    // console.log('data', data);
 
     labelCriticalSections();
 
@@ -210,15 +217,15 @@ function Editor({
 
     const allowedToEdit = pickBy(
       data,
-      (block) => blockIsNOTBeingEditedBySomeoneElse(block.id)
+      (block) => (blockIsNOTBeingEditedBySomeoneElse(block.id) || article.status === 'reviewing')
         && block.action === 'block-changed',
     );
 
     printMessage('allowedToEdit', allowedToEdit);
 
     if (
-      size(allowedToEdit)
-      !== size(pickBy(data, (block) => block.action === 'block-changed'))
+      size(allowedToEdit) !== size(pickBy(data, (block) => block.action === 'block-changed'))
+      && article.status !== 'reviewing'
     ) {
       editor.current?.blocks.render({
         blocks: convertBlocksToEditorJS(blocks) || [],
@@ -230,9 +237,9 @@ function Editor({
     if (onChange) {
       onChange(
         {
-          created: pickBy(data, (block) => block.action === 'block-added'),
+          created: pickBy(data, (block) => block.action === 'block-added' && article.status !== 'reviewing'),
           changed: allowedToEdit,
-          deleted: pickBy(data, (block) => block.action === 'block-removed'),
+          deleted: pickBy(data, (block) => block.action === 'block-removed' && article.status !== 'reviewing'),
         },
         events[0].timeStamp,
         '1.0.0',
