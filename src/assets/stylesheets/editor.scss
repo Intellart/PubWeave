@@ -62,7 +62,8 @@
     }
   }
 
-  &.editorjs-published {
+  &.editorjs-published,
+  &.editorjs-in-review {
     margin-top: 20px;
     // transform: translateY(-50px);
     // min-height: calc(80vh - 210px);
@@ -96,6 +97,39 @@
         }
 
       }
+    }
+
+    &[data-color="1"] {
+      background-color: #f5e2a4;
+    }
+
+
+    &[data-color="2"] {
+      background-color: #f9d6d6;
+    }
+
+    &[data-color="3"] {
+      background-color: #7fcbd1;
+    }
+
+    &[data-color="4"] {
+      background-color: #d6f9e8;
+    }
+
+    &[data-color="5"] {
+      background-color: #d6f9f9;
+    }
+
+    &[data-color="6"] {
+      background-color: #d6e8f9;
+    }
+
+    &[data-color="7"] {
+      background-color: #d6d6f9;
+    }
+
+    &[data-color="8"] {
+      background-color: #e8d6f9;
     }
 
     &:hover {

@@ -62,6 +62,7 @@ export default class MarkerTool {
     mark.dataset.note = '';
     mark.dataset.reviewerName = this.config.userName;
     mark.dataset.reviewerId = this.config.userId;
+    mark.dataset.color = this.config.userId % 8;
     mark.appendChild(selectedText);
     range.insertNode(mark);
 
@@ -121,6 +122,7 @@ export default class MarkerTool {
       mark.dataset.note = this.note;
       mark.dataset.reviewerName = this.config.userName;
       mark.dataset.reviewerId = this.config.userId;
+      mark.dataset.color = this.config.userId % 8;
 
       // remove all ranges
       document.getSelection().removeAllRanges();
