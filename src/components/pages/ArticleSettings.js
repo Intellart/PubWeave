@@ -11,7 +11,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Chip,
-  Autocomplete, TextField, Button, Alert,
+  Autocomplete, Button, Alert, TextField,
 } from '@mui/material';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,29 +23,109 @@ import { actions, selectors } from '../../store/articleStore';
 import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
 
-function NewReview() {
+type ReviewFormProps = {
+  onSubmit: Function,
+  onCancel: Function,
+  review?: any,
+};
+
+function ReviewForm(props: ReviewFormProps) {
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
+  const [deadline, setDeadline] = useState(props.review ? props.review.deadline : '');
   // eslint-disable-next-line no-unused-vars
-  const [deadline, setDeadline] = useState('');
-  // eslint-disable-next-line no-unused-vars
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(props.review ? props.review.amount : '');
+  const [values, setValues] = useState<Array<number>>(props.review ? map(props.review.user_reviews, (userReview) => {
+    const user = find(reviewers, (reviewer) => reviewer.id === userReview.user_id);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+    return {
+      label: user.full_name,
+      value: user.id,
+    };
+  }) : []);
   const [searchValue, setSearchValue] = useState('');
 
-  if (isEmpty(reviewers)) {
-    return null;
-  }
-  const userItems = map(reviewers, (reviewer) => ({
+  const searchOptions = map(reviewers, (reviewer) => ({
     label: reviewer.full_name,
     value: reviewer.id,
   }));
 
-  const searchOptions = map(userItems, (option) => ({
-    label: option.label,
-    value: option.id,
-  }));
+  const handleReviewSubmit = () => {
+    if (!amount || !deadline || isEmpty(values)) {
+      return;
+    }
+
+    props.onSubmit(toInteger(amount), deadline, map(values, (value) => toInteger(value.value)));
+  };
+
+  const isDisabled = !amount || !deadline || isEmpty(values);
+
+  return (
+    <>
+
+      <div className="review-modal-content">
+        <UserInfoInput
+          label="Amount"
+          value={amount}
+          after="ADA"
+          onClick={(e: any) => setAmount(e.target.value)}
+        />
+        <UserInfoInput
+          label="Deadline"
+          type="date"
+          value={deadline}
+          onClick={(e: any) => setDeadline(e.target.value)}
+        />
+      </div>
+      <Autocomplete
+        disablePortal
+        disabled={false}
+        multiple
+        limitTags={3}
+        className='review-modal-autocomplete'
+        value={values}
+        onChange={(e, newValues) => {
+          console.log('newValues', newValues);
+          setValues(newValues);
+        }}
+        inputValue={searchValue}
+        onInputChange={(e, v) => setSearchValue(v)}
+        isOptionEqualToValue={(option: any, value: any) => option.value === value.value}
+        options={searchOptions}
+        sx={{
+          minWidth: 200, display: 'flex', alignItems: 'center',
+        }}
+        size="small"
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            className='article-config-item-input'
+            variant="outlined"
+            size="small"
+            label="Reviewers"
+          />
+        )}
+      />
+      <Button
+        disabled={isDisabled}
+        variant="contained"
+        className='review-modal-button'
+        onClick={handleReviewSubmit}
+      >
+        Submit
+      </Button>
+    </>
+  );
+}
+
+function NewReview() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { id } = useParams();
+
+  const dispatch = useDispatch();
+  const newReview = (amount: number, articleId: number, deadline: string, reviewerIds: number[]) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
+  const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
 
   return (
     <section
@@ -58,55 +138,17 @@ function NewReview() {
             <p className='review-modal-title'>New review</p>
             <FontAwesomeIcon icon={faXmark} className='review-modal-close' onClick={() => setIsModalOpen(false)} />
           </div>
-
-          <div className="review-modal-content">
-            <UserInfoInput
-              label="Amount"
-              value={amount}
-              after="ADA"
-              onClick={(e: any) => setAmount(e.target.value)}
-            />
-            <UserInfoInput
-              label="Deadline"
-              type="date"
-              value={deadline}
-              onClick={(e: any) => setDeadline(e.target.value)}
-            />
-          </div>
-          <Autocomplete
-            disablePortal
-            disabled={false}
-            multiple
-            limitTags={3}
-            className='review-modal-autocomplete'
-            // onChange={(e, values) => onNewTagClick(values)}
-            // onInputChange={(e, value) => onNewTagInput(value)}
-            searchValue={searchValue}
-            onInputChange={(e, value) => setSearchValue(value)}
-            // isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
-            options={searchOptions}
-            sx={{
-              minWidth: 200, display: 'flex', alignItems: 'center',
+          <ReviewForm
+            onCancel={() => setIsModalOpen(false)}
+            onSubmit={(amount, deadline, reviewerIds) => {
+              console.log('amount, deadline, reviewerIds', amount, deadline, reviewerIds);
+              newReview(amount, toInteger(id), deadline, reviewerIds);
+              setIsModalOpen(false);
+              fetchReviews(toInteger(id));
             }}
-            size="small"
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                className='article-config-item-input'
-                variant="outlined"
-                size="small"
-                label="Reviewers"
-              />
-            )}
           />
-          <Button
-            variant="contained"
-            className='review-modal-button'
-            onClick={() => setIsModalOpen(false)}
-          >
-            Submit
-          </Button>
         </>
+
       ) : (
         <div className='review-modal-title'>
           <FontAwesomeIcon icon={faPlus} />
@@ -117,20 +159,13 @@ function NewReview() {
   );
 }
 
-function Review(props: any) {
-  // const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
-
-  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
-
-  const [editMode, setEditMode] = useState(false);
-
+function ReviewTable(props: any) {
   const reviewStatus = {
     IN_PROGRESS: 'in_progress',
     AWAITING_APPROVAL: 'awaiting_approval',
     REJECTED: 'rejected',
     ACCEPTED: 'accepted',
   };
-
   const statusColors = {
     [reviewStatus.IN_PROGRESS]: '#FFC107',
     [reviewStatus.AWAITING_APPROVAL]: '#FFC107',
@@ -144,7 +179,6 @@ function Review(props: any) {
     [reviewStatus.REJECTED]: 'Rejected',
     [reviewStatus.ACCEPTED]: 'Accepted',
   };
-
   const columns: any[] = [
     {
       field: 'fullName',
@@ -183,16 +217,39 @@ function Review(props: any) {
     },
   ];
 
-  const userItems = map(reviewers, (reviewer) => ({
-    label: reviewer.full_name,
-    value: reviewer.id,
-  }));
+  return (
+    <div className="review-modal-content">
+      <UserInfoItem
+        label="Amount"
+        value={props.amount}
+        after="ADA"
+      />
+      <UserInfoItem
+        label="Deadline"
+        value={props.deadline}
+      />
+      <DataGrid
+        className='review-modal-table'
+        rows={props.rows}
+        columns={columns}
+        autoHeight
+        hideFooter
+        sx={{ '&, [class^=MuiDataGrid]': { border: 'none' } }}
+      />
+    </div>
 
-  const [searchValue, setSearchValue] = useState('');
-  const searchOptions = map(userItems, (option) => ({
-    label: option.label,
-    value: option.id,
-  }));
+  );
+}
+
+function Review(props: any) {
+  const { id } = useParams();
+
+  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+  const dispatch = useDispatch();
+  const newReview = (amount: number, articleId: number, deadline: string, reviewerIds: number[]) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
+  const deleteReview = (reviewId: number) => dispatch(actions.deleteReview(reviewId));
+
+  const [editMode, setEditMode] = useState(false);
 
   if (isEmpty(reviewers)) {
     return null;
@@ -218,6 +275,11 @@ function Review(props: any) {
       <div className="review-modal-top">
         <p className='review-modal-title'>Review #{props.review.id}</p>
         <FontAwesomeIcon
+          icon={faXmark}
+          className={classNames('review-modal-close')}
+          onClick={() => deleteReview(props.review.id)}
+        />
+        <FontAwesomeIcon
           icon={faPencil}
           className={classNames('review-modal-close',
             { 'review-modal-close-active': editMode })}
@@ -226,67 +288,22 @@ function Review(props: any) {
       </div>
 
       <div className="review-modal-content">
-        <UserInfoInput
-          label="Amount"
-          value={props.review.amount}
-          after="ADA"
-          onClick={(e: any) => console.log('clicked', e)}
-        />
-        <UserInfoInput
-          label="Deadline"
-          type="date"
-          value={props.review.deadline}
-          onClick={(e: any) => console.log('clicked', e)}
-        />
 
         {editMode ? (
-          <>
-            <Autocomplete
-              disablePortal
-              disabled={false}
-              multiple
-              limitTags={3}
-              value={map(rows, (row) => ({
-                label: row.fullName,
-                value: row.id,
-              })) || []}
-              className='review-modal-autocomplete'
-              // onChange={(e, values) => onNewTagClick(values)}
-              // onInputChange={(e, value) => onNewTagInput(value)}
-              searchValue={searchValue}
-              onInputChange={(e, value) => setSearchValue(value)}
-              // isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
-              options={searchOptions}
-              sx={{
-                minWidth: 200, display: 'flex', alignItems: 'center',
-              }}
-              size="small"
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  className='article-config-item-input'
-                  variant="outlined"
-                  size="small"
-                  label="Reviewers"
-                />
-              )}
-            />
-            <Button
-              variant="contained"
-              className='review-modal-button'
-              onClick={() => setEditMode(false)}
-            >
-              Submit
-            </Button>
-          </>
+          <ReviewForm
+            review={props.review}
+            onCancel={() => setEditMode(false)}
+            onSubmit={(amount, deadline, reviewerIds) => {
+              newReview(amount, toInteger(id), deadline, reviewerIds);
+
+              setEditMode(false);
+            }}
+          />
         ) : (
-          <DataGrid
-            className='review-modal-table'
+          <ReviewTable
             rows={rows}
-            columns={columns}
-            autoHeight
-            hideFooter
-            sx={{ '&, [class^=MuiDataGrid]': { border: 'none' } }}
+            amount={props.review.amount}
+            deadline={props.review.deadline}
           />
         )}
       </div>
@@ -327,6 +344,8 @@ function ArticleSettings(): Node {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
+
+  const reviewersExist = !isEmpty(reviewers);
 
   return (
     <main className="article-settings-wrapper">
@@ -371,10 +390,17 @@ function ArticleSettings(): Node {
             <p className='article-settings-alert-title'>Condition 1.</p>
             <p className='article-settings-alert-content'>Article has to be in Preprint status</p>
           </Alert>
-          <FontAwesomeIcon icon={faChevronRight} className='article-settings-alert-icon' />
+          {/* <FontAwesomeIcon icon={faChevronRight} className='article-settings-alert-icon' />
           <Alert severity="warning" className='article-settings-alert'>
             <p className='article-settings-alert-title'>Condition 2.</p>
             <p className='article-settings-alert-content'>Can&apos;t connect to the wallet</p>
+          </Alert> */}
+          <FontAwesomeIcon icon={faChevronRight} className='article-settings-alert-icon' />
+          <Alert severity={reviewersExist ? 'success' : 'error'} className='article-settings-alert'>
+            <p className='article-settings-alert-title'>Condition 2.</p>
+            <p className='article-settings-alert-content'>
+              {reviewersExist ? 'Reviewers found' : 'No reviewers found, who linked their wallets'}
+            </p>
           </Alert>
         </div>
         <div className="article-settings-content article-settings-content-grid">

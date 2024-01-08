@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, set, subtract,
+  filter, keyBy, omit, get, set, subtract, toInteger,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -317,6 +317,16 @@ export const types = {
   ART_FETCH_REVIEWS_REJECTED: 'ART/FETCH_REVIEWS_REJECTED',
   ART_FETCH_REVIEWS_FULFILLED: 'ART/FETCH_REVIEWS_FULFILLED',
 
+  ART_CREATE_REVIEW: 'ART/CREATE_REVIEW',
+  ART_CREATE_REVIEW_PENDING: 'ART/CREATE_REVIEW_PENDING',
+  ART_CREATE_REVIEW_REJECTED: 'ART/CREATE_REVIEW_REJECTED',
+  ART_CREATE_REVIEW_FULFILLED: 'ART/CREATE_REVIEW_FULFILLED',
+
+  ART_DELETE_REVIEWS: 'ART/DELETE_REVIEWS',
+  ART_DELETE_REVIEWS_PENDING: 'ART/DELETE_REVIEWS_PENDING',
+  ART_DELETE_REVIEWS_REJECTED: 'ART/DELETE_REVIEWS_REJECTED',
+  ART_DELETE_REVIEWS_FULFILLED: 'ART/DELETE_REVIEWS_FULFILLED',
+
   ART_LOCK_SECTION: 'ART/LOCK_SECTION',
   ART_LOCK_SECTION_PENDING: 'ART/LOCK_SECTION_PENDING',
   ART_LOCK_SECTION_REJECTED: 'ART/LOCK_SECTION_REJECTED',
@@ -384,6 +394,22 @@ export const actions = {
   fetchReviews: (articleId: number): ReduxAction => ({
     type: types.ART_FETCH_REVIEWS,
     payload: API.getRequest(`pubweave/reviews/${articleId}`),
+  }),
+  newReview: (amount: number, articleId: number, deadline: string, reviewers: Array<number>): ReduxAction => ({
+    type: types.ART_CREATE_REVIEW,
+    payload: API.postRequest('pubweave/reviews',
+      {
+        review: {
+          amount,
+          article_id: articleId,
+          deadline,
+          user_ids: reviewers,
+        },
+      }),
+  }),
+  deleteReview: (reviewId: number): ReduxAction => ({
+    type: types.ART_DELETE_REVIEWS,
+    payload: API.deleteRequest(`pubweave/reviews/${reviewId}`),
   }),
   unlockSection: (userId: number, sectionId: string): ReduxAction => ({
     type: types.ART_UNLOCK_SECTION,
@@ -614,6 +640,13 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         reviewers: action.payload,
       };
+    case types.ART_DELETE_REVIEWS_FULFILLED:
+      console.log('ART_DELETE_REVIEWS_FULFILLED');
+
+      return {
+        ...state,
+        reviews: filter(state.reviews, (review) => review.id !== toInteger(action.payload.id)),
+      };
     case types.ART_ADD_COLLABORATOR_FULFILLED:
       return {
         ...state,
@@ -626,9 +659,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_CONVERT_ARTICLE_FULFILLED:
       console.log('ART_CONVERT_ARTICLE_FULFILLED');
 
-      console.log(action.payload);
-      console.log(state.allArticles);
-
       return {
         ...state,
         oneArticle: set(state.oneArticle, 'article_type', action.payload.article_type),
@@ -636,6 +666,18 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...state.allArticles,
           [action.payload.id]: set(state.allArticles[action.payload.id], 'article_type', action.payload.article_type),
         },
+      };
+
+    case types.ART_CREATE_REVIEW_FULFILLED:
+      console.log('ART_CREATE_REVIEW_FULFILLED');
+      console.log(action.payload);
+
+      return {
+        ...state,
+        reviews: [
+          ...state.reviews,
+          action.payload,
+        ],
       };
 
     case types.ART_FETCH_VERSIONS_FULFILLED:

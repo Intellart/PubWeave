@@ -91,8 +91,8 @@ function UserPage(): React$Node {
     // signMessage,
     usedAddresses,
     enabledWallet,
-    installedExtensions,
-    connect,
+    // installedExtensions,
+    // connect,
     disconnect,
     // connectedCip45Wallet,
   } = useCardano({
@@ -412,17 +412,6 @@ function UserPage(): React$Node {
             onClick={changePassword}
           />
         </UserSection>
-        <Button
-          style={{ width: '100%', gap: '10px' }}
-          variant="contained"
-          className='article-settings-button'
-          onClick={() => {
-            connect('nami');
-            console.log('connect', installedExtensions);
-          }}
-        >
-          Login
-        </Button>
         <UserSection
           title="Social links"
           expandedCard={expandedCard}
