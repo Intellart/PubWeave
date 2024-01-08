@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
   faGear,
+  faGlasses,
   faPencil, faPenToSquare, faWarning, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
@@ -33,6 +34,11 @@ function ArticleCard(props : Props): Node {
   const status = props.article.status ? props.article.status : 'draft';
   const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
+  const isInReview = status === 'reviewing';
+
+  const validOwner = props.currentUserId === props.article.author.id;
+
+  console.log('validOwner', props.currentUserId);
 
   // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 
@@ -107,6 +113,13 @@ function ArticleCard(props : Props): Node {
           icon: <FontAwesomeIcon icon={faPencil} />,
           variant: 'outlined',
         };
+      case 'reviewing':
+        return {
+          label: 'Reviewing',
+          color: 'warning',
+          icon: <FontAwesomeIcon icon={faGlasses} />,
+          variant: 'default',
+        };
       default:
         return {
           label: 'Draft',
@@ -148,7 +161,7 @@ function ArticleCard(props : Props): Node {
           <div className="article-card-side-content-status-wrapper">
             {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
             <ArticleTypeModal
-              enabled={!isPublished}
+              enabled={false}
               type={workType}
               onConvert={props.onConvert}
             />
@@ -165,23 +178,27 @@ function ArticleCard(props : Props): Node {
                 shape="icon"
               />
               <Modal
-                enabled={!isPublished && workType !== 'blog_article'}
+                enabled={!isPublished && !isInReview && workType !== 'blog_article'}
                 type="collab"
                 shape="chip"
                 text="showAll"
                 articleId={props.article.id}
                 isOwner
               />
+              {isPublished && (
               <LikeButton
                 enabled={isPublished && !!props.currentUserId}
                 article={props.article}
                 userId={props.currentUserId}
                 iconType="default"
               />
+              ) }
+              {validOwner && (
               <Link to={`/my-work/${props.article.id}/settings`} className="article-card-link">
                 <FontAwesomeIcon icon={faGear} />
               </Link>
-              {!isPublished && (
+              ) }
+              {!isPublished && validOwner && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}
                 ><FontAwesomeIcon icon={faXmark} />
