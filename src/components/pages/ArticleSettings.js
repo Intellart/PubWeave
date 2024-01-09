@@ -79,13 +79,11 @@ function ReviewForm(props: ReviewFormProps) {
       </div>
       <Autocomplete
         disablePortal
-        disabled={false}
         multiple
         limitTags={3}
         className='review-modal-autocomplete'
         value={values}
         onChange={(e, newValues) => {
-          console.log('newValues', newValues);
           setValues(newValues);
         }}
         inputValue={searchValue}
@@ -141,7 +139,6 @@ function NewReview() {
           <ReviewForm
             onCancel={() => setIsModalOpen(false)}
             onSubmit={(amount, deadline, reviewerIds) => {
-              console.log('amount, deadline, reviewerIds', amount, deadline, reviewerIds);
               newReview(amount, toInteger(id), deadline, reviewerIds);
               setIsModalOpen(false);
               fetchReviews(toInteger(id));
@@ -258,8 +255,6 @@ function Review(props: any) {
   const rows = map(props.review.user_reviews, (userReview) => {
     const user = find(reviewers, (reviewer) => reviewer.id === userReview.user_id);
 
-    console.log('user', user);
-
     return {
       status: userReview.status,
       fullName: user.full_name,
@@ -324,11 +319,12 @@ function ArticleSettings(): Node {
   const article = useSelector((state) => selectors.article(state), isEqual);
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
-  console.log('reviewers', reviewers);
-  console.log('reviews', reviews);
+  // console.log('reviewers', reviewers);
+  // console.log('reviews', reviews);
 
   useEffect(() => {
     fetchReviews(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
@@ -336,6 +332,7 @@ function ArticleSettings(): Node {
   useEffect(() => {
     fetchAllReviewers();
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);
 
   useEffect(() => {

@@ -115,9 +115,9 @@ function Editor({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => labelCriticalSections(), [blocks, isReady, blockIdQueue, activeSections]);
 
-  useEffect(() => {
-    console.log('activeSections', activeSections);
-  }, [activeSections]);
+  // useEffect(() => {
+  //   console.log('activeSections', activeSections);
+  // }, [activeSections]);
 
   /**
    * These are queued blocks that are not in the editor yet, that came from websocket.
@@ -127,7 +127,7 @@ function Editor({
    */
   useEffect(() => {
     if (isReady && editor.current) {
-      console.log('blockIdQueue', blockIdQueue);
+      // console.log('blockIdQueue', blockIdQueue);
 
       forEach(blockIdQueue, (blockIds: BlockIds, category: 'updated' | 'created' | 'deleted') => {
         if (size(blockIds) === 0) return;
@@ -172,9 +172,6 @@ function Editor({
 
     const canReviewOrEdit = get(currentPermissions, permissions.REVIEW_OR_EDIT_BLOCKS, false);
     const canAddOrRemove = get(currentPermissions, permissions.ADD_OR_REMOVE_BLOCKS, false);
-
-    // console.log('permissions', canReviewOrEdit, canAddOrRemove);
-    console.log('AS_callback ', activeSections_);
 
     /**
      * For each list of events, we flatten them into one event.
@@ -248,8 +245,6 @@ function Editor({
     };
 
     const allChangedBlocksPeaceful = filter(changed, (block) => isBlockPeaceful(block.id));
-
-    console.log('allChangedBlocksPeaceful', allChangedBlocksPeaceful, canReviewOrEdit);
 
     if (
       !canReviewOrEdit

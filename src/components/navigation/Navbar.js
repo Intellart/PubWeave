@@ -40,8 +40,17 @@ function Navbar(props: Props): Node {
 
   const navigate = useNavigate();
 
-  const [searchParam, setSearchParam] = useState('article');
-  const [searchValue, setSearchValue] = useState('');
+  const searchType = {
+    ARTICLE: 'article',
+    AUTHOR: 'author',
+  };
+
+  const [searchParams, setSearchParams] = useState({
+    type: searchType.ARTICLE,
+    input: '',
+    value: null,
+  });
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isMobile } = useScreenSize();
@@ -51,16 +60,20 @@ function Navbar(props: Props): Node {
   useOutsideClickEffect(() => setMobileMenuOpen(false), [ref, buttonRef]);
 
   const userItems = uniqBy(map(articles, (article) => ({
-    ...article.author,
+    value: article.author.id,
     label: article.author.full_name,
   })), 'id');
 
   const articleItems = sortBy(map(articles, (article) => ({
-    ...article,
+    value: article.id,
     label: article.title,
+    category: article.category,
   })), 'category');
 
-  const options = searchParam === 'author' ? userItems : articleItems;
+  const options = {
+    article: articleItems,
+    author: userItems,
+  }[searchParams.type];
 
   const handleClick = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -111,11 +124,6 @@ function Navbar(props: Props): Node {
     }
   };
 
-  const searchOptions = map(options, (option) => ({
-    label: option.label,
-    value: option.id,
-  }));
-
   const renderSearch = () => (
     <div className="search-wrapper">
 
@@ -125,64 +133,66 @@ function Navbar(props: Props): Node {
       <Autocomplete
         disablePortal
         size="small"
-        value={searchValue}
-        // onInputChange={(event, newInputValue) => {
-        //   setSearchValue('2');
-        // }}
+        inputValue={searchParams.input}
+        onInputChange={(event, newInputValue) => {
+          setSearchParams({ ...searchParams, input: newInputValue });
+        }}
+        value={searchParams.value || null}
         className="navbar-search"
-        options={searchOptions}
+        options={options}
         isOptionEqualToValue={(option, value) => option.value === value.value}
         onChange={(event, newValue) => {
           if (!newValue || !newValue.value) {
             return;
           }
-          if (searchParam === 'article') {
-            navigate(`/singleblog/${newValue.value}`);
-          } else {
-            navigate(`/users/${newValue.value}`);
-          }
 
-          setSearchValue('');
+          navigate({
+            [searchType.ARTICLE]: `/singleblog/${newValue.value}`,
+            [searchType.AUTHOR]: `/users/${newValue.value}`,
+          }[searchParams.type]);
+
+          setSearchParams({
+            ...searchParams,
+            input: '',
+            value: newValue,
+          });
         }}
-        groupBy={(option) => option.category}
+        getOptionKey={(option) => option.value}
+        groupBy={(option) => (searchType.ARTICLE ? option.category : '')}
         sx={{
           width: 300,
         }}
-        // renderOption={(p, option) => (
-        //   <div
-        //     key={option.id}
-        //     className="navbar-search-option"
-        //   >
-        //     {option.label}
-        //   </div>
-        // )}
         renderInput={(params) => (
           <TextField
             {...params}
-            label={searchParam === 'author' ? 'Search Authors' : 'Search Articles'}
+            label={searchParams.type === searchType.AUTHOR ? 'Search Authors' : 'Search Articles'}
           />
         )}
       />
 
       <ToggleButtonGroup
         className="search-type"
-        value={searchParam}
+        value={searchParams.type}
         exclusive
         onChange={(event, newParam) => {
-          setSearchValue('');
-          setSearchParam(newParam);
+          if (!newParam) return;
+          setSearchParams({
+            input: '',
+            type: newParam,
+            value: null,
+          });
         }}
         aria-label="text alignment"
       >
         <ToggleButton
           className='search-type-button'
-          value="author"
+          value={searchType.AUTHOR}
         >
           <FontAwesomeIcon className='search-type-button-icon' icon={faUser} />
         </ToggleButton>
         <ToggleButton
           className='search-type-button'
-          value="article"
+          value={searchType.ARTICLE}
         >
           <FontAwesomeIcon className='search-type-button-icon' icon={faScroll} />
         </ToggleButton>
