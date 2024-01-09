@@ -140,11 +140,13 @@ export const editorPermissions = ({
       [permissions.collaborators]: true,
       [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer || isCollaborator,
       [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
+      [permissions.DELETE_ARTICLE]: userId === ownerId,
+
     },
     [EditorStatus.PUBLISHED]: {
     },
-    [EditorStatus.PREVIEW]: {
-    },
+    // [EditorStatus.PREVIEW]: {
+    // },
   },
   blog_article: {
     [EditorStatus.IN_PROGRESS]: {
@@ -158,12 +160,13 @@ export const editorPermissions = ({
       [permissions.LIKE_ARTICLE]: userId !== ownerId,
 
     },
-    [EditorStatus.PREVIEW]: {
-      [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
-    },
+    // [EditorStatus.PREVIEW]: {
+    //   [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
+    // },
     [EditorStatus.IN_REVIEW]: {
       [permissions.REVIEW_OR_EDIT_BLOCKS]: true,
       [permissions.DELETE_ARTICLE]: false,
+      [permissions.ARTICLE_SETTINGS]: true,
     },
   },
 }[type || 'blog_article'][(status:string)]);

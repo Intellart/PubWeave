@@ -63,8 +63,8 @@ export function useEditorTools (): { [toolName: string]: any} {
     myReview: {
       class: ReviewTool,
       config: {
-        userName: user.full_name,
-        userId: user.id,
+        userName: user ? user?.full_name : '',
+        userId: user ? user?.id : '',
       },
     },
     attaches: {
