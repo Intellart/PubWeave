@@ -110,10 +110,11 @@ type EditorPermissionProps = {
   userId?: number,
   ownerId?: number,
   isReviewer?: boolean,
+  isCollaborator?: boolean,
 };
 
 export const editorPermissions = ({
-  type, status, userId, ownerId, isReviewer,
+  type, status, userId, ownerId, isReviewer, isCollaborator,
 }: EditorPermissionProps): any => ({
   scientific_article: {
     [EditorStatus.IN_PROGRESS]: {
@@ -137,6 +138,8 @@ export const editorPermissions = ({
       [permissions.configMenu]: true,
       [permissions.history]: true,
       [permissions.collaborators]: true,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer || isCollaborator,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
     },
     [EditorStatus.PUBLISHED]: {
     },
@@ -145,17 +148,18 @@ export const editorPermissions = ({
   },
   blog_article: {
     [EditorStatus.IN_PROGRESS]: {
-      [permissions.configMenu]: true,
       [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer,
-      [permissions.ADD_OR_REMOVE_BLOCKS]: true,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
       [permissions.DELETE_ARTICLE]: userId === ownerId,
+      [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
+      [permissions.ARTICLE_SETTINGS]: true,
     },
     [EditorStatus.PUBLISHED]: {
       [permissions.LIKE_ARTICLE]: userId !== ownerId,
 
     },
     [EditorStatus.PREVIEW]: {
-      [permissions.configMenu]: true,
+      [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
     },
     [EditorStatus.IN_REVIEW]: {
       [permissions.REVIEW_OR_EDIT_BLOCKS]: true,

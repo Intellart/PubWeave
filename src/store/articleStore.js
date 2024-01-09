@@ -164,7 +164,7 @@ export type Article = {
   updated_at: string,
   comments: { [number]: Comment },
   tags: Tags,
-  active_sections: {[string]: number },
+  activeSections: {[string]: number },
 };
 
 export type BlockIds = {

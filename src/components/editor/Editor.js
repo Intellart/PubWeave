@@ -11,7 +11,7 @@ import {
   mapValues,
   size,
   includes,
-  every,
+  filter,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
@@ -83,6 +83,10 @@ function Editor({
   const currentPermissions = editorPermissions({
     type: get(article, 'article_type'),
     status: status || EditorStatus.IN_PROGRESS,
+    userId: get(user, 'id'),
+    ownerId: get(article, 'author.id'),
+    isReviewer: includes(get(article, 'reviewers', []), get(user, 'id')),
+    isCollaborator: includes(map(get(article, 'collaborators', []), 'id'), get(user, 'id')),
   });
 
   const dispatch = useDispatch();
@@ -162,15 +166,15 @@ function Editor({
     const events = Array.isArray(events_) ? events_ : [events_];
 
     const {
-      content: { /* time_, */ blocks: blocks_/*  version_ */ },
-      active_sections: activeSections_,
-    } = store.getState().article.oneArticle;
+      // content: { /* time_, */ blocks: blocks_/*  version_ */ },
+      activeSections: activeSections_,
+    } = store.getState().article;
 
     const canReviewOrEdit = get(currentPermissions, permissions.REVIEW_OR_EDIT_BLOCKS, false);
     const canAddOrRemove = get(currentPermissions, permissions.ADD_OR_REMOVE_BLOCKS, false);
 
-    console.log('permissions', canReviewOrEdit, canAddOrRemove);
-    console.log('SIZE ', blocks_, activeSections_);
+    // console.log('permissions', canReviewOrEdit, canAddOrRemove);
+    console.log('AS_callback ', activeSections_);
 
     /**
      * For each list of events, we flatten them into one event.
@@ -243,11 +247,13 @@ function Editor({
       return !blockOwner || (blockOwner && blockOwner === currentUserId);
     };
 
-    const allChangedBlocksPeaceful = every(changed, (block) => isBlockPeaceful(block.id));
+    const allChangedBlocksPeaceful = filter(changed, (block) => isBlockPeaceful(block.id));
+
+    console.log('allChangedBlocksPeaceful', allChangedBlocksPeaceful, canReviewOrEdit);
 
     if (
       !canReviewOrEdit
-      || !allChangedBlocksPeaceful
+      // || !allChangedBlocksPeaceful
       || (!canAddOrRemove && (size(created) > 0 || size(deleted) > 0))
     ) {
       editor.current?.blocks.render({
@@ -262,7 +268,7 @@ function Editor({
     const { time, version } = await api.saver.save();
 
     if (onChange) {
-      onChange({ created, changed, deleted }, time, version);
+      onChange({ created, changed: allChangedBlocksPeaceful, deleted }, time, version);
     }
   };
 
@@ -344,25 +350,6 @@ function Editor({
           setSelectedVersioningBlock(null);
         }}
       />
-      <button
-        type="button"
-        className="editorjs-button"
-        onClick={() => {
-          if (editor.current) {
-            // editor.current.blocks.render({
-            //   blocks: convertBlocksToEditorJS(blocks) || [],
-            // });
-            editor.current?.blocks.update('euTbmf_FHT', {
-              type: 'paragraph',
-              data: {
-                text: 'New Block',
-              },
-            });
-          }
-        }}
-      >
-        Change elements
-      </button>
       <div
         id="editorjs"
         className={classNames({ 'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW }, `editorjs-${status}`)}
