@@ -279,6 +279,11 @@ export const types = {
   ART_ADD_TAG_REJECTED: 'ART/ADD_TAG_REJECTED',
   ART_ADD_TAG_FULFILLED: 'ART/ADD_TAG_FULFILLED',
 
+  ART_UNLOCK_ARTICLE: 'ART/UNLOCK_ARTICLE',
+  ART_UNLOCK_ARTICLE_PENDING: 'ART/UNLOCK_ARTICLE_PENDING',
+  ART_UNLOCK_ARTICLE_REJECTED: 'ART/UNLOCK_ARTICLE_REJECTED',
+  ART_UNLOCK_ARTICLE_FULFILLED: 'ART/UNLOCK_ARTICLE_FULFILLED',
+
   ART_REMOVE_TAG: 'ART/REMOVE_TAG',
   ART_REMOVE_TAG_PENDING: 'ART/REMOVE_TAG_PENDING',
   ART_REMOVE_TAG_REJECTED: 'ART/REMOVE_TAG_REJECTED',
@@ -419,6 +424,10 @@ export const actions = {
       user_id: userId,
       section_id: sectionId,
     }),
+  }),
+  unlockArticle: (articleId: number): ReduxAction => ({
+    type: types.ART_UNLOCK_ARTICLE,
+    payload: API.putRequest(`pubweave/articles/${articleId}/unlock_article`),
   }),
   wsUpdateBlock: (payload: any, userId: number): ReduxAction => ({
     type: types.WS_BLOCK_UPDATE,
