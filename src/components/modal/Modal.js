@@ -5,7 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   get, invert, isEqual, omit, size,
 } from 'lodash';
-import { faShare, faUsers, faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSackDollar, faShare, faUsers, faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import classNames from 'classnames';
 import ShareModal from './ShareModal';
@@ -14,13 +16,14 @@ import { selectors } from '../../store/articleStore';
 import { useDebounce } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
 import VersioningInfoCard from '../editor/VersioningInfoCard';
+import TreasuryModal from './TreasuryModal';
 
 type Props = {
     shape?: 'chip' | 'icon',
-    text?: 'showAll' | 'showOnline',
+    text?: 'showAll' | 'showOnline' | 'fillTreasury',
     enabled: boolean,
     isOwner?: boolean,
-    type: 'share' | 'collab' | 'versioning',
+    type: 'share' | 'collab' | 'versioning' | 'treasury',
     sectionId?: string,
     articleId?: number,
     onClose?: () => void,
@@ -70,6 +73,9 @@ function Modal(props: Props): React$Node {
         showAll: 'Versioning',
         showOnline: 'Versioning',
       },
+      treasury: {
+        fillTreasury: 'Fill Treasury',
+      },
     };
 
     return get(texts, [props.type, props.text], '');
@@ -79,6 +85,7 @@ function Modal(props: Props): React$Node {
     const icons = {
       share: faShare,
       collab: faUsers,
+      treasury: faSackDollar,
     };
 
     return get(icons, props.type, '');
@@ -120,6 +127,7 @@ function Modal(props: Props): React$Node {
       share: 'Share',
       collab: 'Collaborators',
       versioning: 'Section info',
+      treasury: 'Fill Treasury',
     };
 
     return get(titles, props.type, '');
@@ -162,6 +170,13 @@ function Modal(props: Props): React$Node {
           onViewHistory={handleViewHistory}
           // versionInfo={this.vbInfo}
 
+        />
+      );
+    } else if (props.type === 'treasury') {
+      return (
+        <TreasuryModal
+          article={article}
+          onClose={handleOnClose}
         />
       );
     }

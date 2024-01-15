@@ -72,10 +72,10 @@
       gap: 10px;
       width: fit-content;
 
-      &.article-settings-content-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-      }
+      // &.article-settings-content-grid {
+      //   display: grid;
+      //   grid-template-columns: 1fr 1fr 1fr;
+      // }
 
       .user-info-item {
         .user-info-item-title {
@@ -183,7 +183,7 @@
 
       .review-modal-table {
         width: 100%;
-        min-width: 450px;
+        min-width: 700px;
       }
     }
   }

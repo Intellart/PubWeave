@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, set, subtract, toInteger,
+  filter, keyBy, omit, get, set, subtract, toInteger, map, find,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -366,8 +366,9 @@ export const types = {
 
 export const selectors = {
   article: (state: ReduxState): Article | null => state.article.oneArticle,
+  userReview: (state: ReduxState, userId: number): Article | null => find(state.article.oneArticle?.reviewers, (reviewer) => reviewer.user_id === userId),
   articleContent: (state: ReduxState): ArticleContent => get(state.article.oneArticle, 'content'),
-  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id)),
+  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => !article.user_review_id && (article.author.id === state.user.profile?.id || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id))),
   getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
@@ -400,7 +401,7 @@ export const actions = {
   }),
   fetchReviews: (articleId: number): ReduxAction => ({
     type: types.ART_FETCH_REVIEWS,
-    payload: API.getRequest(`pubweave/reviews/${articleId}`),
+    payload: API.getRequest(`pubweave/reviews?article_id=${articleId}`),
   }),
   newReview: (amount: number, articleId: number, deadline: string, reviewers: Array<number>): ReduxAction => ({
     type: types.ART_CREATE_REVIEW,
@@ -554,24 +555,17 @@ export const actions = {
         },
       }),
   }),
-  createArticle: (userId: number): ReduxAction => ({
+  createArticle: (userId: number, userReviewId?: number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
     payload: API.postRequest('pubweave/articles',
       {
         author_id: userId,
-        title: 'New article',
+        title: userReviewId ? 'New review' : 'New article',
         content: {
           time: 0,
-          blocks: [
-            {
-              id: 'Y3pS0lTILC',
-              data: {
-                text: 'Start your article.',
-              },
-              type: 'paragraph',
-            },
-          ],
+          blocks: [],
         },
+        ...(userReviewId ? { user_review_id: userReviewId } : {}),
       }),
   }),
   likeArticle: (articleId: number): ReduxAction => ({
@@ -852,6 +846,26 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_FETCH_ARTICLE_FULFILLED:
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
       const { time, version, blocks } = get(action.payload, 'content', '{}');
+
+      if (action.payload.user_review_id) {
+        console.log('reviewer updated', action.payload.user_review_id);
+
+        return {
+          ...state,
+          oneArticle: set(state.oneArticle, 'reviewers', map(state.oneArticle?.reviewers, (reviewer) => {
+            if (reviewer.id === action.payload.user_review_id) {
+              return {
+                ...reviewer,
+                review_content: action.payload,
+              };
+            }
+
+            return reviewer;
+          })),
+        };
+      }
+
+      console.log('article updated', action.payload.user_review_id);
 
       return {
         ...state,
@@ -1143,6 +1157,24 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
+      if (action.payload.user_review_id) {
+        toast.success(`Created ${action.payload.title} successfully!`);
+
+        return {
+          ...state,
+          oneArticle: set(state.oneArticle, 'reviewers', map(state.oneArticle?.reviewers, (reviewer) => {
+            if (reviewer.id === action.payload.user_review_id) {
+              return {
+                ...reviewer,
+                review_content: action.payload,
+              };
+            }
+
+            return reviewer;
+          })),
+        };
+      }
+
       toast.success(`Created article ${action.payload.title} successfully!`);
 
       return {

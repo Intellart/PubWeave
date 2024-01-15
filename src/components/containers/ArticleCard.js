@@ -10,7 +10,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
-import { get, includes } from 'lodash';
+import {
+  filter, get, includes, size,
+} from 'lodash';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
 import {
@@ -90,6 +92,8 @@ function ArticleCard(props : Props): Node {
       };
     }
 
+    const numOfReviewers = size(filter(get(props.article, 'reviewers', []), (reviewer) => !!reviewer.review_content));
+
     switch (props.article.status) {
       case 'draft':
         return {
@@ -124,7 +128,7 @@ function ArticleCard(props : Props): Node {
         };
       case 'reviewing':
         return {
-          label: 'Reviewing',
+          label: `Reviewing ${numOfReviewers > 0 ? `(${numOfReviewers})` : ''}`,
           color: 'warning',
           icon: <FontAwesomeIcon icon={faGlasses} />,
           variant: 'default',

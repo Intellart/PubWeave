@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
@@ -10,12 +10,13 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  filter,
   find, get, isEmpty, isEqual, map, toInteger,
 } from 'lodash';
-import { Chip } from '@mui/material';
+import { Button, Chip } from '@mui/material';
 // import { store } from '../../store';
 import { actions, selectors } from '../../store/articleStore';
-// import { selectors as userSelectors } from '../../store/userStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import { useScrollTopEffect } from '../../utils/hooks';
 import OrcIDButton from '../elements/OrcIDButton';
 import Editor, { EditorStatus } from '../editor/Editor';
@@ -25,6 +26,7 @@ import type {
   BlockCategoriesToChange,
   BlockToServer,
 } from '../../store/articleStore';
+import ReviewEditor from '../editor/ReviewEditor';
 
 function Blogs(): Node {
   useScrollTopEffect();
@@ -36,18 +38,36 @@ function Blogs(): Node {
 
   const dispatch = useDispatch();
   const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
+  const createArticle = (userId : number, userReviewId?: number) => dispatch(actions.createArticle(userId, userReviewId));
   // const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
   // const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
   const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
 
   const article = useSelector((state) => selectors.article(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
-  // const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
+  const userReview = useSelector((state) => selectors.userReview(state, get(user, 'id')), isEqual);
 
-  useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-  }, [article, id]);
+  const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
+
+  const isAuthor = get(article, 'author.id') === get(user, 'id');
+
+  const articleReviewers = get(article, 'reviewers', []);
+  const articleReviewContent = get(userReview, 'review_content', '');
+
+  const isReviewReady = isReady
+    && get(article, 'status') === EditorStatus.IN_REVIEW
+    && !isEmpty(articleReviewers)
+    && !isEmpty(userReview);
+
+  const isReviewContentReady = !isEmpty(articleReviewContent);
+
+  const allReviews = filter(articleReviewers, (reviewer) => !isEmpty(reviewer.review_content));
+
+  const showReviews = isAuthor && get(article, 'status') === EditorStatus.IN_REVIEW
+  && !isEmpty(allReviews);
+  console.log(article, isAuthor, showReviews);
 
   useEffect(() => {
     if (!isReady) {
@@ -58,7 +78,11 @@ function Blogs(): Node {
     }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, id, isReady]);
+  }, [articleContent, id, isReady]);
+
+  const handleCreateReviewContent = () => {
+    createArticle(get(user, 'id', 1), userReview.id);
+  };
 
   const getRoute = (catId: number) => get(find(categories, (cat) => cat.id === catId), 'category_name');
 
@@ -145,13 +169,6 @@ function Blogs(): Node {
                 ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
               ];
 
-              // console.log('UPDATING > ');
-              // console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
-              // console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
-              // console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
-
-              // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
-
               updateArticleContentSilently(id, {
                 time,
                 version,
@@ -162,6 +179,57 @@ function Blogs(): Node {
 
         </div>
       )}
+      {isReviewReady && (
+      <section className="single-blog-highlight single-blog-small-highlight unselectable">
+        {isReviewContentReady
+          ? <h2 className="single-blog-highlight-small-text">Write a review</h2>
+          : (
+            <Button
+              variant="contained"
+              className="single-blog-highlight-description"
+              onClick={handleCreateReviewContent}
+            >Create a review
+            </Button>
+          )
+            }
+      </section>
+      )}
+      {isReviewReady && isReviewContentReady && (
+        <div className="editorjs-wrapper">
+          <ReviewEditor
+            isReady={isReady}
+            userId={get(user, 'id', 1)}
+            status={EditorStatus.REVIEW_PANE}
+            onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
+              const blocksToAdd :BlockToServer[] = [
+                ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
+                ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
+                ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
+              ];
+
+              updateArticleContentSilently(articleReviewContent.id, {
+                time,
+                version,
+                blocks: blocksToAdd,
+              });
+            }}
+          />
+        </div>
+      )}
+      {allReviews && map(allReviews, (reviewer, index) => (
+        <React.Fragment key={reviewer.id}>
+          <section className="single-blog-highlight single-blog-small-highlight unselectable">
+            <h2 className="single-blog-highlight-small-text">Review #{index + 1}:  {get(reviewer, 'full_name', '')}</h2>
+          </section>
+          <div className="editorjs-wrapper">
+            <ReviewEditor
+              isReady={isReady}
+              status={EditorStatus.REVIEW_PANE_READ_ONLY}
+              userId={reviewer.user_id}
+            />
+          </div>
+        </React.Fragment>
+      ))}
       {/* <div className="reaction-icons unselectable">
         <LikeButton
           enabled={!isEmpty(user)}

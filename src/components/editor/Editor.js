@@ -44,6 +44,8 @@ import { store } from '../../store';
 export const EditorStatus = {
   IN_PROGRESS: 'draft',
   IN_REVIEW: 'reviewing',
+  REVIEW_PANE: 'reviewPane',
+  REVIEW_PANE_READ_ONLY: 'reviewPaneReadOnly',
   PUBLISHED: 'published',
   PREVIEW: 'preview',
 };
@@ -347,7 +349,7 @@ function Editor({
       />
       <div
         id="editorjs"
-        className={classNames({ 'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW }, `editorjs-${status}`)}
+        className={classNames('editorjs', { 'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW }, `editorjs-${status}`)}
         onClick={handleOnEditorClick}
         style={{ position: 'relative' }}
         onBlur={() => {

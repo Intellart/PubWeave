@@ -4,9 +4,11 @@ import { useLocation } from 'react-router-dom';
 import {
   difference,
   every,
+  first,
   forEach,
   get,
   includes,
+  isEmpty,
   isEqual,
   keyBy,
   keys,
@@ -14,8 +16,11 @@ import {
   pickBy,
   size,
   sortBy,
+  sum,
+  toNumber,
   uniq,
   values,
+  words,
 } from 'lodash';
 import { useInView } from 'react-intersection-observer';
 import apiClient from '../api/axios';
@@ -166,7 +171,7 @@ export const editorPermissions = ({
     [EditorStatus.IN_REVIEW]: {
       [permissions.REVIEW_OR_EDIT_BLOCKS]: true,
       [permissions.DELETE_ARTICLE]: false,
-      [permissions.ARTICLE_SETTINGS]: true,
+      [permissions.ARTICLE_SETTINGS]: userId === ownerId,
     },
   },
 }[type || 'blog_article'][(status:string)]);
@@ -251,6 +256,37 @@ export const convertBlockToEditorJS = (block: Block): _BlockFromEditor => ({
 
 //   return false;
 // };
+
+export const getSmallReviewCount = (blocks: Blocks): any => {
+  const reviewRegex = /<m.*?<\/m>/g;
+  const reviews = [];
+
+  forEach(blocks, (block) => {
+    const text = get(block, 'data.text', '');
+    const matches = [...text.matchAll(reviewRegex)];
+
+    if (!isEmpty(matches)) {
+      forEach(matches, (match) => {
+        const matchToDom = document.createElement('div');
+        matchToDom.innerHTML = first(match);
+        const mElement = matchToDom.querySelector('m');
+
+        if (!mElement) {
+          return;
+        }
+        reviews.push({
+          dataNote: mElement.getAttribute('data-note'),
+          dataId: toNumber(mElement.getAttribute('data-reviewer-id')),
+          dataName: mElement.getAttribute('data-reviewer-name'),
+        });
+      });
+    }
+  });
+
+  return reviews;
+};
+
+export const getWordCount = (blocks: Blocks): number => sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0);
 
 export const areBlocksEqual = (block1: SimpleBlock, block2: SimpleBlock): boolean => isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data);
 

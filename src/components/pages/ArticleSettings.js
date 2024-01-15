@@ -6,7 +6,7 @@ import type { Node } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  isEqual, get, toInteger, isEmpty, map, find,
+  isEqual, get, toInteger, isEmpty, map, find, groupBy,
 } from 'lodash';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -16,12 +16,14 @@ import {
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faChevronRight, faGear, faPencil, faPlus, faXmark,
+  faBan,
+  faChevronRight, faPlus, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router';
 import { actions, selectors } from '../../store/articleStore';
 import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
+import Modal from '../modal/Modal';
+import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
 
 type ReviewFormProps = {
   onSubmit: Function,
@@ -116,7 +118,11 @@ function ReviewForm(props: ReviewFormProps) {
   );
 }
 
-function NewReview() {
+type NewReviewProps = {
+  disabled?: boolean,
+};
+
+function NewReview({ disabled }: NewReviewProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { id } = useParams();
@@ -128,13 +134,17 @@ function NewReview() {
   return (
     <section
       className={classNames('review-modal review-new-modal', { 'review-modal-closed': !isModalOpen })}
-      onClick={() => !isModalOpen && setIsModalOpen(true)}
+      onClick={() => !disabled && !isModalOpen && setIsModalOpen(true)}
     >
       {isModalOpen ? (
         <>
           <div className="review-modal-top">
             <p className='review-modal-title'>New review</p>
-            <FontAwesomeIcon icon={faXmark} className='review-modal-close' onClick={() => setIsModalOpen(false)} />
+            <FontAwesomeIcon
+              icon={faXmark}
+              className='review-modal-close'
+              onClick={() => setIsModalOpen(false)}
+            />
           </div>
           <ReviewForm
             onCancel={() => setIsModalOpen(false)}
@@ -148,7 +158,7 @@ function NewReview() {
 
       ) : (
         <div className='review-modal-title'>
-          <FontAwesomeIcon icon={faPlus} />
+          <FontAwesomeIcon icon={disabled ? faBan : faPlus} />
           <span className='review-modal-title-text'>New review</span>
         </div>
       )}
@@ -212,6 +222,27 @@ function ReviewTable(props: any) {
         );
       },
     },
+    {
+      field: 'words',
+      headerName: 'Words',
+      width: 60,
+      editable: false,
+      valueGetter: (params: any) => {
+        const review = get(params, ['row', 'review']);
+
+        if (review) {
+          return getWordCount(review.content.blocks);
+        }
+
+        return 0;
+      },
+    },
+    {
+      field: 'inlineReviews',
+      headerName: 'Inline reviews',
+      width: 100,
+      editable: false,
+    },
   ];
 
   return (
@@ -231,7 +262,10 @@ function ReviewTable(props: any) {
         columns={columns}
         autoHeight
         hideFooter
-        sx={{ '&, [class^=MuiDataGrid]': { border: 'none' } }}
+        sx={{
+          '&, [class^=MuiDataGrid]': { border: 'none' },
+          overflow: 'hidden',
+        }}
       />
     </div>
 
@@ -252,16 +286,14 @@ function Review(props: any) {
     return null;
   }
 
-  const rows = map(props.review.user_reviews, (userReview) => {
-    const user = find(reviewers, (reviewer) => reviewer.id === userReview.user_id);
-
-    return {
-      status: userReview.status,
-      fullName: user.full_name,
-      amount: props.review.amount,
-      id: userReview.id,
-    };
-  });
+  const rows = map(props.review.user_reviews, (userReview) => ({
+    status: userReview.status,
+    fullName: userReview.full_name,
+    amount: props.review.amount,
+    id: userReview.id,
+    inlineReviews: get(props.inlineReviews, userReview.user_id).length,
+    review: userReview.review_content,
+  }));
 
   console.log('rows', rows);
 
@@ -274,12 +306,12 @@ function Review(props: any) {
           className={classNames('review-modal-close')}
           onClick={() => deleteReview(props.review.id)}
         />
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           icon={faPencil}
           className={classNames('review-modal-close',
             { 'review-modal-close-active': editMode })}
           onClick={() => setEditMode(!editMode)}
-        />
+        /> */}
       </div>
 
       <div className="review-modal-content">
@@ -299,6 +331,7 @@ function Review(props: any) {
             rows={rows}
             amount={props.review.amount}
             deadline={props.review.deadline}
+            article={props.article}
           />
         )}
       </div>
@@ -308,7 +341,7 @@ function Review(props: any) {
 
 function ArticleSettings(): Node {
   const { id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
@@ -318,6 +351,9 @@ function ArticleSettings(): Node {
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+
+  const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
+    (smallReview) => smallReview.dataId);
 
   // console.log('reviewers', reviewers);
   // console.log('reviews', reviews);
@@ -344,6 +380,8 @@ function ArticleSettings(): Node {
 
   const reviewersExist = !isEmpty(reviewers);
 
+  const isTreasuryFilled = false;
+
   return (
     <main className="article-settings-wrapper">
       <div className="title-wrapper">
@@ -359,25 +397,28 @@ function ArticleSettings(): Node {
           </Alert>
         </div>
         <div className="article-settings-content">
-          <UserInfoItem
-            label="Total Amount"
-            value="150"
-            after="ADA"
-          />
-          <UserInfoItem
-            label="Max transaction limit"
-            value="10"
-            after="ADA"
+          {isTreasuryFilled && (
+            <>
+              <UserInfoItem
+                label="Total Amount"
+                value="150"
+                after="ADA"
+              />
+              <UserInfoItem
+                label="Max transaction limit"
+                value="10"
+                after="ADA"
+              />
+            </>
+          )}
+          <Modal
+            enabled
+            articleId={id}
+            type="treasury"
+            shape="chip"
+            text="fillTreasury"
           />
         </div>
-        <Button
-          variant="contained"
-          size='small'
-          className='article-settings-button'
-          onClick={() => navigate('/user')}
-        >
-          <FontAwesomeIcon icon={faGear} />
-        </Button>
       </section>
 
       <section className="article-settings">
@@ -400,14 +441,20 @@ function ArticleSettings(): Node {
             </p>
           </Alert>
         </div>
-        <div className="article-settings-content article-settings-content-grid">
+        <div className="article-settings-content">
           {map(reviews, (review) => (
-            <Review review={review} key={review.id} />
+            <Review
+              review={review}
+              key={review.id}
+              inlineReviews={inlineReviews}
+            />
           ))}
           {/* <Review id={1} amount={8} />
           <Review id={2} amount={9.31} />
           <Review id={2} amount={4.523} /> */}
-          <NewReview />
+          <NewReview
+            disabled={!isEmpty(reviews)}
+          />
         </div>
       </section>
 
