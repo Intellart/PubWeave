@@ -7,7 +7,7 @@ import {
   filter,
 } from 'lodash';
 import {
-  faCheck, faEdit, faPaperPlane, faRotateRight, faStar, faXmark,
+  faCheck, faEdit, faGlasses, faPaperPlane, faRotateRight, faStar, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Alert, AlertTitle } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -39,6 +39,12 @@ export const statuses = {
     label: 'Draft',
     color: 'info',
     icon: faPaperPlane,
+  },
+  reviewing: {
+    value: 'reviewing',
+    label: 'Reviewing',
+    color: 'warning',
+    icon: faGlasses,
   },
 
 };

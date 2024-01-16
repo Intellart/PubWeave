@@ -13,7 +13,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
-  faLink,
+  faGear,
+  faGlasses,
   faPen,
   faPencil,
   faStar,
@@ -303,7 +304,7 @@ export default function MyDataGrid(props: Props) {
 
   function getChipProps(params: GridRenderCellParams): ChipProps {
     const sx = { gap: '10px', padding: '10px' };
-    const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
+    const res = get(statuses, get(params, 'value.value'), { label: 'Unknown', color: 'default', icon: faPencil });
 
     return {
       label: res.label,
@@ -347,56 +348,65 @@ export default function MyDataGrid(props: Props) {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 30 },
     {
-      field: 'published_link',
-      headerName: 'Link',
-      width: 30,
+      field: 'article_settings',
+      headerName: 'Settings',
+      width: 80,
+      editable: false,
+      renderCell: (params) => (
+        <Link
+          to={`/my-work/${params.row.id}/settings`}
+        >
+          <FontAwesomeIcon icon={faGear} />
+        </Link>
+      ),
+
+    },
+    {
+      field: 'preview',
+      headerName: 'Preview',
+      width: 80,
       editable: false,
       renderCell: (params) => {
-        // console.log(params);
-        if (get(params, 'row.status.value') === 'published') {
-          return (
-            <Link
-              to={`/singleblog/${params.row.id}`}
-            >
-              <FontAwesomeIcon icon={faLink} />
-            </Link>
-          );
+        switch (get(params, 'row.status.value')) {
+          case 'published':
+            return (
+              <Link
+                to={`/my-work/${params.row.id}`}
+              >
+                <FontAwesomeIcon icon={faPencil} />
+              </Link>
+            );
+          case 'reviewing':
+            return (
+              <Link
+                to={`/my-work/${params.row.id}/review`}
+              >
+                <FontAwesomeIcon icon={faGlasses} />
+              </Link>
+            );
+          default:
+            return (
+              <Link
+                to={`/my-work/${params.row.id}`}
+              >
+                <FontAwesomeIcon icon={faPencil} />
+              </Link>
+            );
         }
-
-        return (
-          <Link
-            to={`/submit-work/${params.row.id}`}
-          >
-            <FontAwesomeIcon icon={faPen} />
-          </Link>
-        );
       },
     },
     {
-      field: 'edit_link',
-      headerName: 'Edit',
+      field: 'edit',
+      headerName: 'EDIT',
       width: 30,
       editable: false,
-      renderCell: (params) => {
-        // console.log(params);
-        if (get(params, 'row.status.value') === 'published') {
-          return (
-            <Link
-              to={`/my-work/${params.row.id}`}
-            >
-              <FontAwesomeIcon icon={faPencil} />
-            </Link>
-          );
-        }
-
-        return (
-          <Link
-            to={`/my-work/${params.row.id}`}
-          >
-            <FontAwesomeIcon icon={faPen} />
-          </Link>
-        );
-      },
+      renderCell: (params) => (
+        <Link
+          to={`/my-work/${params.row.id}`}
+        >
+          <FontAwesomeIcon icon={faPen} />
+        </Link>
+      ),
     },
     {
       field: 'status',
