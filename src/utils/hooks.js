@@ -160,6 +160,7 @@ export const editorPermissions = ({
       [permissions.DELETE_ARTICLE]: userId === ownerId,
       [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
       [permissions.ARTICLE_SETTINGS]: true,
+      [permissions.locking]: false,
     },
     [EditorStatus.PUBLISHED]: {
       [permissions.LIKE_ARTICLE]: userId !== ownerId,
@@ -172,6 +173,7 @@ export const editorPermissions = ({
       [permissions.REVIEW_OR_EDIT_BLOCKS]: true,
       [permissions.DELETE_ARTICLE]: false,
       [permissions.ARTICLE_SETTINGS]: userId === ownerId,
+      [permissions.locking]: false,
     },
   },
 }[type || 'blog_article'][(status:string)]);

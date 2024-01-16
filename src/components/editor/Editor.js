@@ -174,6 +174,7 @@ function Editor({
 
     const canReviewOrEdit = get(currentPermissions, permissions.REVIEW_OR_EDIT_BLOCKS, false);
     const canAddOrRemove = get(currentPermissions, permissions.ADD_OR_REMOVE_BLOCKS, false);
+    const locking = get(currentPermissions, permissions.locking, false);
 
     /**
      * For each list of events, we flatten them into one event.
@@ -246,7 +247,7 @@ function Editor({
       return !blockOwner || (blockOwner && blockOwner === currentUserId);
     };
 
-    const allChangedBlocksPeaceful = filter(changed, (block) => isBlockPeaceful(block.id));
+    const allChangedBlocksPeaceful = filter(changed, (block) => !locking || isBlockPeaceful(block.id));
 
     if (
       !canReviewOrEdit
