@@ -199,6 +199,16 @@ export const types = {
 
   SET_LAST_UPDATED_ARTICLE_IDS: 'SET_LAST_UPDATED_ARTICLE_IDS',
 
+  ART_USER_REVIEW_ACCEPT: 'ART/USER_REVIEW_ACCEPT',
+  ART_USER_REVIEW_ACCEPT_PENDING: 'ART/USER_REVIEW_ACCEPT_PENDING',
+  ART_USER_REVIEW_ACCEPT_REJECTED: 'ART/USER_REVIEW_ACCEPT_REJECTED',
+  ART_USER_REVIEW_ACCEPT_FULFILLED: 'ART/USER_REVIEW_ACCEPT_FULFILLED',
+
+  ART_USER_REVIEW_REJECT: 'ART/USER_REVIEW_REJECT',
+  ART_USER_REVIEW_REJECT_PENDING: 'ART/USER_REVIEW_REJECT_PENDING',
+  ART_USER_REVIEW_REJECT_REJECTED: 'ART/USER_REVIEW_REJECT_REJECTED',
+  ART_USER_REVIEW_REJECT_FULFILLED: 'ART/USER_REVIEW_REJECT_FULFILLED',
+
   ART_ADD_COLLABORATOR: 'ART/ADD_COLLABORATOR',
   ART_ADD_COLLABORATOR_PENDING: 'ART/ADD_COLLABORATOR_PENDING',
   ART_ADD_COLLABORATOR_REJECTED: 'ART/ADD_COLLABORATOR_REJECTED',
@@ -603,7 +613,14 @@ export const actions = {
     type: types.ART_CONVERT_ARTICLE,
     payload: API.putRequest(`pubweave/articles/${id}/convert`),
   }),
-  // this will be handled by Admin from the backend, see publish and reject actions
+  acceptUserReview: (userReviewId: number): ReduxAction => ({
+    type: types.ART_USER_REVIEW_ACCEPT,
+    payload: API.putRequest(`pubweave/user_reviews/${userReviewId}/accept_review`),
+  }),
+  rejectUserReview: (userReviewId: number): ReduxAction => ({
+    type: types.ART_USER_REVIEW_REJECT,
+    payload: API.putRequest(`pubweave/user_reviews/${userReviewId}/reject_review`),
+  }),
   publishArticle: (id: number, newStatus: string): ReduxAction => {
     // console.log('publishing article', id, newStatus);
 
@@ -631,6 +648,33 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_USER_REVIEW_ACCEPT_FULFILLED:
+    case types.ART_USER_REVIEW_REJECT_FULFILLED:
+      console.log('ART_USER_REVIEW_ACCEPT_FULFILLED');
+
+      return {
+        ...state,
+        reviews: map(state.reviews, (review) => {
+          if (review.id === action.payload.review_id) {
+            return {
+              ...review,
+              user_reviews: map(review.user_reviews, (userReview) => {
+                if (userReview.id === action.payload.id) {
+                  return {
+                    ...userReview,
+                    status: action.payload.status,
+                  };
+                }
+
+                return userReview;
+              }),
+            };
+          }
+
+          return review;
+        }),
+      };
+
     case types.ART_FETCH_REVIEWS_FULFILLED:
       console.log('ART_FETCH_REVIEWS_FULFILLED');
 

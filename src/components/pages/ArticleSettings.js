@@ -6,7 +6,7 @@ import type { Node } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  isEqual, get, toInteger, isEmpty, map, find, groupBy,
+  isEqual, get, toInteger, isEmpty, map, find, groupBy, size, every, filter,
 } from 'lodash';
 import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -17,9 +17,11 @@ import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBan,
+  faCheck,
   faChevronRight, faPlus, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
 import Modal from '../modal/Modal';
@@ -167,6 +169,11 @@ function NewReview({ disabled }: NewReviewProps) {
 }
 
 function ReviewTable(props: any) {
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+  const dispatch = useDispatch();
+  const acceptUserReview = (userReviewId: number) => dispatch(actions.acceptUserReview(userReviewId));
+  const rejectUserReview = (userReviewId: number) => dispatch(actions.rejectUserReview(userReviewId));
+
   const reviewStatus = {
     IN_PROGRESS: 'in_progress',
     AWAITING_APPROVAL: 'awaiting_approval',
@@ -240,9 +247,40 @@ function ReviewTable(props: any) {
     {
       field: 'inlineReviews',
       headerName: 'Inline reviews',
-      width: 100,
+      width: 120,
       editable: false,
     },
+    ...(admin ? [{
+      field: 'approve',
+      headerName: 'Approve',
+      width: 160,
+      editable: false,
+      renderCell: (renderProps: any) => (get(renderProps, 'row.status') === 'in_progress' ? (
+        <div
+          className='review-modal-approve'
+          onClick={() => console.log(renderProps)}
+          style={{
+            display: 'flex',
+            gap: '10px',
+          }}
+        >
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => acceptUserReview(renderProps.row.id)}
+          >
+            <FontAwesomeIcon icon={faCheck} />
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => rejectUserReview(renderProps.row.id)}
+          >
+            <FontAwesomeIcon icon={faXmark} />
+          </Button>
+        </div>
+      ) : null),
+    }] : []),
   ];
 
   return (
@@ -276,9 +314,10 @@ function Review(props: any) {
   const { id } = useParams();
 
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+
   const dispatch = useDispatch();
   const newReview = (amount: number, articleId: number, deadline: string, reviewerIds: number[]) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
-  const deleteReview = (reviewId: number) => dispatch(actions.deleteReview(reviewId));
+  // const deleteReview = (reviewId: number) => dispatch(actions.deleteReview(reviewId));
 
   const [editMode, setEditMode] = useState(false);
 
@@ -286,26 +325,27 @@ function Review(props: any) {
     return null;
   }
 
+  const allReviewsSettled = every(props.review.user_reviews, (userReview) => userReview.status !== 'in_progress');
+  const allAcceptedReviews = filter(props.review.user_reviews, (userReview) => userReview.status === 'accepted');
+
   const rows = map(props.review.user_reviews, (userReview) => ({
     status: userReview.status,
     fullName: userReview.full_name,
     amount: props.review.amount,
     id: userReview.id,
-    inlineReviews: get(props.inlineReviews, userReview.user_id).length,
+    inlineReviews: size(get(props.inlineReviews, userReview.user_id)),
     review: userReview.review_content,
   }));
-
-  console.log('rows', rows);
 
   return (
     <section className="review-modal">
       <div className="review-modal-top">
         <p className='review-modal-title'>Review #{props.review.id}</p>
-        <FontAwesomeIcon
+        {/* <FontAwesomeIcon
           icon={faXmark}
           className={classNames('review-modal-close')}
           onClick={() => deleteReview(props.review.id)}
-        />
+        /> */}
         {/* <FontAwesomeIcon
           icon={faPencil}
           className={classNames('review-modal-close',
@@ -335,13 +375,21 @@ function Review(props: any) {
           />
         )}
       </div>
+      {allReviewsSettled && (
+        <Button
+          variant="contained"
+          className='review-modal-button'
+          color="success"
+        >
+          Pay out to {size(allAcceptedReviews)} reviewers
+        </Button>
+      )}
     </section>
   );
 }
 
 function ArticleSettings(): Node {
   const { id } = useParams();
-  // const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
@@ -367,6 +415,9 @@ function ArticleSettings(): Node {
 
   useEffect(() => {
     fetchAllReviewers();
+  }, []);
+
+  useEffect(() => {
     setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);

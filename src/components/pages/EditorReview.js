@@ -46,12 +46,14 @@ function Blogs(): Node {
   const article = useSelector((state) => selectors.article(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const userReview = useSelector((state) => selectors.userReview(state, get(user, 'id')), isEqual);
 
   const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
 
-  const isAuthor = get(article, 'author.id') === get(user, 'id');
+  const isAuthor = get(article, 'author.id') === get(user, 'id') || admin;
 
   const articleReviewers = get(article, 'reviewers', []);
   const articleReviewContent = get(userReview, 'review_content', '');
@@ -67,7 +69,6 @@ function Blogs(): Node {
 
   const showReviews = isAuthor && get(article, 'status') === EditorStatus.IN_REVIEW
   && !isEmpty(allReviews);
-  console.log(article, isAuthor, showReviews);
 
   useEffect(() => {
     if (!isReady) {
@@ -90,7 +91,7 @@ function Blogs(): Node {
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-    <main className="single-blog-wrapper">
+    <main className="single-blog-wrapper single-blog-wrapper-review">
       <section className="single-blog-highlight unselectable">
         <div className="single-blog-highlight-text">
           <div className="single-blog-highlight-text-left">
@@ -180,7 +181,7 @@ function Blogs(): Node {
         </div>
       )}
       {isReviewReady && (
-      <section className="single-blog-highlight single-blog-small-highlight unselectable">
+      <section className="single-blog-highlight single-blog-small-highlight single-blog-small-highlight-closed unselectable">
         {isReviewContentReady
           ? <h2 className="single-blog-highlight-small-text">Write a review</h2>
           : (
@@ -216,7 +217,7 @@ function Blogs(): Node {
           />
         </div>
       )}
-      {allReviews && map(allReviews, (reviewer, index) => (
+      {showReviews && allReviews && map(allReviews, (reviewer, index) => (
         <React.Fragment key={reviewer.id}>
           <section className="single-blog-highlight single-blog-small-highlight unselectable">
             <h2 className="single-blog-highlight-small-text">Review #{index + 1}:  {get(reviewer, 'full_name', '')}</h2>

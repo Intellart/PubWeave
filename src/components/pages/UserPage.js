@@ -16,11 +16,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import classNames from 'classnames';
 import {
-  faCamera, faCheck, faPencil, faRedo, faXmark,
+  faCamera, faCheck, faPencil, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import {
-  Alert, AlertTitle, Button, Chip,
+  Alert, AlertTitle, Chip,
 } from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { NetworkType, getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
@@ -53,11 +53,6 @@ function UserPage(): React$Node {
     name: '',
     email: '',
     username: '',
-  });
-
-  const [treasury, setTreasury] = useState({
-    totalAmount: '',
-    transactionLimit: '',
   });
 
   const [socialMedia, setSocialMedia] = useState({
@@ -572,51 +567,6 @@ function UserPage(): React$Node {
               label="Disconnect wallet"
               onClick={disconnectWallet}
             />
-          </UserSection>
-        )}
-        { isConnected && (
-          <UserSection
-            title="Treasury"
-            expandedCard={expandedCard}
-            setExpandedCard={setExpandedCard}
-            variants={variants}
-            index={5}
-          >
-            <UserInfoInput
-              label="Total amount"
-              type="number"
-              value={treasury.totalAmount}
-              onClick={(e: any) => setTreasury({ ...treasury, totalAmount: e.target.value })}
-              check={treasury.totalAmount !== ''}
-              checkInfo="Total amount cannot be empty"
-            />
-            <UserInfoInput
-              label="Per Transaction limit"
-              type="number"
-              value={treasury.transactionLimit}
-              onClick={(e: any) => setTreasury({ ...treasury, transactionLimit: e.target.value })}
-              check={treasury.transactionLimit !== ''}
-              checkInfo="Per transaction limit cannot be empty"
-            />
-            <div className="user-section-wrapper-icons">
-              <Button
-                style={{ width: '100%', gap: '10px' }}
-                variant="outlined"
-                className='article-settings-button'
-                onClick={() => console.log('treasury')}
-              >
-                <FontAwesomeIcon icon={faRedo} /> Refresh
-              </Button>
-              <Button
-                style={{ width: '100%', gap: '10px' }}
-                disabled={treasury.totalAmount === '' || treasury.transactionLimit === ''}
-                variant="contained"
-                className='article-settings-button'
-                onClick={() => console.log('treasury')}
-              >
-                <FontAwesomeIcon icon={faCheck} /> Update
-              </Button>
-            </div>
           </UserSection>
         )}
       </div>
