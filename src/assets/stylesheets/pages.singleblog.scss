@@ -50,6 +50,10 @@
   padding-bottom: 30px;
   flex: 1;
 
+  &.single-blog-wrapper-review {
+    padding-bottom: 0px;
+  }
+
 
   .reaction-icons {
     display: flex;
@@ -93,6 +97,12 @@
       margin: 30px 0px;
       align-items: flex-start;
       justify-content: flex-start;
+
+      &.single-blog-small-highlight-closed {
+        margin: 0px;
+        box-shadow: inset 0px -8px 4px rgba(0, 0, 0, 0.10);
+
+      }
 
       .single-blog-highlight-small-text {
         display: flex;
