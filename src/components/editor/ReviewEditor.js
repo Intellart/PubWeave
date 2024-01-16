@@ -154,7 +154,7 @@ function ReviewEditor({
     if (isReady && !editor.current) {
       editor.current = new EditorJS({
         logLevel: 'ERROR',
-        holder: 'editorjs-review',
+        holder: `editorjs-review-${userId}`,
         readOnly,
         spellcheck: false,
         inlineToolbar: true,
@@ -174,7 +174,7 @@ function ReviewEditor({
 
   return (
     <div
-      id="editorjs-review"
+      id={`editorjs-review-${userId}`}
       className={classNames('editorjs', { 'editorjs-read-only': readOnly || status === EditorStatus.IN_PROGRESS }, `editorjs-${status}`)}
       onClick={handleOnEditorClick}
       style={{ position: 'relative' }}
