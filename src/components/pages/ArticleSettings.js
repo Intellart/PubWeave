@@ -5,20 +5,22 @@ import type { Node } from 'react';
 // import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+
 import {
   isEqual, get, toInteger, isEmpty, map, find, groupBy, size, every, filter,
 } from 'lodash';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Chip,
-  Autocomplete, Button, Alert, TextField,
+  Autocomplete, Button, TextField,
 } from '@mui/material';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBan,
   faCheck,
-  faChevronRight, faPlus, faXmark,
+  faPlus, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
@@ -26,6 +28,8 @@ import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
 import Modal from '../modal/Modal';
 import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
+import HowItWorks from '../modal/HowItWorks';
+import Conditions from '../modal/Conditions';
 
 type ReviewFormProps = {
   onSubmit: Function,
@@ -398,13 +402,30 @@ function ArticleSettings(): Node {
 
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
-  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+  // const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
     (smallReview) => smallReview.dataId);
 
-  // console.log('reviewers', reviewers);
-  // console.log('reviews', reviews);
+  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+
+  console.log(article);
+  const {
+    // isEnabled,
+    isConnected,
+    // enabledWallet,
+    // stakeAddress,
+    // accountBalance,
+    // signMessage,
+    // usedAddresses,
+    // enabledWallet,
+    // installedExtensions,
+    // connect,
+    // disconnect,
+    // connectedCip45Wallet,
+  } = useCardano({
+    limitNetwork: networkType,
+  });
 
   useEffect(() => {
     fetchReviews(id);
@@ -429,26 +450,43 @@ function ArticleSettings(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
-  const reviewersExist = !isEmpty(reviewers);
+  // const reviewersExist = !isEmpty(reviewers);
 
   const isTreasuryFilled = false;
 
   return (
     <main className="article-settings-wrapper">
-      <div className="title-wrapper">
-        <h1>Article Settings</h1>
-      </div>
-
-      <section className="article-settings">
-        <p className='article-settings-subtitle'>Treasury information</p>
-        <div className="article-settings-conditions">
-          <Alert severity="success" className='article-settings-alert'>
-            <p className='article-settings-alert-title'>Condition 1.</p>
-            <p className='article-settings-alert-content'>Article has to be in Preprint status</p>
-          </Alert>
+      <div className='article-settings'>
+        <div className="title-wrapper">
+          <h1>Article Settings</h1>
         </div>
-        <div className="article-settings-content">
-          {isTreasuryFilled && (
+        <HowItWorks type="review" />
+
+        <section className="article-settings-item">
+          <p className='article-settings-subtitle'>Treasury information</p>
+
+          <div className="article-settings-content">
+            <Conditions
+              steps={[
+                {
+                  label: 'Article status: Blog',
+                  error: get(article, 'article_type') !== 'blog_article',
+                  errorMessage: 'Article is not in status: Blog',
+                },
+                {
+                  label: 'Connect wallet',
+                  error: !isConnected,
+                  errorMessage: 'Please connect wallet on user page',
+                },
+                {
+                  label: 'First time filling treasury',
+                  error: isTreasuryFilled,
+                  errorMessage: 'Treasury already filled',
+                },
+
+              ]}
+            />
+            {isTreasuryFilled && (
             <>
               <UserInfoItem
                 label="Total Amount"
@@ -461,65 +499,69 @@ function ArticleSettings(): Node {
                 after="ADA"
               />
             </>
-          )}
-          <Modal
-            enabled
-            articleId={id}
-            type="treasury"
-            shape="chip"
-            text="fillTreasury"
-          />
-        </div>
-      </section>
-
-      <section className="article-settings">
-        <p className='article-settings-subtitle'>Reviews</p>
-        <div className="article-settings-conditions">
-          <Alert severity="success" className='article-settings-alert'>
-            <p className='article-settings-alert-title'>Condition 1.</p>
-            <p className='article-settings-alert-content'>Article has to be in Preprint status</p>
-          </Alert>
-          {/* <FontAwesomeIcon icon={faChevronRight} className='article-settings-alert-icon' />
-          <Alert severity="warning" className='article-settings-alert'>
-            <p className='article-settings-alert-title'>Condition 2.</p>
-            <p className='article-settings-alert-content'>Can&apos;t connect to the wallet</p>
-          </Alert> */}
-          <FontAwesomeIcon icon={faChevronRight} className='article-settings-alert-icon' />
-          <Alert severity={reviewersExist ? 'success' : 'error'} className='article-settings-alert'>
-            <p className='article-settings-alert-title'>Condition 2.</p>
-            <p className='article-settings-alert-content'>
-              {reviewersExist ? 'Reviewers found' : 'No reviewers found, who linked their wallets'}
-            </p>
-          </Alert>
-        </div>
-        <div className="article-settings-content">
-          {map(reviews, (review) => (
-            <Review
-              review={review}
-              key={review.id}
-              inlineReviews={inlineReviews}
+            )}
+            <Modal
+              enabled
+              articleId={id}
+              type="treasury"
+              shape="button"
+              text="fillTreasury"
             />
-          ))}
-          {/* <Review id={1} amount={8} />
+          </div>
+        </section>
+
+        <section className="article-settings-item">
+          <p className='article-settings-subtitle'>Reviews</p>
+
+          <div className="article-settings-content">
+            <Conditions
+              steps={[
+                {
+                  label: 'Article status: Blog',
+                  error: get(article, 'article_type') !== 'blog_article',
+                  errorMessage: 'Article is not in status: Blog',
+                },
+                {
+                  label: 'Connect wallet',
+                  error: !isConnected,
+                  errorMessage: 'Please connect wallet on user page',
+                },
+                {
+                  label: 'First time filling treasury',
+                  error: isTreasuryFilled,
+                  errorMessage: 'Treasury already filled',
+                },
+
+              ]}
+            />
+            {map(reviews, (review) => (
+              <Review
+                review={review}
+                key={review.id}
+                inlineReviews={inlineReviews}
+              />
+            ))}
+            {/* <Review id={1} amount={8} />
           <Review id={2} amount={9.31} />
           <Review id={2} amount={4.523} /> */}
-          <NewReview
-            disabled={!isEmpty(reviews)}
-          />
-        </div>
-      </section>
+            <NewReview
+              disabled={!isEmpty(reviews)}
+            />
+          </div>
+        </section>
 
-      <section className="article-settings">
-        <p className='article-settings-subtitle'>Delete article</p>
-        <div className="article-settings-content">
-          <Button
-            variant="contained"
-            className='article-settings-button'
-          >
-            Delete
-          </Button>
-        </div>
-      </section>
+        <section className="article-settings-item">
+          <p className='article-settings-subtitle'>Delete article</p>
+          <div className="article-settings-content">
+            <Button
+              variant="contained"
+              className='article-settings-button'
+            >
+              Delete
+            </Button>
+          </div>
+        </section>
+      </div>
 
     </main>
   );

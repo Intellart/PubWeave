@@ -78,6 +78,60 @@
     width: 100%;
   }
 
+  .single-blog-reviewer-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 70px;
+    // height: 400px;
+    background: #11273F;
+    transition: all 0.8s ease-in-out;
+    margin: 20px 0px;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    @media screen and (max-width: $mobile_breakpoint) {
+      padding: 20px 20px;
+    }
+
+    &.single-blog-reviewer-header-closed {
+      margin: 0px;
+      box-shadow: inset 0px -8px 4px rgba(0, 0, 0, 0.10);
+
+    }
+
+    h2.single-blog-reviewer-header-title {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+      max-width: 1000px;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 600;
+      font-size: 25px;
+      line-height: 36px;
+      color: #FFFFFF;
+
+      @media screen and (max-width: $mobile_breakpoint) {
+        font-size: 20px;
+      }
+    }
+
+    .single-blog-reviewer-header-right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: white;
+    }
+
+  }
+
   .single-blog-highlight {
     display: flex;
     flex-direction: row;
@@ -92,37 +146,6 @@
     @media screen and (max-width: $mobile_breakpoint) {
       padding: 20px 20px;
     }
-
-    &.single-blog-small-highlight {
-      margin: 30px 0px;
-      align-items: flex-start;
-      justify-content: flex-start;
-
-      &.single-blog-small-highlight-closed {
-        margin: 0px;
-        box-shadow: inset 0px -8px 4px rgba(0, 0, 0, 0.10);
-
-      }
-
-      .single-blog-highlight-small-text {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        // width: 100%;
-        gap: 30px;
-        max-width: 1000px;
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 600;
-        font-size: 30px;
-        line-height: 36px;
-        color: #FFFFFF;
-      }
-    }
-
-
-
 
     .single-blog-highlight-text {
       display: flex;

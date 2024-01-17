@@ -23,7 +23,7 @@ import {
   Alert, AlertTitle, Chip,
 } from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
-import { NetworkType, getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
+import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import {
   emailChecks,
@@ -78,6 +78,8 @@ function UserPage(): React$Node {
     });
   }, [user]);
 
+  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+
   const {
     // isEnabled,
     isConnected,
@@ -92,7 +94,7 @@ function UserPage(): React$Node {
     disconnect,
     // connectedCip45Wallet,
   } = useCardano({
-    limitNetwork: NetworkType.TESTNET,
+    limitNetwork: networkType,
   });
 
   const dispatch = useDispatch();
@@ -472,7 +474,7 @@ function UserPage(): React$Node {
         { !isConnected && (
         <ConnectWalletButton
           message="Connect wallet"
-          limitNetwork={NetworkType.TESTNET}
+          limitNetwork={networkType}
           // onSignMessage={(message) => signMessage(message)}
           onConnect={(cip45Wallet) => {
             console.log('cip45Wallet', cip45Wallet);

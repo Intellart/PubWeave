@@ -10,6 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  camelCase,
   filter,
   find, get, isEmpty, isEqual, map, toInteger,
 } from 'lodash';
@@ -181,9 +182,9 @@ function Blogs(): Node {
         </div>
       )}
       {isReviewReady && (
-      <section className="single-blog-highlight single-blog-small-highlight single-blog-small-highlight-closed unselectable">
+      <section className="single-blog-reviewer-header single-blog-reviewer-header-closed unselectable">
         {isReviewContentReady
-          ? <h2 className="single-blog-highlight-small-text">Write a review</h2>
+          ? <h2 className="single-blog-reviewer-header-title">Write a review</h2>
           : (
             <Button
               variant="contained"
@@ -217,10 +218,20 @@ function Blogs(): Node {
           />
         </div>
       )}
-      {showReviews && allReviews && map(allReviews, (reviewer, index) => (
+      {showReviews && allReviews && map(allReviews, (reviewer) => (
         <React.Fragment key={reviewer.id}>
-          <section className="single-blog-highlight single-blog-small-highlight unselectable">
-            <h2 className="single-blog-highlight-small-text">Review #{index + 1}:  {get(reviewer, 'full_name', '')}</h2>
+          <section className="single-blog-reviewer-header">
+            <h2 className="single-blog-reviewer-header-title"> {get(reviewer, 'full_name', '')}</h2>
+            <div className="single-blog-reviewer-header-right">
+              <p className="single-blog-reviewer-header-right-label">Review #{get(reviewer, 'review_id', '')}</p>
+              <p className="single-blog-reviewer-header-right-status">
+                <Chip
+                  label={camelCase(get(reviewer, 'status', ''))}
+                  variant="default"
+                  color="primary"
+                />
+              </p>
+            </div>
           </section>
           <div className="editorjs-wrapper">
             <ReviewEditor

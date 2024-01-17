@@ -15,6 +15,7 @@ import ArticleCard from '../containers/ArticleCard';
 import { useScrollTopEffect } from '../../utils/hooks';
 import routes from '../../routes';
 import type { Article } from '../../store/articleStore';
+import HowItWorks from '../modal/HowItWorks';
 
 function MyArticles(): Node {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
@@ -92,6 +93,7 @@ function MyArticles(): Node {
             onClick={() => handleCreateArticle()}
           />
         </div>
+        <HowItWorks type="article" />
         <div className="articles-filter">
           {map(categories, (c) => (
             <Chip

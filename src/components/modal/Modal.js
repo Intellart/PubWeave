@@ -1,6 +1,6 @@
 // @flow
 import React, { useEffect, useState } from 'react';
-import { Chip, Modal as MUIModal } from '@mui/material';
+import { Button, Chip, Modal as MUIModal } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   get, invert, isEqual, omit, size,
@@ -19,7 +19,7 @@ import VersioningInfoCard from '../editor/VersioningInfoCard';
 import TreasuryModal from './TreasuryModal';
 
 type Props = {
-    shape?: 'chip' | 'icon',
+    shape?: 'chip' | 'icon' | 'button',
     text?: 'showAll' | 'showOnline' | 'fillTreasury',
     enabled: boolean,
     isOwner?: boolean,
@@ -182,9 +182,23 @@ function Modal(props: Props): React$Node {
     }
   };
 
+  const btn = (
+    <Button
+      variant="contained"
+      onClick={handleClick}
+      disabled={open}
+    >
+      {renderText()}
+    </Button>
+  );
+
   return (
     <>
-      {props.shape && (props.shape === 'chip' ? chip : icon)}
+      {props.shape && {
+        chip,
+        icon,
+        button: btn,
+      }[props.shape]}
       <MUIModal
         sx={{
           display: 'flex',

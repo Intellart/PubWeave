@@ -8,7 +8,7 @@ import {
   get, isEqual, map, sortBy, uniqBy,
 } from 'lodash';
 import {
-  Autocomplete, TextField, ToggleButton, ToggleButtonGroup,
+  Autocomplete, Button, TextField, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
@@ -220,7 +220,18 @@ function Navbar(props: Props): Node {
           {(props.isAdmin) && <NavLink onClick={handleClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {!isMobile && props.isAuthorized && <Link onClick={handleClick} to={routes.myWork.root} className='submit-work'>My Work</Link>}
+          {!isMobile && props.isAuthorized
+          && (
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleClick();
+              navigate(routes.myWork.root);
+            }}
+          >
+            My Work
+          </Button>
+          )}
           {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">

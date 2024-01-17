@@ -466,7 +466,7 @@ export function uploadByFile(file: any, type:string):any {
   const data = new FormData();
   data.append(type, file);
 
-  return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+  return apiClient.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
     success: 1,
     file: {
       url: res.data,
@@ -479,7 +479,7 @@ export function uploadByUrl(url: any): any {
     const data = new FormData();
     data.append('file', blob);
 
-    return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+    return apiClient.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
       success: 1,
       file: {
         url: res.data,

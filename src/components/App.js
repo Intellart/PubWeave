@@ -27,6 +27,7 @@ import Navbar from './navigation/Navbar';
 import Footer from './navigation/Footer';
 import ArticleSettings from './pages/ArticleSettings';
 import EditorReview from './pages/EditorReview';
+import ThemeProvider from '../store/style';
 
 function App(): Node {
   useScrollTopEffect();
@@ -52,40 +53,45 @@ function App(): Node {
   //   }, 500);
   // }, []);
 
+  if (!process.env.REACT_APP_CARDANO_NETWORK_TYPE) {
+    throw new Error('Environment variable REACT_APP_CARDANO_NETWORK_TYPE is not set. Please set it to "testnet" or "mainnet"');
+  }
+
   if (isLoading) {
     return (<Loader />);
   }
 
   return (
-    <div className="App">
-      <ToastContainer
-        closeOnClick
-        newestOnTop={false}
-        pauseOnHover
-        position={isMobile ? 'top-left' : 'bottom-left'}
-        rtl={false}
-      />
-      <div className="application-wrapper">
-        <Navbar
-          user={isUser ? user : admin}
-          isAuthorized={isUser}
-          isAdmin={isAdmin}
+    <ThemeProvider>
+      <div className="App">
+        <ToastContainer
+          closeOnClick
+          newestOnTop={false}
+          pauseOnHover
+          position={isMobile ? 'top-left' : 'bottom-left'}
+          rtl={false}
         />
-        <Routes>
-          {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
-          {!isAuthorized && <Route path="/admin-login" element={<LoginPage forAdmin />} /> }
-          {!isAuthorized && <Route path="/register" element={<RegisterPage />} /> }
-          <Route index element={<Home />} />
-          <Route path="/singleblog" element={<SingleBlog />} />
-          <Route path="/singleblog/:id" element={<SingleBlog />} />
-          <Route path="/blogs" element={<Blogs />} />
-          <Route path="/blogs/:cat" element={<Blogs />} />
-          <Route path="/blogs/:cat/:tag" element={<Blogs />} />
-          <Route path="/users/:userId" element={<Blogs />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/my-work/choose-type" element={<ChooseType />} />
+        <div className="application-wrapper">
+          <Navbar
+            user={isUser ? user : admin}
+            isAuthorized={isUser}
+            isAdmin={isAdmin}
+          />
+          <Routes>
+            {!isAuthorized && <Route path="/login" element={<LoginPage />} /> }
+            {!isAuthorized && <Route path="/admin-login" element={<LoginPage forAdmin />} /> }
+            {!isAuthorized && <Route path="/register" element={<RegisterPage />} /> }
+            <Route index element={<Home />} />
+            <Route path="/singleblog" element={<SingleBlog />} />
+            <Route path="/singleblog/:id" element={<SingleBlog />} />
+            <Route path="/blogs" element={<Blogs />} />
+            <Route path="/blogs/:cat" element={<Blogs />} />
+            <Route path="/blogs/:cat/:tag" element={<Blogs />} />
+            <Route path="/users/:userId" element={<Blogs />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/my-work/choose-type" element={<ChooseType />} />
 
-          {isAuthorized && (
+            {isAuthorized && (
             <>
 
               <Route path="/my-work/" element={<MyArticles />} />
@@ -98,15 +104,16 @@ function App(): Node {
               {/* <Route path="/submit-work" element={<MyArticles />} /> */}
               {/* <Route path="/submit-work/:id" element={<EditorPage />} /> */}
             </>
-          )}
-          {isAdmin && (
+            )}
+            {isAdmin && (
             <Route path="/dashboard" element={<Dashboard />} />
-          )}
-          <Route path="*" element={<CatchAllRoute isUser={isUser} isAdmin={isAdmin} />} />
-        </Routes>
-        <Footer />
+            )}
+            <Route path="*" element={<CatchAllRoute isUser={isUser} isAdmin={isAdmin} />} />
+          </Routes>
+          <Footer />
+        </div>
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
 

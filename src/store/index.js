@@ -12,6 +12,7 @@ import { isPromise } from '../utils';
 import { reducer as globalStoreReducer } from './globalStore';
 import { reducer as userStoreReducer, types as userTypes } from './userStore';
 import { reducer as articleStoreReducer, types as articleTypes } from './articleStore';
+import { reducer as walletReducer } from './cardanoStore';
 // import ErrorMessage from '../components/errors/ErrorMessage';
 import { localStorageKeys } from '../tokens';
 import { getItem } from '../localStorage';
@@ -58,7 +59,11 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
 
             // dispatch({ type: action.type + '_REJECTED', payload });
           } else {
-            dispatch({ type: action.type + '_FULFILLED', payload });
+            dispatch({
+              type: action.type + '_FULFILLED',
+              payload,
+              propagate: get(action, 'propagate', {}),
+            });
           }
         })
         .catch((e) => {
@@ -138,6 +143,8 @@ const initialReduxState: ReduxState = {
     categories: {},
     tags: {},
     versions: [],
+    reviewers: [],
+    reviews: [],
     activeBlock: null,
     activeSections: {},
     blockIdQueue: {
@@ -146,6 +153,11 @@ const initialReduxState: ReduxState = {
       deleted: {},
     },
     critical_section_ids: [],
+  },
+  wallet: {
+    tx_id: '',
+    key: '',
+    signature: '',
   },
 };
 
@@ -172,6 +184,7 @@ export const configureStore = (
       global: globalStoreReducer,
       user: userStoreReducer,
       article: articleStoreReducer,
+      wallet: walletReducer,
     }),
     initialState,
     middlewareApplier,
