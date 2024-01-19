@@ -35,10 +35,7 @@ export const actions = {
 
     return {
       type: types.WLT_FILL_TREASURY,
-      payload: API.postTreasury({
-        totalAmount: payload.totalAmount,
-        transactionLimit: payload.transactionLimit,
-      }),
+      payload: API.postTreasury(payload),
       propagate: {
         articleId: payload.articleId,
       },

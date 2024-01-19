@@ -9,7 +9,7 @@ import {
   Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
 import {
-  find, toNumber, truncate,
+  find, first, toNumber, truncate,
 } from 'lodash';
 // import type { Article } from '../../store/articleStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -63,7 +63,7 @@ function TreasuryModal(): Node {
     // stakeAddress,
     // accountBalance,
     signMessage,
-    // usedAddresses,
+    usedAddresses,
     // enabledWallet,
     // installedExtensions,
     // connect,
@@ -201,6 +201,7 @@ function TreasuryModal(): Node {
         fillTreasury({
           totalAmount: treasury.totalAmount,
           transactionLimit: treasury.transactionLimit,
+          address: first(usedAddresses),
           articleId: id,
         });
         break;
