@@ -6,7 +6,7 @@ import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
-  Box, Button, Chip, InputAdornment, Paper, Step, StepContent, StepLabel, Stepper, TextField, Typography,
+  Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
 import {
   find, toNumber, truncate,
@@ -15,6 +15,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/cardanoStore';
+import Input from '../elements/Input';
 // type Props = {
 //   // article: Article,
 //   // onClose: () => void,
@@ -113,38 +114,32 @@ function TreasuryModal(): Node {
       and. You can fill the treasury with ADA from your wallet.`,
       step: (
         <>
-          <TextField
+          <Input
             error={!isAmountValid}
             label="Total Amount"
             helperText={getError(treasury.totalAmount, amountErrors) || 'Total amount of ADA to be sent to the treasury'}
-            variant="outlined"
             type='number'
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₳</InputAdornment>,
-            }}
+            currency='₳'
             value={treasury.totalAmount}
-            onChange={(e: any) => {
+            onChange={(newValue: string) => {
               setTreasury({
                 ...treasury,
-                totalAmount: toNumber(e.target.value),
+                totalAmount: toNumber(newValue),
               });
             }}
           />
 
-          <TextField
+          <Input
             label="Transaction Limit"
-            variant="outlined"
             error={!isTransactionLimitValid}
             helperText={getError(treasury.transactionLimit, transactionLimitErrors) || 'Maximum amount of ADA to be sent in a single transaction'}
             type='number'
-            InputProps={{
-              endAdornment: <InputAdornment position="end">₳</InputAdornment>,
-            }}
+            currency='₳'
             value={treasury.transactionLimit}
-            onChange={(e: any) => {
+            onChange={(newValue: string) => {
               setTreasury({
                 ...treasury,
-                transactionLimit: toNumber(e.target.value),
+                transactionLimit: toNumber(newValue),
               });
             }}
           />

@@ -33,7 +33,7 @@
       width: 100%;
     }
 
-    .user-page-hero{
+    .user-page-hero {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -45,7 +45,7 @@
       gap: 20px;
 
 
-      .user-page-hidden-content{
+      .user-page-hidden-content {
         margin-top: 0 !important;
         display: flex;
         flex-direction: column;
@@ -55,10 +55,10 @@
         gap: 20px;
 
 
-        
+
       }
 
-      .user-section-wrapper{
+      .user-section-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -67,7 +67,13 @@
         gap: 20px;
         padding: 10px 30px;
 
-        .user-section-wrapper-icons{
+        hr {
+          width: 100%;
+          border-top: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+          margin-bottom: 10px;
+        }
+
+        .user-section-wrapper-icons {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -78,49 +84,50 @@
           gap: 10px;
 
           .user-section-wrapper-icons-ok,
-          .user-section-wrapper-icons-x{
+          .user-section-wrapper-icons-x {
             padding: 10px 30px;
             width: 100%;
 
-            &.user-section-wrapper-icons-disabled{
+            &.user-section-wrapper-icons-disabled {
               background: rgba($pubWeaveBlue, 0.05);
               color: rgba($pubWeaveBlue, 0.5);
               cursor: default;
-              &:hover{
+
+              &:hover {
                 background: rgba($pubWeaveBlue, 0.05);
                 color: rgba($pubWeaveBlue, 0.5);
               }
             }
-            
-            &:hover{
+
+            &:hover {
               background: $pubWeaveBlue;
               color: #fff;
             }
           }
 
-          .user-section-wrapper-icons-ok{
+          .user-section-wrapper-icons-ok {
             border-radius: 5px 0 0 5px;
           }
 
-          .user-section-wrapper-icons-x{
+          .user-section-wrapper-icons-x {
             border-radius: 0 5px 5px 0;
           }
         }
       }
-    
+
 
       @media screen and (max-width: $mobile_breakpoint) {
         width: calc(100% - 20px);
       }
-  
-      hr{
+
+      hr {
         width: 50%;
         border-top: 1px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
         margin: 0;
-  
+
       }
-      
-      .user-page-header{
+
+      .user-page-header {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -133,13 +140,13 @@
         border-bottom: 3px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
         transition: 0.5s ease-in-out;
 
-        &:hover{
+        &:hover {
           cursor: pointer;
           border-bottom: 3px solid $pubWeaveBlue;
 
         }
-  
-        .user-page-header-title{
+
+        .user-page-header-title {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -155,8 +162,8 @@
           }
         }
       }
-  
-      .user-page-info{
+
+      .user-page-info {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -165,7 +172,7 @@
         padding: 10px 50px;
         gap: 10px;
 
-        .user-page-info-edit-icon{
+        .user-page-info-edit-icon {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -174,12 +181,12 @@
           color: rgba($pubWeaveBlue, 0.5);
           cursor: pointer;
 
-          &:hover{
+          &:hover {
             color: $pubWeaveBlue;
 
           }
         }
-  
+
         .user-page-info-avatar {
           width: 90px;
           height: 90px;
@@ -194,61 +201,62 @@
           cursor: pointer;
 
 
-          &:hover{
-            .icon{
+          &:hover {
+            .icon {
               visibility: visible;
             }
           }
 
-            .icon{
-              visibility: hidden;
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              font-size: 30px;
-              color: rgba($white, 0.5);
-              z-index: 4;
+          .icon {
+            visibility: hidden;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: rgba($white, 0.5);
+            z-index: 4;
 
-              
-            }
 
-            img{
-              width: 100%;
-              height: 100%;
-              border-radius: 10px;
-              border: 3px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
-            }
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            border: 3px solid rgba($color: $pubWeaveBlue, $alpha: 0.5);
+          }
         }
-  
-        .user-page-info-text{
+
+        .user-page-info-text {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           width: fit-content;
           gap: 8px;
-  
-          .user-page-header-info-name{
+
+          .user-page-header-info-name {
             font-size: 20px;
             font-weight: 600;
             width: 200px;
             color: $pubWeaveBlue;
-           
 
-            &.user-page-header-info-name-edit{
+
+            &.user-page-header-info-name-edit {
               display: flex;
               flex-direction: row;
               align-items: center;
               justify-content: center;
               width: 100%;
               margin-bottom: 0 !important;
-              &::placeholder{
+
+              &::placeholder {
                 color: rgba($pubWeaveBlue, 0.5);
               }
-              
 
-              
+
+
               width: 100%;
               height: 40px;
               border-radius: 5px;
@@ -260,18 +268,18 @@
               color: #000;
               background: #fff;
               border:rgba($color: $pubWeaveBlue, $alpha: 0.5) 1px solid;
-              
+
             }
           }
-  
-          .user-page-header-info-email{
+
+          .user-page-header-info-email {
             font-size: 14px;
             font-weight: 400;
             width: 200px;
             color: $pubWeaveBlue;
           }
 
-          .user-page-header-info-username{
+          .user-page-header-info-username {
             font-size: 14px;
             font-weight: 400;
             width: 200px;
@@ -284,7 +292,7 @@
 
 }
 
-.user-info-item{
+.user-info-item {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -303,11 +311,11 @@
     padding: 0 0 0 10px;
   }
 
-  &.user-info-item-clickable{
+  &.user-info-item-clickable {
     // transition: 0.1s ease-in-out;
     cursor: pointer;
 
-    &:hover{
+    &:hover {
       background: $pubWeaveBlue;
       color: #fff;
       border: 1px solid #fff;
@@ -315,10 +323,11 @@
 
   }
 
-  &.user-info-item-array{
+  &.user-info-item-array {
     cursor: default;
-    &.user-info-item-clickable{
-      &:hover{
+
+    &.user-info-item-clickable {
+      &:hover {
         background: rgba(#11273F, 0.05);
         color: #11273F;
         border: 1px transparent solid;
@@ -326,37 +335,37 @@
     }
   }
 
-  &.user-info-item-button{
+  &.user-info-item-button {
     cursor: pointer;
     // transition: 0.3s ease-in-out;
     background: $pubWeaveBlue;
     color: #fff;
     border: 1px solid #fff;
 
-    &:hover{
+    &:hover {
       background: rgba(#11273F, 0.05);
       color: #11273F;
       border: 1px solid #11273F;
     }
 
-    .user-info-item-title{
+    .user-info-item-title {
       width: 100%;
     }
   }
 
-  .user-info-item-title{
+  .user-info-item-title {
     display: flex;
     flex-direction: row;
     gap: 10px;
     font-size: 14px;
     width: 50%;
-    font-weight: 400;  
+    font-weight: 400;
     max-width: 150px;
     white-space: nowrap;
 
   }
 
-  .user-info-item-value{
+  .user-info-item-value {
     font-size: 14px;
     font-weight: 400;
     width: 50%;
@@ -364,7 +373,7 @@
     gap: 10px;
     flex-direction: column;
 
-    &.user-info-item-value-input{
+    &.user-info-item-value-input {
       width: 100%;
       height: 20px;
       font-size: 14px;
@@ -372,17 +381,17 @@
       color: #000;
       // background: #fff;
 
-      &.user-info-item-value-input-date{
+      &.user-info-item-value-input-date {
         flex-direction: row;
       }
 
-      &::placeholder{
+      &::placeholder {
         color: rgba($color: $pubWeaveBlue, $alpha: 0.5);
       }
     }
   }
 
-  .user-info-item-values{
+  .user-info-item-values {
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -390,7 +399,7 @@
     justify-content: flex-start;
     width: 50%;
 
-    .user-info-item-values-value{
+    .user-info-item-values-value {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -400,7 +409,7 @@
       width: 100%;
       cursor: pointer;
 
-      &:hover{
+      &:hover {
         background: $pubWeaveBlue;
         color: #fff;
       }

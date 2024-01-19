@@ -24,12 +24,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
-import UserInfoInput from '../elements/UserInfoInput';
 import UserInfoItem from '../elements/UserInfoItem';
 import Modal from '../modal/Modal';
 import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
 import HowItWorks from '../modal/HowItWorks';
 import Conditions from '../modal/Conditions';
+import Input from '../elements/Input';
 
 type ReviewFormProps = {
   onSubmit: Function,
@@ -40,7 +40,7 @@ type ReviewFormProps = {
 function ReviewForm(props: ReviewFormProps) {
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
-  const [deadline, setDeadline] = useState(props.review ? props.review.deadline : '');
+  const [deadline, setDeadline] = useState(props.review ? props.review.deadline : new Date().toISOString().split('T')[0]);
   // eslint-disable-next-line no-unused-vars
   const [amount, setAmount] = useState(props.review ? props.review.amount : '');
   const [values, setValues] = useState<Array<number>>(props.review ? map(props.review.user_reviews, (userReview) => {
@@ -71,20 +71,19 @@ function ReviewForm(props: ReviewFormProps) {
   return (
     <>
 
-      <div className="review-modal-content">
-        <UserInfoInput
-          label="Amount"
-          value={amount}
-          after="ADA"
-          onClick={(e: any) => setAmount(e.target.value)}
-        />
-        <UserInfoInput
-          label="Deadline"
-          type="date"
-          value={deadline}
-          onClick={(e: any) => setDeadline(e.target.value)}
-        />
-      </div>
+      <Input
+        label="Amount"
+        value={amount}
+        type="number"
+        currency="₳"
+        onChange={(newValue: string) => setAmount(newValue)}
+      />
+      <Input
+        label="Deadline"
+        value={deadline}
+        type="date"
+        onChange={(newValue: any) => setDeadline(newValue)}
+      />
       <Autocomplete
         disablePortal
         multiple
@@ -101,14 +100,15 @@ function ReviewForm(props: ReviewFormProps) {
         sx={{
           minWidth: 200, display: 'flex', alignItems: 'center',
         }}
-        size="small"
         renderInput={(params) => (
           <TextField
             {...params}
             className='article-config-item-input'
             variant="outlined"
-            size="small"
             label="Reviewers"
+            error={isEmpty(values)}
+            helperText={size(searchOptions) ? 'Select reviewers (users with valid wallet address)'
+              : 'No reviewers (users with valid wallet address) found'}
           />
         )}
       />
@@ -289,10 +289,10 @@ function ReviewTable(props: any) {
 
   return (
     <div className="review-modal-content">
-      <UserInfoItem
+      <Input
         label="Amount"
         value={props.amount}
-        after="ADA"
+        currency="₳"
       />
       <UserInfoItem
         label="Deadline"
@@ -488,15 +488,17 @@ function ArticleSettings(): Node {
             />
             {isTreasuryFilled && (
             <>
-              <UserInfoItem
+              <Input
                 label="Total Amount"
                 value="150"
-                after="ADA"
+                currency="₳"
+                readOnly
               />
-              <UserInfoItem
+              <Input
                 label="Max transaction limit"
                 value="10"
-                after="ADA"
+                currency="₳"
+                readOnly
               />
             </>
             )}
@@ -517,19 +519,14 @@ function ArticleSettings(): Node {
             <Conditions
               steps={[
                 {
-                  label: 'Article status: Blog',
-                  error: get(article, 'article_type') !== 'blog_article',
-                  errorMessage: 'Article is not in status: Blog',
+                  label: 'Filled treasury',
+                  error: !isTreasuryFilled,
+                  errorMessage: 'Treasury is not filled',
                 },
                 {
-                  label: 'Connect wallet',
-                  error: !isConnected,
-                  errorMessage: 'Please connect wallet on user page',
-                },
-                {
-                  label: 'First time filling treasury',
-                  error: isTreasuryFilled,
-                  errorMessage: 'Treasury already filled',
+                  label: 'Reviewers available',
+                  error: !size(reviews),
+                  errorMessage: 'No reviewers available',
                 },
 
               ]}

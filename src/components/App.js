@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { Node } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -28,6 +28,7 @@ import Footer from './navigation/Footer';
 import ArticleSettings from './pages/ArticleSettings';
 import EditorReview from './pages/EditorReview';
 import ThemeProvider from '../store/style';
+import { checkEnvironmentVariables } from '../utils/lists';
 
 function App(): Node {
   useScrollTopEffect();
@@ -53,9 +54,9 @@ function App(): Node {
   //   }, 500);
   // }, []);
 
-  if (!process.env.REACT_APP_CARDANO_NETWORK_TYPE) {
-    throw new Error('Environment variable REACT_APP_CARDANO_NETWORK_TYPE is not set. Please set it to "testnet" or "mainnet"');
-  }
+  useEffect(() => {
+    checkEnvironmentVariables();
+  }, []);
 
   if (isLoading) {
     return (<Loader />);

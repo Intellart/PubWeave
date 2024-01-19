@@ -20,7 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import {
-  Alert, AlertTitle, Chip,
+  Alert, AlertTitle, Button, Chip,
 } from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
@@ -35,6 +35,7 @@ import UserSection from '../containers/UserSection';
 import UserInfoItem from '../elements/UserInfoItem';
 import UserInfoButton from '../elements/UserInfoButton';
 import UserInfoInput from '../elements/UserInfoInput';
+import Input from '../elements/Input';
 
 function UserPage(): React$Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
@@ -353,18 +354,21 @@ function UserPage(): React$Node {
               </Alert>
             )}
             {get(user, 'orcid_id') && (
-              <UserInfoItem
+              <Input
                 label="ORCID"
                 value={get(user, 'orcid_id')}
+                readOnly
               />
             )}
-            <UserInfoItem
+            <Input
               label="Created at"
               value={new Date(get(user, 'created_at')).toLocaleDateString()}
+              readOnly
             />
-            <UserInfoItem
+            <Input
               label="Last updated"
               value={new Date(get(user, 'updated_at')).toLocaleDateString()}
+              readOnly
             />
           </div>
           <div className="user-page-content" />
@@ -448,20 +452,21 @@ function UserPage(): React$Node {
             onClick={updateSocialMedia}
           />
         </UserSection>
+        {get(user, 'wallet_address') && !isConnected && (
         <Alert
-          severity={get(user, 'wallet_address') ? 'success' : 'error'}
+          severity="info"
           sx={{
             width: '100%',
             borderRadius: '5px',
           }}
         >
           <AlertTitle>
-            Address {get(user, 'wallet_address') ? '' : ' not'} synced with backend
+            Address synced with backend, but wallet is not connected
           </AlertTitle>
           <Chip
-            label={get(user, 'wallet_address') || 'No address'}
+            label={get(user, 'wallet_address')}
             variant='outlined'
-            color={get(user, 'wallet_address') ? 'success' : 'error'}
+            color="info"
             style={{
               width: '100%',
             }}
@@ -471,6 +476,8 @@ function UserPage(): React$Node {
             }}
           />
         </Alert>
+        )
+        }
         { !isConnected && (
         <ConnectWalletButton
           message="Connect wallet"
@@ -531,44 +538,41 @@ function UserPage(): React$Node {
             variants={variants}
             index={4}
           >
-            <UserInfoItem
-              label="Stake Address"
+            <Input
+              label="Stake address"
               value={stakeAddress}
-              onClick={() => {
-                navigator.clipboard.writeText(stakeAddress);
-                toast.success('Copied to clipboard');
-              }}
+              readOnly
+              helperText="Stake address is a public key used to identify your wallet on the blockchain."
             />
-            <UserInfoItem
+            <Input
               label="Account balance"
               value={accountBalance}
+              readOnly
+              currency="₳"
             />
-            <UserInfoItem
+            <Input
               label="Wallet name"
               value={enabledWallet}
+              readOnly
             />
-            <p className="user-info-item user-info-item-label">
-              Used addresses:
-            </p>
+            <hr />
             {map(usedAddresses, (address, index) => (
-              <Chip
+              <Input
                 key={index}
-                label={address}
-                variant='outlined'
-                color='success'
-                style={{
-                  width: '100%',
-                }}
-                onClick={() => {
-                  navigator.clipboard.writeText(address);
-                  toast.success('Copied to clipboard');
-                }}
+                label="Used address"
+                value={address}
+                readOnly
+                helperText={get(user, 'wallet_address') ? 'Synced with backend' : 'Not synced with backend'}
+                color={get(user, 'wallet_address') ? 'success' : 'error'}
               />
             ))}
-            <UserInfoButton
+            <Button
+              variant="contained"
               label="Disconnect wallet"
               onClick={disconnectWallet}
-            />
+            >
+              Disconnect wallet
+            </Button>
           </UserSection>
         )}
       </div>

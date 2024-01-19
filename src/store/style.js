@@ -24,6 +24,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           maxWidth: '400px',
+          width: '100%',
         },
       },
     },
@@ -43,16 +44,30 @@ const theme = createTheme({
         },
       },
     },
+    MuiAutocomplete: {
+      styleOverrides: {
+        root: {
+          width: '100%',
+        },
+      },
+    },
     MuiTextField: {
       // remove number input arrows
       styleOverrides: {
         root: {
+          width: '100%',
           '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
             '-webkit-appearance': 'none',
             margin: 0,
           },
           '& input[type=number]': {
             '-moz-appearance': 'textfield',
+          },
+          '& .hidden-button': {
+            display: 'none',
+          },
+          '&:hover .hidden-button': {
+            display: 'flex',
           },
         },
       },
