@@ -4,7 +4,7 @@ import type { Node } from 'react';
 // import { get } from 'lodash';
 import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import {
   Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
@@ -16,13 +16,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCode, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/cardanoStore';
 import Input from '../elements/Input';
-// type Props = {
-//   // article: Article,
-//   // onClose: () => void,
-// };
 
-function TreasuryModal(): Node {
+type Props = {
+  onClose: () => void,
+};
+
+function TreasuryModal({ onClose }: Props): Node {
   const { id } = useParams();
+  // eslint-disable-next-line no-unused-vars
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [treasury, setTreasury] = useState({
     totalAmount: '',
@@ -32,15 +34,19 @@ function TreasuryModal(): Node {
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
   const key = useSelector((state) => selectors.getKey(state));
+  const txIDFulfilled = useSelector((state) => selectors.getTxIDFulfilled(state));
 
   const dispatch = useDispatch();
   const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
   const saveSignedMessage = (signature_: string, key_:string) => dispatch(actions.signMessage(signature_, key_));
+  const submitMessage = (signature_: string, tx: string) => dispatch(actions.submitMessage(signature_, tx));
 
   const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
   const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
+
+  console.log('txIDFulfilled', txIDFulfilled);
 
   useEffect(() => {
     if (txId) {
@@ -50,7 +56,16 @@ function TreasuryModal(): Node {
   }, [txId]);
 
   useEffect(() => {
-    if (signature && key) {
+    if (txIDFulfilled) {
+      // refresh page with this as param
+      setSearchParams({ tx: txIDFulfilled });
+      onClose();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txIDFulfilled]);
+
+  useEffect(() => {
+    if (signature) {
       setNextButtonDisabled(false);
       setActiveStep(2);
     }
@@ -62,7 +77,7 @@ function TreasuryModal(): Node {
     // enabledWallet,
     // stakeAddress,
     // accountBalance,
-    signMessage,
+    // signMessage,
     usedAddresses,
     // enabledWallet,
     // installedExtensions,
@@ -182,6 +197,7 @@ function TreasuryModal(): Node {
           />
         </>),
       nextText: 'Send',
+      isValid: true,
 
     },
   ];
@@ -206,10 +222,16 @@ function TreasuryModal(): Node {
         });
         break;
       case 1:
-        signMessage(txId, (signature_: string, key_: string | void) => {
-          saveSignedMessage(signature_, key_ || '');
-          // console.log('Message signed', signature_, key_);
+        console.log('Signing message... ', txId);
+        window.cardano.signTx(txId).then((signature_: string) => {
+        // signMessage(txId, (signature_: string, key_: string | void) => {
+          console.log('Message signed', signature_);
+          saveSignedMessage(signature_, '123');
         });
+        break;
+      case 2:
+        console.log('Submitting message... ', signature);
+        submitMessage(signature, txId);
         break;
       default:
         break;

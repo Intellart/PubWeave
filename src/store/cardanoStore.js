@@ -7,6 +7,7 @@ export type State = {
   tx_id: string,
   signature: string,
   key: string,
+  tx_id_fulfilled: string,
 };
 
 export const types = {
@@ -16,12 +17,18 @@ export const types = {
   WLT_FILL_TREASURY_PENDING: 'WLT_FILL_TREASURY_PENDING',
 
   WLT_SIGN_MESSAGE: 'WLT_SIGN_MESSAGE',
+
+  WLT_SUBMIT_MESSAGE: 'WLT_SUBMIT_MESSAGE',
+  WLT_SUBMIT_MESSAGE_FULFILLED: 'WLT_SUBMIT_MESSAGE_FULFILLED',
+  WLT_SUBMIT_MESSAGE_REJECTED: 'WLT_SUBMIT_MESSAGE_REJECTED',
+  WLT_SUBMIT_MESSAGE_PENDING: 'WLT_SUBMIT_MESSAGE_PENDING',
 };
 
 export const selectors = {
   getTxID: (state: ReduxState): string | null => state.wallet.tx_id,
   getSignature: (state: ReduxState): string | null => state.wallet.signature,
   getKey: (state: ReduxState): string | null => state.wallet.key,
+  getTxIDFulfilled: (state: ReduxState): string => state.wallet.tx_id_fulfilled,
 
 };
 
@@ -48,10 +55,28 @@ export const actions = {
       key,
     },
   }),
+  submitMessage: (signature: string, tx: string): ReduxAction => ({
+    type: types.WLT_SUBMIT_MESSAGE,
+    payload: API.submitTx({
+      tx,
+      witness: signature,
+    }),
+  }),
 };
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WLT_SUBMIT_MESSAGE_FULFILLED:
+      console.log('WLT_SUBMIT_MESSAGE_FULFILLED');
+      toast.update('fill-treasury', {
+        type: toast.TYPE.SUCCESS,
+        render: 'Message submitted successfully',
+      });
+
+      return {
+        ...state,
+        tx_id_fulfilled: action.payload.tx_id,
+      };
     case types.WLT_SIGN_MESSAGE:
       console.log('WLT_SIGN_MESSAGE');
       toast.update('fill-treasury', {
@@ -77,7 +102,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       return {
         ...state,
-        tx_id: action.payload.tx_id,
+        tx_id: action.payload.tx,
       };
 
     default:

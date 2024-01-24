@@ -175,7 +175,7 @@ function Modal(props: Props): React$Node {
     } else if (props.type === 'treasury') {
       return (
         <TreasuryModal
-          article={article}
+          // article={article}
           onClose={handleOnClose}
         />
       );

@@ -22,7 +22,7 @@ function Input({
     <TextField
       variant='outlined'
       color={color}
-      focused={color}
+      focused={!!color}
       label={label}
       value={value}
       readOnly={readOnly}
@@ -48,7 +48,7 @@ function Input({
         </InputAdornment>
         ),
         readOnly,
-        disableUnderline: readOnly,
+        // disableUnderline: readOnly,
       }}
       type={type || 'text'}
     />

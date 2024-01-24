@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 
@@ -394,6 +394,10 @@ function Review(props: any) {
 
 function ArticleSettings(): Node {
   const { id } = useParams();
+  // eslint-disable-next-line no-unused-vars
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  console.log(searchParams.get('tx'));
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
@@ -409,7 +413,7 @@ function ArticleSettings(): Node {
 
   const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
-  console.log(article);
+  // console.log(article);
   const {
     // isEnabled,
     isConnected,
