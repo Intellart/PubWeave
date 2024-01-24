@@ -57,11 +57,11 @@ const theme = createTheme({
         root: {
           width: '100%',
           '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
-            '-webkit-appearance': 'none',
+            webkitAppearance: 'none',
             margin: 0,
           },
           '& input[type=number]': {
-            '-moz-appearance': 'textfield',
+            mozAppearance: 'textfield',
           },
           '& .hidden-button': {
             display: 'none',
