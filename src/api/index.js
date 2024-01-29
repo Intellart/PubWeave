@@ -48,3 +48,9 @@ export const submitTx = async (payload: any): Promise<any> => {
 
   return response.data;
 };
+
+export const fetchTreasury = async (articleId: number): Promise<any> => {
+  const response: any = await apiClientCardano.get(`/treasury/${articleId}/`);
+
+  return response.data;
+};

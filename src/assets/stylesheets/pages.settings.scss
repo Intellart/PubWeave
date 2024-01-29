@@ -45,6 +45,13 @@
       padding: 10px;
       width: 100%;
 
+      .article-settings-treasury-filled {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 400px;
+      }
+
 
       .article-settings-subtitle {
         font-size: 1.2rem;

@@ -20,9 +20,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBan,
   faCheck,
-  faPlus, faXmark,
+  faPlus, faRefresh, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
+// eslint-disable-next-line no-unused-vars
+import { actions as cardanoActions, selectors as cardanoSelectors } from '../../store/cardanoStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import UserInfoItem from '../elements/UserInfoItem';
 import Modal from '../modal/Modal';
@@ -397,15 +399,22 @@ function ArticleSettings(): Node {
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
 
-  console.log(searchParams.get('tx'));
+  const tx = searchParams.get('tx');
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
   const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
   const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
+  const fetchTreasury = (ind: number) => dispatch(cardanoActions.fetchTreasury(ind));
+
+  useEffect(() => {
+    if (id) fetchTreasury(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
+  const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
   // const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
@@ -456,7 +465,8 @@ function ArticleSettings(): Node {
 
   // const reviewersExist = !isEmpty(reviewers);
 
-  const isTreasuryFilled = false;
+  const isTreasuryFilled = get(treasury, 'status') === 'treasury_found';
+  const isTreasuryFound = get(treasury, 'status') === 'treasury_empty' || isTreasuryFilled || tx;
 
   return (
     <main className="article-settings-wrapper">
@@ -482,30 +492,10 @@ function ArticleSettings(): Node {
                   error: !isConnected,
                   errorMessage: 'Please connect wallet on user page',
                 },
-                {
-                  label: 'First time filling treasury',
-                  error: isTreasuryFilled,
-                  errorMessage: 'Treasury already filled',
-                },
 
               ]}
             />
-            {isTreasuryFilled && (
-            <>
-              <Input
-                label="Total Amount"
-                value="150"
-                currency="₳"
-                readOnly
-              />
-              <Input
-                label="Max transaction limit"
-                value="10"
-                currency="₳"
-                readOnly
-              />
-            </>
-            )}
+
             <Modal
               enabled
               articleId={id}
@@ -513,6 +503,26 @@ function ArticleSettings(): Node {
               shape="button"
               text="fillTreasury"
             />
+            {(isTreasuryFilled || isTreasuryFound) && (
+            <div className='article-settings-treasury-filled'>
+              <Input
+                label="Total Amount"
+                value={get(treasury, 'balance', 0)}
+                currency="₳"
+                readOnly
+                helperText={!isTreasuryFilled ? "Treasury exists but it's not filled, please refresh in a minute" : 'Total amount in treasury'}
+                error={!isTreasuryFilled}
+              />
+              <Button
+                variant="outlined"
+                color="warning"
+                className='article-settings-button'
+                onClick={() => fetchTreasury(id)}
+              >
+                <FontAwesomeIcon icon={faRefresh} />&nbsp;Refresh
+              </Button>
+            </div>
+            )}
           </div>
         </section>
 
@@ -523,9 +533,14 @@ function ArticleSettings(): Node {
             <Conditions
               steps={[
                 {
-                  label: 'Filled treasury',
+                  label: 'Create treasury',
+                  error: !isTreasuryFound,
+                  errorMessage: 'Treasury not found',
+                },
+                {
+                  label: 'Treasury filled',
                   error: !isTreasuryFilled,
-                  errorMessage: 'Treasury is not filled',
+                  errorMessage: 'Treasury not filled',
                 },
                 {
                   label: 'Reviewers available',
@@ -546,7 +561,7 @@ function ArticleSettings(): Node {
           <Review id={2} amount={9.31} />
           <Review id={2} amount={4.523} /> */}
             <NewReview
-              disabled={!isEmpty(reviews)}
+              disabled={!isEmpty(reviews) || !isTreasuryFilled || !isTreasuryFound}
             />
           </div>
         </section>

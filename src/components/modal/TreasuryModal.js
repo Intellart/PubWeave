@@ -13,7 +13,7 @@ import {
 } from 'lodash';
 // import type { Article } from '../../store/articleStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCode, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/cardanoStore';
 import Input from '../elements/Input';
 
@@ -33,12 +33,11 @@ function TreasuryModal({ onClose }: Props): Node {
 
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
-  const key = useSelector((state) => selectors.getKey(state));
   const txIDFulfilled = useSelector((state) => selectors.getTxIDFulfilled(state));
 
   const dispatch = useDispatch();
   const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
-  const saveSignedMessage = (signature_: string, key_:string) => dispatch(actions.signMessage(signature_, key_));
+  const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const submitMessage = (signature_: string, tx: string) => dispatch(actions.submitMessage(signature_, tx));
 
   const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
@@ -69,7 +68,7 @@ function TreasuryModal({ onClose }: Props): Node {
       setNextButtonDisabled(false);
       setActiveStep(2);
     }
-  }, [signature, key]);
+  }, [signature]);
 
   const {
     // isEnabled,
@@ -182,20 +181,12 @@ function TreasuryModal({ onClose }: Props): Node {
       label: 'Send signed transaction',
       description: 'You can now send the signed transaction to the blockchain.',
       step: (
-        <>
-          <Chip
-            label={truncate(signature, { length: 15 })}
-            variant="default"
-            color="primary"
-            avatar={<FontAwesomeIcon icon={faPaperPlane} />}
-          />
-          <Chip
-            label={truncate(key, { length: 15 })}
-            variant="default"
-            avatar={<FontAwesomeIcon icon={faCode} />}
-            color="primary"
-          />
-        </>),
+        <Chip
+          label={truncate(signature, { length: 15 })}
+          variant="default"
+          color="primary"
+          avatar={<FontAwesomeIcon icon={faPaperPlane} />}
+        />),
       nextText: 'Send',
       isValid: true,
 
@@ -226,7 +217,7 @@ function TreasuryModal({ onClose }: Props): Node {
         window.cardano.signTx(txId).then((signature_: string) => {
         // signMessage(txId, (signature_: string, key_: string | void) => {
           console.log('Message signed', signature_);
-          saveSignedMessage(signature_, '123');
+          saveSignedMessage(signature_);
         });
         break;
       case 2:

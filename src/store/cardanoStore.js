@@ -3,11 +3,20 @@ import { toast } from 'react-toastify';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 
+export type TreasuryStatus = 'treasury_empty' | 'no_treasury' | 'treasury_found' | 'error';
+
+export type Treasury = {
+  status: TreasuryStatus,
+  utxos?: Array<any>,
+  balance?: number,
+  address?: string,
+};
+
 export type State = {
   tx_id: string,
   signature: string,
-  key: string,
   tx_id_fulfilled: string,
+  treasury: Treasury,
 };
 
 export const types = {
@@ -22,17 +31,26 @@ export const types = {
   WLT_SUBMIT_MESSAGE_FULFILLED: 'WLT_SUBMIT_MESSAGE_FULFILLED',
   WLT_SUBMIT_MESSAGE_REJECTED: 'WLT_SUBMIT_MESSAGE_REJECTED',
   WLT_SUBMIT_MESSAGE_PENDING: 'WLT_SUBMIT_MESSAGE_PENDING',
+
+  WLT_FETCH_WALLET: 'WLT_FETCH_WALLET',
+  WLT_FETCH_WALLET_FULFILLED: 'WLT_FETCH_WALLET_FULFILLED',
+  WLT_FETCH_WALLET_REJECTED: 'WLT_FETCH_WALLET_REJECTED',
+  WLT_FETCH_WALLET_PENDING: 'WLT_FETCH_WALLET_PENDING',
 };
 
 export const selectors = {
   getTxID: (state: ReduxState): string | null => state.wallet.tx_id,
   getSignature: (state: ReduxState): string | null => state.wallet.signature,
-  getKey: (state: ReduxState): string | null => state.wallet.key,
   getTxIDFulfilled: (state: ReduxState): string => state.wallet.tx_id_fulfilled,
+  getTreasury: (state: ReduxState): Treasury => state.wallet.treasury,
 
 };
 
 export const actions = {
+  fetchTreasury: (articleId: number): ReduxAction => ({
+    type: types.WLT_FETCH_WALLET,
+    payload: API.fetchTreasury(articleId),
+  }),
   fillTreasury: (payload: any): ReduxAction => {
     toast('Filling treasury...', {
       type: toast.TYPE.INFO,
@@ -48,11 +66,10 @@ export const actions = {
       },
     };
   },
-  signMessage: (signature: string, key: string): ReduxAction => ({
+  signMessage: (signature: string): ReduxAction => ({
     type: types.WLT_SIGN_MESSAGE,
     payload: {
       signature,
-      key,
     },
   }),
   submitMessage: (signature: string, tx: string): ReduxAction => ({
@@ -66,6 +83,14 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WLT_FETCH_WALLET_FULFILLED:
+      console.log('WLT_FETCH_WALLET_FULFILLED');
+      console.log(action.payload);
+
+      return {
+        ...state,
+        treasury: action.payload,
+      };
     case types.WLT_SUBMIT_MESSAGE_FULFILLED:
       console.log('WLT_SUBMIT_MESSAGE_FULFILLED');
       toast.update('fill-treasury', {
@@ -88,7 +113,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         signature: action.payload.signature,
-        key: action.payload.key,
       };
     case types.WLT_FILL_TREASURY_FULFILLED:
       toast.update('fill-treasury', {
