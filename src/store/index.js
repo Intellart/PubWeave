@@ -156,8 +156,9 @@ const initialReduxState: ReduxState = {
   },
   wallet: {
     tx_id: '',
-    key: '',
     signature: '',
+    treasury: null,
+    tx_id_fulfilled: '',
   },
 };
 

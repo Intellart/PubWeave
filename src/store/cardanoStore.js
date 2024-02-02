@@ -1,5 +1,6 @@
 // @flow
 import { toast } from 'react-toastify';
+import { get } from 'lodash';
 import * as API from '../api';
 import type { ReduxAction, ReduxActionWithPayload, ReduxState } from '../types';
 
@@ -16,7 +17,7 @@ export type State = {
   tx_id: string,
   signature: string,
   tx_id_fulfilled: string,
-  treasury: Treasury,
+  treasury: Treasury | null,
 };
 
 export const types = {
@@ -42,14 +43,17 @@ export const selectors = {
   getTxID: (state: ReduxState): string | null => state.wallet.tx_id,
   getSignature: (state: ReduxState): string | null => state.wallet.signature,
   getTxIDFulfilled: (state: ReduxState): string => state.wallet.tx_id_fulfilled,
-  getTreasury: (state: ReduxState): Treasury => state.wallet.treasury,
+  getTreasury: (state: ReduxState): Treasury | null => state.wallet.treasury,
 
 };
 
 export const actions = {
-  fetchTreasury: (articleId: number): ReduxAction => ({
+  fetchTreasury: (articleId: number, showMessage?: boolean): ReduxAction => ({
     type: types.WLT_FETCH_WALLET,
     payload: API.fetchTreasury(articleId),
+    propagate: {
+      showMessage,
+    },
   }),
   fillTreasury: (payload: any): ReduxAction => {
     toast('Filling treasury...', {
@@ -87,6 +91,20 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       console.log('WLT_FETCH_WALLET_FULFILLED');
       console.log(action.payload);
 
+      if (get(action.propagate, 'showMessage', false)) {
+        const message = {
+          treasury_empty: 'Treasury is empty, please wait for a minute and try again.',
+          no_treasury: 'No treasury found! Please wait for a minute and try again.',
+          treasury_found: 'Treasury info updated! Plese wait for a minute before trying again.',
+          error: 'Error fetching treasury! Unexpected error occurred.',
+        }[get(action.payload, 'status', 'error')];
+
+        toast(message, {
+          type: toast.TYPE.INFO,
+          autoClose: 5000,
+        });
+      }
+
       return {
         ...state,
         treasury: action.payload,
@@ -95,7 +113,9 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       console.log('WLT_SUBMIT_MESSAGE_FULFILLED');
       toast.update('fill-treasury', {
         type: toast.TYPE.SUCCESS,
-        render: 'Message submitted successfully',
+        render: 'Transaction submitted successfully!',
+        autoClose: 5000,
+        progress: null,
       });
 
       return {
@@ -107,7 +127,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.update('fill-treasury', {
         type: toast.TYPE.INFO,
         progress: 0.6,
-        render: 'Message signed successfully',
+        render: 'Transaction signed successfully!',
       });
 
       return {
@@ -118,7 +138,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       toast.update('fill-treasury', {
         type: toast.TYPE.SUCCESS,
         progress: 0.3,
-        render: 'Treasury filled successfully',
+        render: 'Treasury account created successfully!',
       });
 
       console.log('Treasury filled successfully');

@@ -405,7 +405,7 @@ function ArticleSettings(): Node {
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
   const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
   const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
-  const fetchTreasury = (ind: number) => dispatch(cardanoActions.fetchTreasury(ind));
+  const fetchTreasury = (ind: number, showMessage?: boolean) => dispatch(cardanoActions.fetchTreasury(ind, showMessage));
 
   useEffect(() => {
     if (id) fetchTreasury(id);
@@ -517,7 +517,7 @@ function ArticleSettings(): Node {
                 variant="outlined"
                 color="warning"
                 className='article-settings-button'
-                onClick={() => fetchTreasury(id)}
+                onClick={() => fetchTreasury(id, true)}
               >
                 <FontAwesomeIcon icon={faRefresh} />&nbsp;Refresh
               </Button>
