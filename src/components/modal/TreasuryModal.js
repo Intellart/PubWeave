@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 // import { get } from 'lodash';
-import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+// import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
 import {
   Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
 import {
-  find, first, toNumber, truncate,
+  find, toNumber, truncate,
 } from 'lodash';
 // import type { Article } from '../../store/articleStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -40,7 +40,7 @@ function TreasuryModal({ onClose }: Props): Node {
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const submitMessage = (signature_: string, tx: string) => dispatch(actions.submitMessage(signature_, tx));
 
-  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
   const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -70,22 +70,22 @@ function TreasuryModal({ onClose }: Props): Node {
     }
   }, [signature]);
 
-  const {
-    // isEnabled,
-    // isConnected,
-    // enabledWallet,
-    // stakeAddress,
-    // accountBalance,
-    // signMessage,
-    usedAddresses,
-    // enabledWallet,
-    // installedExtensions,
-    // connect,
-    // disconnect,
-    // connectedCip45Wallet,
-  } = useCardano({
-    limitNetwork: networkType,
-  });
+  // const {
+  //   // isEnabled,
+  //   // isConnected,
+  //   // enabledWallet,
+  //   // stakeAddress,
+  //   // accountBalance,
+  //   // signMessage,
+  //   // usedAddresses,
+  //   // enabledWallet,
+  //   // installedExtensions,
+  //   // connect,
+  //   // disconnect,
+  //   // connectedCip45Wallet,
+  // } = useCardano({
+  //   limitNetwork: networkType,
+  // });
 
   const errorList = {
     isEmpty: 'isEmpty',
@@ -206,10 +206,11 @@ function TreasuryModal({ onClose }: Props): Node {
     switch (activeStep) {
       case 0:
         fillTreasury({
-          totalAmount: treasury.totalAmount,
-          transactionLimit: treasury.transactionLimit,
-          address: first(usedAddresses),
-          articleId: id,
+          article: {
+            total_amount: treasury.totalAmount,
+            transaction_limit: treasury.transactionLimit,
+            article_id: id,
+          },
         });
         break;
       case 1:
