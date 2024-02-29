@@ -76,11 +76,14 @@ export const actions = {
       signature,
     },
   }),
-  submitMessage: (signature: string, tx: string): ReduxAction => ({
+  submitMessage: (signature: string, tx: string, id: number): ReduxAction => ({
     type: types.WLT_SUBMIT_MESSAGE,
     payload: API.submitTx({
-      tx,
-      witness: signature,
+      article: {
+        tx,
+        witness: signature,
+        article_id: id,
+      },
     }),
   }),
 };
