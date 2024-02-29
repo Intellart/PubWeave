@@ -1,5 +1,5 @@
 // @flow
-import apiClient, { apiClientCardano } from './axios';
+import apiClient from './axios';
 
 export const getRequest = async (endpoint: string): Promise<any> => {
   const response = await apiClient.get(endpoint);
@@ -44,13 +44,13 @@ export const postTreasury = async (payload: any): Promise<any> => {
 };
 
 export const submitTx = async (payload: any): Promise<any> => {
-  const response: any = await apiClientCardano.post('/submit_tx', payload);
+  const response: any = await apiClient.post('/pubweave/cardanoops/submit_tx', payload);
 
   return response.data;
 };
 
 export const fetchTreasury = async (articleId: number): Promise<any> => {
-  const response: any = await apiClientCardano.get(`/treasury/${articleId}/`);
+  const response: any = await apiClient.get(`/pubweave/cardanoops/treasury_status?article_id=${articleId}`);
 
   return response.data;
 };
