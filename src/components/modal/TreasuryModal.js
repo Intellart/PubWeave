@@ -48,7 +48,7 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
   const spendTreasury = (payload: any) => dispatch(actions.spendTreasury(payload));
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const submitMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitMessage(signature_, tx, articleId));
-  // const submitSpendMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitSpendMessage(signature_, tx, articleId));
+  const submitSpendMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitSpendMessage(signature_, tx, articleId));
 
   // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
@@ -256,6 +256,10 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
         break;
       case 2:
         console.log('Submitting message... ', signature);
+        if (amountOfReviews > 0) {
+          submitSpendMessage(signature, txId, id);
+          break;
+        }
         submitMessage(signature, txId, id);
         break;
       default:
