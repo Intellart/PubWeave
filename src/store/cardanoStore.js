@@ -18,6 +18,7 @@ export type State = {
   signature: string,
   tx_id_fulfilled: string,
   treasury: Treasury | null,
+  witness_set: any,
 };
 
 export const types = {
@@ -49,6 +50,7 @@ export const selectors = {
   getSignature: (state: ReduxState): string | null => state.wallet.signature,
   getTxIDFulfilled: (state: ReduxState): string => state.wallet.tx_id_fulfilled,
   getTreasury: (state: ReduxState): Treasury | null => state.wallet.treasury,
+  getWitnessSet: (state: ReduxState): Treasury | null => state.wallet.witness_set,
 
 };
 
@@ -106,12 +108,13 @@ export const actions = {
       },
     }),
   }),
-  submitSpendMessage: (signature: string, tx: string, id: number): ReduxAction => ({
+  submitSpendMessage: (signature: string, tx: string, id: number, ws: string): ReduxAction => ({
     type: types.WLT_SUBMIT_MESSAGE,
     payload: API.submitSpendTx({
       article: {
         tx,
         witness: signature,
+        witness_set: ws,
         article_id: id,
       },
     }),
@@ -192,6 +195,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         tx_id: action.payload.tx,
+        witness_set: action.payload.witness_set,
       };
 
     default:
