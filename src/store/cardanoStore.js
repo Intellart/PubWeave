@@ -26,6 +26,11 @@ export const types = {
   WLT_FILL_TREASURY_REJECTED: 'WLT_FILL_TREASURY_REJECTED',
   WLT_FILL_TREASURY_PENDING: 'WLT_FILL_TREASURY_PENDING',
 
+  WLT_SPEND_TREASURY: 'WLT_SPEND_TREASURY',
+  WLT_SPEND_TREASURY_FULFILLED: 'WLT_SPEND_TREASURY_FULFILLED',
+  WLT_SPEND_TREASURY_REJECTED: 'WLT_SPEND_TREASURY_REJECTED',
+  WLT_SPEND_TREASURY_PENDING: 'WLT_SPEND_TREASURY_PENDING',
+
   WLT_SIGN_MESSAGE: 'WLT_SIGN_MESSAGE',
 
   WLT_SUBMIT_MESSAGE: 'WLT_SUBMIT_MESSAGE',
@@ -70,6 +75,21 @@ export const actions = {
       },
     };
   },
+  spendTreasury: (payload: any): ReduxAction => {
+    toast('Spending treasury...', {
+      type: toast.TYPE.INFO,
+      autoClose: 20000,
+      toastId: 'spend-treasury',
+    });
+
+    return {
+      type: types.WLT_SPEND_TREASURY,
+      payload: API.postSpendTreasury(payload),
+      propagate: {
+        articleId: payload.articleId,
+      },
+    };
+  },
   signMessage: (signature: string): ReduxAction => ({
     type: types.WLT_SIGN_MESSAGE,
     payload: {
@@ -79,6 +99,16 @@ export const actions = {
   submitMessage: (signature: string, tx: string, id: number): ReduxAction => ({
     type: types.WLT_SUBMIT_MESSAGE,
     payload: API.submitTx({
+      article: {
+        tx,
+        witness: signature,
+        article_id: id,
+      },
+    }),
+  }),
+  submitSpendMessage: (signature: string, tx: string, id: number): ReduxAction => ({
+    type: types.WLT_SUBMIT_MESSAGE,
+    payload: API.submitSpendTx({
       article: {
         tx,
         witness: signature,
@@ -146,6 +176,18 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
 
       console.log('Treasury filled successfully');
       console.log(action.propagate);
+
+      return {
+        ...state,
+        tx_id: action.payload.tx,
+      };
+
+    case types.WLT_SPEND_TREASURY_FULFILLED:
+      toast.update('fill-treasury', {
+        type: toast.TYPE.SUCCESS,
+        progress: 0.3,
+        render: 'Treasury account created successfully!',
+      });
 
       return {
         ...state,

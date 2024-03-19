@@ -382,13 +382,25 @@ function Review(props: any) {
         )}
       </div>
       {allReviewsSettled && (
-        <Button
-          variant="contained"
-          className='review-modal-button'
-          color="success"
-        >
-          Pay out to {size(allAcceptedReviews)} reviewers
-        </Button>
+        // <Button
+        //   variant="contained"
+        //   className='review-modal-button'
+        //   color="success"
+        // >
+        //   Pay out to {size(allAcceptedReviews)} reviewers
+        // </Button>
+        <Modal
+          treasuryProps={{
+            totalAmount: props.txAmount,
+            amountOfReviews: size(allAcceptedReviews),
+          }}
+          enabled
+          articleId={id}
+          type="treasury"
+          shape="button"
+          text="fillTreasury"
+          customText={`Pay out to ${size(allAcceptedReviews)} reviewers`}
+        />
       )}
     </section>
   );
@@ -405,12 +417,12 @@ function ArticleSettings(): Node {
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
   const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
   const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
-  const fetchTreasury = (ind: number, showMessage?: boolean) => dispatch(cardanoActions.fetchTreasury(ind, showMessage));
+  // const fetchTreasury = (ind: number, showMessage?: boolean) => dispatch(cardanoActions.fetchTreasury(ind, showMessage));
 
-  useEffect(() => {
-    if (id) fetchTreasury(id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  // useEffect(() => {
+  //   if (id) fetchTreasury(id);
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [id]);
 
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
@@ -558,6 +570,7 @@ function ArticleSettings(): Node {
                 review={review}
                 key={review.id}
                 inlineReviews={inlineReviews}
+                txAmount={txAmount}
               />
             ))}
             {/* <Review id={1} amount={8} />
