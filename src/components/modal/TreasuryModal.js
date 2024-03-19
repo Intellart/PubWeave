@@ -42,13 +42,14 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
   const txIDFulfilled = useSelector((state) => selectors.getTxIDFulfilled(state));
+  const witnessSet = useSelector((state) => selectors.getWitnessSet(state));
 
   const dispatch = useDispatch();
   const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
   const spendTreasury = (payload: any) => dispatch(actions.spendTreasury(payload));
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const submitMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitMessage(signature_, tx, articleId));
-  const submitSpendMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitSpendMessage(signature_, tx, articleId));
+  const submitSpendMessage = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpendMessage(signature_, tx, articleId, ws));
 
   // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
@@ -248,7 +249,7 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
         break;
       case 1:
         console.log('Signing message... ', txId);
-        window.cardano.signTx(txId).then((signature_: string) => {
+        window.cardano.signTx(txId, true).then((signature_: string) => {
         // signMessage(txId, (signature_: string, key_: string | void) => {
           console.log('Message signed', signature_);
           saveSignedMessage(signature_);
@@ -257,7 +258,7 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
       case 2:
         console.log('Submitting message... ', signature);
         if (amountOfReviews > 0) {
-          submitSpendMessage(signature, txId, id);
+          submitSpendMessage(signature, txId, id, witnessSet);
           break;
         }
         submitMessage(signature, txId, id);
