@@ -20,7 +20,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBan,
   faCheck,
-  faPlus, faRefresh, faXmark,
+  faPlus, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
@@ -414,7 +414,7 @@ function ArticleSettings(): Node {
 
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
-  const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
+  // const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
   // const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
@@ -422,6 +422,7 @@ function ArticleSettings(): Node {
 
   const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
+  const txAmount = get(article, 'tx_amount_in_treasury');
   // console.log(article);
   const {
     // isEnabled,
@@ -457,16 +458,16 @@ function ArticleSettings(): Node {
   }, [article, id]);
 
   useEffect(() => {
-    if (!isReady) {
+    if (!isReady || !tx) {
       fetchArticle(id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, id, isReady]);
+  }, [article, id, isReady, tx]);
 
   // const reviewersExist = !isEmpty(reviewers);
 
-  const isTreasuryFilled = get(treasury, 'status') === 'treasury_found';
-  const isTreasuryFound = get(treasury, 'status') === 'treasury_empty' || isTreasuryFilled || tx;
+  const isTreasuryFilled = !!txAmount;
+  const isTreasuryFound = isTreasuryFilled || tx;
 
   return (
     <main className="article-settings-wrapper">
@@ -496,32 +497,34 @@ function ArticleSettings(): Node {
               ]}
             />
 
-            <Modal
-              enabled
-              articleId={id}
-              type="treasury"
-              shape="button"
-              text="fillTreasury"
-            />
-            {(isTreasuryFilled || isTreasuryFound) && (
-            <div className='article-settings-treasury-filled'>
-              <Input
-                label="Total Amount"
-                value={get(treasury, 'balance', 0)}
-                currency="₳"
-                readOnly
-                helperText={!isTreasuryFilled ? "Treasury exists but it's not filled, please refresh in a minute" : 'Total amount in treasury'}
-                error={!isTreasuryFilled}
-              />
-              <Button
+            {(isTreasuryFilled || isTreasuryFound) ? (
+              <div className='article-settings-treasury-filled'>
+                <Input
+                  label="Total Amount"
+                  value={txAmount}
+                  currency="₳"
+                  readOnly
+                  helperText={!isTreasuryFilled ? "Treasury exists but it's not filled, please refresh in a minute" : 'Total amount in treasury'}
+                  error={!isTreasuryFilled}
+                />
+                {/* <Button
                 variant="outlined"
                 color="warning"
                 className='article-settings-button'
                 onClick={() => fetchTreasury(id, true)}
               >
                 <FontAwesomeIcon icon={faRefresh} />&nbsp;Refresh
-              </Button>
-            </div>
+              </Button> */}
+              </div>
+            ) : (
+
+              <Modal
+                enabled
+                articleId={id}
+                type="treasury"
+                shape="button"
+                text="fillTreasury"
+              />
             )}
           </div>
         </section>
