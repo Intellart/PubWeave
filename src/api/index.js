@@ -43,8 +43,20 @@ export const postTreasury = async (payload: any): Promise<any> => {
   return response.data;
 };
 
+export const postSpendTreasury = async (payload: any): Promise<any> => {
+  const response: any = await apiClient.post('/pubweave/cardanoops/treasury_spend_build_tx', payload);
+
+  return response.data;
+};
+
 export const submitTx = async (payload: any): Promise<any> => {
   const response: any = await apiClient.post('/pubweave/cardanoops/submit_tx', payload);
+
+  return response.data;
+};
+
+export const submitSpendTx = async (payload: any): Promise<any> => {
+  const response: any = await apiClient.post('/pubweave/cardanoops/treasury_spend_submit', payload);
 
   return response.data;
 };

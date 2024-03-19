@@ -25,9 +25,11 @@ type Props = {
     isOwner?: boolean,
     type: 'share' | 'collab' | 'versioning' | 'treasury',
     sectionId?: string,
+    treasuryProps?: any,
     articleId?: number,
     onClose?: () => void,
     onViewHistory?: () => void,
+    customText?: string,
 };
 
 function Modal(props: Props): React$Node {
@@ -77,6 +79,10 @@ function Modal(props: Props): React$Node {
         fillTreasury: 'Fill Treasury',
       },
     };
+
+    if (props.customText) {
+      return props.customText;
+    }
 
     return get(texts, [props.type, props.text], '');
   };
@@ -175,8 +181,8 @@ function Modal(props: Props): React$Node {
     } else if (props.type === 'treasury') {
       return (
         <TreasuryModal
-          // article={article}
           onClose={handleOnClose}
+          treasuryProps={props.treasuryProps}
         />
       );
     }

@@ -19,17 +19,25 @@ import Input from '../elements/Input';
 
 type Props = {
   onClose: () => void,
+  treasuryProps?: any,
 };
 
-function TreasuryModal({ onClose }: Props): Node {
+function TreasuryModal({ onClose, treasuryProps }: Props): Node {
   const { id } = useParams();
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [treasury, setTreasury] = useState({
-    totalAmount: '',
+    totalAmount: treasuryProps?.totalAmount || '',
     transactionLimit: '',
   });
+
+  useEffect(() => {
+    setTreasury({
+      totalAmount: treasuryProps?.totalAmount || '',
+      transactionLimit: '',
+    });
+  }, [treasuryProps]);
 
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
@@ -37,8 +45,10 @@ function TreasuryModal({ onClose }: Props): Node {
 
   const dispatch = useDispatch();
   const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
+  const spendTreasury = (payload: any) => dispatch(actions.spendTreasury(payload));
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const submitMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitMessage(signature_, tx, articleId));
+  // const submitSpendMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitSpendMessage(signature_, tx, articleId));
 
   // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
@@ -109,6 +119,8 @@ function TreasuryModal({ onClose }: Props): Node {
     },
   };
 
+  const amountOfReviews = treasuryProps?.amountOfReviews || 0;
+
   const amountErrors = [errorList.lessThanZero, errorList.greaterThanMax];
   const transactionLimitErrors = [errorList.lessThanZero, errorList.greaterThanMax, errorList.transactionLimit];
 
@@ -133,6 +145,7 @@ function TreasuryModal({ onClose }: Props): Node {
             label="Total Amount"
             helperText={getError(treasury.totalAmount, amountErrors) || 'Total amount of ADA to be sent to the treasury'}
             type='number'
+            readOnly={amountOfReviews > 0}
             currency='₳'
             value={treasury.totalAmount}
             onChange={(newValue: string) => {
@@ -143,6 +156,7 @@ function TreasuryModal({ onClose }: Props): Node {
             }}
           />
 
+          {!amountOfReviews && (
           <Input
             label="Transaction Limit"
             error={!isTransactionLimitValid}
@@ -157,13 +171,19 @@ function TreasuryModal({ onClose }: Props): Node {
               });
             }}
           />
+          )}
+          {amountOfReviews > 0 && (
+          <Typography variant="caption" color="error">
+            You are paying to {amountOfReviews} reviewers. You cannot change the amount.
+          </Typography>
+          )}
         </>
       ),
       nextText: 'Send',
       isValid: treasury.totalAmount
-      && treasury.transactionLimit
       && isAmountValid
-      && isTransactionLimitValid,
+      && ((treasury.transactionLimit
+      && isTransactionLimitValid) || amountOfReviews > 0),
     },
     {
       label: 'Recieved transaction ID',
@@ -205,6 +225,18 @@ function TreasuryModal({ onClose }: Props): Node {
     setNextButtonDisabled(true);
     switch (activeStep) {
       case 0:
+        if (amountOfReviews > 0) {
+          spendTreasury({
+            article: {
+              total_amount: treasury.totalAmount,
+              transaction_limit: treasury.transactionLimit,
+              article_id: id,
+              price_cap: 500,
+            },
+          });
+
+          break;
+        }
         fillTreasury({
           article: {
             total_amount: treasury.totalAmount,
