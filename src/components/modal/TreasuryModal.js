@@ -19,25 +19,18 @@ import Input from '../elements/Input';
 
 type Props = {
   onClose: () => void,
-  treasuryProps?: any,
+  type: 'fill' | 'spend',
 };
 
-function TreasuryModal({ onClose, treasuryProps }: Props): Node {
+function TreasuryModal({ onClose, type }: Props): Node {
   const { id } = useParams();
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [treasury, setTreasury] = useState({
-    totalAmount: treasuryProps?.totalAmount || '',
+    totalAmount: '',
     transactionLimit: '',
   });
-
-  useEffect(() => {
-    setTreasury({
-      totalAmount: treasuryProps?.totalAmount || '',
-      transactionLimit: '',
-    });
-  }, [treasuryProps]);
 
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
@@ -45,11 +38,11 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
   const witnessSet = useSelector((state) => selectors.getWitnessSet(state));
 
   const dispatch = useDispatch();
-  const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
-  const spendTreasury = (payload: any) => dispatch(actions.spendTreasury(payload));
+  const buildFill = (payload: any) => dispatch(actions.buildFill(payload));
+  const buildSpend = (payload: any) => dispatch(actions.buildSpend(payload));
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
-  const submitMessage = (signature_: string, tx: string, articleId: number) => dispatch(actions.submitMessage(signature_, tx, articleId));
-  const submitSpendMessage = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpendMessage(signature_, tx, articleId, ws));
+  const sumbitFill = (signature_: string, tx: string, articleId: number) => dispatch(actions.sumbitFill(signature_, tx, articleId));
+  const submitSpend = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpend(signature_, tx, articleId, ws));
 
   // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
@@ -120,8 +113,6 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
     },
   };
 
-  const amountOfReviews = treasuryProps?.amountOfReviews || 0;
-
   const amountErrors = [errorList.lessThanZero, errorList.greaterThanMax];
   const transactionLimitErrors = [errorList.lessThanZero, errorList.greaterThanMax, errorList.transactionLimit];
 
@@ -139,14 +130,13 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
       label: 'Input amount and transaction limit',
       description: `The treasury is a smart contract that holds ADA 
       and. You can fill the treasury with ADA from your wallet.`,
-      step: (
+      step: (type === 'fill') ? (
         <>
           <Input
             error={!isAmountValid}
             label="Total Amount"
             helperText={getError(treasury.totalAmount, amountErrors) || 'Total amount of ADA to be sent to the treasury'}
             type='number'
-            readOnly={amountOfReviews > 0}
             currency='₳'
             value={treasury.totalAmount}
             onChange={(newValue: string) => {
@@ -156,8 +146,6 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
               });
             }}
           />
-
-          {!amountOfReviews && (
           <Input
             label="Transaction Limit"
             error={!isTransactionLimitValid}
@@ -172,19 +160,19 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
               });
             }}
           />
-          )}
-          {amountOfReviews > 0 && (
-          <Typography variant="caption" color="error">
-            You are paying to {amountOfReviews} reviewers. You cannot change the amount.
-          </Typography>
-          )}
         </>
+      ) : (
+
+        <Typography variant="caption" color="error">
+          You are paying to selected reviewers. You cannot change the amount.
+        </Typography>
       ),
       nextText: 'Send',
-      isValid: treasury.totalAmount
+      isValid: type === 'spend' || (
+        treasury.totalAmount
       && isAmountValid
-      && ((treasury.transactionLimit
-      && isTransactionLimitValid) || amountOfReviews > 0),
+      && treasury.transactionLimit
+      && isTransactionLimitValid),
     },
     {
       label: 'Recieved transaction ID',
@@ -226,42 +214,50 @@ function TreasuryModal({ onClose, treasuryProps }: Props): Node {
     setNextButtonDisabled(true);
     switch (activeStep) {
       case 0:
-        if (amountOfReviews > 0) {
-          spendTreasury({
+
+        if (type === 'fill') {
+          const fillPayload = {
             article: {
               total_amount: treasury.totalAmount,
               transaction_limit: treasury.transactionLimit,
-              article_id: id,
               price_cap: 500,
+              article_id: id,
             },
-          });
-
+          };
+          buildFill(fillPayload);
+          break;
+        } else {
+          const spendPayload = {
+            article: {
+              article_id: id,
+            },
+          };
+          buildSpend(spendPayload);
           break;
         }
-        fillTreasury({
-          article: {
-            total_amount: treasury.totalAmount,
-            transaction_limit: treasury.transactionLimit,
-            article_id: id,
-            price_cap: 500,
-          },
-        });
-        break;
+
       case 1:
-        console.log('Signing message... ', txId);
-        window.cardano.signTx(txId, true).then((signature_: string) => {
-        // signMessage(txId, (signature_: string, key_: string | void) => {
-          console.log('Message signed', signature_);
-          saveSignedMessage(signature_);
-        });
+        if (type === 'spend') {
+          console.log('Signing message... ', txId);
+          window.cardano.signTx(txId, true).then((signature_: string) => {
+            console.log('Message signed', signature_);
+            saveSignedMessage(signature_);
+          });
+        } else {
+          console.log('Signing message... ', txId);
+          window.cardano.signTx(txId).then((signature_: string) => {
+            console.log('Message signed', signature_);
+            saveSignedMessage(signature_);
+          });
+        }
         break;
       case 2:
         console.log('Submitting message... ', signature);
-        if (amountOfReviews > 0) {
-          submitSpendMessage(signature, txId, id, witnessSet);
-          break;
+        if (type === 'spend') {
+          submitSpend(signature, txId, id, witnessSet);
+        } else {
+          sumbitFill(signature, txId, id);
         }
-        submitMessage(signature, txId, id);
         break;
       default:
         break;
