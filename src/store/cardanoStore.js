@@ -33,6 +33,7 @@ export const types = {
   WLT_BUILD_SPEND_TREASURY_PENDING: 'WLT_SPEND_TREASURY_PENDING',
 
   WLT_SIGN_MESSAGE: 'WLT_SIGN_MESSAGE',
+  WLT_CLEAR_TX: 'WLT_CLEAR_TX',
 
   WLT_SUBMIT_FILL_TREASURY: 'WLT_SUBMIT_MESSAGE',
   WLT_SUBMIT_FILL_TREASURY_FULFILLED: 'WLT_SUBMIT_MESSAGE_FULFILLED',
@@ -113,6 +114,9 @@ export const actions = {
       },
     }),
   }),
+  clearTx: (): ReduxAction => ({
+    type: types.WLT_CLEAR_TX,
+  }),
   submitSpend: (signature: string, tx: string, id: number, ws: string): ReduxAction => ({
     type: types.WLT_SUBMIT_SPEND_TREASURY,
     payload: API.submitSpendTx({
@@ -128,6 +132,14 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WLT_CLEAR_TX:
+      return {
+        ...state,
+        tx_id: '',
+        signature: '',
+        tx_id_fulfilled: '',
+        witness_set: '',
+      };
     case types.WLT_FETCH_WALLET_FULFILLED:
       console.log('WLT_FETCH_WALLET_FULFILLED');
       console.log(action.payload);

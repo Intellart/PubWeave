@@ -43,7 +43,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
   const sumbitFill = (signature_: string, tx: string, articleId: number) => dispatch(actions.sumbitFill(signature_, tx, articleId));
   const submitSpend = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpend(signature_, tx, articleId, ws));
-
+  const clearTx = () => dispatch(actions.clearTx());
   // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
   const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
@@ -62,6 +62,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
     if (txIDFulfilled) {
       // refresh page with this as param
       setSearchParams({ tx: txIDFulfilled });
+      clearTx();
       onClose();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -38,7 +38,7 @@ export const orcidOAuth = async (finalEndpoint: string, payload: any): Promise<a
 // CardanoOps
 
 export const postTreasury = async (payload: any): Promise<any> => {
-  const response: any = await apiClient.post('/pubweave/cardanoops/build_tx', payload);
+  const response: any = await apiClient.post('/pubweave/cardanoops/treasury_fill_build_tx', payload);
 
   return response.data;
 };
@@ -50,7 +50,7 @@ export const postSpendTreasury = async (payload: any): Promise<any> => {
 };
 
 export const submitTx = async (payload: any): Promise<any> => {
-  const response: any = await apiClient.post('/pubweave/cardanoops/submit_tx', payload);
+  const response: any = await apiClient.post('/pubweave/cardanoops/treasury_fill_submit_tx', payload);
 
   return response.data;
 };

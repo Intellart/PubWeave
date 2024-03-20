@@ -13,13 +13,14 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import {
   Chip,
-  Autocomplete, Button, TextField,
+  Autocomplete, Button, TextField, Alert,
 } from '@mui/material';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBan,
   faCheck,
+  // faPencil,
   faPlus, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { actions, selectors } from '../../store/articleStore';
@@ -42,6 +43,11 @@ type ReviewFormProps = {
 
 function ReviewForm(props: ReviewFormProps) {
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+  const article = useSelector((state) => selectors.article(state), isEqual);
+
+  const totalAmount = get(article, 'tx_amount_in_treasury') || 0;
+
+  console.log('props.review', props.review);
 
   const [deadline, setDeadline] = useState(props.review ? props.review.deadline : new Date().toISOString().split('T')[0]);
   // eslint-disable-next-line no-unused-vars
@@ -69,7 +75,11 @@ function ReviewForm(props: ReviewFormProps) {
     props.onSubmit(toInteger(amount), deadline, map(values, (value) => toInteger(value.value)));
   };
 
-  const isDisabled = !amount || !deadline || isEmpty(values);
+  const numOfSelectedReviewers = size(values);
+  const maxAmountPerReviewer = totalAmount / numOfSelectedReviewers;
+  const invalidAmount = toInteger(amount) > totalAmount || toInteger(amount) > maxAmountPerReviewer;
+
+  const isDisabled = !amount || !deadline || isEmpty(values) || invalidAmount;
 
   return (
     <>
@@ -79,7 +89,9 @@ function ReviewForm(props: ReviewFormProps) {
         value={amount}
         type="number"
         currency="₳"
-        onChange={(newValue: string) => setAmount(newValue)}
+        error={totalAmount && (toInteger(amount) > totalAmount || toInteger(amount) > maxAmountPerReviewer)}
+        onChange={(newValue: string) => setAmount(toInteger(newValue))}
+        helperText={!invalidAmount ? `Amount per reviewer needs to be in range 1₳ - ${maxAmountPerReviewer}₳` : 'Amount exceeds total amount in treasury'}
       />
       <Input
         label="Deadline"
@@ -109,7 +121,7 @@ function ReviewForm(props: ReviewFormProps) {
             className='article-config-item-input'
             variant="outlined"
             label="Reviewers"
-            error={isEmpty(values)}
+            error={isEmpty(searchOptions)}
             helperText={size(searchOptions) ? 'Select reviewers (users with valid wallet address)'
               : 'No reviewers (users with valid wallet address) found'}
           />
@@ -296,6 +308,7 @@ function ReviewTable(props: any) {
         label="Amount"
         value={props.amount}
         currency="₳"
+        readOnly
       />
       <UserInfoItem
         label="Deadline"
@@ -353,17 +366,19 @@ function Review(props: any) {
     <section className="review-modal">
       <div className="review-modal-top">
         <p className='review-modal-title'>Review #{props.review.id}</p>
-        {/* <FontAwesomeIcon
-          icon={faXmark}
-          className={classNames('review-modal-close')}
-          onClick={() => deleteReview(props.review.id)}
-        /> */}
-        {/* <FontAwesomeIcon
-          icon={faPencil}
-          className={classNames('review-modal-close',
-            { 'review-modal-close-active': editMode })}
-          onClick={() => setEditMode(!editMode)}
-        /> */}
+        {/* <div className="review-modal-buttons">
+          <FontAwesomeIcon
+            icon={faXmark}
+            className={classNames('review-modal-close')}
+            onClick={() => deleteReview(props.review.id)}
+          />
+          <FontAwesomeIcon
+            icon={faPencil}
+            className={classNames('review-modal-close',
+              { 'review-modal-close-active': editMode })}
+            onClick={() => setEditMode(!editMode)}
+          />
+        </div> */}
       </div>
 
       <div className="review-modal-content">
@@ -419,8 +434,6 @@ function ArticleSettings(): Node {
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const txId = searchParams.get('tx');
-
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
   const fetchAllReviewers = () => dispatch(actions.fetchAllReviewers());
@@ -438,7 +451,7 @@ function ArticleSettings(): Node {
   // const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
   const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
-  console.log('reviewers', reviewers);
+  // console.log('article', article);
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
     (smallReview) => smallReview.dataId);
 
@@ -470,15 +483,17 @@ function ArticleSettings(): Node {
   }, [article, id]);
 
   useEffect(() => {
-    if (!isReady || txId) {
+    if (!isReady) {
       fetchArticle(id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, id, isReady, txId]);
+  }, [article, id, isReady]);
 
   // const reviewersExist = !isEmpty(reviewers);
+  const articleTxId = get(article, 'tx_id');
 
-  const isTreasuryFilled = !!txAmount || txId;
+  const isTreasuryFilled = !!txAmount && articleTxId;
+  const fillingNotFinished = !!txAmount && !articleTxId;
 
   return (
     <main className="article-settings-wrapper">
@@ -507,6 +522,12 @@ function ArticleSettings(): Node {
 
               ]}
             />
+
+            {fillingNotFinished && (
+              <Alert severity="warning">
+                Treasury filling was interrupted, please try again
+              </Alert>
+            )}
 
             {isTreasuryFilled ? (
               <div className='article-settings-treasury-filled'>
