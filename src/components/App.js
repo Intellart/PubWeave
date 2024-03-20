@@ -83,8 +83,8 @@ function App(): Node {
             {!isAuthorized && <Route path="/admin-login" element={<LoginPage forAdmin />} /> }
             {!isAuthorized && <Route path="/register" element={<RegisterPage />} /> }
             <Route index element={<Home />} />
-            <Route path="/singleblog" element={<SingleBlog />} />
-            <Route path="/singleblog/:id" element={<SingleBlog />} />
+            <Route path="/blog" element={<SingleBlog />} />
+            <Route path="/blog/:id" element={<SingleBlog />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/blogs/:cat" element={<Blogs />} />
             <Route path="/blogs/:cat/:tag" element={<Blogs />} />

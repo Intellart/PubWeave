@@ -30,7 +30,7 @@ function FeaturedCard(props : Props): Node {
 
   return (
     <>
-      <Link to={`/singleblog/${props.id}`}>
+      <Link to={`/blog/${props.id}`}>
         <div
           key={props.id}
           className="featured-card"
