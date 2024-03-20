@@ -94,8 +94,7 @@ export default function UserDropdownMenu(props: Props): Node {
           },
         }}
       >
-        {props.isAdmin && <MenuItem disabled>ADMIN</MenuItem> }
-        <MenuItem onClick={handleProfile}>Profile</MenuItem>
+        {!props.isAdmin && <MenuItem onClick={handleProfile}>Profile</MenuItem>}
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </div>
