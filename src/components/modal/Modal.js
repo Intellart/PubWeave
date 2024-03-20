@@ -16,16 +16,14 @@ import { selectors } from '../../store/articleStore';
 import { useDebounce } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
 import VersioningInfoCard from '../editor/VersioningInfoCard';
-import TreasuryModal from './TreasuryModal';
 
 type Props = {
     shape?: 'chip' | 'icon' | 'button',
-    text?: 'showAll' | 'showOnline' | 'fillTreasury',
+    text?: 'showAll' | 'showOnline',
     enabled: boolean,
     isOwner?: boolean,
-    type: 'share' | 'collab' | 'versioning' | 'treasury',
+    type: 'share' | 'collab' | 'versioning',
     sectionId?: string,
-    treasuryProps?: any,
     articleId?: number,
     onClose?: () => void,
     onViewHistory?: () => void,
@@ -74,9 +72,6 @@ function Modal(props: Props): React$Node {
       versioning: {
         showAll: 'Versioning',
         showOnline: 'Versioning',
-      },
-      treasury: {
-        fillTreasury: 'Fill Treasury',
       },
     };
 
@@ -133,7 +128,6 @@ function Modal(props: Props): React$Node {
       share: 'Share',
       collab: 'Collaborators',
       versioning: 'Section info',
-      treasury: 'Fill Treasury',
     };
 
     return get(titles, props.type, '');
@@ -176,13 +170,6 @@ function Modal(props: Props): React$Node {
           onViewHistory={handleViewHistory}
           // versionInfo={this.vbInfo}
 
-        />
-      );
-    } else if (props.type === 'treasury') {
-      return (
-        <TreasuryModal
-          onClose={handleOnClose}
-          treasuryProps={props.treasuryProps}
         />
       );
     }
