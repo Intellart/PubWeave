@@ -9,7 +9,6 @@ import {
 import React, { useCallback, useRef, useState } from 'react';
 import { Mention, MentionsInput } from 'react-mentions';
 import { Link } from 'react-router-dom';
-// import { Link } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
 import Comment from './Comment';
