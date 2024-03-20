@@ -27,7 +27,6 @@ import { actions, selectors } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
 import { actions as cardanoActions, selectors as cardanoSelectors } from '../../store/cardanoStore';
 import { selectors as userSelectors } from '../../store/userStore';
-import UserInfoItem from '../elements/UserInfoItem';
 import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
 import HowItWorks from '../modal/HowItWorks';
 import Conditions from '../modal/Conditions';
@@ -85,15 +84,6 @@ function ReviewForm(props: ReviewFormProps) {
     <>
 
       <Input
-        label="Amount"
-        value={amount}
-        type="number"
-        currency="₳"
-        error={totalAmount && (toInteger(amount) > totalAmount || toInteger(amount) > maxAmountPerReviewer)}
-        onChange={(newValue: string) => setAmount(toInteger(newValue))}
-        helperText={!invalidAmount ? `Amount per reviewer needs to be in range 1₳ - ${maxAmountPerReviewer}₳` : 'Amount exceeds total amount in treasury'}
-      />
-      <Input
         label="Deadline"
         value={deadline}
         type="date"
@@ -126,6 +116,15 @@ function ReviewForm(props: ReviewFormProps) {
               : 'No reviewers (users with valid wallet address) found'}
           />
         )}
+      />
+      <Input
+        label="Amount"
+        value={amount}
+        type="number"
+        currency="₳"
+        error={totalAmount && (toInteger(amount) > totalAmount || toInteger(amount) > maxAmountPerReviewer)}
+        onChange={(newValue: string) => setAmount(toInteger(newValue))}
+        helperText={!invalidAmount ? `Amount per reviewer needs to be in range 1₳ - ${maxAmountPerReviewer}₳` : 'Amount exceeds total amount in treasury'}
       />
       <Button
         disabled={isDisabled}
@@ -198,12 +197,16 @@ function ReviewTable(props: any) {
     AWAITING_APPROVAL: 'awaiting_approval',
     REJECTED: 'rejected',
     ACCEPTED: 'accepted',
+    PAID: 'paid',
+    AWAITING_PAYOUT: 'awaiting_payout',
   };
   const statusColors = {
     [reviewStatus.IN_PROGRESS]: '#FFC107',
     [reviewStatus.AWAITING_APPROVAL]: '#FFC107',
     [reviewStatus.REJECTED]: '#F44336',
     [reviewStatus.ACCEPTED]: '#4CAF50',
+    [reviewStatus.PAID]: '#b59a2f',
+    [reviewStatus.AWAITING_PAYOUT]: '#7d324d',
   };
 
   const statusText = {
@@ -211,6 +214,8 @@ function ReviewTable(props: any) {
     [reviewStatus.AWAITING_APPROVAL]: 'Awaiting approval',
     [reviewStatus.REJECTED]: 'Rejected',
     [reviewStatus.ACCEPTED]: 'Accepted',
+    [reviewStatus.PAID]: 'Paid',
+    [reviewStatus.AWAITING_PAYOUT]: 'Awaiting payout',
   };
   const columns: any[] = [
     {
@@ -305,14 +310,16 @@ function ReviewTable(props: any) {
   return (
     <div className="review-modal-content">
       <Input
-        label="Amount"
+        label="Amount per reviewer"
         value={props.amount}
         currency="₳"
         readOnly
       />
-      <UserInfoItem
+      <Input
         label="Deadline"
         value={props.deadline}
+        readOnly
+        type="date"
       />
       <DataGrid
         className='review-modal-table'
@@ -351,7 +358,7 @@ function Review(props: any) {
   }
 
   const allReviewsSettled = every(props.review.user_reviews, (userReview) => userReview.status !== 'in_progress');
-  const allAcceptedReviews = filter(props.review.user_reviews, (userReview) => userReview.status === 'accepted');
+  const allAcceptedReviews = filter(props.review.user_reviews, (userReview) => userReview.status === 'accepted' || userReview.status === 'awaiting_payout');
 
   const rows = map(props.review.user_reviews, (userReview) => ({
     status: userReview.status,
@@ -403,7 +410,7 @@ function Review(props: any) {
           />
         )}
       </div>
-      {allReviewsSettled && (
+      {allReviewsSettled && size(allAcceptedReviews) > 0 && (
         <ModalWrapper
           // eslint-disable-next-line react/no-unstable-nested-components
           content={(p: { onClose: any }) => (<TreasuryModal {...p} type="spend" />)}

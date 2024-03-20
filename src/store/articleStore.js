@@ -923,6 +923,14 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           },
           tags: keyBy(get(action.payload, 'tags', []), 'id'),
         },
+        reviews: map(state.reviews, (review) => {
+          const reviewers = filter(action.payload.reviewers, (reviewer) => reviewer.review_id === review.id);
+
+          return {
+            ...review,
+            user_reviews: reviewers,
+          };
+        }),
         activeSections: get(action.payload, 'active_sections', {}),
         blockIdQueue: {
           updated: {},
