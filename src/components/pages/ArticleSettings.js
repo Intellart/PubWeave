@@ -27,11 +27,12 @@ import { actions, selectors } from '../../store/articleStore';
 import { actions as cardanoActions, selectors as cardanoSelectors } from '../../store/cardanoStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import UserInfoItem from '../elements/UserInfoItem';
-import Modal from '../modal/Modal';
 import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
 import HowItWorks from '../modal/HowItWorks';
 import Conditions from '../modal/Conditions';
 import Input from '../elements/Input';
+import TreasuryModal from '../modal/TreasuryModal';
+import ModalWrapper from '../modal/ModalWrapper';
 
 type ReviewFormProps = {
   onSubmit: Function,
@@ -256,7 +257,7 @@ function ReviewTable(props: any) {
       width: 120,
       editable: false,
     },
-    ...(admin ? [{
+    ...((admin || props.isAuthor) ? [{
       field: 'approve',
       headerName: 'Approve',
       width: 160,
@@ -324,6 +325,11 @@ function Review(props: any) {
   const dispatch = useDispatch();
   const newReview = (amount: number, articleId: number, deadline: string, reviewerIds: number[]) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
   // const deleteReview = (reviewId: number) => dispatch(actions.deleteReview(reviewId));
+  const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
+
+  const handleClose = () => {
+    fetchArticle(id);
+  };
 
   const [editMode, setEditMode] = useState(false);
 
@@ -378,29 +384,31 @@ function Review(props: any) {
             amount={props.review.amount}
             deadline={props.review.deadline}
             article={props.article}
+            isAuthor={props.isAuthor}
           />
         )}
       </div>
       {allReviewsSettled && (
-        // <Button
-        //   variant="contained"
-        //   className='review-modal-button'
-        //   color="success"
-        // >
-        //   Pay out to {size(allAcceptedReviews)} reviewers
-        // </Button>
-        <Modal
-          treasuryProps={{
-            totalAmount: props.txAmount,
-            amountOfReviews: size(allAcceptedReviews),
-          }}
-          enabled
-          articleId={id}
-          type="treasury"
-          shape="button"
-          text="fillTreasury"
-          customText={`Pay out to ${size(allAcceptedReviews)} reviewers`}
+        <ModalWrapper
+          // eslint-disable-next-line react/no-unstable-nested-components
+          content={(p: { onClose: any }) => (<TreasuryModal {...p} type="spend" />)}
+          button={`Pay out to ${size(allAcceptedReviews)} reviewers`}
+          title="Treasury"
+          enabled={props.isAuthor}
+          onClose={handleClose}
         />
+        // <Modal
+        //   treasuryProps={{
+        //     totalAmount: props.txAmount,
+        //     amountOfReviews: size(allAcceptedReviews),
+        //   }}
+        //   enabled
+        //   articleId={id}
+        //   type="treasury"
+        //   shape="button"
+        //   text="fillTreasury"
+        //   customText={`Pay out to ${size(allAcceptedReviews)} reviewers`}
+        // />
       )}
     </section>
   );
@@ -411,7 +419,7 @@ function ArticleSettings(): Node {
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const tx = searchParams.get('tx');
+  const txId = searchParams.get('tx');
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
@@ -426,29 +434,22 @@ function ArticleSettings(): Node {
 
   const reviews = useSelector((state) => selectors.getReviews(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   // const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
-  // const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
+  const reviewers = useSelector((state) => selectors.getReviewers(state), isEqual);
 
+  console.log('reviewers', reviewers);
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
     (smallReview) => smallReview.dataId);
 
   const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  const isAuthor = get(article, 'author.id') === get(user, 'id');
+  const txAmount = get(article, 'tx_amount_in_treasury') || 0;
+  const isArticleReady = () => !isEmpty(article) && id && get(article, 'id') === toInteger(id);
+  const [isReady, setIsReady] = useState(isArticleReady());
 
-  const txAmount = get(article, 'tx_amount_in_treasury');
-  // console.log(article);
   const {
-    // isEnabled,
     isConnected,
-    // enabledWallet,
-    // stakeAddress,
-    // accountBalance,
-    // signMessage,
-    // usedAddresses,
-    // enabledWallet,
-    // installedExtensions,
-    // connect,
-    // disconnect,
-    // connectedCip45Wallet,
   } = useCardano({
     limitNetwork: networkType,
   });
@@ -458,28 +459,26 @@ function ArticleSettings(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-
   useEffect(() => {
     fetchAllReviewers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+    setIsReady(isArticleReady());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id]);
 
   useEffect(() => {
-    if (!isReady || !tx) {
+    if (!isReady || txId) {
       fetchArticle(id);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, id, isReady, tx]);
+  }, [article, id, isReady, txId]);
 
   // const reviewersExist = !isEmpty(reviewers);
 
-  const isTreasuryFilled = !!txAmount;
-  const isTreasuryFound = isTreasuryFilled || tx;
+  const isTreasuryFilled = !!txAmount || txId;
 
   return (
     <main className="article-settings-wrapper">
@@ -509,7 +508,7 @@ function ArticleSettings(): Node {
               ]}
             />
 
-            {(isTreasuryFilled || isTreasuryFound) ? (
+            {isTreasuryFilled ? (
               <div className='article-settings-treasury-filled'>
                 <Input
                   label="Total Amount"
@@ -530,12 +529,13 @@ function ArticleSettings(): Node {
               </div>
             ) : (
 
-              <Modal
-                enabled
-                articleId={id}
-                type="treasury"
-                shape="button"
-                text="fillTreasury"
+              <ModalWrapper
+                // eslint-disable-next-line react/no-unstable-nested-components
+                content={(p: { onClose: any }) => (<TreasuryModal {...p} type="fill" />)}
+                button="Fill treasury"
+                title="Treasury"
+                enabled={isReady && isAuthor}
+                onClose={() => fetchArticle(id)}
               />
             )}
           </div>
@@ -548,18 +548,13 @@ function ArticleSettings(): Node {
             <Conditions
               steps={[
                 {
-                  label: 'Create treasury',
-                  error: !isTreasuryFound,
-                  errorMessage: 'Treasury not found',
-                },
-                {
                   label: 'Treasury filled',
                   error: !isTreasuryFilled,
                   errorMessage: 'Treasury not filled',
                 },
                 {
-                  label: 'Reviewers available',
-                  error: !size(reviews),
+                  label: `Reviewers available (${size(reviewers)})`,
+                  error: !size(reviewers),
                   errorMessage: 'No reviewers available',
                 },
 
@@ -571,13 +566,14 @@ function ArticleSettings(): Node {
                 key={review.id}
                 inlineReviews={inlineReviews}
                 txAmount={txAmount}
+                isAuthor={isAuthor}
               />
             ))}
             {/* <Review id={1} amount={8} />
           <Review id={2} amount={9.31} />
           <Review id={2} amount={4.523} /> */}
             <NewReview
-              disabled={!isEmpty(reviews) || !isTreasuryFilled || !isTreasuryFound}
+              disabled={!isEmpty(reviews) || !isTreasuryFilled}
             />
           </div>
         </section>
