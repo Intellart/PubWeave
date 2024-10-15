@@ -1,35 +1,33 @@
-/* eslint-disable no-console */
-/* eslint-disable no-unused-vars */
 // @flow
 import React, { useEffect, useState } from 'react';
-import type { Node } from 'react';
-import { /* useDispatch */ useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  get, includes, isEqual, join, split,
+  get,
+  isEqual,
+  join,
+  split,
   map,
-  mapValues,
   filter,
   every,
   size,
-  truncate,
 } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import classNames from 'classnames';
 import {
-  faCamera, faCheck, faCircleCheck, faCircleXmark, faPencil, faXmark,
+  faCamera, faCheck, faPencil, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
-import { Alert } from '@mui/material';
-import { motion } from 'framer-motion';
+import {
+  Alert, AlertTitle, Button, Chip,
+} from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import {
   emailChecks,
   nameChecks,
-  regex,
   uploadImage,
   usernameChecks,
 } from '../../utils/hooks';
@@ -37,13 +35,16 @@ import UserSection from '../containers/UserSection';
 import UserInfoItem from '../elements/UserInfoItem';
 import UserInfoButton from '../elements/UserInfoButton';
 import UserInfoInput from '../elements/UserInfoInput';
+import Input from '../elements/Input';
 
-function UserPage(): Node {
+function UserPage(): React$Node {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const [expandedCard, setExpandedCard] = React.useState<string | null>(null);
   const [avatarImg, setAvatarImg] = useState(get(user, 'profile_img'));
   const uploadAvatarRef = React.useRef<HTMLInputElement | null>(null);
+
+  // console.log('user', user);
   const [newPassword, setNewPassword] = useState({
     password: '',
     confirm: '',
@@ -78,19 +79,24 @@ function UserPage(): Node {
     });
   }, [user]);
 
+  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+
   const {
     // isEnabled,
     isConnected,
     // enabledWallet,
     stakeAddress,
     accountBalance,
-    signMessage,
+    // signMessage,
     usedAddresses,
     enabledWallet,
+    // installedExtensions,
     // connect,
     disconnect,
-    connectedCip45Wallet,
-  } = useCardano();
+    // connectedCip45Wallet,
+  } = useCardano({
+    limitNetwork: networkType,
+  });
 
   const dispatch = useDispatch();
   // const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
@@ -109,6 +115,25 @@ function UserPage(): Node {
       updateUser(get(user, 'id'), { profile_img: url });
       setAvatarImg(url);
     });
+  };
+
+  const setNewAddress = (newValue: string | null) => {
+    updateUser(get(user, 'id'), { wallet_address: newValue });
+  };
+
+  useEffect(() => {
+    console.log('usedAddresses', usedAddresses[0], get(user, 'wallet_address'));
+
+    if (size(usedAddresses) > 0
+    && (!get(user, 'wallet_address')
+    || get(user, 'wallet_address') !== usedAddresses[0])) {
+      setNewAddress(usedAddresses[0]);
+    }
+  }, [usedAddresses[0]]);
+
+  const disconnectWallet = () => {
+    setNewAddress(null);
+    disconnect();
   };
 
   const uploadAvatar = () => {
@@ -329,18 +354,21 @@ function UserPage(): Node {
               </Alert>
             )}
             {get(user, 'orcid_id') && (
-              <UserInfoItem
+              <Input
                 label="ORCID"
                 value={get(user, 'orcid_id')}
+                readOnly
               />
             )}
-            <UserInfoItem
+            <Input
               label="Created at"
               value={new Date(get(user, 'created_at')).toLocaleDateString()}
+              readOnly
             />
-            <UserInfoItem
+            <Input
               label="Last updated"
               value={new Date(get(user, 'updated_at')).toLocaleDateString()}
+              readOnly
             />
           </div>
           <div className="user-page-content" />
@@ -424,11 +452,40 @@ function UserPage(): Node {
             onClick={updateSocialMedia}
           />
         </UserSection>
+        {get(user, 'wallet_address') && !isConnected && (
+        <Alert
+          severity="info"
+          sx={{
+            width: '100%',
+            borderRadius: '5px',
+          }}
+        >
+          <AlertTitle>
+            Address synced with backend, but wallet is not connected
+          </AlertTitle>
+          <Chip
+            label={get(user, 'wallet_address')}
+            variant='outlined'
+            color="info"
+            style={{
+              width: '100%',
+            }}
+            onClick={() => {
+              navigator.clipboard.writeText(get(user, 'wallet_address'));
+              toast.success('Copied to clipboard');
+            }}
+          />
+        </Alert>
+        )
+        }
         { !isConnected && (
         <ConnectWalletButton
-          message="Please sign Augusta Ada King, Countess of Lovelace"
-          onSignMessage={(message) => signMessage(message)}
-          // onConnect={onConnect}
+          message="Connect wallet"
+          limitNetwork={networkType}
+          // onSignMessage={(message) => signMessage(message)}
+          onConnect={(cip45Wallet) => {
+            console.log('cip45Wallet', cip45Wallet);
+          }}
           primaryColor="#11273F"
           borderRadius={10}
           showAccountBalance
@@ -471,10 +528,8 @@ function UserPage(): Node {
 
         `}
         />
-        )
-        }
-        { isConnected
-        && (
+        )}
+        { isConnected && (
           <UserSection
             title="Wallet"
             titleIcon={getWalletIcon(enabledWallet)}
@@ -483,34 +538,41 @@ function UserPage(): Node {
             variants={variants}
             index={4}
           >
-            <UserInfoItem
-              label="Stake Address"
+            <Input
+              label="Stake address"
               value={stakeAddress}
-              onClick={() => {
-                navigator.clipboard.writeText(stakeAddress);
-                toast.success('Copied to clipboard');
-              }}
+              readOnly
+              helperText="Stake address is a public key used to identify your wallet on the blockchain."
             />
-            <UserInfoItem
+            <Input
               label="Account balance"
               value={accountBalance}
+              readOnly
+              currency="₳"
             />
-            <UserInfoItem
+            <Input
               label="Wallet name"
               value={enabledWallet}
+              readOnly
             />
-            <UserInfoItem
-              label="Used addresses"
-              value={usedAddresses}
-              onClick={(index) => {
-                navigator.clipboard.writeText(usedAddresses[index]);
-                toast.success('Copied to clipboard');
-              }}
-            />
-            <UserInfoButton
+            <hr />
+            {map(usedAddresses, (address, index) => (
+              <Input
+                key={index}
+                label="Used address"
+                value={address}
+                readOnly
+                helperText={get(user, 'wallet_address') ? 'Synced with backend' : 'Not synced with backend'}
+                color={get(user, 'wallet_address') ? 'success' : 'error'}
+              />
+            ))}
+            <Button
+              variant="contained"
               label="Disconnect wallet"
-              onClick={disconnect}
-            />
+              onClick={disconnectWallet}
+            >
+              Disconnect wallet
+            </Button>
           </UserSection>
         )}
       </div>

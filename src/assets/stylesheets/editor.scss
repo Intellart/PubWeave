@@ -1,4 +1,4 @@
-#editorjs {
+.editorjs {
 
   // .ce-toolbar__actions{
   //   .ce-toolbar-section-info{
@@ -7,25 +7,33 @@
   //   }
   // }
 
-  &.editorjs-published {
-    margin-top: 20px;
-    // transform: translateY(-50px);
-    // min-height: calc(80vh - 210px);
-  }
 
-
-  // IMAGE PLUGIN > center property
-  .cdx-block.image-tool.image-tool--center{
-    .image-tool__image{
-      display: flex;
-      justify-content: center;
+  /* 
+    revert for bug in Chromium browsers
+    fix for the content editable attribute will work properly. 
+  */
+  &:not(.editorjs-read-only) {
+    :where([contenteditable]) {
+      -moz-user-modify: read-write;
+      -webkit-line-break: after-white-space;
+      -webkit-user-modify: read-write;
+      overflow-wrap: break-word;
     }
   }
 
-  // IMAGE PLUGIN > convert caption input to div
-  &.editorjs-inReview,
-  &.editorjs-published {
-    .image-tool__caption{
+  &.editorjs-read-only {
+
+    .ce-toolbar__actions,
+    .ce-inline-toolbar__dropdown {
+      display: none;
+    }
+
+    .codex-editor__redactor {
+      padding-bottom: 0 !important;
+    }
+
+    // IMAGE PLUGIN > convert caption input to div
+    .image-tool__caption {
       border: none;
       box-shadow: none;
       display: flex;
@@ -41,16 +49,219 @@
       margin: 0px 0px 10px;
       width: 100%;
 
-      a, b,i{
+      a,
+      b,
+      i {
         margin: 0 2px;
       }
 
       * {
         display: inline;
       }
-    }
-    
 
+    }
+  }
+
+  &.editorjs-published,
+  &.editorjs-in-review {
+    margin-top: 20px;
+    // transform: translateY(-50px);
+    // min-height: calc(80vh - 210px);
+  }
+
+  // IMAGE PLUGIN > center property
+  .cdx-block.image-tool.image-tool--center {
+    .image-tool__image {
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+
+
+  .cdx-review {
+    background-color: #7fcbd1;
+    padding: 2px 4px;
+    margin: 0 4px;
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &[data-color="1"] {
+      background-color: #f5e2a4;
+    }
+
+    &[data-color="2"] {
+      background-color: #f9d6d6;
+    }
+
+    &[data-color="3"] {
+      background-color: #7fcbd1;
+    }
+
+    &[data-color="4"] {
+      background-color: #d6f9e8;
+    }
+
+    &[data-color="5"] {
+      background-color: #d6f9f9;
+    }
+
+    &[data-color="6"] {
+      background-color: #d6e8f9;
+    }
+
+    &[data-color="7"] {
+      background-color: #d6d6f9;
+    }
+
+    &[data-color="8"] {
+      background-color: #e8d6f9;
+    }
+
+    &[data-note=""] {
+
+      // lighter shade
+      &[data-color="1"] {
+        background-color: #f6eac6;
+      }
+
+      &[data-color="2"] {
+        background-color: #f9e2e2;
+      }
+
+      &[data-color="3"] {
+        background-color: #c6eaf6;
+      }
+
+      &[data-color="4"] {
+        background-color: #e2f9e8;
+      }
+
+      &[data-color="5"] {
+        background-color: #e2f9f9;
+      }
+
+      &[data-color="6"] {
+        background-color: #e2e8f9;
+      }
+
+      &[data-color="7"] {
+        background-color: #e2e2f9;
+      }
+
+      &[data-color="8"] {
+        background-color: #e8e2f9;
+      }
+
+
+
+      &:hover {
+        &[data-note]:before {
+          display: none;
+        }
+
+      }
+    }
+
+    &:hover {
+
+      &[data-reviewer-name]:after,
+      &[data-note]:before {
+        transition: all 0.3s ease;
+        animation: reviewTooltipFadeIn 0.3s ease forwards;
+        position: absolute;
+        background-color: #fff;
+        // transform: translateX(50%);
+        box-shadow: 0 3px 15px -3px rgba(13, 20, 33, .13);
+        border: 1px solid #E8E8EB;
+        border-radius: 5px;
+        padding: 5px;
+        z-index: 1000;
+        display: flex;
+        color: #5b5b5b;
+        flex-direction: column;
+        gap: 5px;
+        left: 0;
+        font-size: 12px;
+        line-height: 14px;
+        font-weight: 500;
+      }
+
+
+      &[data-reviewer-name]:after {
+        content: attr(data-reviewer-name);
+        bottom: 25px;
+        width: fit-content;
+        white-space: nowrap;
+      }
+
+      &[data-note]:before {
+        content: attr(data-note);
+        bottom: 55px;
+        width: 200px; //min(200px, fit-content);
+      }
+
+      @keyframes reviewTooltipFadeIn {
+        0% {
+          opacity: 0;
+          transform: translateX(-30%);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateX(0%);
+        }
+      }
+
+    }
+  }
+
+
+
+  .ce-inline-toolbar__actions>.ce-review-input-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    color: #121d40;
+
+    input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 0.8em;
+      font-weight: 500;
+      color: #121d40;
+
+      &::placeholder {
+        color: #121d40;
+        opacity: 0.5;
+      }
+    }
+
+
+
+
+    button {
+      background-color: #fff;
+      border: 1px solid #000;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 0.8em;
+      font-weight: 600;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #000;
+        color: #fff;
+      }
+    }
   }
 
   a {
@@ -69,7 +280,7 @@
   sup {
     font-size: 0.7em;
     vertical-align: super;
-    
+
   }
 
   .codeBoxHolder {
@@ -77,12 +288,12 @@
   }
 
 
-  .ce-toolbar{
+  .ce-toolbar {
     z-index: 1000;
   }
 
   .cdx-versioning-selected {
-    .ce-block__content{
+    .ce-block__content {
       background-color: rgb(255, 255, 255);
       border: 1px solid rgb(128, 128, 128);
       border-radius: 8px;
@@ -93,17 +304,17 @@
 
 
 
-      .cdx-block{
+      .cdx-block {
         padding: 10px;
-        transition : all 0.3s ease;
+        transition: all 0.3s ease;
       }
     }
-      
+
   }
 
-  .ce-block__content{
+  .ce-block__content {
 
-    &#critical-section{
+    &#critical-section {
       // border: 1px solid rgb(206, 12, 12);
       pointer-events: none;
       border-radius: 5px;
@@ -112,7 +323,7 @@
       transition: all 0.3s ease;
       // box-shadow: inset 0 0 10px 0 rgba(206, 12, 12, 0.126);
 
-      &::after{
+      &::after {
         content: "Somebody else is editing this section";
         position: absolute;
         display: flex;
@@ -129,7 +340,7 @@
         backdrop-filter: blur(6px);
         pointer-events: none;
         border-radius: 5px;
-        animation: criticalSectionFadeIn 1s ease forwards;  
+        animation: criticalSectionFadeIn 1s ease forwards;
         z-index: 1000;
 
         @keyframes criticalSectionFadeIn {
@@ -161,16 +372,16 @@
   }
 
   // .ce-inline-toolbar {
-    // &::after{
-    //   content: "";
-    //   position: absolute;
-    //   top: 0;
-    //   right: -80px;
-    //   width: 80px;
-    //   height: 100%;
-    //   background-color: rgba(0, 0, 0, 0.8);
-    //   border-radius: 5px;
-    // }
+  // &::after{
+  //   content: "";
+  //   position: absolute;
+  //   top: 0;
+  //   right: -80px;
+  //   width: 80px;
+  //   height: 100%;
+  //   background-color: rgba(0, 0, 0, 0.8);
+  //   border-radius: 5px;
+  // }
   // }
 
   min-height: calc(80vh - 210px);
@@ -237,4 +448,3 @@
 
   }
 }
-

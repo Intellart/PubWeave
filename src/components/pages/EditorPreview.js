@@ -20,7 +20,7 @@ import { Alert, AlertTitle } from '@mui/material';
 import ArticleConfig from '../editor/ArticleConfig';
 import { actions, selectors } from '../../store/articleStore';
 import ImageSelection from '../editor/ImageSelection';
-import Editor from '../editor/Editor';
+import Editor, { EditorStatus } from '../editor/Editor';
 import EditorTitle from '../editor/EditorTitle';
 import routes from '../../routes';
 
@@ -186,8 +186,7 @@ function ReactEditor (): React$Element<any> {
       )} */}
       <Editor
         isReady={isReady}
-        readOnly
-        status="inReview"
+        status={EditorStatus.IN_REVIEW}
 
       />
     </main>

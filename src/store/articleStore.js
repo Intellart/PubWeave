@@ -1,6 +1,6 @@
 // @flow
 import {
-  filter, keyBy, omit, get, set, subtract,
+  filter, keyBy, omit, get, set, subtract, toInteger, map, find,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import * as API from '../api';
@@ -22,6 +22,7 @@ export type Block = {|
   position: null | number,
   version_number: number,
   collaborator_id: number,
+  action: string,
 |};
 
 export type _BlockFromEditor = {|
@@ -157,12 +158,13 @@ export type Article = {
   description: string,
   image: string,
   star: boolean,
+  reviewers: Array<User>,
   category: string,
   created_at: string,
   updated_at: string,
   comments: { [number]: Comment },
   tags: Tags,
-  active_sections: {[string]: number },
+  activeSections: {[string]: number },
 };
 
 export type BlockIds = {
@@ -188,12 +190,24 @@ export type State = {
   activeSections: {[string]: number },
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
+  reviewers: Array<User>,
+  reviews: Array<any>,
 };
 
 export const types = {
   TEST_WS_BLOCK_UPDATE: 'TEST_WS_BLOCK_UPDATE',
 
   SET_LAST_UPDATED_ARTICLE_IDS: 'SET_LAST_UPDATED_ARTICLE_IDS',
+
+  ART_USER_REVIEW_ACCEPT: 'ART/USER_REVIEW_ACCEPT',
+  ART_USER_REVIEW_ACCEPT_PENDING: 'ART/USER_REVIEW_ACCEPT_PENDING',
+  ART_USER_REVIEW_ACCEPT_REJECTED: 'ART/USER_REVIEW_ACCEPT_REJECTED',
+  ART_USER_REVIEW_ACCEPT_FULFILLED: 'ART/USER_REVIEW_ACCEPT_FULFILLED',
+
+  ART_USER_REVIEW_REJECT: 'ART/USER_REVIEW_REJECT',
+  ART_USER_REVIEW_REJECT_PENDING: 'ART/USER_REVIEW_REJECT_PENDING',
+  ART_USER_REVIEW_REJECT_REJECTED: 'ART/USER_REVIEW_REJECT_REJECTED',
+  ART_USER_REVIEW_REJECT_FULFILLED: 'ART/USER_REVIEW_REJECT_FULFILLED',
 
   ART_ADD_COLLABORATOR: 'ART/ADD_COLLABORATOR',
   ART_ADD_COLLABORATOR_PENDING: 'ART/ADD_COLLABORATOR_PENDING',
@@ -209,6 +223,11 @@ export const types = {
   ART_FETCH_ALL_ARTICLES_PENDING: 'ART/FETCH_ALL_ARTICLES_PENDING',
   ART_FETCH_ALL_ARTICLES_REJECTED: 'ART/FETCH_ALL_ARTICLES_REJECTED',
   ART_FETCH_ALL_ARTICLES_FULFILLED: 'ART/FETCH_ALL_ARTICLES_FULFILLED',
+
+  ART_FETCH_ALL_REVIEWERS: 'ART/FETCH_ALL_REVIEWERS',
+  ART_FETCH_ALL_REVIEWERS_PENDING: 'ART/FETCH_ALL_REVIEWERS_PENDING',
+  ART_FETCH_ALL_REVIEWERS_REJECTED: 'ART/FETCH_ALL_REVIEWERS_REJECTED',
+  ART_FETCH_ALL_REVIEWERS_FULFILLED: 'ART/FETCH_ALL_REVIEWERS_FULFILLED',
 
   ART_UPDATE_ARTICLE: 'ART/UPDATE_ARTICLE',
   ART_UPDATE_ARTICLE_PENDING: 'ART/UPDATE_ARTICLE_PENDING',
@@ -270,6 +289,11 @@ export const types = {
   ART_ADD_TAG_REJECTED: 'ART/ADD_TAG_REJECTED',
   ART_ADD_TAG_FULFILLED: 'ART/ADD_TAG_FULFILLED',
 
+  ART_UNLOCK_ARTICLE: 'ART/UNLOCK_ARTICLE',
+  ART_UNLOCK_ARTICLE_PENDING: 'ART/UNLOCK_ARTICLE_PENDING',
+  ART_UNLOCK_ARTICLE_REJECTED: 'ART/UNLOCK_ARTICLE_REJECTED',
+  ART_UNLOCK_ARTICLE_FULFILLED: 'ART/UNLOCK_ARTICLE_FULFILLED',
+
   ART_REMOVE_TAG: 'ART/REMOVE_TAG',
   ART_REMOVE_TAG_PENDING: 'ART/REMOVE_TAG_PENDING',
   ART_REMOVE_TAG_REJECTED: 'ART/REMOVE_TAG_REJECTED',
@@ -305,6 +329,21 @@ export const types = {
   ART_FETCH_VERSIONS_REJECTED: 'ART/FETCH_VERSIONS_REJECTED',
   ART_FETCH_VERSIONS_FULFILLED: 'ART/FETCH_VERSIONS_FULFILLED',
 
+  ART_FETCH_REVIEWS: 'ART/FETCH_REVIEWS',
+  ART_FETCH_REVIEWS_PENDING: 'ART/FETCH_REVIEWS_PENDING',
+  ART_FETCH_REVIEWS_REJECTED: 'ART/FETCH_REVIEWS_REJECTED',
+  ART_FETCH_REVIEWS_FULFILLED: 'ART/FETCH_REVIEWS_FULFILLED',
+
+  ART_CREATE_REVIEW: 'ART/CREATE_REVIEW',
+  ART_CREATE_REVIEW_PENDING: 'ART/CREATE_REVIEW_PENDING',
+  ART_CREATE_REVIEW_REJECTED: 'ART/CREATE_REVIEW_REJECTED',
+  ART_CREATE_REVIEW_FULFILLED: 'ART/CREATE_REVIEW_FULFILLED',
+
+  ART_DELETE_REVIEWS: 'ART/DELETE_REVIEWS',
+  ART_DELETE_REVIEWS_PENDING: 'ART/DELETE_REVIEWS_PENDING',
+  ART_DELETE_REVIEWS_REJECTED: 'ART/DELETE_REVIEWS_REJECTED',
+  ART_DELETE_REVIEWS_FULFILLED: 'ART/DELETE_REVIEWS_FULFILLED',
+
   ART_LOCK_SECTION: 'ART/LOCK_SECTION',
   ART_LOCK_SECTION_PENDING: 'ART/LOCK_SECTION_PENDING',
   ART_LOCK_SECTION_REJECTED: 'ART/LOCK_SECTION_REJECTED',
@@ -337,18 +376,21 @@ export const types = {
 
 export const selectors = {
   article: (state: ReduxState): Article | null => state.article.oneArticle,
+  userReview: (state: ReduxState, userId: number): Article | null => find(state.article.oneArticle?.reviewers, (reviewer) => reviewer.user_id === userId),
   articleContent: (state: ReduxState): ArticleContent => get(state.article.oneArticle, 'content'),
-  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.author.id === state.user.profile?.id),
+  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => !article.user_review_id && (article.author.id === state.user.profile?.id || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id))),
   getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
   getCategories: (state: ReduxState): any => state.article.categories,
+  getReviews: (state: ReduxState): any => state.article.reviews,
   getTags: (state: ReduxState): Tags => state.article.tags,
   getVersions: (state: ReduxState): any => get(state.article, 'versions', []),
   getActiveBlock: (state: ReduxState): any => state.article.activeBlock,
   getCriticalSectionIds: (state: ReduxState): any => get(state.article, 'critical_section_ids', []),
   getBlockIdQueue: (state: ReduxState): BlockIdQueue => state.article.blockIdQueue,
   getActiveSections: (state: ReduxState): any => get(state.article, 'activeSections', []),
+  getReviewers: (state: ReduxState): any => get(state.article, 'reviewers', []),
 };
 
 export const actions = {
@@ -367,12 +409,36 @@ export const actions = {
       section_id: sectionId,
     }),
   }),
+  fetchReviews: (articleId: number): ReduxAction => ({
+    type: types.ART_FETCH_REVIEWS,
+    payload: API.getRequest(`pubweave/reviews?article_id=${articleId}`),
+  }),
+  newReview: (amount: number, articleId: number, deadline: string, reviewers: Array<number>): ReduxAction => ({
+    type: types.ART_CREATE_REVIEW,
+    payload: API.postRequest('pubweave/reviews',
+      {
+        review: {
+          amount,
+          article_id: articleId,
+          deadline,
+          user_ids: reviewers,
+        },
+      }),
+  }),
+  deleteReview: (reviewId: number): ReduxAction => ({
+    type: types.ART_DELETE_REVIEWS,
+    payload: API.deleteRequest(`pubweave/reviews/${reviewId}`),
+  }),
   unlockSection: (userId: number, sectionId: string): ReduxAction => ({
     type: types.ART_UNLOCK_SECTION,
     payload: API.putRequest(`pubweave/sections/${sectionId}/unlock`, {
       user_id: userId,
       section_id: sectionId,
     }),
+  }),
+  unlockArticle: (articleId: number): ReduxAction => ({
+    type: types.ART_UNLOCK_ARTICLE,
+    payload: API.putRequest(`pubweave/articles/${articleId}/unlock_article`),
   }),
   wsUpdateBlock: (payload: any, userId: number): ReduxAction => ({
     type: types.WS_BLOCK_UPDATE,
@@ -435,6 +501,10 @@ export const actions = {
     type: types.ART_FETCH_ALL_ARTICLES,
     payload: API.getRequest('pubweave/articles'),
   }),
+  fetchAllReviewers: (): ReduxAction => ({
+    type: types.ART_FETCH_ALL_REVIEWERS,
+    payload: API.getRequest('intellart/users/reviewers'),
+  }),
   likeComment: (commentId: number): ReduxAction => ({
     type: types.ART_LIKE_COMMENT,
     payload: API.putRequest(`pubweave/comments/${commentId}/like`),
@@ -495,24 +565,17 @@ export const actions = {
         },
       }),
   }),
-  createArticle: (userId: number): ReduxAction => ({
+  createArticle: (userId: number, userReviewId?: number): ReduxAction => ({
     type: types.ART_CREATE_ARTICLE,
     payload: API.postRequest('pubweave/articles',
       {
         author_id: userId,
-        title: 'New article',
+        title: userReviewId ? 'New review' : 'New article',
         content: {
           time: 0,
-          blocks: [
-            {
-              id: 'Y3pS0lTILC',
-              data: {
-                text: 'Start your article.',
-              },
-              type: 'paragraph',
-            },
-          ],
+          blocks: [],
         },
+        ...(userReviewId ? { user_review_id: userReviewId } : {}),
       }),
   }),
   likeArticle: (articleId: number): ReduxAction => ({
@@ -550,7 +613,14 @@ export const actions = {
     type: types.ART_CONVERT_ARTICLE,
     payload: API.putRequest(`pubweave/articles/${id}/convert`),
   }),
-  // this will be handled by Admin from the backend, see publish and reject actions
+  acceptUserReview: (userReviewId: number): ReduxAction => ({
+    type: types.ART_USER_REVIEW_ACCEPT,
+    payload: API.putRequest(`pubweave/user_reviews/${userReviewId}/accept_review`),
+  }),
+  rejectUserReview: (userReviewId: number): ReduxAction => ({
+    type: types.ART_USER_REVIEW_REJECT,
+    payload: API.putRequest(`pubweave/user_reviews/${userReviewId}/reject_review`),
+  }),
   publishArticle: (id: number, newStatus: string): ReduxAction => {
     // console.log('publishing article', id, newStatus);
 
@@ -578,6 +648,54 @@ export const actions = {
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.ART_USER_REVIEW_ACCEPT_FULFILLED:
+    case types.ART_USER_REVIEW_REJECT_FULFILLED:
+      console.log('ART_USER_REVIEW_ACCEPT_FULFILLED');
+
+      return {
+        ...state,
+        reviews: map(state.reviews, (review) => {
+          if (review.id === action.payload.review_id) {
+            return {
+              ...review,
+              user_reviews: map(review.user_reviews, (userReview) => {
+                if (userReview.id === action.payload.id) {
+                  return {
+                    ...userReview,
+                    status: action.payload.status,
+                  };
+                }
+
+                return userReview;
+              }),
+            };
+          }
+
+          return review;
+        }),
+      };
+
+    case types.ART_FETCH_REVIEWS_FULFILLED:
+      console.log('ART_FETCH_REVIEWS_FULFILLED');
+
+      return {
+        ...state,
+        reviews: action.payload,
+      };
+    case types.ART_FETCH_ALL_REVIEWERS_FULFILLED:
+      console.log('ART_FETCH_ALL_REVIEWERS_FULFILLED');
+
+      return {
+        ...state,
+        reviewers: action.payload,
+      };
+    case types.ART_DELETE_REVIEWS_FULFILLED:
+      console.log('ART_DELETE_REVIEWS_FULFILLED');
+
+      return {
+        ...state,
+        reviews: filter(state.reviews, (review) => review.id !== toInteger(action.payload.id)),
+      };
     case types.ART_ADD_COLLABORATOR_FULFILLED:
       return {
         ...state,
@@ -590,9 +708,6 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_CONVERT_ARTICLE_FULFILLED:
       console.log('ART_CONVERT_ARTICLE_FULFILLED');
 
-      console.log(action.payload);
-      console.log(state.allArticles);
-
       return {
         ...state,
         oneArticle: set(state.oneArticle, 'article_type', action.payload.article_type),
@@ -600,6 +715,18 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
           ...state.allArticles,
           [action.payload.id]: set(state.allArticles[action.payload.id], 'article_type', action.payload.article_type),
         },
+      };
+
+    case types.ART_CREATE_REVIEW_FULFILLED:
+      console.log('ART_CREATE_REVIEW_FULFILLED');
+      console.log(action.payload);
+
+      return {
+        ...state,
+        reviews: [
+          ...state.reviews,
+          action.payload,
+        ],
       };
 
     case types.ART_FETCH_VERSIONS_FULFILLED:
@@ -763,6 +890,26 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
     case types.ART_FETCH_ARTICLE_FULFILLED:
     case types.ART_UPDATE_ARTICLE_CONTENT_FULFILLED:
       const { time, version, blocks } = get(action.payload, 'content', '{}');
+
+      if (action.payload.user_review_id) {
+        console.log('reviewer updated', action.payload.user_review_id);
+
+        return {
+          ...state,
+          oneArticle: set(state.oneArticle, 'reviewers', map(state.oneArticle?.reviewers, (reviewer) => {
+            if (reviewer.id === action.payload.user_review_id) {
+              return {
+                ...reviewer,
+                review_content: action.payload,
+              };
+            }
+
+            return reviewer;
+          })),
+        };
+      }
+
+      console.log('article updated', action.payload.user_review_id);
 
       return {
         ...state,
@@ -1054,6 +1201,24 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_CREATE_ARTICLE_FULFILLED:
+      if (action.payload.user_review_id) {
+        toast.success(`Created ${action.payload.title} successfully!`);
+
+        return {
+          ...state,
+          oneArticle: set(state.oneArticle, 'reviewers', map(state.oneArticle?.reviewers, (reviewer) => {
+            if (reviewer.id === action.payload.user_review_id) {
+              return {
+                ...reviewer,
+                review_content: action.payload,
+              };
+            }
+
+            return reviewer;
+          })),
+        };
+      }
+
       toast.success(`Created article ${action.payload.title} successfully!`);
 
       return {

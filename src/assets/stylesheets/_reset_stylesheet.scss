@@ -60,12 +60,12 @@ meter {
 
 /* revert for bug in Chromium browsers
  - fix for the content editable attribute will work properly. */
-:where([contenteditable]) {
-  -moz-user-modify: read-write;
-  -webkit-line-break: after-white-space;
-  -webkit-user-modify: read-write;
-  overflow-wrap: break-word;
-}
+// :where([contenteditable]) {
+//   -moz-user-modify: read-write;
+//   -webkit-line-break: after-white-space;
+//   -webkit-user-modify: read-write;
+//   overflow-wrap: break-word;
+// }
 
 /* apply back the draggable feature - exist only in Chromium and Safari */
 :where([draggable="true"]) {

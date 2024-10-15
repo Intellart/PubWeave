@@ -16,3 +16,6 @@ module.name_mapper.extension='svg' -> 'empty/object'
 module.name_mapper.extension='gif' -> 'empty/object'
 
 [strict]
+
+[untyped]
+.*/node_modules/.*

@@ -19,7 +19,7 @@ import TutorialModal from '../editor/TutorialModal';
 import EditorTitle from '../editor/EditorTitle';
 import ArticleConfig from '../editor/ArticleConfig';
 import SideBar from '../editor/SideBar';
-import Editor from '../editor/Editor';
+import Editor, { EditorStatus } from '../editor/Editor';
 import { editorPermissions, permissions } from '../../utils/hooks';
 
 const cookies = new Cookies();
@@ -108,7 +108,7 @@ function ReactEditor (): React$Element<any> {
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
         onPublishClick={() => {
-          navigate(routes.myWork.review(type, id));
+          navigate(routes.myWork.preview(type, id));
         }}
 
       />
@@ -134,7 +134,7 @@ function ReactEditor (): React$Element<any> {
         />
       )}
       <Editor
-        status="inProgress"
+        status={EditorStatus.IN_PROGRESS}
         onShowHistory={(sectionId: string) => {
           setHistorySectionId(sectionId);
           setSidebar({ ...sidebar, show: true });

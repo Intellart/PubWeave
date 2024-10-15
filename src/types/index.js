@@ -3,11 +3,13 @@
 import type { State as GlobalState } from '../store/globalStore';
 import type { State as UserState } from '../store/userStore';
 import type { State as ArticleState } from '../store/articleStore';
+import type { State as WalletState } from '../store/cardanoStore';
 
 export type ReduxState = {
   user: UserState,
   global: GlobalState,
   article: ArticleState,
+  wallet: WalletState,
 };
 
 export type BaseReduxAction = {
@@ -22,10 +24,12 @@ export type PayloadReduxAction = {
 export type ReduxAction = {
   type: string,
   payload?: any,
+  propagate?: any,
 };
 export type ReduxActionWithPayload = {
   type: string,
   payload: any,
+  propagate?: any,
 };
 
 export type ReduxMiddlewareArgument = {

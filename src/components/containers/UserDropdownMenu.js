@@ -4,13 +4,11 @@ import MenuItem from '@mui/material/MenuItem';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import { store } from '../../store';
-import { actions } from '../../store/userStore';
 
 type Props = {
   isAdmin: boolean,
-  userId?: number,
   userImg?: string,
+  onLogout: () => void,
 };
 
 export default function UserDropdownMenu(props: Props): Node {
@@ -27,12 +25,12 @@ export default function UserDropdownMenu(props: Props): Node {
 
   const handleProfile = () => {
     setAnchorEl(null);
-    navigate(`/user/${props.userId}`);
+    navigate('/user');
   };
 
   const handleLogout = () => {
     setAnchorEl(null);
-    store.dispatch(actions.logoutUser());
+    props.onLogout();
   };
 
   return (

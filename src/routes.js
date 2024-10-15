@@ -5,12 +5,13 @@ const routes = {
     chooseType: '/my-work/choose-type',
     project: (type, id) => `/my-work/${id}`,
     review: (type, id) => `/my-work/${id}/review`,
+    preview: (type, id) => `/my-work/${id}/preview`,
   },
   blogs: {
     root: '/blogs',
     blog: (id) => `/singleblog/${id}`,
   },
-  user: (id) => `/user/${id}`,
+  user: () => '/user/',
   login: '/login',
   adminLogin: '/admin-login',
   projects: {

@@ -8,11 +8,13 @@ import {
   get, isEqual, map, sortBy, uniqBy,
 } from 'lodash';
 import {
-  Autocomplete, TextField, ToggleButton, ToggleButtonGroup,
+  Autocomplete, Button, TextField, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
+import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+import { NetworkType } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
 // import { actions } from '../../store/userStore';
@@ -28,12 +30,27 @@ type Props = {
   user?: any,
 };
 function Navbar(props: Props): Node {
+  const {
+    disconnect,
+  } = useCardano({
+    limitNetwork: NetworkType.TESTNET,
+  });
+
   const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
 
   const navigate = useNavigate();
 
-  const [searchParam, setSearchParam] = useState('article');
-  const [searchValue, setSearchValue] = useState('');
+  const searchType = {
+    ARTICLE: 'article',
+    AUTHOR: 'author',
+  };
+
+  const [searchParams, setSearchParams] = useState({
+    type: searchType.ARTICLE,
+    input: '',
+    value: null,
+  });
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isMobile } = useScreenSize();
@@ -43,18 +60,22 @@ function Navbar(props: Props): Node {
   useOutsideClickEffect(() => setMobileMenuOpen(false), [ref, buttonRef]);
 
   const userItems = uniqBy(map(articles, (article) => ({
-    ...article.author,
+    value: article.author.id,
     label: article.author.full_name,
   })), 'id');
 
   const articleItems = sortBy(map(articles, (article) => ({
-    ...article,
+    value: article.id,
     label: article.title,
+    category: article.category,
   })), 'category');
 
-  const options = searchParam === 'author' ? userItems : articleItems;
+  const options = {
+    article: articleItems,
+    author: userItems,
+  }[searchParams.type];
 
-  const onClick = () => {
+  const handleClick = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
@@ -62,18 +83,29 @@ function Navbar(props: Props): Node {
     if (!isMobile && (props.isAuthorized || props.isAdmin)) {
       const userImage = get(props, 'user.profile_img');
 
-      return <UserDropdownMenu isAdmin={props.isAdmin} userId={get(props, 'user.id')} userImg={userImage} />;
+      return (
+        <UserDropdownMenu
+          isAdmin={props.isAdmin}
+          userId={get(props, 'user.id')}
+          userImg={userImage}
+          onLogout={() => {
+            disconnect();
+            store.dispatch(actions.logoutUser());
+          }}
+        />
+      );
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>
-          <Link onClick={onClick} to={`/user/${get(props, 'user.id')}`}>
+          <Link onClick={handleClick} to="/user">
             Profile
           </Link>
           <Link
             to="/home"
             onClick={() => {
+              disconnect();
               store.dispatch(actions.logoutUser());
-              onClick();
+              handleClick();
             }}
           >
             Logout
@@ -83,7 +115,7 @@ function Navbar(props: Props): Node {
     } else {
       return (
         <Link
-          onClick={onClick}
+          onClick={handleClick}
           className="login-button"
           to="/login"
         >Login
@@ -91,11 +123,6 @@ function Navbar(props: Props): Node {
       );
     }
   };
-
-  const searchOptions = map(options, (option) => ({
-    label: option.label,
-    value: option.id,
-  }));
 
   const renderSearch = () => (
     <div className="search-wrapper">
@@ -106,64 +133,66 @@ function Navbar(props: Props): Node {
       <Autocomplete
         disablePortal
         size="small"
-        value={searchValue}
-        // onInputChange={(event, newInputValue) => {
-        //   setSearchValue('2');
-        // }}
+        inputValue={searchParams.input}
+        onInputChange={(event, newInputValue) => {
+          setSearchParams({ ...searchParams, input: newInputValue });
+        }}
+        value={searchParams.value || null}
         className="navbar-search"
-        options={searchOptions}
+        options={options}
         isOptionEqualToValue={(option, value) => option.value === value.value}
         onChange={(event, newValue) => {
           if (!newValue || !newValue.value) {
             return;
           }
-          if (searchParam === 'article') {
-            navigate(`/singleblog/${newValue.value}`);
-          } else {
-            navigate(`/users/${newValue.value}`);
-          }
 
-          setSearchValue('');
+          navigate({
+            [searchType.ARTICLE]: `/singleblog/${newValue.value}`,
+            [searchType.AUTHOR]: `/users/${newValue.value}`,
+          }[searchParams.type]);
+
+          setSearchParams({
+            ...searchParams,
+            input: '',
+            value: newValue,
+          });
         }}
-        groupBy={(option) => option.category}
+        getOptionKey={(option) => option.value}
+        groupBy={(option) => (searchType.ARTICLE ? option.category : '')}
         sx={{
           width: 300,
         }}
-        // renderOption={(p, option) => (
-        //   <div
-        //     key={option.id}
-        //     className="navbar-search-option"
-        //   >
-        //     {option.label}
-        //   </div>
-        // )}
         renderInput={(params) => (
           <TextField
             {...params}
-            label={searchParam === 'author' ? 'Search Authors' : 'Search Articles'}
+            label={searchParams.type === searchType.AUTHOR ? 'Search Authors' : 'Search Articles'}
           />
         )}
       />
 
       <ToggleButtonGroup
         className="search-type"
-        value={searchParam}
+        value={searchParams.type}
         exclusive
         onChange={(event, newParam) => {
-          setSearchValue('');
-          setSearchParam(newParam);
+          if (!newParam) return;
+          setSearchParams({
+            input: '',
+            type: newParam,
+            value: null,
+          });
         }}
         aria-label="text alignment"
       >
         <ToggleButton
           className='search-type-button'
-          value="author"
+          value={searchType.AUTHOR}
         >
           <FontAwesomeIcon className='search-type-button-icon' icon={faUser} />
         </ToggleButton>
         <ToggleButton
           className='search-type-button'
-          value="article"
+          value={searchType.ARTICLE}
         >
           <FontAwesomeIcon className='search-type-button-icon' icon={faScroll} />
         </ToggleButton>
@@ -186,12 +215,23 @@ function Navbar(props: Props): Node {
         {!isMobile && renderSearch()}
 
         <div className="navigation">
-          <NavLink onClick={onClick} to="/">Home</NavLink>
-          <NavLink onClick={onClick} to="/blogs">Blogs </NavLink>
-          {(props.isAdmin) && <NavLink onClick={onClick} to="/Dashboard">Dashboard</NavLink>}
+          <NavLink onClick={handleClick} to="/">Home</NavLink>
+          <NavLink onClick={handleClick} to="/blogs">Blogs </NavLink>
+          {(props.isAdmin) && <NavLink onClick={handleClick} to="/Dashboard">Dashboard</NavLink>}
           {/* <NavLink onClick={onClick} to="/About">About</NavLink>
           <NavLink onClick={onClick} to="/ContactUs">Contact Us</NavLink> */}
-          {!isMobile && props.isAuthorized && <Link onClick={onClick} to={routes.myWork.root} className='submit-work'>My Work</Link>}
+          {!isMobile && props.isAuthorized
+          && (
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleClick();
+              navigate(routes.myWork.root);
+            }}
+          >
+            My Work
+          </Button>
+          )}
           {!isMobile && renderLoginButton()}
           {isMobile && (
           <div ref={buttonRef} className="mobile-burger">
@@ -213,7 +253,7 @@ function Navbar(props: Props): Node {
             {renderSearch()}
             <hr />
             <div className="mobile-menu-items-buttons">
-              {props.isAuthorized && <Link onClick={onClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
+              {props.isAuthorized && <Link onClick={handleClick} to="/submit-work" className='submit-work'>Submit your research</Link>}
               {renderLoginButton()}
             </div>
           </div>

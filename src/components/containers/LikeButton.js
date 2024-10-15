@@ -12,14 +12,13 @@ import { actions } from '../../store/articleStore';
 import type { Article } from '../../store/articleStore';
 
 type Props = {
-    enabled: boolean,
     article: Article,
     userId?: number,
     iconType: 'default' | 'solid',
 };
 
 function LikeButton({
-  enabled, article, userId, iconType = 'solid',
+  article, userId, iconType = 'solid',
 }: Props): React$Node {
   const dispatch = useDispatch();
   const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
@@ -41,7 +40,7 @@ function LikeButton({
       <FontAwesomeIcon
         className={classNames('like-button-icon', { 'like-button-icon-active': userAlreadyLiked })}
         onClick={() => {
-          if (!userId || !enabled) { return; }
+          if (!userId) { return; }
 
           if (userAlreadyLiked) {
             removeArticleLike(article.id);

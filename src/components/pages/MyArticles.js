@@ -15,6 +15,7 @@ import ArticleCard from '../containers/ArticleCard';
 import { useScrollTopEffect } from '../../utils/hooks';
 import routes from '../../routes';
 import type { Article } from '../../store/articleStore';
+import HowItWorks from '../modal/HowItWorks';
 
 function MyArticles(): Node {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
@@ -40,6 +41,7 @@ function MyArticles(): Node {
   const categories = [
     { id: 'all', name: 'All' },
     { id: 'collaborating', name: 'Collaborating' },
+    { id: 'reviewing', name: 'Reviewing' },
     { id: 'published', name: 'Published' },
     { id: 'requested', name: 'Requested' },
     { id: 'rejected', name: 'Rejected' },
@@ -68,10 +70,15 @@ function MyArticles(): Node {
   };
 
   const handleArticleClick = (article: Article) => {
-    if (article.status === 'published') {
-      navigate(routes.blogs.blog(article.id));
-    } else {
-      navigate(routes.myWork.project(type, article.id));
+    switch (article.status) {
+      case 'published':
+        navigate(routes.blogs.blog(article.id));
+        break;
+      case 'reviewing':
+        navigate(routes.myWork.review(type, article.id));
+        break;
+      default:
+        navigate(routes.myWork.project(type, article.id));
     }
   };
 
@@ -86,6 +93,7 @@ function MyArticles(): Node {
             onClick={() => handleCreateArticle()}
           />
         </div>
+        <HowItWorks type="article" />
         <div className="articles-filter">
           {map(categories, (c) => (
             <Chip
@@ -107,6 +115,7 @@ function MyArticles(): Node {
                 showPublishedChip
                 onDelete={handleDeleteClick}
                 onClick={() => handleArticleClick(a)}
+                currentUserId={user.id}
                 onConvert={() => {
                   convertArticle(a.id);
                   window.location.reload();

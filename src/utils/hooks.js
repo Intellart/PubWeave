@@ -4,9 +4,11 @@ import { useLocation } from 'react-router-dom';
 import {
   difference,
   every,
+  first,
   forEach,
   get,
   includes,
+  isEmpty,
   isEqual,
   keyBy,
   keys,
@@ -14,8 +16,11 @@ import {
   pickBy,
   size,
   sortBy,
+  sum,
+  toNumber,
   uniq,
   values,
+  words,
 } from 'lodash';
 import { useInView } from 'react-intersection-observer';
 import apiClient from '../api/axios';
@@ -32,6 +37,8 @@ import type {
   SimpleBlock,
   _BlockFromEditor,
 } from '../store/articleStore';
+import { EditorStatus } from '../components/editor/Editor';
+import type { EditorStatusType } from '../components/editor/Editor';
 
 export const regex: Object = {
   specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
@@ -88,30 +95,34 @@ export const emailChecks = [
 export const permissions = {
   webSockets: 'WEB_SOCKETS',
   criticalSections: 'CRITICAL_SECTIONS',
+  REVIEW_OR_EDIT_BLOCKS: 'REVIEW_OR_EDIT_BLOCKS',
+  ADD_OR_REMOVE_BLOCKS: 'ADD_OR_REMOVE_BLOCKS',
   locking: 'LOCKING',
   configMenu: 'CONFIG_MENU',
   history: 'HISTORY',
   collaborators: 'COLLABORATORS',
+  DELETE_ARTICLE: 'DELETE_ARTICLE',
+  ARTICLE_SETTINGS: 'ARTICLE_SETTINGS',
+  LIKE_ARTICLE: 'LIKE_ARTICLE',
+  SHARE_ARTICLE: 'SHARE_ARTICLE',
+  COMMENT_ARTICLE: 'COMMENT_ARTICLE',
+  SWITCH_ARTICLE_TYPE: 'SWITCH_ARTICLE_STATUS',
 };
 
 type EditorPermissionProps = {
   type: 'blog_article' | 'preprint' | 'scientific_article',
-  status: 'inProgress' | 'published' | 'inReview',
+  status: EditorStatusType,
+  userId?: number,
+  ownerId?: number,
+  isReviewer?: boolean,
+  isCollaborator?: boolean,
 };
 
-// // eslint-disable-next-line no-unused-vars
-// export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
-//   [permissions.webSockets]: true,
-//   [permissions.criticalSections]: true,
-//   [permissions.locking]: true,
-//   [permissions.configMenu]: true,
-//   [permissions.history]: true,
-//   [permissions.collaborators]: true,
-// });
-
-export const editorPermissions = ({ type, status }: EditorPermissionProps): Object => ({
+export const editorPermissions = ({
+  type, status, userId, ownerId, isReviewer, isCollaborator,
+}: EditorPermissionProps): any => ({
   scientific_article: {
-    inProgress: {
+    [EditorStatus.IN_PROGRESS]: {
       [permissions.webSockets]: true,
       [permissions.criticalSections]: true,
       [permissions.locking]: true,
@@ -119,36 +130,53 @@ export const editorPermissions = ({ type, status }: EditorPermissionProps): Obje
       [permissions.history]: true,
       [permissions.collaborators]: true,
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
     },
-    inReview: {
+    [EditorStatus.PREVIEW]: {
     },
   },
   preprint: {
-    inProgress: {
+    [EditorStatus.IN_PROGRESS]: {
       [permissions.webSockets]: true,
       [permissions.criticalSections]: true,
       [permissions.locking]: true,
       [permissions.configMenu]: true,
       [permissions.history]: true,
       [permissions.collaborators]: true,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer || isCollaborator,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
+      [permissions.DELETE_ARTICLE]: userId === ownerId,
+
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
     },
-    inReview: {
-    },
+    // [EditorStatus.PREVIEW]: {
+    // },
   },
   blog_article: {
-    inProgress: {
-      [permissions.configMenu]: true,
+    [EditorStatus.IN_PROGRESS]: {
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
+      [permissions.DELETE_ARTICLE]: userId === ownerId,
+      [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
+      [permissions.ARTICLE_SETTINGS]: true,
+      [permissions.locking]: false,
     },
-    published: {
+    [EditorStatus.PUBLISHED]: {
+      [permissions.LIKE_ARTICLE]: userId !== ownerId,
+
     },
-    inReview: {
-      [permissions.configMenu]: true,
+    // [EditorStatus.PREVIEW]: {
+    //   [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
+    // },
+    [EditorStatus.IN_REVIEW]: {
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: true,
+      [permissions.DELETE_ARTICLE]: false,
+      [permissions.ARTICLE_SETTINGS]: userId === ownerId,
+      [permissions.locking]: false,
     },
   },
-}[type || 'blog_article'][status]);
+}[type || 'blog_article'][(status:string)]);
 
 export const isProdEnv = process.env.NODE_ENV === 'production';
 
@@ -231,6 +259,37 @@ export const convertBlockToEditorJS = (block: Block): _BlockFromEditor => ({
 //   return false;
 // };
 
+export const getSmallReviewCount = (blocks: Blocks): any => {
+  const reviewRegex = /<m.*?<\/m>/g;
+  const reviews = [];
+
+  forEach(blocks, (block) => {
+    const text = get(block, 'data.text', '');
+    const matches = [...text.matchAll(reviewRegex)];
+
+    if (!isEmpty(matches)) {
+      forEach(matches, (match) => {
+        const matchToDom = document.createElement('div');
+        matchToDom.innerHTML = first(match);
+        const mElement = matchToDom.querySelector('m');
+
+        if (!mElement) {
+          return;
+        }
+        reviews.push({
+          dataNote: mElement.getAttribute('data-note'),
+          dataId: toNumber(mElement.getAttribute('data-reviewer-id')),
+          dataName: mElement.getAttribute('data-reviewer-name'),
+        });
+      });
+    }
+  });
+
+  return reviews;
+};
+
+export const getWordCount = (blocks: Blocks): number => sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0);
+
 export const areBlocksEqual = (block1: SimpleBlock, block2: SimpleBlock): boolean => isEqual(block1.type, block2.type) && isEqual(block1.data, block2.data);
 
 export const convertToChangeBlock = (block: Block | BlockFromEditor, index: number): BlockToChange => ({
@@ -291,7 +350,7 @@ export const convertBlocksFromBackend = (blocks: Array<Block>): BlocksFromBacken
   const hasDuplicates = size(uniq(positions)) !== size(positions);
 
   if (hasDuplicates) {
-    console.log('hasDuplicates', positions, newBlocks);
+    // console.log('hasDuplicates', positions, newBlocks);
   }
 
   // console.log('convertBlocksFromBackend', newBlocks);
@@ -407,7 +466,7 @@ export function uploadByFile(file: any, type:string):any {
   const data = new FormData();
   data.append(type, file);
 
-  return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+  return apiClient.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
     success: 1,
     file: {
       url: res.data,
@@ -420,7 +479,7 @@ export function uploadByUrl(url: any): any {
     const data = new FormData();
     data.append('file', blob);
 
-    return apiClient.post(`${process.env.REACT_APP_DEV_BACKEND || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
+    return apiClient.post(`${process.env.REACT_APP_API_BASE_URL || ''}/api/v1/pubweave/uploads/upload_asset`, data).then((res) => ({
       success: 1,
       file: {
         url: res.data,

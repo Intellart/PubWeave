@@ -60,8 +60,11 @@ function useWebSocket({ articleId, enabled = false }: Props): any {
     unlock: 'unlock',
   };
 
-  const consumer = useRef(createConsumer(
-    (process.env.REACT_APP_DEV_BACKEND || 'http://localhost:3000').replace('http', 'ws') + `/cable${get(user, 'email') ? '?id=' + get(user, 'email') : ''}`));
+  const baseURL = (process.env.REACT_APP_API_BASE_URL || 'http://localhost:3000').replace('http', 'ws');
+  const userEmail = get(user, 'email');
+  const emailParam = userEmail ? '?id=' + userEmail : '';
+
+  const consumer = useRef(createConsumer(`${baseURL}/cable${emailParam}`));
 
   useEffect(() => {
     if (!articleId || !enabled) return;
