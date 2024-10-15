@@ -13,7 +13,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
-  faLink,
+  faGear,
+  faGlasses,
   faPen,
   faPencil,
   faStar,
@@ -23,8 +24,8 @@ import {
   map, get, find, filter,
 } from 'lodash';
 import { Link } from 'react-router-dom';
-import { statuses } from '../../pages/Dashboard';
-import { useScreenSize } from '../../../utils/hooks';
+import { statuses } from '../pages/Dashboard';
+import { useScreenSize } from '../../utils/hooks';
 // import { toast } from 'react-toastify';
 
 type Props = {
@@ -303,7 +304,7 @@ export default function MyDataGrid(props: Props) {
 
   function getChipProps(params: GridRenderCellParams): ChipProps {
     const sx = { gap: '10px', padding: '10px' };
-    const res = get(statuses, params.value.value, { label: 'Unknown', color: 'default', icon: faPencil });
+    const res = get(statuses, get(params, 'value.value'), { label: 'Unknown', color: 'default', icon: faPencil });
 
     return {
       label: res.label,
@@ -347,30 +348,65 @@ export default function MyDataGrid(props: Props) {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 30 },
     {
-      field: 'published_link',
-      headerName: 'Link',
-      width: 30,
+      field: 'article_settings',
+      headerName: 'Settings',
+      width: 80,
+      editable: false,
+      renderCell: (params) => (
+        <Link
+          to={`/my-work/${params.row.id}/settings`}
+        >
+          <FontAwesomeIcon icon={faGear} />
+        </Link>
+      ),
+
+    },
+    {
+      field: 'preview',
+      headerName: 'Preview',
+      width: 80,
       editable: false,
       renderCell: (params) => {
-        // console.log(params);
-        if (get(params, 'row.status.value') === 'published') {
-          return (
-            <Link
-              to={`/singleblog/${params.row.id}`}
-            >
-              <FontAwesomeIcon icon={faLink} />
-            </Link>
-          );
+        switch (get(params, 'row.status.value')) {
+          case 'published':
+            return (
+              <Link
+                to={`/my-work/${params.row.id}`}
+              >
+                <FontAwesomeIcon icon={faPencil} />
+              </Link>
+            );
+          case 'reviewing':
+            return (
+              <Link
+                to={`/my-work/${params.row.id}/review`}
+              >
+                <FontAwesomeIcon icon={faGlasses} />
+              </Link>
+            );
+          default:
+            return (
+              <Link
+                to={`/my-work/${params.row.id}`}
+              >
+                <FontAwesomeIcon icon={faPencil} />
+              </Link>
+            );
         }
-
-        return (
-          <Link
-            to={`/submit-work/${params.row.id}`}
-          >
-            <FontAwesomeIcon icon={faPen} />
-          </Link>
-        );
       },
+    },
+    {
+      field: 'edit',
+      headerName: 'EDIT',
+      width: 30,
+      editable: false,
+      renderCell: (params) => (
+        <Link
+          to={`/my-work/${params.row.id}`}
+        >
+          <FontAwesomeIcon icon={faPen} />
+        </Link>
+      ),
     },
     {
       field: 'status',
@@ -495,8 +531,8 @@ export default function MyDataGrid(props: Props) {
       sx={{
         height: 500,
         width: '90%',
-        borderRadius: '18px',
-        boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
+        borderRadius: '4px',
+        // boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
         border: '1px solid #e0e0e0',
         padding: isMobile ? '0px' : '20px',
         margin: isMobile ? '0px' : '10px',

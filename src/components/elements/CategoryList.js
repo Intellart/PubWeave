@@ -5,19 +5,27 @@ import React, { useEffect, useRef } from 'react';
 import type { Node } from 'react';
 import { map, omitBy, filter } from 'lodash';
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import { motion } from 'framer-motion';
 
 type CategoryItemProps = {
   name:string,
   articleCount:number,
-  isActive:boolean
+  isActive:boolean,
+  onClick:Function,
 };
 
 export function CategoryItem(props: CategoryItemProps): Node {
+  const navigate = useNavigate();
+
   return (
-    <Link to={`/blogs/${props.name}`} className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}>
+    <motion.div
+      className={classNames('category-list-item', { 'category-list-item-active': props.isActive })}
+      layoutId={props.isActive ? 'category-list-item-active' : null}
+      onClick={() => props.onClick(props.name)}
+    >
       <div className='category-list-item-block-left' />
       <div className='category-list-item-inner-overlay'>
         <div className={classNames('category-list-item-inner', { 'category-list-item-empty': !props.articleCount })}>
@@ -26,17 +34,19 @@ export function CategoryItem(props: CategoryItemProps): Node {
         </div>
       </div>
       <div className='category-list-item-block-right' />
-    </Link>
+    </motion.div>
   );
 }
 
 type CategoryListProps = {
   categories: Array<Object>,
-  activeCategory?: string
+  activeCategory?: string,
+  undefinedArticles?:number,
+  onClick:Function,
 };
 
 export function CategoryList(props: CategoryListProps): Node {
-  const categoryListRef = useRef(null);
+  const categoryListRef = useRef<any>(null);
 
   const maxScrollWidth = useRef(0);
   const clientScrollWidth = useRef(0);
@@ -46,7 +56,6 @@ export function CategoryList(props: CategoryListProps): Node {
     if (categoryListRef.current) {
       maxScrollWidth.current = categoryListRef.current.scrollWidth;
       clientScrollWidth.current = categoryListRef.current.clientWidth;
-      console.log(categoryListRef.current?.clientWidth);
     }
   }, [categoryListRef]);
 
@@ -59,7 +68,9 @@ export function CategoryList(props: CategoryListProps): Node {
   }, [scrollLeft]);
 
   return (
-    <div className='category-list-wrapper'>
+    <div className={classNames('category-list-wrapper',
+      { 'category-list-wrapper-empty': !props.activeCategory })}
+    >
       <div
         className='category-list-side-block-left'
         onClick={() => {
@@ -80,12 +91,23 @@ export function CategoryList(props: CategoryListProps): Node {
         ) }
       </div>
       <div ref={categoryListRef} className='category-list-inner'>
+        {props.undefinedArticles
+        && (
+        <CategoryItem
+          key='Undefined'
+          isActive={props.activeCategory === 'Undefined'}
+          name='Undefined'
+          articleCount={props.undefinedArticles}
+          onClick={props.onClick}
+        />
+        )}
         {map(props.categories, (c, index) => (
           <CategoryItem
             key={index}
             isActive={c.name === props.activeCategory}
             name={c.name}
             articleCount={c.count}
+            onClick={props.onClick}
           />
         ))}
       </div>

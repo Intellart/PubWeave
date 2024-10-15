@@ -1,20 +1,23 @@
 // @flow
 import React, { useEffect } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import {
   filter,
   get, isEqual, map,
   isEmpty,
   slice,
+  includes,
+  some,
+  size,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
 import ArticleCard from '../containers/ArticleCard';
@@ -26,6 +29,7 @@ import { selectors as articleSelectors } from '../../store/articleStore';
 import { actions, selectors as userSelectors } from '../../store/userStore';
 import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
+import OrcIDButton from '../elements/OrcIDButton';
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -37,22 +41,28 @@ function Blogs(): Node {
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const selectedUser = useSelector((state) => userSelectors.getSelectedUser(state), isEqual);
 
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
-  const getSelectedUser = (userId) => dispatch(actions.selectUser(userId));
+  const getSelectedUser = (userId: number) => dispatch(actions.selectUser(userId));
 
   const { cat, tag, userId } = useParams();
 
   useEffect(() => {
-    if (userId && !selectedUser) {
-      getSelectedUser(userId);
+    if (cat) {
+      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Undefined') {
+        toast.error('Error: You selected an invalid category.');
+        navigate('/blogs');
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, selectedUser]);
+  }, [cat]);
 
-  console.log(selectedUser);
+  const showedCategories = filter(categories, (c) => some(articles, (a) => a.category === c.category_name));
+  const unGroupedArticles = filter(articles, (a) => !a.category || a.category === '');
 
   let filteredArticles = cat ? articles.filter((a) => a.category === cat) : articles;
-  filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag_name').includes(tag)) : filteredArticles;
+  filteredArticles = tag ? filteredArticles.filter((a) => map(a.tags, 'tag').includes(tag)) : filteredArticles;
 
   const categoryTags = cat ? filter(tags, (t) => get(categories, [t.category_id, 'category_name']) === cat) : [];
 
@@ -61,34 +71,56 @@ function Blogs(): Node {
   const itemsPerPage = 5;
   const [page, setPage] = React.useState(1);
 
+  useEffect(() => {
+    if (userId && !selectedUser) {
+      getSelectedUser(userId);
+    }
+    setPage(1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, selectedUser]);
+
   if (userId) {
-    filteredArticles = filter(articles, (a) => a.user.id === parseInt(userId, 10));
+    filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
+  }
+
+  if (cat === 'Undefined') {
+    filteredArticles = unGroupedArticles;
   }
 
   return (
     <main className="blogs-wrapper">
       {!userId && (
-      <CategoryList
-        categories={map(categories, (c) => ({
-          name: c.category_name,
-          count: filter(articles, (a) => a.category === c.category_name).length,
-        }),
-        )}
-        activeCategory={cat}
-      />
+        <CategoryList
+          onClick={(c) => {
+            navigate(`/blogs/${c}`);
+            setPage(1);
+          }}
+          categories={map(showedCategories, (c) => ({
+            name: c.category_name,
+            count: filter(articles, (a) => a.category === c.category_name).length,
+          }),
+          )}
+          undefinedArticles={size(unGroupedArticles)}
+          activeCategory={cat}
+        />
       )}
       {userId && (
         <section className="blogs-user-header">
           <div className="blogs-user-header-inner">
             <div className="blogs-user-header-left">
               <h1 className="blogs-user-header-title">
-                {get(selectedUser, 'full_name', '')} ({get(selectedUser, 'username', '')})
+                {get(selectedUser, 'full_name', '')} (@{get(selectedUser, 'username', '')})
               </h1>
               <p className="blogs-user-header-subtitle">
-                Sample bio: I am a software engineer at Google. I love to write about my experiences in the tech industry.
+                Bio goes here.
               </p>
             </div>
             <div className="blogs-user-header-right">
+              {get(selectedUser, 'orcid_id') && (
+              <OrcIDButton
+                orcid={get(selectedUser, 'orcid_id', '')}
+              />
+              )}
               <div className="blogs-user-header-social-icons">
                 {get(selectedUser, 'social_tw')
               && (
@@ -128,15 +160,15 @@ function Blogs(): Node {
               return (
                 <Link
                   key={index}
-                  to={`/blogs/${catName}/${t.tag_name}`}
+                  to={`/blogs/${catName}/${t.tag}`}
                 >
                   <Chip
                     className="chip"
-                    id={t.tag_name}
-                    label={t.tag_name}
-                    variant={tag === t.tag_name ? 'default' : 'outlined'}
+                    id={t.tag}
+                    label={t.tag}
+                    variant={tag === t.tag ? 'default' : 'outlined'}
                     sx={{
-                      backgroundColor: tag === t.tag_name ? 'primary.main' : 'transparent',
+                      backgroundColor: tag === t.tag ? 'primary.main' : 'transparent',
                       color: 'white',
                     }}
                   />
@@ -146,7 +178,7 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(filteredArticles) && (
+      {!isEmpty(featuredArticles) && (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {!userId && (
           <>
@@ -161,7 +193,7 @@ function Blogs(): Node {
                   title={a.title}
                   category={get(a, 'category', '')}
                   description={get(a, 'description', '')}
-                  author={get(a, 'user.full_name', '')}
+                  author={get(a, 'author.full_name', '')}
                   tags={get(a, 'tags', [])}
                   date={a.date}
                 />
@@ -180,7 +212,9 @@ function Blogs(): Node {
             <ArticleCard
               key={index}
               article={a}
+              onConvert={() => {}}
               currentUserId={get(user, 'id', null)}
+              onClick={() => navigate(`/singleblog/${a.id}`)}
             />
           ))}
         </div>

@@ -1,10 +1,9 @@
+// @flow
 // eslint-disable-next-line max-classes-per-file
 import Embed from '@editorjs/embed';
 import Table from '@editorjs/table';
 import List from '@editorjs/list';
 import Warning from '@editorjs/warning';
-import Code from '@editorjs/code';
-import LinkTool from '@editorjs/link';
 import Raw from '@editorjs/raw';
 import HeaderAPI from '@editorjs/header';
 import Quote from '@editorjs/quote';
@@ -12,319 +11,133 @@ import Marker from '@editorjs/marker';
 import CheckList from '@editorjs/checklist';
 import Delimiter from '@editorjs/delimiter';
 import InlineCode from '@editorjs/inline-code';
-import Image from '@editorjs/image';
+// import FootnotesTune from '@editorjs/footnotes';
+import AttachesTool from '@editorjs/attaches';
+import InlineImage from 'editorjs-inline-image';
 
-import Tooltip from 'editorjs-tooltip';
-import { words } from 'lodash';
-// import { Cloudinary } from '@cloudinary/url-gen';
-// import { AdvancedImage } from '@cloudinary/react';
+import AlignmentTuneTool from 'editorjs-text-alignment-blocktune';
+import { useSelector } from 'react-redux';
+import { isEqual } from 'lodash';
 import LatexPlugin from './latex_plugin';
+import { ImageWrapper } from './editorExtensions/imageWrapper';
+import { WordCounter } from './editorExtensions/wordCounter';
+import CodeTool from './editorExtensions/codeHighlight';
+import { uploadByFile, uploadByUrl } from './hooks';
+import VersioningTune from './editorExtensions/versioningTune';
+import ReviewTool from './editorExtensions/reviewTool';
+import { selectors } from '../store/userStore';
+// import { Superscript } from './editorExtensions/superscript';
+// import { Subscript } from './editorExtensions/subscript';
 
-// const cld = new Cloudinary({
-//   cloud: {
-//     cloudName: 'demo',
-//   },
-// });
+// import { MyTune } from './editorExtensions/tuneVersioning';
+// import Code from '@editorjs/code';
+// import editorjsCodeflask from '@calumk/editorjs-codeflask';
+// import CodeBox from '@bomdi/codebox';
+// import LinkTool from '@editorjs/link';
+// import TextVariantTune from '@editorjs/text-variant-tune';
+// import type { ToolConstructable, ToolSettings } from '@editorjs/editorjs';
 
-// cld.image returns a CloudinaryImage with the configuration set.
-// const myImage = cld.image('sample');
-// const imageLink = myImage.toURL();
+export function useEditorTools (): { [toolName: string]: any} {
+  const user = useSelector((state) => selectors.getUser(state), isEqual);
 
-class ImageWrapper extends Image {
-  render() {
-    if (this.readOnly) {
-      const wrapper = this.ui.render(this.data);
-      // remove div from wrapper
-      wrapper.querySelector('.cdx-input').remove();
-      wrapper.querySelector('.cdx-button').remove();
+  return {
+  // textVariant: TextVariantTune,
+    myTune: {
+      class: VersioningTune,
+      config: {
 
-      return wrapper;
-    }
-
-    return this.ui.render(this.data);
-  }
-
-  static get pasteConfig() {
-    return {
-      /**
-       * Paste HTML into Editor
-       */
-      tags: [
-        {
-          img: { src: true },
-        },
-      ],
-      /**
-       * Paste URL of image into the Editor
-       */
-      patterns: {
-        image: /https?:\/\/\S+\.(gif|jpe?g|tiff|png|svg|webp)(\?.*)?$/i,
       },
-
-      /**
-       * Drag n drop file from into the Editor
-       */
-      files: {
-        mimeTypes: ['image/*'],
-      },
-    };
-  }
-}
-
-class WordCounter {
-  /**
-   * Class name for term-tag
-   *
-   * @type {string}
-   */
-  static get CSS() {
-    return 'cdx-marker';
-  }
-
-  /**
-   * @param {{api: object}}  - Editor.js API
-   */
-  constructor({ api }) {
-    this.api = api;
-
-    /**
-     * Toolbar Button
-     *
-     * @type {HTMLElement|null}
-     */
-    this.button = null;
-
-    /**
-     * Tag represented the term
-     *
-     * @type {string}
-     */
-    this.tag = 'MARK';
-
-    /**
-     * CSS classes
-     */
-    this.iconClasses = {
-      base: this.api.styles.inlineToolButton,
-      active: this.api.styles.inlineToolButtonActive,
-    };
-  }
-
-  /**
-   * Specifies Tool as Inline Toolbar Tool
-   *
-   * @return {boolean}
-   */
-  static get isInline() {
-    return true;
-  }
-
-  /**
-   * Create button element for Toolbar
-   *
-   * @return {HTMLElement}
-   */
-  render() {
-    this.button = document.createElement('button');
-    this.button.type = 'button';
-    // this.button.classList.add(this.iconClasses.base);
-    this.button.classList.add('my-word-count-button');
-    this.button.innerHTML = this.toolboxIcon;
-
-    return this.button;
-  }
-
-  /**
-   * Wrap/Unwrap selected fragment
-   *
-   * @param {Range} range - selected fragment
-   */
-  surround(range) {
-    if (!range) {
-      return;
-    }
-
-    const termWrapper = this.api.selection.findParentTag(this.tag, Marker.CSS);
-
-    // console.log('termWrapper', termWrapper);
-
-    /**
-     * If start or end of selection is in the highlighted block
-     */
-    if (termWrapper) {
-      this.unwrap(termWrapper);
-    } else {
-      this.wrap(range);
-    }
-  }
-
-  /**
-   * Wrap selection with term-tag
-   *
-   * @param {Range} range - selected fragment
-   */
-  wrap(range) {
-    /**
-     * Create a wrapper for highlighting
-     */
-    const marker = document.createElement(this.tag);
-
-    marker.classList.add(Marker.CSS);
-
-    /**
-     * SurroundContent throws an error if the Range splits a non-Text node with only one of its boundary points
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Range/surroundContents}
-     *
-     * // range.surroundContents(span);
-     */
-    marker.appendChild(range.extractContents());
-    range.insertNode(marker);
-
-    /**
-     * Expand (add) selection to highlighted block
-     */
-    this.api.selection.expandToTag(marker);
-  }
-
-  /**
-   * Unwrap term-tag
-   *
-   * @param {HTMLElement} termWrapper - term wrapper tag
-   */
-  unwrap(termWrapper) {
-    /**
-     * Expand selection to all term-tag
-     */
-    this.api.selection.expandToTag(termWrapper);
-
-    const sel = window.getSelection();
-    const range = sel.getRangeAt(0);
-
-    const unwrappedContent = range.extractContents();
-
-    /**
-     * Remove empty term-tag
-     */
-    termWrapper.parentNode.removeChild(termWrapper);
-
-    /**
-     * Insert extracted content
-     */
-    range.insertNode(unwrappedContent);
-
-    /**
-     * Restore selection
-     */
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  /**
-   * Check and change Term's state for current selection
-   */
-  checkState() {
-    const termTag = this.api.selection.findParentTag(this.tag, Marker.CSS);
-
-    this.button.classList.toggle(this.iconClasses.active, !!termTag);
-  }
-
-  /**
-   * Get Tool icon's SVG
-   * @return {string}
-   */
-  get toolboxIcon() {
-    document.onmousemove = () => {
-      const selection = window.getSelection().toString();
-
-      this.button.innerHTML = `${words(selection).length} words`;
-    };
-
-    return '';
-  }
-
-  /**
-   * Sanitizer rule
-   * @return {{mark: {class: string}}}
-   */
-  static get sanitize() {
-    return {
-      mark: {
-        class: Marker.CSS,
-      },
-    };
-  }
-}
-
-export const EDITOR_JS_TOOLS = {
-  tooltip: {
-    class: Tooltip,
-    config: {
-      location: 'left',
-      highlightColor: '#FFEFD5',
-      underline: true,
-      backgroundColor: '#154360',
-      textColor: '#FDFEFE',
-      holder: 'editorId',
     },
-  },
-  embed: {
-    class: Embed,
-    inlineToolbar: true,
-  },
-  table: Table,
-  marker: Marker,
-  list: List,
-  math: {
-    class: LatexPlugin,
-    inlineToolbar: true,
-  },
-  warning: Warning,
-  code: Code,
-  linkTool: LinkTool,
-  image: {
-    class: ImageWrapper,
-    inlineToolbar: ['link'],
-    config: {
-
-      uploader: {
-
-        uploadByFile(file) {
-        // your own uploading logic here
-          // console.log('uploadByFile', file);
-
-          const data = new FormData();
-          data.append('file', file);
-          data.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
-          data.append('cloud_name', process.env.REACT_APP_CLOUDINARY_CLOUD_NAME);
-
-          return fetch(`${process.env.REACT_APP_CLOUDINARY_UPLOAD_URL}${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`, {
-            method: 'post',
-            body: data,
-          }).then((res) => res.json())
-            .then((d) => ({
-              success: 1,
-              file: {
-                url: d.url,
-              },
-            }))
-            .catch((/* err */) => {
-              // console.log('err', err);
-            });
-        },
-
-        uploadByUrl(url) {
-          // console.log('uploadByUrl', url);
-
-          return new Promise((resolve) => {
-            resolve({
-              success: 1,
-              file: {
-                url,
-              },
-            });
-          });
+    // subscript: Subscript,
+    // superscript: Superscript,
+    alignmentTune: {
+      class: AlignmentTuneTool,
+      config: {
+        default: 'left',
+        blocks: {
+          header: 'left',
+          list: 'left',
         },
       },
+    },
+    myReview: {
+      class: ReviewTool,
+      config: {
+        userName: user ? user?.full_name : '',
+        userId: user ? user?.id : '',
+      },
+    },
+    attaches: {
+      class: AttachesTool,
+      config: {
+        uploader: {
+        // endpoint: 'http://localhost:8008/uploadFile'
+          uploadByFile: (file: File) => uploadByFile(file, 'file'),
+        },
+      },
+    },
+    embed: {
+      class: Embed,
+      config: {
+        services: {
+          youtube: true,
+          coub: true,
+        },
+      },
+    },
+    paragraph: {
+      tunes: ['myTune', 'alignmentTune'],
+    },
+    table: {
+      class: Table,
+    },
+    marker: {
+      class: Marker,
+    },
+    list: {
+      class: List,
+      tunes: ['myTune'],
+      inlineToolbar: true,
+    },
+    math: {
+      class: LatexPlugin,
+      inlineToolbar: true,
+    },
+    warning: {
+      class: Warning,
+    },
+    // code: editorjsCodeflask,
+    // codeBox: {
+    //   class: CodeBox,
+    //   config: {
+    //     themeURL: 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/dracula.min.css', // Optional
+    //     themeName: 'atom-one-dark', // Optional
+    //     useDefaultTheme: 'light', // Optional. This also determines the background color of the language select drop-down
+    //   },
+    // },
+    // code: Code,
+    myCode: {
+      class: CodeTool,
+    },
+    // linkTool: LinkTool,
+    image: {
+      class: ImageWrapper,
+      inlineToolbar: true,
+      config: {
+        // actions: [
+        //   {
+        //     name: 'center',
+        //     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><!-- Alignment Icon - Left --><rect x="10" y="20" width="20" height="60" fill="#333" /><!-- Alignment Icon - Center --><rect x="40" y="30" width="20" height="40" fill="#333" /><rect x="40" y="30" width="20" height="40" fill="#fff" opacity="0.5" /><!-- Alignment Icon - Right --><rect x="70" y="20" width="20" height="60" fill="#333" /><!-- Alignment Icon - Justify --><rect x="20" y="80" width="60" height="10" fill="#333" /><rect x="20" y="80" width="60" height="10" fill="#fff" opacity="0.5" /></svg>',
+        //     title: 'Center Image',
+        //     toggle: true,
+
+        //   },
+        // ],
+
+        uploader: {
+          uploadByFile: (file: File) => uploadByFile(file, 'file'),
+          uploadByUrl,
+        },
       // actions: [
       //   // {
       //   //   name: 'new_button',
@@ -336,14 +149,47 @@ export const EDITOR_JS_TOOLS = {
       //   //   },
       //   // },
       // ],
+      },
     },
-  },
-  raw: Raw,
-  header: HeaderAPI,
-  quote: Quote,
-  checklist: CheckList,
-  delimiter: Delimiter,
-  inlineCode: InlineCode,
-  wordCount: WordCounter,
-
-};
+    inlineImage: {
+      class: InlineImage,
+      inlineToolbar: true,
+      config: {
+        embed: {
+          display: false,
+        },
+        unsplash: {
+          appName: 'Science editor image plugin',
+          clientId: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
+        },
+      },
+    },
+    raw: {
+      class: Raw,
+      inlineToolbar: true,
+    },
+    header: {
+      class: HeaderAPI,
+      tunes: ['alignmentTune'],
+      inlineToolbar: true,
+    },
+    quote: {
+      class: Quote,
+    },
+    checklist: {
+      class: CheckList,
+    },
+    delimiter: {
+      class: Delimiter,
+    },
+    inlineCode: {
+      class: InlineCode,
+      shortcut: 'CMD+SHIFT+O',
+    },
+    wordCount: {
+      class: WordCounter,
+    },
+    // footnotes: FootnotesTune,
+  // latexInline: LatexInline,
+  };
+}

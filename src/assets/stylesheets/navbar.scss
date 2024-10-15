@@ -30,7 +30,7 @@
     align-items: center;
     justify-content: center;
     background: $white;
-    width: calc(100% - 20px);
+    // width: calc(100% - 20px);
     margin: 10px;
     border-radius: 15px;
     box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
@@ -62,7 +62,7 @@
 
         .mobile-menu-items-buttons{
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             width: 100%;
@@ -103,7 +103,10 @@
             }
 
             .search-type{
+                width: 100%;
+
                 .search-type-button{
+                    width: 100%;
                     .search-type-button-icon{
                         width: 20px;
                         height: 20px;
@@ -131,17 +134,19 @@
     display: flex;
     align-items: center;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
+    padding: 0 100px;
     position: relative;
     // border: 1px solid black;
     // justify-content: space-between;
-    gap: 50px;
-    height: 70px;
+    gap: 20px;
+    background: $white;
+    height: 80px;
     width: 100%;
     box-shadow: 0px 2.98256px 7.4564px rgba(0, 0, 0, 0.1);
 
-    @media screen and (max-width: $tablet_breakpoint) {
-        gap: 5px;
+    @media screen and (max-width: 900px) {
+        padding: 0  20px;
     }
 
     @media screen and (max-width: $mobile_breakpoint) {
@@ -152,8 +157,9 @@
         width: 100%;
         height: 70px;
         z-index: 100; 
-        border-radius: 15px 15px 0px 0px;
+        // border-radius: 15px 15px 0px 0px;
         box-shadow: 0px -2.98256px 7.4564px rgba(0, 0, 0, 0.1);
+        padding: 0 20px;
     }
 
     .mobile-burger{
@@ -173,8 +179,9 @@
             
 
             &.burger-icon-open{
-                background: $pubWeaveBlue;
-                height: 3px;
+                color: gray;
+                opacity: 0.5;
+                // height: 3px;
             }
         }
 
@@ -205,7 +212,7 @@
 
         .nav--logo {
             padding: 5px;
-            margin-left: 20px;
+            // margin-left: 20px;
         }
         .searchbar {
             margin-bottom: 0px;
@@ -231,9 +238,10 @@
 
         @media screen and (max-width: $mobile_breakpoint) {
             width: 100%;
-            padding: 0 20px;
             align-items: center;
             justify-content: space-around;
+            width: 100%;
+            height: 100%;
         }
 
 
@@ -294,7 +302,7 @@
             border-radius: 10px;
             padding: 5px;
             color: white !important;
-            width: 200px;
+            width: 100px;
             text-align: center;
             font-family: Inter;
             font-weight: 400;

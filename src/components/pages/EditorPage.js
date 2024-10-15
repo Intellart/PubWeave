@@ -1,98 +1,96 @@
-import React, {
-  useEffect,
-  useState,
-} from 'react';
-import { createReactEditorJS } from 'react-editor-js';
+// @flow
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
-import { Link, useParams } from 'react-router-dom';
-
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   sum, words, get, map, isEqual, toInteger, isEmpty,
 } from 'lodash';
-
 import classNames from 'classnames';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-
-import { EDITOR_JS_TOOLS } from '../../utils/editor_constants';
-
-import 'bulma/css/bulma.min.css';
-import ArticleConfig from '../ArticleConfig';
-import type { ArticleContent } from '../../store/articleStore';
-// eslint-disable-next-line no-unused-vars
-import { store } from '../../store';
+import type {
+  Block,
+  BlockCategoriesToChange,
+  ArticleContentToServer,
+  BlockToServer,
+} from '../../store/articleStore';
 import { actions, selectors } from '../../store/articleStore';
-import TutorialModal from '../containers/TutorialModal';
+import routes from '../../routes';
+import TutorialModal from '../editor/TutorialModal';
+import EditorTitle from '../editor/EditorTitle';
+import ArticleConfig from '../editor/ArticleConfig';
+import SideBar from '../editor/SideBar';
+import Editor, { EditorStatus } from '../editor/Editor';
+import { editorPermissions, permissions } from '../../utils/hooks';
 
-const ReactEditorJS = createReactEditorJS();
 const cookies = new Cookies();
 
-function ReactEditor () {
-  const [titleFocus, setTitleFocus] = useState(false);
-  const titleRef = React.useRef(null);
-  const { id } = useParams();
+function ReactEditor (): React$Element<any> {
+  const { id, type } = useParams();
+  const navigate = useNavigate();
 
-  // useSelector
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
+  const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
 
-  // dispatch
   const dispatch = useDispatch();
-  const fetchArticle = (ind) => dispatch(actions.fetchArticle(ind));
-  const updateArticle = (articleId, payload) => dispatch(actions.updateArticle(articleId, payload));
-  const updateArticleContentSilently = (articleId, newArticleContent: ArticleContent) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
-  const addTag = (articleId, tagId) => dispatch(actions.addTag(articleId, tagId));
-  const removeTag = (articleTagId) => dispatch(actions.removeTag(articleTagId));
+  const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
+  const updateArticle = (articleId:number, payload:any) => dispatch(actions.updateArticle(articleId, payload));
+  const updateArticleContentSilently = (articleId:number, newArticleContent: ArticleContentToServer) => dispatch(actions.updateArticleContentSilently(articleId, newArticleContent));
+  const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
+  const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
+
+  const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: 'inProgress' });
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);
-  const [articleTitle, setArticleTitle] = useState('');
+  const [historySectionId, setHistorySectionId] = useState<string | null>(null);
 
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
+  const [sidebar, setSidebar] = useState({
+    show: false,
+    snap: false,
+  });
+
+  const isReady = !isEmpty(article) && id && get(article, 'id') === toInteger(id);
 
   useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-  }, [article, id]);
-
-  useEffect(() => {
-    if (!isReady) {
+    if (!isReady && id) {
       fetchArticle(id);
+    } else if (isReady) {
+      setWordCount(sum(map(blocks, (block) => words(get(block, 'data.text')).length), 0));
+      setLastSaved(get(articleContent, 'time'));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
-
-  useEffect(() => {
-    if (isReady) {
-      // console.log('Article loaded');
-      setArticleTitle(get(article, 'title'));
-      setWordCount(sum(map(get(articleContent, 'blocks'), (block) => words(get(block, 'data.text')).length), 0));
-      setLastSaved(get(articleContent, 'time'));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [article, isReady]);
-
-  useEffect(() => {
-    if (titleRef.current) {
-      titleRef.current.style.width = `${(articleTitle.length * 12 + 60)}px`;
-    }
-  }, [titleRef, articleTitle]);
-
-  const handleUploadEditorContent = (api) => {
-    api.saver.save().then((newArticleContent: ArticleContent) => {
-      // console.log({ content: newArticleContent });
-      updateArticleContentSilently(id, newArticleContent);
-      setWordCount(sum(map(newArticleContent.blocks, (block) => words(get(block, 'data.text')).length), 0));
-      setLastSaved(newArticleContent.time);
-    });
-  };
+  // console.log('currentPermissions', currentPermissions);
 
   return (
-    <main className="editor-wrapper">
+    <main
+      className={classNames('editor-wrapper', {
+        'editor-wrapper-snap': sidebar.snap,
+      })}
+    >
+      {/* <ActiveUsers /> */}
+      {/* <button
+        className="editor-sidebar-toggle"
+        onClick={() => {
+          setCriticalSectionIds([criticalSectionIds[0]]);
+
+          // const blockToAdd = {
+          //   type: 'header',
+          //   data: {
+          //     text: 'My header2',
+          //   },
+          // };
+          // console.log(editor.current);
+          // editor.current.blocks.insert(blockToAdd.type, blockToAdd.data);
+        }}
+      >
+        <FontAwesomeIcon icon={faPlus} /> ADD
+      </button> */}
       <TutorialModal
         open={openTutorialModal}
         onClose={() => {
@@ -102,75 +100,72 @@ function ReactEditor () {
           cookies.set('tutorial', 'true', { path: '/' });
         }}
       />
-      <div
-        className={classNames('editor-title')}
-        onClick={() => titleRef.current.focus()}
-      >
-        <div />
+      <EditorTitle
+        articleId={id}
+        articleType={get(article, 'article_type')}
+        onShowSidebar={(show) => setSidebar({ ...sidebar, show: show || !sidebar.show })}
+        showSidebar={sidebar.show}
+        title={get(article, 'title')}
+        onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
+        onPublishClick={() => {
+          navigate(routes.myWork.preview(type, id));
+        }}
 
-        <div className="editor-title-input-wrapper">
-          {!titleFocus && <FontAwesomeIcon icon={faPenToSquare} />}
-          <input
-            type="text"
-            placeholder="Enter a title..."
-            onFocus={() => setTitleFocus(true)}
-            onBlur={() => {
-              setTitleFocus(false);
-              if (articleTitle === get(article, 'title')) {
-                return;
-              }
-              if (articleTitle === '') {
-                setArticleTitle(get(article, 'title'));
-
-                return;
-              }
-              updateArticle(id, { title: articleTitle });
-            }}
-            ref={titleRef}
-            onChange={(e) => setArticleTitle(e.target.value)}
-            value={articleTitle}
-            className={classNames('editor-title-input', {
-              focus: titleFocus,
-              empty: (!articleTitle || articleTitle === 'New article'),
-            })}
-          />
-        </div>
-        <Link
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          to={`/publish/${id}`}
-          className="editor-publish-button"
-        >
-          Review before publishing
-        </Link>
-      </div>
-      <hr className={classNames('editor-title-hr', { focus: titleFocus, empty: (!articleTitle || articleTitle === 'New article') })} />
+      />
+      {article && (
       <ArticleConfig
-        id={id}
         wordCount={wordCount}
         lastSaved={lastSaved}
         updateArticle={updateArticle}
         article={article}
         categories={categories}
-        tags={tags}
+        allTags={tags}
         addTag={addTag}
         removeTag={removeTag}
       />
-      {isReady && (
-      <ReactEditorJS
-        holder='editorjs'
-        defaultValue={{
-          blocks: get(articleContent, 'blocks', []),
-        }}
-        tools={EDITOR_JS_TOOLS}
-        onChange={(api) => {
-          handleUploadEditorContent(api);
-        }}
-        autofocus
-        placeholder='Start your article here!'
-      />
       )}
+      {get(currentPermissions, permissions.history) && (
+        <SideBar
+          sectionId={historySectionId}
+          showSidebar={sidebar.show}
+          setShowSidebar={(show) => setSidebar({ ...sidebar, show })}
+          snapSidebar={sidebar.snap}
+          setSnapSidebar={(snap) => setSidebar({ ...sidebar, snap })}
+        />
+      )}
+      <Editor
+        status={EditorStatus.IN_PROGRESS}
+        onShowHistory={(sectionId: string) => {
+          setHistorySectionId(sectionId);
+          setSidebar({ ...sidebar, show: true });
+        }}
+        onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
+          const blocksToAdd :BlockToServer[] = [
+            ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
+            ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
+            ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
+          ];
+
+          setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
+          setLastSaved(time);
+
+          // console.log('UPDATING > ');
+          // console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
+          // console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
+          // console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
+
+          // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
+
+          updateArticleContentSilently(id, {
+            time,
+            version,
+            blocks: blocksToAdd,
+          });
+        }}
+        isReady={isReady}
+
+      />
+
     </main>
   );
 }

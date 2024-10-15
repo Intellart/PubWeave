@@ -18,7 +18,6 @@ if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
 
 store.dispatch(articleActions.fetchAllArticles());
 store.dispatch(articleActions.fetchCategories());
-store.dispatch(articleActions.fetchComments());
 store.dispatch(articleActions.fetchTags());
 
 ReactDOM.createRoot(document.getElementById('root')).render(

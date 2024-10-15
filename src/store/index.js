@@ -6,12 +6,14 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import {
   concat, forEach, get, isString, includes,
 } from 'lodash';
+// import { toast } from 'react-toastify';
 import { toast } from 'react-toastify';
 import { isPromise } from '../utils';
 import { reducer as globalStoreReducer } from './globalStore';
 import { reducer as userStoreReducer, types as userTypes } from './userStore';
 import { reducer as articleStoreReducer, types as articleTypes } from './articleStore';
-import ErrorMessage from '../components/errors/ErrorMessage';
+import { reducer as walletReducer } from './cardanoStore';
+// import ErrorMessage from '../components/errors/ErrorMessage';
 import { localStorageKeys } from '../tokens';
 import { getItem } from '../localStorage';
 
@@ -21,15 +23,16 @@ import type {
   ReduxMiddlewareArgument,
   ActionChains,
 } from '../types';
+import ErrorMessage from '../components/errors/ErrorMessage';
 
-const ignoreErrors = [];
+const ignoreErrors: string[] = [];
 
 const disableSanitizer = window.sessionStorage.getItem('disable_sanitizer') === 'true';
 const sanitizedPayload = 'Set REACT_APP_REDUX_SANITIZER=false';
 const actionSanitizer = (action: ReduxAction): ReduxAction => {
   if (!action.payload || disableSanitizer) return action;
 
-  const sanitizedActions = [];
+  const sanitizedActions: string[] = [];
 
   return includes(sanitizedActions, action.type) ? { ...action, payload: sanitizedPayload } : action;
 };
@@ -51,11 +54,21 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
     if (action.payload && isPromise(action.payload)) {
       action.payload
         .then((payload) => {
-          dispatch({ type: action.type + '_FULFILLED', payload });
+          if (get(payload, 'message')) {
+            toast.error(<ErrorMessage error={payload} />);
+
+            // dispatch({ type: action.type + '_REJECTED', payload });
+          } else {
+            dispatch({
+              type: action.type + '_FULFILLED',
+              payload,
+              propagate: get(action, 'propagate', {}),
+            });
+          }
         })
         .catch((e) => {
           const message = get(e, 'message') || get(e, 'errorMessage');
-          const statusCode = get(e, 'code') || get(e, 'errorCode') || get(e, 'statusCode');
+          const statusCode = get(e, 'code') || get(e, 'errorCode') || get(e, 'statusCode') || get(e, 'response.status');
           dispatch({
             type: `${action.type}_REJECTED`,
             error: true,
@@ -69,7 +82,7 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
 
           toast.error(<ErrorMessage error={e} />);
           // eslint-disable-next-line no-console
-          console.error('error', e);
+          console.error(e);
         });
 
       return dispatch({ type: `${action.type}_PENDING` });
@@ -107,16 +120,45 @@ function dispatchRecorder(dispatchedActions: ?Array<string>): any {
   };
 }
 
-const initialReduxState = {
+const initialReduxState: ReduxState = {
   global: {
     loading:
      {
        [articleTypes.ART_FETCH_ALL_ARTICLES]: 'PENDING',
-       [articleTypes.ART_FETCH_COMMENTS]: 'PENDING',
        [articleTypes.ART_FETCH_CATEGORIES]: 'PENDING',
        [articleTypes.ART_FETCH_TAGS]: 'PENDING',
        [userTypes.USR_VALIDATE_USER]: getItem(localStorageKeys.jwt) ? 'PENDING' : 'DONE',
      },
+  },
+  user: {
+    profile: null,
+    currentAdmin: null,
+    selectedUser: null,
+    orcidAccount: null,
+  },
+  article: {
+    oneArticle: null,
+    allArticles: {},
+    comments: {},
+    categories: {},
+    tags: {},
+    versions: [],
+    reviewers: [],
+    reviews: [],
+    activeBlock: null,
+    activeSections: {},
+    blockIdQueue: {
+      updated: {},
+      created: {},
+      deleted: {},
+    },
+    critical_section_ids: [],
+  },
+  wallet: {
+    tx_id: '',
+    signature: '',
+    treasury: null,
+    tx_id_fulfilled: '',
   },
 };
 
@@ -143,6 +185,7 @@ export const configureStore = (
       global: globalStoreReducer,
       user: userStoreReducer,
       article: articleStoreReducer,
+      wallet: walletReducer,
     }),
     initialState,
     middlewareApplier,

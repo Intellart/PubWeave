@@ -5,13 +5,10 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100vh;
+  flex: 1;
   align-items: center;
   justify-content: space-between;
 
-  @media screen and (max-width: $mobile_breakpoint) {
-    height: 100%;
-  }
 
   .login-section {
     display: flex;
@@ -27,7 +24,8 @@
 
     @media screen and (max-width: $mobile_breakpoint) {
       flex-direction: column;
-      padding: 0 20px;
+      padding: 30px 80px;
+      gap: 20px;
     }
 
     .login-section-left{
@@ -68,7 +66,7 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
-      margin: 20px;
+      margin: 80px 20px;
       border: 1px solid #11273f6b;
       box-shadow: 0 0 10px #11273f6b;
       background-color: #fff;
@@ -77,8 +75,9 @@
       padding: 80px 50px 50px 50px;
       gap: 20px;
 
+
       @media screen and (max-width: $mobile_breakpoint) {
-        width: 95vw;
+        margin: 40px;
       }
 
       .login-alert{
@@ -164,6 +163,48 @@
           border-radius: 5px;
           .login-email-input,
           .login-password-input {
+            width: 300px;
+            height: 40px;
+            
+            padding: 0 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #11273F;
+            &::placeholder {
+              color: #11273f68;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+
+      .input-field-wrapper{
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+
+        &:not(.required){
+          .input-field-label {
+            opacity: 0.7;
+          }
+        }
+
+        .input-field-label {
+          padding-left: 10px;
+          font-size: 15px;
+          font-weight: 500;
+          color: #11273F;
+        }
+        .input-field-input-wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 5px 10px;
+          border: 1px solid #11273F;
+          border-radius: 5px;
+          .input-field-input {
             width: 300px;
             height: 40px;
             

@@ -1,18 +1,17 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   get, isEqual, map,
   filter,
 } from 'lodash';
 import {
-  faCheck, faEdit, faPaperPlane, faRotateRight, faStar, faXmark,
+  faCheck, faEdit, faGlasses, faPaperPlane, faRotateRight, faStar, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Alert, AlertTitle } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import MyDataGrid from '../containers/MyDataGrid/MyDataGrid';
+import MyDataGrid from '../containers/MyDataGrid';
 
 import { actions, selectors } from '../../store/articleStore';
 
@@ -41,6 +40,12 @@ export const statuses = {
     color: 'info',
     icon: faPaperPlane,
   },
+  reviewing: {
+    value: 'reviewing',
+    label: 'Reviewing',
+    color: 'warning',
+    icon: faGlasses,
+  },
 
 };
 
@@ -51,13 +56,13 @@ function Dashboard(): Node {
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(actions.fetchAllArticles());
-  const deleteArticle = (id) => dispatch(actions.deleteArticle(id));
-  const publishArticle = (articleId, status) => dispatch(actions.publishArticle(articleId, status));
-  const updateArticle = (id, payload) => dispatch(actions.updateArticle(id, payload));
+  const deleteArticle = (id: number) => dispatch(actions.deleteArticle(id));
+  const publishArticle = (articleId: number, status: string) => dispatch(actions.publishArticle(articleId, status));
+  const updateArticle = (id: number, payload: any) => dispatch(actions.updateArticle(id, payload));
 
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<any>([]);
 
-  const handleSetStar = (id, value) => {
+  const handleSetStar = (id: number, value: number) => {
     updateArticle(id, { star: value });
   };
 
@@ -69,10 +74,10 @@ function Dashboard(): Node {
         id: article.id,
         title: article.title,
         status: get(statuses, get(article, 'status', 'draft')),
-        firstName: get(article, 'user.full_name', ''),
-        email: get(article, 'user.email', ''),
-        ORCID: get(article, 'user.orcid_id', ''),
-        registeredOn: get(article, 'user.created_at', ''),
+        firstName: get(article, 'author.full_name', ''),
+        email: get(article, 'author.email', ''),
+        ORCID: get(article, 'author.orcid_id', ''),
+        registeredOn: get(article, 'author.created_at', ''),
         category: get(article, 'category', ''),
         star: get(article, 'star', false) || false,
       })));
@@ -80,19 +85,19 @@ function Dashboard(): Node {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles]);
 
-  const onDeleteClick = (id) => {
+  const onDeleteClick = (id: number) => {
     deleteArticle(id);
   };
 
-  const handleChangeStatus = (id, newStatus) => {
+  const handleChangeStatus = (id: number, newStatus: string) => {
     publishArticle(id, newStatus);
   };
 
-  const handleChangeTextField = (id, field, value) => {
+  const handleChangeTextField = (id: number, field: number, value: number) => {
     updateArticle(id, { [field]: value });
   };
 
-  const handleChangeCategory = (id, value) => {
+  const handleChangeCategory = (id: number, value: number) => {
     updateArticle(id, { category_id: value });
   };
 

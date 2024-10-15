@@ -1,57 +1,65 @@
 // @flow
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
-  faPencil, faPenToSquare, faShare, faWarning, faXmark, faHeart as faHeartSolid,
+  faGear,
+  faGlasses,
+  faPencil, faPenToSquare, faWarning, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Chip } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import classNames from 'classnames';
-import { find, get } from 'lodash';
-import { useDispatch } from 'react-redux';
+import {
+  filter, get, includes, size,
+} from 'lodash';
+import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
-// import Rocket from '../../images/RocketLaunch.png';
-// import Space from '../../images/SpaceImg.png';
-// import Astronaut from '../../images/AstronautImg.png';
-// import Earth from '../../images/EarthImg.png';
-import { useScreenSize } from '../../utils/hooks';
-import ShareModal from './ShareModal';
-import { actions } from '../../store/articleStore';
+import {
+  editorPermissions,
+  permissions,
+  useScreenSize,
+} from '../../utils/hooks';
 import LogoImg from '../../assets/images/pubweave_logo.png';
-
-// const images = [Rocket, Space, Astronaut, Earth];
+import Modal from '../modal/Modal';
+import LikeButton from './LikeButton';
+import ArticleTypeModal from '../modal/ArticleTypeModal';
+import { EditorStatus } from '../editor/Editor';
 
 type Props = {
   article: Article,
   onDelete?: (id: number) => void,
   showPublishedChip?: boolean,
+  onClick?: () => void,
   currentUserId?: number,
+  onConvert: () => void,
 };
 
 function ArticleCard(props : Props): Node {
-  const navigate = useNavigate();
+  const { isMobile } = useScreenSize();
+
   const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
-
   const status = props.article.status ? props.article.status : 'draft';
+  const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
-
-  const dispatch = useDispatch();
-  const likeArticle = (articleId, userId:number) => dispatch(actions.likeArticle(articleId, userId));
-  const removeArticleLike = (likeArticleLink: number) => dispatch(actions.likeArticleRemoval(likeArticleLink));
-
-  const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
-
-  useEffect(() => {
-    setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
-  }, [props.article, props.currentUserId]);
-
   const noImage = props.article.image === null;
 
-  const { isMobile } = useScreenSize();
+  const currentPermissions = editorPermissions({
+    type: workType,
+    status: status || EditorStatus.IN_PROGRESS,
+    userId: props.currentUserId,
+    ownerId: props.article.author.id,
+    isReviewer: includes(props.article.reviewers, props.currentUserId),
+  });
+
+  console.log('status', props.article.status);
+  console.log('currentPermissions', currentPermissions);
+
+  // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
+
+  // useEffect(() => {
+  //   setUserAlreadyLiked(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
+  // }, [props.article, props.currentUserId]);
 
   // const handleEditArticle = (e) => {
   //   e.stopPropagation();
@@ -60,24 +68,21 @@ function ArticleCard(props : Props): Node {
   //   }
   // };
 
-  const handleDeleteArticle = (e) => {
+  const handleDeleteArticle = (e: any) => {
     e.stopPropagation();
     if (props.onDelete) {
       props.onDelete(props.article.id);
     }
   };
 
-  const handleArticleClick = (e) => {
+  const handleArticleClick = (e: any) => {
     e.preventDefault();
-
-    if (isPublished) {
-      navigate(`/singleblog/${props.article.id}`);
-    } else {
-      navigate(`/submit-work/${props.article.id}`);
+    if (props.onClick) {
+      props.onClick();
     }
   };
 
-  const chipParams = (imageChip = false) => {
+  const chipParams = (imageChip: boolean = false) => {
     if (imageChip && !isPublished && noImage) {
       return {
         label: 'No image',
@@ -86,6 +91,8 @@ function ArticleCard(props : Props): Node {
         variant: 'default',
       };
     }
+
+    const numOfReviewers = size(filter(get(props.article, 'reviewers', []), (reviewer) => !!reviewer.review_content));
 
     switch (props.article.status) {
       case 'draft':
@@ -119,6 +126,13 @@ function ArticleCard(props : Props): Node {
           icon: <FontAwesomeIcon icon={faPencil} />,
           variant: 'outlined',
         };
+      case 'reviewing':
+        return {
+          label: `Reviewing ${numOfReviewers > 0 ? `(${numOfReviewers})` : ''}`,
+          color: 'warning',
+          icon: <FontAwesomeIcon icon={faGlasses} />,
+          variant: 'default',
+        };
       default:
         return {
           label: 'Draft',
@@ -129,92 +143,85 @@ function ArticleCard(props : Props): Node {
     }
   };
 
-  const [showModal, setShowModal] = React.useState(false);
-
   return (
-    <>
-      <ShareModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        article={props.article}
-      />
+    <div
+      className="article-card"
+    >
       <div
         onClick={handleArticleClick}
-        className="article-card"
+        className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}
       >
-        <div className={classNames('article-card-img-wrapper', { 'article-card-img-wrapper-published': props.showPublishedChip && (isPublished || noImage) })}>
-          <img
-            src={props.article.image || LogoImg}
-            className="article-card-img"
-            alt="article"
-          />
-          {props.showPublishedChip && (isPublished || noImage) && (
+        <img
+          src={props.article.image || LogoImg}
+          className="article-card-img"
+          alt="article"
+        />
+        {props.showPublishedChip && (isPublished || noImage) && (
           <Chip
             className="article-card-img-chip"
             {...chipParams(true)}
           />
-          )}
-        </div>
-        <div className="article-right-side-content">
-          <div className="article-card-side-content-upper-wrapper">
-            <div className="article-card-side-content-title-wrapper">
-              <h4>{props.article.category || 'Category'}</h4>
-              <h2>{props.article.title}</h2>
-              <p className="author">By {props.article.user.full_name || 'Authors Name'}</p>
-            </div>
-            <div className="article-card-side-content-status-wrapper">
-              {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
-            </div>
+        )}
+      </div>
+      <div className="article-right-side-content">
+        <div className="article-card-side-content-upper-wrapper">
+          <div onClick={handleArticleClick} className="article-card-side-content-title-wrapper">
+            <h4>{props.article.category || 'Category'}</h4>
+            <h2>{props.article.title}
+            </h2>
+            <p className="author">By {props.article.author.full_name || 'Authors Name'}</p>
           </div>
-          <p className="article-card-description">{description.substring(0, isMobile ? 45 : 200)}...</p>
-          <div className='article-card-lower'>
-            <div className="date-social">
-              <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
-              <div className="article-icons-share-heart">
-                {isPublished && (
-                <FontAwesomeIcon
-                  icon={faShare}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowModal(true);
-                  }}
-                />
-                )}
-                {props.currentUserId && (
-                <FontAwesomeIcon
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (userAlreadyLiked) {
-                      removeArticleLike(get(find(props.article.likes, (like) => like.user_id === props.currentUserId), 'id', 0));
-                    } else {
-                      likeArticle(props.article.id, props.currentUserId || 0);
-                    }
-                  }}
-                  style={{
-                    color: userAlreadyLiked ? '#FF0000' : '#11273F',
-                  }}
-                  icon={userAlreadyLiked ? faHeartSolid : faHeart}
-                />
-                ) }
-                {/* {!isPublished && (
-                <a
-                  onClick={(e) => handleEditArticle(e)}
-                ><FontAwesomeIcon icon={faPenToSquare} />
-                </a>
-                )} */}
-                {!isPublished && (
+          <div className="article-card-side-content-status-wrapper">
+            {!isPublished && <Chip className="article-card-side-content-status-chip" label={status || 'Status'} {...chipParams()} />}
+            <ArticleTypeModal
+              enabled={get(currentPermissions, permissions.SWITCH_ARTICLE_TYPE, false)}
+              type={workType}
+              onConvert={props.onConvert}
+            />
+          </div>
+        </div>
+        <p className="article-card-description">{description.substring(0, isMobile ? 45 : 200)}...</p>
+        <div className='article-card-lower'>
+          <div className="date-social">
+            <p>Updated {new Date(props.article.updated_at).toLocaleDateString()}</p>
+            <div className="article-icons-share-heart">
+              <Modal
+                enabled={get(currentPermissions, permissions.LIKE_ARTICLE, false)}
+                type="share"
+                shape="icon"
+              />
+              <Modal
+                enabled={get(currentPermissions, permissions.collaborators, false)}
+                type="collab"
+                shape="chip"
+                text="showAll"
+                articleId={props.article.id}
+                isOwner
+              />
+              {get(currentPermissions, permissions.LIKE_ARTICLE, false) && (
+              <LikeButton
+                article={props.article}
+                userId={props.currentUserId}
+                iconType="default"
+              />
+              ) }
+              {get(currentPermissions, permissions.ARTICLE_SETTINGS, false) && (
+              <Link to={`/my-work/${props.article.id}/settings`} className="article-card-link">
+                <FontAwesomeIcon icon={faGear} />
+              </Link>
+              ) }
+              {get(currentPermissions, permissions.DELETE_ARTICLE, false) && (
                 <a
                   onClick={(e) => handleDeleteArticle(e)}
                 ><FontAwesomeIcon icon={faXmark} />
                 </a>
-                )}
-              </div>
+              )}
             </div>
-            <hr className="article-card-divider" />
           </div>
+          <hr className="article-card-divider" />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

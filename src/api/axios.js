@@ -10,13 +10,25 @@ import { actions } from '../store/userStore';
 import { localStorageKeys } from '../tokens';
 import { getItem, setItem } from '../localStorage';
 
-export const requestTimeoutMs = 120000;
-export const baseURL: string = get(process.env, 'REACT_APP_API_BASE_URL', 'http://localhost:3000');
-export const apiVersion: string = get(process.env, 'REACT_APP_API_VERSION', 'v1');
+const requestTimeoutMs = 120000;
+const baseURL: string = get(process.env, 'REACT_APP_API_BASE_URL', 'http://localhost:3000');
+const apiVersion: string = get(process.env, 'REACT_APP_API_VERSION', 'v1');
+const baseURLCardano: string = get(process.env, 'REACT_APP_CARDANO_API_BASE_URL', 'http://127.0.0.1:5000');
+const apiVersionCardano: string = get(process.env, 'REACT_APP_CARDANO_API_VERSION', 'v1');
 
 const apiClient: any = axios.create({
-  baseURL,
+  baseURL: `${baseURL}/api/${apiVersion}`,
   timeout: minutesToMilliseconds(1),
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    Accept: '*/*',
+  },
+});
+
+export const apiClientCardano: any = axios.create({
+  baseURL: `${baseURLCardano}/api/${apiVersionCardano}`,
+  timeout: requestTimeoutMs,
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -27,6 +39,9 @@ const apiClient: any = axios.create({
 apiClient.interceptors.request.use((config: any) => {
   const _jwt = getItem(localStorageKeys.jwt);
   if (!isEmpty(_jwt) && _jwt) {
+    // if (config.url === '/api/v1/pubweave/blog_articles/1') {
+    //   console.log('\nsending', config.url, config.method);
+    // }
     config.headers.Authorization = 'Bearer ' + _jwt;
 
     return config;
@@ -36,6 +51,10 @@ apiClient.interceptors.request.use((config: any) => {
 }, (error) => Promise.reject(error));
 
 apiClient.interceptors.response.use((response: any) => {
+  // if (response.config.url === '/api/v1/pubweave/blog_articles/1') {
+  //   console.log('\nreceived', response.config.url, response.config.method, response.status, response.data);
+  // }
+
   if (has(response, `data.${localStorageKeys.isAdmin}`)) {
     const isAdmin = get(response, `data.${localStorageKeys.isAdmin}`);
     // console.log('response.data', isAdmin);
@@ -51,15 +70,7 @@ apiClient.interceptors.response.use((response: any) => {
 }, (error) => {
   if (get(error, 'response.status') === 401) {
     store.dispatch(actions.clearUser());
-  } /* else if (get(error, 'response.status') === 422) {
-    toast.error('422 ' + get(error, 'response.data.message'));
-
-    return;
-  } else if (get(error, 'response.status') === 400) {
-    toast.error('400 ' + get(error, 'response.data.message'));
-
-    return;
-  } */
+  }
 
   return Promise.reject(error);
 },

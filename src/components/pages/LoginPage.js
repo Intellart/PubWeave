@@ -1,14 +1,13 @@
 // @flow
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
 import { useDispatch } from 'react-redux';
 // import MyTable from '../containers/MyTable';
 import classNames from 'classnames';
 import {
   isEmpty,
 } from 'lodash';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import logoImg from '../../assets/images/pubweave_logo.png';
 import { actions } from '../../store/userStore';
 import orcidImg from '../../assets/images/orcid_logo.png';
@@ -25,6 +24,7 @@ type Props = {
 }
 
 function LoginPage({ forAdmin }: Props): Node {
+  const navigate = useNavigate();
   const [username, setUserName] = useState(''); // useState(forAdmin ? 'a@a.com' : 'test@test.com');
   const [password, setPassword] = useState(''); // useState('123456');
 
@@ -35,7 +35,8 @@ function LoginPage({ forAdmin }: Props): Node {
 
   const isDisabled = !username || !password;
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
     if (isDisabled) {
       return;
     }
@@ -63,8 +64,8 @@ function LoginPage({ forAdmin }: Props): Node {
     const code = new URL(window.location.href).searchParams.get('code');
     if (!isEmpty(code) && code) {
       window.history.replaceState({}, document.title, window.location.pathname);
-      console.log('redirect_uri', window.location.origin + window.location.pathname);
-      console.log('code', code);
+      // console.log('redirect_uri', window.location.origin + window.location.pathname);
+      // console.log('code', code);
 
       loginORCIDUser({
         code,
@@ -72,6 +73,10 @@ function LoginPage({ forAdmin }: Props): Node {
       });
     }
   }, []);
+
+  const handleRegister = () => {
+    navigate('/register');
+  };
 
   return (
     <main className="login-page-wrapper">
@@ -84,7 +89,7 @@ function LoginPage({ forAdmin }: Props): Node {
             aliquam nisl nunc vel nisl. Sed malesuada, nisl eget aliquam
           </p>
         </div>
-        <div className="login-wrapper">
+        <form className="login-wrapper" onSubmit={handleSubmit}>
           <div className="login-image-wrapper">
             <img src={logoImg} alt="PubWeave Logo" className="login-image" width="40px" />
           </div>
@@ -119,25 +124,8 @@ function LoginPage({ forAdmin }: Props): Node {
               />
             </div>
           </div>
-          {/* <div className="login-forget">
-            <a href="/forget" className="login-forget-link">
-              Forget Password?
-            </a>
-          </div> */}
-          {!forAdmin && (
           <button
-            onClick={handleORCIDSubmit}
-            type="button"
-            className={classNames('orcid-login-button')}
-          >
-            <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
-            Login with ORCID
-          </button>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            type="button"
+            type="submit"
             className={classNames('login-button', {
               disabled: isDisabled,
             })}
@@ -145,19 +133,29 @@ function LoginPage({ forAdmin }: Props): Node {
             {forAdmin ? 'Admin' : null} Login
           </button>
           {!forAdmin && (
-          <Link
-            to='/register'
-            className="login-signup"
-          >
-            <p className="login-signup-text">
-              Don&apos;t have an account?
+            <>
+              <button
+                onClick={handleORCIDSubmit}
+                type="button"
+                className={classNames('orcid-login-button')}
+              >
+                <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
+                Login with ORCID
+              </button>
+              <div
+                onClick={handleRegister}
+                className="login-signup"
+              >
+                <p className="login-signup-text">
+                  Don&apos;t have an account?
 
-              Sign Up
-            </p>
+                  Sign Up
+                </p>
 
-          </Link>
+              </div>
+            </>
           )}
-        </div>
+        </form>
       </section>
     </main>
   );

@@ -1,7 +1,8 @@
 @import "colors";
 @import "variables";
 
-.share-modal{
+
+.modal-inner {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -10,7 +11,7 @@
   // height: 500px;
   background-color: $white;
   border-radius: 10px;
-  padding:20px;
+  padding: 20px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 
   @media screen and (max-width: $mobile_breakpoint) {
@@ -18,15 +19,17 @@
     width: calc(100vw - 20px);
   }
 
-  .share-modal-header{
+  .modal-header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 0 10px;
+    padding-left: 10px;
+    font-size: 20px;
+    font-weight: 600;
 
-    .icon{
+    .icon {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -38,20 +41,116 @@
       padding: 10px;
       border-radius: 10px;
 
-      &:hover{
+      &:hover {
         background-color: $pubWeaveBlue;
         color: $white;
       }
     }
   }
 
-  hr{
+  hr {
     width: 100%;
     border: 1px solid #e6e6e6;
     margin: 10px 0;
   }
 
-  .share-modal-subtitle{
+}
+
+.are-you-sure-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
+
+  .modal-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+
+    button {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 40px;
+      border-radius: 5px;
+      background-color: rgba($pubWeaveBlue, 0.5);
+      color: $white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background-color: $pubWeaveBlue;
+        color: $white;
+      }
+    }
+  }
+}
+
+.treasury-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+
+
+  .treasury-modal-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .treasury-modal-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+  }
+
+  .confirm-button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: rgba($pubWeaveBlue, 0.5);
+    color: $white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background-color: $pubWeaveBlue;
+      color: $white;
+    }
+  }
+
+
+
+
+}
+
+.share-modal {
+  .share-modal-subtitle {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -61,7 +160,7 @@
     font-size: 14px;
   }
 
-  .share-modal-buttons{
+  .share-modal-buttons {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -70,7 +169,7 @@
     padding: 10px;
     gap: 10px;
 
-    .icon{
+    .icon {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -84,19 +183,19 @@
       transition: all 0.2s ease-in-out;
       padding: 10px;
 
-      &:hover{
+      &:hover {
         background-color: $pubWeaveBlue;
         color: $white;
       }
 
-      .icon-image{
+      .icon-image {
         width: 20px;
         height: 20px;
       }
     }
   }
 
-  .share-modal-copy-link{
+  .share-modal-copy-link {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -107,7 +206,7 @@
     border: 1px solid rgba($pubWeaveBlue, 0.4);
     border-radius: 5px;
 
-    .icon{
+    .icon {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -115,7 +214,7 @@
       margin: 0 10px;
     }
 
-    .copy-button{
+    .copy-button {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -123,17 +222,218 @@
       width: 150px;
       height: 40px;
       border-radius: 5px;
-      background-color: rgba($pubWeaveBlue,0.5);
+      background-color: rgba($pubWeaveBlue, 0.5);
       color: $white;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
 
-      &:hover{
+      &:hover {
         background-color: $pubWeaveBlue;
         color: $white;
       }
     }
   }
+}
+
+.collab-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  gap: 20px;
+
+  .field {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding: 5px 0 5px 10px;
+    gap: 10px;
+
+    .label {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      width: 100px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      width: calc(100% - 100px);
+      gap: 10px;
+
+      .input {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        height: 40px;
+        border-radius: 5px;
+        border: 1px solid #e6e6e6;
+        padding: 0 10px;
+        font-size: 14px;
+        font-weight: 600;
+
+        &::placeholder {
+          color: #e6e6e6;
+        }
+      }
+
+      .button {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 40px;
+        border-radius: 5px;
+        background-color: rgba($pubWeaveBlue, 0.5);
+        color: $white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+          background-color: $pubWeaveBlue;
+          color: $white;
+        }
+      }
+    }
+  }
+
+  ul.collaborators {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    // padding: 10px;
+    gap: 10px;
+
+    li.collaborator {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      width: 100%;
+      padding-left: 10px;
+      border-radius: 5px;
+      // border: 1px solid #e6e6e6;
+      gap: 10px;
+
+      p.collaborator-name {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      button {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        height: 40px;
+        border-radius: 5px;
+        background-color: rgba($danger, 0.5);
+        color: $white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        padding: 0 10px;
+
+        &:hover {
+          background-color: $pubWeaveBlue;
+          color: $white;
+        }
+      }
+    }
+
+  }
+
+}
+
+.versioning-modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  gap: 20px;
+
+  .versioning-modal-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+
+    .versioning-modal-row-item {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      width: 100%;
+      gap: 10px;
+
+      &.versioning-modal-row-item-button {
+        background-color: rgba($pubWeaveBlue, 0.5);
+        color: $white;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        padding: 0 10px;
+        border-radius: 5px;
+        height: 40px;
+        align-self: center;
+        justify-content: center;
+        text-align: center;
+
+        &:hover {
+          background-color: $pubWeaveBlue;
+          color: $white;
+        }
+      }
+
+      .versioning-modal-row-item-title {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .versioning-modal-row-item-value {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        font-size: 18px;
+        font-weight: 400;
+      }
+
+    }
+  }
+
 }

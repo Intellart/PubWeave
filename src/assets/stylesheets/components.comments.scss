@@ -127,6 +127,9 @@
     padding: 0;
   }
 
+  .comment-section-notification-username-wrapper{
+    width: 100%;
+  }
 
   .comment-section-new-comment-wrapper{
     display: flex;
@@ -384,6 +387,16 @@
               color: #11273F;
             }
 
+            &.comment-content-lower-vote-disabled{
+              color: gray;
+
+              &:hover{
+                color: gray;
+                animation: none;
+                cursor: default;
+              }
+            }
+
             &:hover{
               color: #11273F;
               animation: pulse 0.5s;
@@ -395,7 +408,7 @@
                   transform: scale(1);
                 }
                 50% {
-                  transform: scale(1.1);
+                  transform: scale(1.03);
                 }
                 100% {
                   transform: scale(1);

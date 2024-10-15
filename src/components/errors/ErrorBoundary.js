@@ -31,7 +31,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     window.location.reload();
   }
 
-  render() {
+  render(): React$Element<any> {
     if (this.state.hasError) {
       return (
         <div className="error-boundary-wrapper">

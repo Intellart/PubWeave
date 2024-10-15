@@ -4,12 +4,12 @@ import React, {
   useRef,
 } from 'react';
 import {
-  isEmpty, map, indexOf,
+  isEmpty, map, indexOf, filter, includes, size,
 } from 'lodash';
 import classNames from 'classnames';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { uploadImage } from '../../utils/hooks';
+import { Alert } from '@mui/material';
 
 type Props = {
   linkList: Array<string>,
@@ -20,7 +20,11 @@ type Props = {
 function ImageSelection (props: Props) {
   const [selectedImageIndex, setSelectedImageIndex] = React.useState(-1);
 
-  const oldSelectedImageIndex = indexOf(props.linkList, props.currentImage);
+  const _linkList = filter(props.linkList, (link) => includes(link, 'http://res.cloudinary.com'));
+
+  const hasNonCloudinaryLinks = size(props.linkList) !== size(_linkList);
+
+  const oldSelectedImageIndex = indexOf(_linkList, props.currentImage);
 
   const parentRef = useRef(null);
   const selectedImageRef = useRef(null);
@@ -48,7 +52,7 @@ function ImageSelection (props: Props) {
   };
 
   const linkList = [
-    ...props.linkList,
+    ..._linkList,
   ];
 
   // eslint-disable-next-line no-unused-vars
@@ -60,23 +64,21 @@ function ImageSelection (props: Props) {
     setCustomImageUrl(URL.createObjectURL(e.target.files[0]));
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const uploadNewImage = (e) => {
-    if (!e.target.files) {
-      return;
-    }
-
-    const file: File = e.target.files[0];
-
-    uploadImage(file).then((url) => {
-      setCustomImageUrl(url);
-      props.onImageSelection(url);
-    });
-  };
-
   return (
     <div className='editor-wrapper-image-selection-wrapper'>
-      {!isEmpty(props.linkList) && (
+      {hasNonCloudinaryLinks && (
+      <Alert
+        sx={{
+          width: 'calc(100% - 150px)',
+          marginTop: '20px',
+
+        }}
+        severity="warning"
+      >
+        For thumbnail, please use (local) image you have already used in your article.
+      </Alert>
+      )}
+      {!isEmpty(_linkList) && (
       <>
         <div
           onClick={() => {

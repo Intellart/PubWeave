@@ -1,12 +1,9 @@
 // @flow
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { Node } from 'react';
-import 'bulma/css/bulma.min.css';
-import { faShare } from '@fortawesome/free-solid-svg-icons';
 // import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
-import ShareModal from './ShareModal';
+import Modal from '../modal/Modal';
 // import { useScreenSize } from '../../utils/hooks';
 
 type Props = {
@@ -21,22 +18,18 @@ type Props = {
   tags?: Array<string>,
   // editable?: Function,
   // deleteable?: Function,
-  // status?: string,
+  status?: string,
   // likeable?: boolean,
 };
 
 function FeaturedCard(props : Props): Node {
   // const { isMobile } = useScreenSize();
-  const [showModal, setShowModal] = React.useState(false);
+  console.log('FeaturedCard', props.status);
 
   const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   return (
     <>
-      <ShareModal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-      />
       <Link to={`/singleblog/${props.id}`}>
         <div
           key={props.id}
@@ -46,12 +39,9 @@ function FeaturedCard(props : Props): Node {
           <div className="categoryname-share-like">
             <h4>{props.category || 'Category'}</h4>
             <div className="icons-share-heart">
-              <FontAwesomeIcon
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowModal(true);
-                }}
-                icon={faShare}
+              <Modal
+                enabled
+                type="share"
               />
               {/* <FontAwesomeIcon icon={faHeart} /> */}
             </div>

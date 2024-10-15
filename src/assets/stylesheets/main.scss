@@ -1,5 +1,6 @@
 @import "./colors";
 @import "./scrollbars";
+@import 'variables';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .unselectable {
@@ -58,11 +59,14 @@ html {
       .application-wrapper {
         display: flex;
         flex-direction: column;
-        height: fit-content;
         position: relative;
         width: 100%;
         position: relative;
-        min-height: 100vh;
+        flex: 1;
+
+        @media screen and (max-width: $tablet_breakpoint) {
+          height: auto;
+        }
 
         // remove all link styles
         a,button {
