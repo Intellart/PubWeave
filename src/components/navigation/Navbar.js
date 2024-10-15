@@ -97,9 +97,11 @@ function Navbar(props: Props): Node {
     } else if (isMobile && (props.isAuthorized || props.isAdmin)) {
       return (
         <>
-          <Link onClick={handleClick} to="/user">
-            Profile
-          </Link>
+          {props.isAuthorized && !props.isAdmin && (
+            <Link onClick={handleClick} to="/user">
+              Profile
+            </Link>
+          )}
           <Link
             to="/home"
             onClick={() => {
@@ -227,6 +229,9 @@ function Navbar(props: Props): Node {
             onClick={() => {
               handleClick();
               navigate(routes.myWork.root);
+            }}
+            style={{
+              whiteSpace: 'nowrap',
             }}
           >
             My Work

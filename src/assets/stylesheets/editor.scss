@@ -360,7 +360,8 @@
 
   .ce-block__content,
   .ce-toolbar__content {
-    max-width: calc(100% - 150px);
+    // max-width: calc(100% - 150px);
+        max-width: min(100% - 200px, 950px);
 
     @media screen and (max-width: $mobile_breakpoint) {
       max-width: calc(100% - 20px);

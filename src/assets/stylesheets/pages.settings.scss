@@ -153,6 +153,14 @@
         justify-content: space-between;
         width: 100%;
 
+        .review-modal-buttons{
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 10px;
+        }
+
         .review-modal-title {
           font-size: 1rem;
           font-weight: 550;

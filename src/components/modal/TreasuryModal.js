@@ -2,14 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 // import { get } from 'lodash';
-import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
+// import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
 import {
   Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
 import {
-  find, first, toNumber, truncate,
+  find, toNumber, truncate,
 } from 'lodash';
 // import type { Article } from '../../store/articleStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,9 +19,10 @@ import Input from '../elements/Input';
 
 type Props = {
   onClose: () => void,
+  type: 'fill' | 'spend',
 };
 
-function TreasuryModal({ onClose }: Props): Node {
+function TreasuryModal({ onClose, type }: Props): Node {
   const { id } = useParams();
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
@@ -34,13 +35,16 @@ function TreasuryModal({ onClose }: Props): Node {
   const txId = useSelector((state) => selectors.getTxID(state));
   const signature = useSelector((state) => selectors.getSignature(state));
   const txIDFulfilled = useSelector((state) => selectors.getTxIDFulfilled(state));
+  const witnessSet = useSelector((state) => selectors.getWitnessSet(state));
 
   const dispatch = useDispatch();
-  const fillTreasury = (payload: any) => dispatch(actions.fillTreasury(payload));
+  const buildFill = (payload: any) => dispatch(actions.buildFill(payload));
+  const buildSpend = (payload: any) => dispatch(actions.buildSpend(payload));
   const saveSignedMessage = (signature_: string) => dispatch(actions.signMessage(signature_));
-  const submitMessage = (signature_: string, tx: string) => dispatch(actions.submitMessage(signature_, tx));
-
-  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  const sumbitFill = (signature_: string, tx: string, articleId: number) => dispatch(actions.sumbitFill(signature_, tx, articleId));
+  const submitSpend = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpend(signature_, tx, articleId, ws));
+  const clearTx = () => dispatch(actions.clearTx());
+  // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
   const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -58,6 +62,7 @@ function TreasuryModal({ onClose }: Props): Node {
     if (txIDFulfilled) {
       // refresh page with this as param
       setSearchParams({ tx: txIDFulfilled });
+      clearTx();
       onClose();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,22 +75,22 @@ function TreasuryModal({ onClose }: Props): Node {
     }
   }, [signature]);
 
-  const {
-    // isEnabled,
-    // isConnected,
-    // enabledWallet,
-    // stakeAddress,
-    // accountBalance,
-    // signMessage,
-    usedAddresses,
-    // enabledWallet,
-    // installedExtensions,
-    // connect,
-    // disconnect,
-    // connectedCip45Wallet,
-  } = useCardano({
-    limitNetwork: networkType,
-  });
+  // const {
+  //   // isEnabled,
+  //   // isConnected,
+  //   // enabledWallet,
+  //   // stakeAddress,
+  //   // accountBalance,
+  //   // signMessage,
+  //   // usedAddresses,
+  //   // enabledWallet,
+  //   // installedExtensions,
+  //   // connect,
+  //   // disconnect,
+  //   // connectedCip45Wallet,
+  // } = useCardano({
+  //   limitNetwork: networkType,
+  // });
 
   const errorList = {
     isEmpty: 'isEmpty',
@@ -126,7 +131,7 @@ function TreasuryModal({ onClose }: Props): Node {
       label: 'Input amount and transaction limit',
       description: `The treasury is a smart contract that holds ADA 
       and. You can fill the treasury with ADA from your wallet.`,
-      step: (
+      step: (type === 'fill') ? (
         <>
           <Input
             error={!isAmountValid}
@@ -142,7 +147,6 @@ function TreasuryModal({ onClose }: Props): Node {
               });
             }}
           />
-
           <Input
             label="Transaction Limit"
             error={!isTransactionLimitValid}
@@ -158,12 +162,18 @@ function TreasuryModal({ onClose }: Props): Node {
             }}
           />
         </>
+      ) : (
+
+        <Typography variant="caption" color="error">
+          You are paying to selected reviewers. You cannot change the amount.
+        </Typography>
       ),
       nextText: 'Send',
-      isValid: treasury.totalAmount
-      && treasury.transactionLimit
+      isValid: type === 'spend' || (
+        treasury.totalAmount
       && isAmountValid
-      && isTransactionLimitValid,
+      && treasury.transactionLimit
+      && isTransactionLimitValid),
     },
     {
       label: 'Recieved transaction ID',
@@ -205,24 +215,50 @@ function TreasuryModal({ onClose }: Props): Node {
     setNextButtonDisabled(true);
     switch (activeStep) {
       case 0:
-        fillTreasury({
-          totalAmount: treasury.totalAmount,
-          transactionLimit: treasury.transactionLimit,
-          address: first(usedAddresses),
-          articleId: id,
-        });
-        break;
+
+        if (type === 'fill') {
+          const fillPayload = {
+            article: {
+              total_amount: treasury.totalAmount,
+              transaction_limit: treasury.transactionLimit,
+              price_cap: 500,
+              article_id: id,
+            },
+          };
+          buildFill(fillPayload);
+          break;
+        } else {
+          const spendPayload = {
+            article: {
+              article_id: id,
+            },
+          };
+          buildSpend(spendPayload);
+          break;
+        }
+
       case 1:
-        console.log('Signing message... ', txId);
-        window.cardano.signTx(txId).then((signature_: string) => {
-        // signMessage(txId, (signature_: string, key_: string | void) => {
-          console.log('Message signed', signature_);
-          saveSignedMessage(signature_);
-        });
+        if (type === 'spend') {
+          console.log('Signing message... ', txId);
+          window.cardano.signTx(txId, true).then((signature_: string) => {
+            console.log('Message signed', signature_);
+            saveSignedMessage(signature_);
+          });
+        } else {
+          console.log('Signing message... ', txId);
+          window.cardano.signTx(txId).then((signature_: string) => {
+            console.log('Message signed', signature_);
+            saveSignedMessage(signature_);
+          });
+        }
         break;
       case 2:
         console.log('Submitting message... ', signature);
-        submitMessage(signature, txId);
+        if (type === 'spend') {
+          submitSpend(signature, txId, id, witnessSet);
+        } else {
+          sumbitFill(signature, txId, id);
+        }
         break;
       default:
         break;

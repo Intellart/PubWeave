@@ -101,10 +101,12 @@ function App(): Node {
               <Route path="/my-work/:id/review" element={<EditorReview />} />
               <Route path="/my-work/:id/settings" element={<ArticleSettings />} />
 
-              <Route path="/user" element={<UserPage />} />
               {/* <Route path="/submit-work" element={<MyArticles />} /> */}
               {/* <Route path="/submit-work/:id" element={<EditorPage />} /> */}
             </>
+            )}
+            {isUser && (
+              <Route path="/user" element={<UserPage />} />
             )}
             {isAdmin && (
             <Route path="/dashboard" element={<Dashboard />} />

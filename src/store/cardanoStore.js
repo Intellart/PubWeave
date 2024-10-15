@@ -18,20 +18,32 @@ export type State = {
   signature: string,
   tx_id_fulfilled: string,
   treasury: Treasury | null,
+  witness_set: any,
 };
 
 export const types = {
-  WLT_FILL_TREASURY: 'WLT_FILL_TREASURY',
-  WLT_FILL_TREASURY_FULFILLED: 'WLT_FILL_TREASURY_FULFILLED',
-  WLT_FILL_TREASURY_REJECTED: 'WLT_FILL_TREASURY_REJECTED',
-  WLT_FILL_TREASURY_PENDING: 'WLT_FILL_TREASURY_PENDING',
+  WLT_BUILD_FILL_TREASURY: 'WLT_FILL_TREASURY',
+  WLT_BUILD_FILL_TREASURY_FULFILLED: 'WLT_FILL_TREASURY_FULFILLED',
+  WLT_BUILD_FILL_TREASURY_REJECTED: 'WLT_FILL_TREASURY_REJECTED',
+  WLT_BUILD_FILL_TREASURY_PENDING: 'WLT_FILL_TREASURY_PENDING',
+
+  WLT_BUILD_SPEND_TREASURY: 'WLT_SPEND_TREASURY',
+  WLT_BUILD_SPEND_TREASURY_FULFILLED: 'WLT_SPEND_TREASURY_FULFILLED',
+  WLT_BUILD_SPEND_TREASURY_REJECTED: 'WLT_SPEND_TREASURY_REJECTED',
+  WLT_BUILD_SPEND_TREASURY_PENDING: 'WLT_SPEND_TREASURY_PENDING',
 
   WLT_SIGN_MESSAGE: 'WLT_SIGN_MESSAGE',
+  WLT_CLEAR_TX: 'WLT_CLEAR_TX',
 
-  WLT_SUBMIT_MESSAGE: 'WLT_SUBMIT_MESSAGE',
-  WLT_SUBMIT_MESSAGE_FULFILLED: 'WLT_SUBMIT_MESSAGE_FULFILLED',
-  WLT_SUBMIT_MESSAGE_REJECTED: 'WLT_SUBMIT_MESSAGE_REJECTED',
-  WLT_SUBMIT_MESSAGE_PENDING: 'WLT_SUBMIT_MESSAGE_PENDING',
+  WLT_SUBMIT_FILL_TREASURY: 'WLT_SUBMIT_MESSAGE',
+  WLT_SUBMIT_FILL_TREASURY_FULFILLED: 'WLT_SUBMIT_MESSAGE_FULFILLED',
+  WLT_SUBMIT_FILL_TREASURY_REJECTED: 'WLT_SUBMIT_MESSAGE_REJECTED',
+  WLT_SUBMIT_FILL_TREASURY_PENDING: 'WLT_SUBMIT_MESSAGE_PENDING',
+
+  WLT_SUBMIT_SPEND_TREASURY: 'WLT_SUBMIT_SPEND_TREASURY',
+  WLT_SUBMIT_SPEND_TREASURY_FULFILLED: 'WLT_SUBMIT_SPEND_TREASURY_FULFILLED',
+  WLT_SUBMIT_SPEND_TREASURY_REJECTED: 'WLT_SUBMIT_SPEND_TREASURY_REJECTED',
+  WLT_SUBMIT_SPEND_TREASURY_PENDING: 'WLT_SUBMIT_SPEND_TREASURY_PENDING',
 
   WLT_FETCH_WALLET: 'WLT_FETCH_WALLET',
   WLT_FETCH_WALLET_FULFILLED: 'WLT_FETCH_WALLET_FULFILLED',
@@ -44,6 +56,7 @@ export const selectors = {
   getSignature: (state: ReduxState): string | null => state.wallet.signature,
   getTxIDFulfilled: (state: ReduxState): string => state.wallet.tx_id_fulfilled,
   getTreasury: (state: ReduxState): Treasury | null => state.wallet.treasury,
+  getWitnessSet: (state: ReduxState): Treasury | null => state.wallet.witness_set,
 
 };
 
@@ -55,7 +68,7 @@ export const actions = {
       showMessage,
     },
   }),
-  fillTreasury: (payload: any): ReduxAction => {
+  buildFill: (payload: any): ReduxAction => {
     toast('Filling treasury...', {
       type: toast.TYPE.INFO,
       autoClose: 20000,
@@ -63,8 +76,23 @@ export const actions = {
     });
 
     return {
-      type: types.WLT_FILL_TREASURY,
+      type: types.WLT_BUILD_FILL_TREASURY,
       payload: API.postTreasury(payload),
+      propagate: {
+        articleId: payload.articleId,
+      },
+    };
+  },
+  buildSpend: (payload: any): ReduxAction => {
+    toast('Spending treasury...', {
+      type: toast.TYPE.INFO,
+      autoClose: 20000,
+      toastId: 'spend-treasury',
+    });
+
+    return {
+      type: types.WLT_BUILD_SPEND_TREASURY,
+      payload: API.postSpendTreasury(payload),
       propagate: {
         articleId: payload.articleId,
       },
@@ -76,17 +104,42 @@ export const actions = {
       signature,
     },
   }),
-  submitMessage: (signature: string, tx: string): ReduxAction => ({
-    type: types.WLT_SUBMIT_MESSAGE,
+  sumbitFill: (signature: string, tx: string, id: number): ReduxAction => ({
+    type: types.WLT_SUBMIT_FILL_TREASURY,
     payload: API.submitTx({
-      tx,
-      witness: signature,
+      article: {
+        tx,
+        witness: signature,
+        article_id: id,
+      },
+    }),
+  }),
+  clearTx: (): ReduxAction => ({
+    type: types.WLT_CLEAR_TX,
+  }),
+  submitSpend: (signature: string, tx: string, id: number, ws: string): ReduxAction => ({
+    type: types.WLT_SUBMIT_SPEND_TREASURY,
+    payload: API.submitSpendTx({
+      article: {
+        tx,
+        witness: signature,
+        witness_set: ws,
+        article_id: id,
+      },
     }),
   }),
 };
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {
   switch (action.type) {
+    case types.WLT_CLEAR_TX:
+      return {
+        ...state,
+        tx_id: '',
+        signature: '',
+        tx_id_fulfilled: '',
+        witness_set: '',
+      };
     case types.WLT_FETCH_WALLET_FULFILLED:
       console.log('WLT_FETCH_WALLET_FULFILLED');
       console.log(action.payload);
@@ -109,7 +162,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         treasury: action.payload,
       };
-    case types.WLT_SUBMIT_MESSAGE_FULFILLED:
+    case types.WLT_SUBMIT_FILL_TREASURY_FULFILLED:
+    case types.WLT_SUBMIT_SPEND_TREASURY_FULFILLED:
       console.log('WLT_SUBMIT_MESSAGE_FULFILLED');
       toast.update('fill-treasury', {
         type: toast.TYPE.SUCCESS,
@@ -134,7 +188,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
         ...state,
         signature: action.payload.signature,
       };
-    case types.WLT_FILL_TREASURY_FULFILLED:
+    case types.WLT_BUILD_FILL_TREASURY_FULFILLED:
       toast.update('fill-treasury', {
         type: toast.TYPE.SUCCESS,
         progress: 0.3,
@@ -147,6 +201,19 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return {
         ...state,
         tx_id: action.payload.tx,
+      };
+
+    case types.WLT_BUILD_SPEND_TREASURY_FULFILLED:
+      toast.update('fill-treasury', {
+        type: toast.TYPE.SUCCESS,
+        progress: 0.3,
+        render: 'Treasury account created successfully!',
+      });
+
+      return {
+        ...state,
+        tx_id: action.payload.tx,
+        witness_set: action.payload.witness_set,
       };
 
     default:
