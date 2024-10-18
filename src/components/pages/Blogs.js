@@ -72,7 +72,7 @@ function Blogs(): Node {
 
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
-  const itemsPerPage = 3;
+  const itemsPerPage = 20;
   // const [page, setPage] = React.useState(1);
 
   const { page, setPage } = usePageSearchParam();

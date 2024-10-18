@@ -397,7 +397,7 @@ export default function MyDataGrid(props: Props) {
     },
     {
       field: 'edit',
-      headerName: 'EDIT',
+      headerName: 'Edit',
       width: 30,
       editable: false,
       renderCell: (params) => (
