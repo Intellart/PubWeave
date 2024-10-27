@@ -1,12 +1,10 @@
 .editorjs {
-
   // .ce-toolbar__actions{
   //   .ce-toolbar-section-info{
   //     position: absolute;
   //     top: 30px;
   //   }
   // }
-
 
   /* 
     revert for bug in Chromium browsers
@@ -22,7 +20,6 @@
   }
 
   &.editorjs-read-only {
-
     .ce-toolbar__actions,
     .ce-inline-toolbar__dropdown {
       display: none;
@@ -44,7 +41,7 @@
       color: rgb(114, 114, 114);
       font-size: 14px;
       font-weight: 400;
-      font-family: 'Inter';
+      font-family: "Inter";
       padding: 0px 10px;
       margin: 0px 0px 10px;
       width: 100%;
@@ -58,7 +55,6 @@
       * {
         display: inline;
       }
-
     }
   }
 
@@ -76,8 +72,6 @@
       justify-content: center;
     }
   }
-
-
 
   .cdx-review {
     background-color: #7fcbd1;
@@ -120,7 +114,6 @@
     }
 
     &[data-note=""] {
-
       // lighter shade
       &[data-color="1"] {
         background-color: #f6eac6;
@@ -154,18 +147,14 @@
         background-color: #e8e2f9;
       }
 
-
-
       &:hover {
         &[data-note]:before {
           display: none;
         }
-
       }
     }
 
     &:hover {
-
       &[data-reviewer-name]:after,
       &[data-note]:before {
         transition: all 0.3s ease;
@@ -173,8 +162,8 @@
         position: absolute;
         background-color: #fff;
         // transform: translateX(50%);
-        box-shadow: 0 3px 15px -3px rgba(13, 20, 33, .13);
-        border: 1px solid #E8E8EB;
+        box-shadow: 0 3px 15px -3px rgba(13, 20, 33, 0.13);
+        border: 1px solid #e8e8eb;
         border-radius: 5px;
         padding: 5px;
         z-index: 1000;
@@ -187,7 +176,6 @@
         line-height: 14px;
         font-weight: 500;
       }
-
 
       &[data-reviewer-name]:after {
         content: attr(data-reviewer-name);
@@ -213,13 +201,10 @@
           transform: translateX(0%);
         }
       }
-
     }
   }
 
-
-
-  .ce-inline-toolbar__actions>.ce-review-input-wrapper {
+  .ce-inline-toolbar__actions > .ce-review-input-wrapper {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -242,9 +227,6 @@
         opacity: 0.5;
       }
     }
-
-
-
 
     button {
       background-color: #fff;
@@ -280,13 +262,11 @@
   sup {
     font-size: 0.7em;
     vertical-align: super;
-
   }
 
   .codeBoxHolder {
     overflow: inherit;
   }
-
 
   .ce-toolbar {
     z-index: 1000;
@@ -302,23 +282,19 @@
       // padding: 10px 0;
       // box-shadow: 0 0 10px 0 rgba(181, 41, 41, 0.1);
 
-
-
       .cdx-block {
         padding: 10px;
         transition: all 0.3s ease;
       }
     }
-
   }
 
   .ce-block__content {
-
     &#critical-section {
       // border: 1px solid rgb(206, 12, 12);
       pointer-events: none;
       border-radius: 5px;
-      padding-left: 10px;
+      // padding-left: 10px;
       padding-right: 10px;
       transition: all 0.3s ease;
       // box-shadow: inset 0 0 10px 0 rgba(206, 12, 12, 0.126);
@@ -335,8 +311,8 @@
         height: 100%;
         text-align: center;
         font-size: 0.8em;
-        color: #11273F;
-        background: rgba(#11273F, 0.2);
+        color: #11273f;
+        background: rgba(#11273f, 0.2);
         backdrop-filter: blur(6px);
         pointer-events: none;
         border-radius: 5px;
@@ -356,12 +332,10 @@
     }
   }
 
-
-
   .ce-block__content,
   .ce-toolbar__content {
     // max-width: calc(100% - 150px);
-        max-width: min(100% - 200px, 950px);
+    max-width: min(100% - 200px, 950px);
 
     @media screen and (max-width: $mobile_breakpoint) {
       max-width: calc(100% - 20px);
@@ -444,8 +418,6 @@
       .ML__container {
         min-width: 500px !important;
       }
-
     }
-
   }
 }

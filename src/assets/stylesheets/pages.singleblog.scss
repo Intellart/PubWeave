@@ -1,5 +1,5 @@
-@import './variables';
-@import './colors';
+@import "./variables";
+@import "./colors";
 
 .like-button-container {
   display: flex;
@@ -19,7 +19,6 @@
   }
 }
 
-
 .editorjs-context-menu {
   .editorjs-context-menu-item {
     display: flex;
@@ -30,13 +29,13 @@
     cursor: pointer;
 
     &:hover {
-      background: #32B4FC;
-      color: #FFFFFF;
+      background: #32b4fc;
+      color: #ffffff;
     }
 
     &.editorjs-context-menu-item-disabled {
       cursor: default;
-      background: #FFFFFF;
+      background: #ffffff;
       color: gray;
     }
   }
@@ -53,7 +52,6 @@
   &.single-blog-wrapper-review {
     padding-bottom: 0px;
   }
-
 
   .reaction-icons {
     display: flex;
@@ -76,6 +74,8 @@
 
   .editorjs-wrapper {
     width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
   }
 
   .single-blog-reviewer-header {
@@ -86,7 +86,7 @@
     width: 100%;
     padding: 20px 70px;
     // height: 400px;
-    background: #11273F;
+    background: #11273f;
     transition: all 0.8s ease-in-out;
     margin: 20px 0px;
     align-items: flex-start;
@@ -98,8 +98,7 @@
 
     &.single-blog-reviewer-header-closed {
       margin: 0px;
-      box-shadow: inset 0px -8px 4px rgba(0, 0, 0, 0.10);
-
+      box-shadow: inset 0px -8px 4px rgba(0, 0, 0, 0.1);
     }
 
     h2.single-blog-reviewer-header-title {
@@ -109,12 +108,12 @@
       justify-content: space-between;
       gap: 30px;
       max-width: 1000px;
-      font-family: 'Inter';
+      font-family: "Inter";
       font-style: normal;
       font-weight: 600;
       font-size: 25px;
       line-height: 36px;
-      color: #FFFFFF;
+      color: #ffffff;
 
       @media screen and (max-width: $mobile_breakpoint) {
         font-size: 20px;
@@ -129,7 +128,6 @@
       gap: 10px;
       color: white;
     }
-
   }
 
   .single-blog-highlight {
@@ -140,7 +138,7 @@
     width: 100%;
     padding: 20px 100px;
     // height: 400px;
-    background: #11273F;
+    background: #11273f;
     transition: all 0.8s ease-in-out;
 
     @media screen and (max-width: $mobile_breakpoint) {
@@ -157,7 +155,6 @@
       padding: 0 50px 20px 50px;
       margin: 30px 0px;
       max-width: 1000px;
-
 
       @media screen and (max-width: $mobile_breakpoint) {
         flex-direction: column;
@@ -178,28 +175,28 @@
         }
 
         .single-blog-highlight-title {
-          font-family: 'Inter';
+          font-family: "Inter";
           font-style: normal;
           font-weight: 600;
           font-size: 30px;
           line-height: 36px;
-          color: #FFFFFF;
+          color: #ffffff;
         }
 
         .single-blog-highlight-description {
-          font-family: 'Inter';
+          font-family: "Inter";
           font-style: normal;
           font-weight: 400;
-          color: #FFFFFF;
+          color: #ffffff;
         }
 
         .single-blog-highlight-category {
-          font-family: 'Inter';
+          font-family: "Inter";
           font-style: normal;
           font-weight: 600;
           font-size: 14px;
           line-height: 17px;
-          color: #32B4FC;
+          color: #32b4fc;
         }
 
         .single-blog-highlight-text-left-tags {
@@ -235,7 +232,7 @@
           align-items: center;
           justify-content: flex-start;
           gap: 20px;
-          color: #32B4FC;
+          color: #32b4fc;
         }
 
         .single-blog-highlight-text-right-author {
@@ -254,28 +251,26 @@
             gap: 5px;
 
             .single-blog-highlight-text-right-author-text-name {
-              font-family: 'Inter';
+              font-family: "Inter";
               font-style: normal;
               font-weight: 600;
               font-size: 14px;
               line-height: 17px;
-              color: #FFFFFF;
+              color: #ffffff;
             }
 
             .single-blog-highlight-text-right-author-text-date {
-              font-family: 'Inter';
+              font-family: "Inter";
               font-style: normal;
               font-weight: 500;
               font-size: 12px;
               line-height: 15px;
-              color: #FFFFFF;
+              color: #ffffff;
             }
           }
         }
-
       }
     }
-
   }
 
   .single-blog-img {
@@ -296,5 +291,4 @@
       width: 92vw;
     }
   }
-
 }
