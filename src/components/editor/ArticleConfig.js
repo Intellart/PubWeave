@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBook, faCog, faPen, faSave, faRefresh,
+} from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
@@ -39,6 +41,9 @@ type Props = {
   allTags: Tags,
   addTag: Function,
   removeTag: (articleTagId: number) => void,
+    autoSave: boolean;
+  toggleAutoSave: Function;
+  onSave: Function;
 };
 
 type BasicOption = {
@@ -48,7 +53,7 @@ type BasicOption = {
 
 function ArticleConfig({
   allTags, article, lastSaved: _lastSaved, wordCount,
-  updateArticle, categories, addTag, removeTag,
+  updateArticle, categories, addTag, removeTag, autoSave, toggleAutoSave, onSave,
 }: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -165,8 +170,41 @@ function ArticleConfig({
           <FontAwesomeIcon className='article-config-icon' icon={faClock} />
           <h6>{_lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
         </div>
+        <div
+          className="article-config-item"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleAutoSave();
+          }}
+        >
+          <FontAwesomeIcon
+            className={classNames('article-config-icon', {
+              'article-config-icon-blue': autoSave,
+            })}
+            icon={faRefresh}
+          />
+          <h6>{autoSave ? 'Autosave On' : 'Autosave Off'}</h6>
+        </div>
+        {!autoSave && (
+          <div
+            className="article-config-item"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSave();
+            }}
+          >
+            <FontAwesomeIcon
+              className="article-config-icon article-config-icon-blue"
+              icon={faSave}
+            />
+            <h6>Save</h6>
+          </div>
+        )}
         <div className="article-config-item">
-          <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
+          <FontAwesomeIcon
+            className="article-config-icon article-config-icon-blue"
+            icon={faCog}
+          />
         </div>
       </div>
       <div className={classNames('article-config-large', { hidden: !articleSettingsExpanded })}>
