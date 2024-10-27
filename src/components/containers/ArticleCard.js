@@ -20,7 +20,7 @@ import {
   permissions,
   useScreenSize,
 } from '../../utils/hooks';
-import LogoImg from '../../assets/images/pubweave_logo.png';
+import LogoImg from '../../assets/images/empty_thumbnail.png';
 import Modal from '../modal/Modal';
 import LikeButton from './LikeButton';
 import ArticleTypeModal from '../modal/ArticleTypeModal';
