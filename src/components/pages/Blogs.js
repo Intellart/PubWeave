@@ -16,7 +16,7 @@ import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe, faClose } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
@@ -50,7 +50,7 @@ function Blogs(): Node {
 
   useEffect(() => {
     if (cat) {
-      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Undefined') {
+      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Uncategorized') {
         toast.error('Error: You selected an invalid category.');
         navigate('/blogs');
       }
@@ -83,7 +83,7 @@ function Blogs(): Node {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
 
-  if (cat === 'Undefined') {
+  if (cat === 'Uncategorized') {
     filteredArticles = unGroupedArticles;
   }
 
@@ -152,6 +152,11 @@ function Blogs(): Node {
         </section>
       )}
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
+        <div className="category-highlight-close">
+          <Link to="/blogs">
+            <FontAwesomeIcon className="article-config-icon" icon={faClose} />
+          </Link>
+        </div>
         <div className="category-highlight-text">
           <div className="all-chips">
             {map(categoryTags, (t, index) => {
