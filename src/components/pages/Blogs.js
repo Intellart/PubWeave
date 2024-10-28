@@ -219,7 +219,7 @@ function Blogs(): Node {
               article={a}
               onConvert={() => {}}
               currentUserId={get(user, 'id', null)}
-              onClick={() => navigate(`/singleblog/${a.id}`)}
+              onClick={() => navigate(`/singleblog/${a.slug || a.id}`)}
             />
           ))}
         </div>

@@ -72,7 +72,7 @@ function MyArticles(): Node {
   const handleArticleClick = (article: Article) => {
     switch (article.status) {
       case 'published':
-        navigate(routes.blogs.blog(article.id));
+        navigate(routes.blogs.blog(article.slug));
         break;
       case 'reviewing':
         navigate(routes.myWork.review(type, article.id));
