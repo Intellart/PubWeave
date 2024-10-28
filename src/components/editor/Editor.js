@@ -88,7 +88,7 @@ function Editor({
   const isAdmin = !isEmpty(admin);
 
   // Permissions ---------------------------------------------------------------
-  const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.PUBLISHED], status);
+  const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.IN_REVIEW, EditorStatus.PUBLISHED], status);
   const currentPermissions = editorPermissions({
     type: get(article, 'article_type'),
     status: status || EditorStatus.IN_PROGRESS,
