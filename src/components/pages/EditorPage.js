@@ -7,6 +7,7 @@ import {
   sum, words, get, map, isEqual, toInteger, isEmpty, flatten, values,
 } from 'lodash';
 import classNames from 'classnames';
+import { toast } from 'react-toastify';
 import type {
   BlockCategoriesToChange,
   ArticleContentToServer,
@@ -19,11 +20,12 @@ import ArticleConfig from '../editor/ArticleConfig';
 import SideBar from '../editor/SideBar';
 import Editor, { EditorStatus } from '../editor/Editor';
 import { editorPermissions, permissions } from '../../utils/hooks';
+import { selectors as userSelectors } from '../../store/userStore';
 
 const cookies = new Cookies();
 
-const useAutoSave = () => {
-  const [autoSave, setAutoSave] = useState(true);
+const useAutoSave = (initialAutoSave: boolean = true) => {
+  const [autoSave, setAutoSave] = useState(initialAutoSave);
   const autosaveRef = useRef(autoSave);
 
   const handleAutoSave = (newAutoSave: boolean) => {
@@ -42,13 +44,15 @@ function ReactEditor (): React$Element<any> {
   const { id, type } = useParams();
   const navigate = useNavigate();
 
-  const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave();
-
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articleContent = useSelector((state) => selectors.articleContent(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+  const isAdmin = !isEmpty(admin);
+
+  const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave(!isAdmin);
 
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
@@ -82,13 +86,19 @@ function ReactEditor (): React$Element<any> {
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
   // console.log('currentPermissions', currentPermissions);
-  const [savedState, setSavedState] = useState<any>({
+
+  const initialState = {
     blocks: [],
     time: 0,
     version: '1',
-  });
+  };
+
+  const [savedState, setSavedState] = useState<any>(initialState);
 
   const handleManualSave = () => {
+    if (savedState.time === 0) return;
+
+    toast.success('Article saved');
     const blocksToAdd = flatten(values(savedState.blocks));
 
     updateArticleContentSilently(id, {
@@ -96,6 +106,8 @@ function ReactEditor (): React$Element<any> {
       version: savedState.version || '1',
       blocks: blocksToAdd,
     });
+
+    setSavedState(initialState);
   };
 
   const handleChange = (
