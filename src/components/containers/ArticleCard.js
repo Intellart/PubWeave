@@ -52,8 +52,8 @@ function ArticleCard(props : Props): Node {
     isReviewer: includes(props.article.reviewers, props.currentUserId),
   });
 
-  console.log('status', props.article.status);
-  console.log('currentPermissions', currentPermissions);
+  // console.log('status', props.article.status);
+  // console.log('currentPermissions', currentPermissions);
 
   // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 

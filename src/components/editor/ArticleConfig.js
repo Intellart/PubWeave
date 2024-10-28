@@ -41,9 +41,9 @@ type Props = {
   allTags: Tags,
   addTag: Function,
   removeTag: (articleTagId: number) => void,
-    autoSave: boolean;
-  toggleAutoSave: Function;
-  onSave: Function;
+  autoSave?: boolean;
+  toggleAutoSave?: Function;
+  onSave?: Function;
 };
 
 type BasicOption = {
@@ -166,35 +166,39 @@ function ArticleConfig({
           <FontAwesomeIcon className='article-config-icon' icon={faClock} />
           <h6>{_lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
         </div>
-        <div
-          className="article-config-item"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleAutoSave();
-          }}
-        >
-          <FontAwesomeIcon
-            className={classNames('article-config-icon', {
-              'article-config-icon-blue': autoSave,
-            })}
-            icon={faRefresh}
-          />
-          <h6>{autoSave ? 'Autosave On' : 'Autosave Off'}</h6>
-        </div>
-        {!autoSave && (
-          <div
-            className="article-config-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSave();
-            }}
-          >
-            <FontAwesomeIcon
-              className="article-config-icon article-config-icon-blue"
-              icon={faSave}
-            />
-            <h6>Save</h6>
-          </div>
+        {onSave && toggleAutoSave && (
+          <>
+            <div
+              className="article-config-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleAutoSave();
+              }}
+            >
+              <FontAwesomeIcon
+                className={classNames('article-config-icon', {
+                  'article-config-icon-blue': autoSave,
+                })}
+                icon={faRefresh}
+              />
+              <h6>{autoSave ? 'Autosave On' : 'Autosave Off'}</h6>
+            </div>
+            {!autoSave && (
+            <div
+              className="article-config-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSave();
+              }}
+            >
+              <FontAwesomeIcon
+                className="article-config-icon article-config-icon-blue"
+                icon={faSave}
+              />
+              <h6>Save</h6>
+            </div>
+            )}
+          </>
         )}
         <div className="article-config-item">
           <FontAwesomeIcon
