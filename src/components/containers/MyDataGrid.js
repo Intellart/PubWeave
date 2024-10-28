@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import Box from '@mui/material/Box';
 import {
-  DataGrid, GridColDef, GridToolbar,
+  DataGrid, GridColDef,
   GridCellModes,
   // GridCellEditStopReasons,
 } from '@mui/x-data-grid';
@@ -371,9 +371,9 @@ export default function MyDataGrid(props: Props) {
           case 'published':
             return (
               <Link
-                to={`/my-work/${params.row.id}`}
+                to={`/singleblog/${params.row.id}`}
               >
-                <FontAwesomeIcon icon={faPencil} />
+                <FontAwesomeIcon icon={faGlasses} />
               </Link>
             );
           case 'reviewing':
@@ -545,12 +545,9 @@ export default function MyDataGrid(props: Props) {
         }}
         rows={props.rows}
         columns={columns}
-        pageSize={5}
-        components={{
-          Toolbar: GridToolbar,
-        }}
+        pageSize={10}
         // onStateChange={(state) => console.log(state)}
-        rowsPerPageOptions={[5]}
+        rowsPerPageOptions={[5, 10, 15, 20]}
         checkboxSelection
         disableSelectionOnClick
         experimentalFeatures={{ newEditingApi: true }}
