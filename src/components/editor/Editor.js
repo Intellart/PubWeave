@@ -12,6 +12,7 @@ import {
   filter,
   omit,
   union,
+  isEmpty,
   find,
   values,
   differenceBy,
@@ -20,6 +21,7 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { useEditorTools } from '../../utils/editor_constants';
+import Loader from '../containers/Loader';
 import type {
   ArticleContent,
   BlockCategoriesToChange,
@@ -81,6 +83,9 @@ function Editor({
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
   const userId = get(user, 'id');
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+
+  const isAdmin = !isEmpty(admin);
 
   // Permissions ---------------------------------------------------------------
   const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.PUBLISHED], status);
@@ -259,11 +264,11 @@ function Editor({
 
     labelCriticalSections();
 
-    const allowedToUpdate = !canReviewOrEdit
-      // || !allChangedBlocksPeaceful
+    // if user can't review or edit, or can't add or remove, and there are changes
+    const forbiddenToUpdate = !canReviewOrEdit
       || (!canAddOrRemove && (numOfCreated > 0 || numOfDeleted > 0));
 
-    if (allowedToUpdate) {
+    if (forbiddenToUpdate && !isAdmin) {
       editor.current?.blocks.render({
         blocks: convertBlocksToEditorJS(blocks) || [],
       });
@@ -356,6 +361,7 @@ function Editor({
           setSelectedVersioningBlock(null);
         }}
       />
+      {isEmpty(article) && <Loader />}
       <div
         id="editorjs"
         className={classNames('editorjs', { 'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW }, `editorjs-${status}`)}
