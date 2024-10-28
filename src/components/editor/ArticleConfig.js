@@ -124,8 +124,8 @@ function ArticleConfig({
     const tagsToRemove: Tags = omitBy(articleTags, (tag) => get(tags, tag.id, null));
     const tagsToAdd: Tags = omitBy(tags, (tag) => get(articleTags, tag.id, null));
 
-    console.log('tagsToAdd', tagsToAdd);
-    console.log('tagsToRemove', tagsToRemove);
+    // console.log('tagsToAdd', tagsToAdd);
+    // console.log('tagsToRemove', tagsToRemove);
 
     if (size(tagsToRemove) > 0) {
       map(tagsToRemove, (tag: Tag) => {
@@ -142,10 +142,6 @@ function ArticleConfig({
 
   const onNewTagClick = (values: BasicOption[]) => {
     setTags(pickBy(allTags, (tag) => find(values, (v: BasicOption) => v.value === tag.id)));
-  };
-
-  const onNewTagInput = (value: string) => {
-    console.log('onNewTagInput', value);
   };
 
   return (
@@ -261,7 +257,6 @@ function ArticleConfig({
               limitTags={2}
               id="combo-box-demo"
               onChange={(e, values) => onNewTagClick(values)}
-              onInputChange={(e, value) => onNewTagInput(value)}
               value={tagValues}
               isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
               options={tagOptions}
