@@ -183,7 +183,7 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(featuredArticles) && (
+      {!isEmpty(featuredArticles) && !cat && (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {!userId && (
           <>
