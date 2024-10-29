@@ -27,8 +27,8 @@ function Home(): Node {
         <section className="hero-section">
           <div className="hero-section-row">
             <div className="hero-section-left">
-              <h1>Your proof  of Science </h1>
-              <h4>Fast, reliable & unlimited scientific projects.</h4>
+              <h1>Science at your  <br />  fingertips </h1>
+              <h4>Fast, reliable & unlimited hosting of scientific projects.</h4>
               <div className="hero-section-left-buttons">
                 <Link to="/blogs"><button className='explore'>Explore</button></Link>
                 <button

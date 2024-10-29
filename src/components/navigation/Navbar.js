@@ -149,7 +149,7 @@ function Navbar(props: Props): Node {
           }
 
           navigate({
-            [searchType.ARTICLE]: `/singleblog/${newValue.value}`,
+            [searchType.ARTICLE]: `/blog/${newValue.value}`,
             [searchType.AUTHOR]: `/users/${newValue.value}`,
           }[searchParams.type]);
 

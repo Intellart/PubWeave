@@ -82,11 +82,12 @@ function LoginPage({ forAdmin }: Props): Node {
     <main className="login-page-wrapper">
       <section className="login-section">
         <div className="login-section-left">
-          <h1 className="login-section-left-title">Welcome to the PubWeave</h1>
+          <h1 className="login-section-left-title">Welcome to PubWeave</h1>
           <p className="login-section-left-text">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-            malesuada, nisl eget aliquam tincidunt, nunc nisl aliquam lorem, nec
-            aliquam nisl nunc vel nisl. Sed malesuada, nisl eget aliquam
+            PubWeave is your go-to website for the publishing and hosting of
+            your scientific content. From sharing your results in the form of
+            blogs to going through paper revisions with your co-authors to the
+            hosting of your pre-prints, PubWeave is here for you!
           </p>
         </div>
         <form className="login-wrapper" onSubmit={handleSubmit}>

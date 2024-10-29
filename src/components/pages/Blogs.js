@@ -68,7 +68,7 @@ function Blogs(): Node {
 
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 20;
   const [page, setPage] = React.useState(1);
 
   useEffect(() => {
@@ -213,13 +213,13 @@ function Blogs(): Node {
       <section className={classNames('blogs-other', { 'blogs-other-active': cat })}>
         <h2 className="blogs-other-subtitle">Latest Blog Posts</h2>
         <div className='blogs-other-cards'>
-          {map(slice(filteredArticles, (page - 1) * itemsPerPage, page * itemsPerPage), (a, index) => (
+          {map(slice(filteredArticles.reverse(), (page - 1) * itemsPerPage, page * itemsPerPage), (a, index) => (
             <ArticleCard
               key={index}
               article={a}
               onConvert={() => {}}
               currentUserId={get(user, 'id', null)}
-              onClick={() => navigate(`/singleblog/${a.slug || a.id}`)}
+              onClick={() => navigate(`/blog/${a.slug || a.id}`)}
             />
           ))}
         </div>
