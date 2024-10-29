@@ -371,7 +371,7 @@ export default function MyDataGrid(props: Props) {
           case 'published':
             return (
               <Link
-                to={`/singleblog/${params.row.id}`}
+                to={`/blog/${params.row.id}`}
               >
                 <FontAwesomeIcon icon={faGlasses} />
               </Link>
