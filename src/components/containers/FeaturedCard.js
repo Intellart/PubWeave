@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 type Props = {
   img: string,
   id: number,
+  slug: string,
   title: string,
   category: string,
   description: string,
@@ -18,19 +19,19 @@ type Props = {
   tags?: Array<string>,
   // editable?: Function,
   // deleteable?: Function,
+  // eslint-disable-next-line react/no-unused-prop-types
   status?: string,
   // likeable?: boolean,
 };
 
 function FeaturedCard(props : Props): Node {
   // const { isMobile } = useScreenSize();
-  console.log('FeaturedCard', props.status);
 
   const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   return (
     <>
-      <Link to={`/blog/${props.id}`}>
+      <Link to={`/blog/${props.slug || props.id}`}>
         <div
           key={props.id}
           className="featured-card"
