@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
-import { useScrollTopEffect } from '../../utils/hooks';
+import { useScrollTopEffect, usePageSearchParam } from '../../utils/hooks';
 import routes from '../../routes';
 import type { Article } from '../../store/articleStore';
 import HowItWorks from '../modal/HowItWorks';
@@ -50,7 +50,9 @@ function MyArticles(): Node {
   const [statusCategory, setStatusCategory] = useState('all');
 
   const itemsPerPage = 5;
-  const [page, setPage] = React.useState(1);
+  // const [page, setPage] = React.useState(1);
+
+  const { page, setPage } = usePageSearchParam();
 
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));

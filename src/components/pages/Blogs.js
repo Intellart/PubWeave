@@ -11,7 +11,9 @@ import {
   size,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link, useNavigate, useParams,
+} from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -27,7 +29,7 @@ import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
 import { actions, selectors as userSelectors } from '../../store/userStore';
-import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
+import { /* useDebounce */useScrollTopEffect, usePageSearchParam } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
 import OrcIDButton from '../elements/OrcIDButton';
 
@@ -42,6 +44,8 @@ function Blogs(): Node {
   const selectedUser = useSelector((state) => userSelectors.getSelectedUser(state), isEqual);
 
   const navigate = useNavigate();
+
+  usePageSearchParam();
 
   const dispatch = useDispatch();
   const getSelectedUser = (userId: number) => dispatch(actions.selectUser(userId));
@@ -68,14 +72,15 @@ function Blogs(): Node {
 
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
-  const itemsPerPage = 20;
-  const [page, setPage] = React.useState(1);
+  const itemsPerPage = 3;
+  // const [page, setPage] = React.useState(1);
+
+  const { page, setPage } = usePageSearchParam();
 
   useEffect(() => {
     if (userId && !selectedUser) {
       getSelectedUser(userId);
     }
-    setPage(1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser]);
 
@@ -195,6 +200,7 @@ function Blogs(): Node {
                   status={get(a, 'status', '')}
                   img={a.image || images[a.id % 4]}
                   id={a.id}
+                  slug={a.slug}
                   title={a.title}
                   category={get(a, 'category', '')}
                   description={get(a, 'description', '')}
