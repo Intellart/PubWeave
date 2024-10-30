@@ -12,7 +12,7 @@ import {
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  Link, useNavigate, useParams,
+  Link, useNavigate, useParams, useSearchParams,
 } from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
@@ -29,9 +29,24 @@ import Astronaut from '../../images/AstronautImg.png';
 import Earth from '../../images/EarthImg.png';
 import { selectors as articleSelectors } from '../../store/articleStore';
 import { actions, selectors as userSelectors } from '../../store/userStore';
-import { /* useDebounce */useScrollTopEffect, usePageSearchParam } from '../../utils/hooks';
+import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
 import OrcIDButton from '../elements/OrcIDButton';
+
+const useBlogsSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = parseInt(searchParams.get('p'), 10) || 1;
+
+  const handleChange = ({ p }: { c: string, p: number }) => {
+    setSearchParams({ p });
+  };
+
+  return {
+    page,
+    handleChange,
+  };
+};
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -44,8 +59,6 @@ function Blogs(): Node {
   const selectedUser = useSelector((state) => userSelectors.getSelectedUser(state), isEqual);
 
   const navigate = useNavigate();
-
-  usePageSearchParam();
 
   const dispatch = useDispatch();
   const getSelectedUser = (userId: number) => dispatch(actions.selectUser(userId));
@@ -73,9 +86,8 @@ function Blogs(): Node {
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
   const itemsPerPage = 20;
-  // const [page, setPage] = React.useState(1);
 
-  const { page, setPage } = usePageSearchParam();
+  const { page, handleChange } = useBlogsSearchParam();
 
   useEffect(() => {
     if (userId && !selectedUser) {
@@ -97,8 +109,7 @@ function Blogs(): Node {
       {!userId && (
         <CategoryList
           onClick={(c) => {
-            navigate(`/blogs/${c}`);
-            setPage(1);
+            navigate(`/blogs/${c}?p=1`);
           }}
           categories={map(showedCategories, (c) => ({
             name: c.category_name,
@@ -240,7 +251,7 @@ function Blogs(): Node {
           }}
           page={page}
           onChange={(e, value) => {
-            setPage(value);
+            handleChange({ p: value });
           }}
         />
       </section>
