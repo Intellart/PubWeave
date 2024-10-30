@@ -1,6 +1,6 @@
 // @flow
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import {
   difference,
   every,
@@ -433,19 +433,6 @@ export const useOutsideClickEffect = (
 
     return () => window.removeEventListener('click', handleClick);
   }, [callback, refs]);
-};
-
-export const usePageSearchParam = (): any => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const page = toNumber(searchParams.get('page')) || 1;
-
-  const handlePageChange = (newPage: number) => {
-    setSearchParams({ page: newPage });
-    // navigate(`/blogs?page=${newPage}`);
-  };
-
-  return { page, setPage: handlePageChange };
 };
 
 export const useScrollTopEffect = () => {
