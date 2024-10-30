@@ -10,7 +10,6 @@ import Avatar from '@mui/material/Avatar';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  camelCase,
   filter,
   find, get, isEmpty, isEqual, map, toInteger,
 } from 'lodash';
@@ -23,19 +22,13 @@ import OrcIDButton from '../elements/OrcIDButton';
 import Editor, { EditorStatus } from '../editor/Editor';
 import type {
   ArticleContentToServer,
-  Block,
   BlockCategoriesToChange,
-  BlockToServer,
 } from '../../store/articleStore';
 import ReviewEditor from '../editor/ReviewEditor';
 
-function Blogs(): Node {
+function EditorReview(): Node {
   useScrollTopEffect();
   const { id } = useParams();
-
-  // store.getState();
-
-  // eslint-disable-next-line no-unused-vars
 
   const dispatch = useDispatch();
   const fetchArticle = (artId: number) => dispatch(actions.fetchArticle(artId));
@@ -165,16 +158,10 @@ function Blogs(): Node {
             isReady={isReady}
             status={EditorStatus.IN_REVIEW}
             onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
-              const blocksToAdd :BlockToServer[] = [
-                ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
-                ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
-                ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
-              ];
-
               updateArticleContentSilently(id, {
-                time,
-                version,
-                blocks: blocksToAdd,
+                time: time || 0,
+                version: version || '1',
+                blocks: (newBlocks: any),
               });
             }}
           />
@@ -203,16 +190,10 @@ function Blogs(): Node {
             userId={get(user, 'id', 1)}
             status={EditorStatus.REVIEW_PANE}
             onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
-              const blocksToAdd :BlockToServer[] = [
-                ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
-                ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
-                ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
-              ];
-
               updateArticleContentSilently(articleReviewContent.id, {
-                time,
-                version,
-                blocks: blocksToAdd,
+                time: time || 0,
+                version: version || '1',
+                blocks: (newBlocks: any),
               });
             }}
           />
@@ -223,12 +204,20 @@ function Blogs(): Node {
           <section className="single-blog-reviewer-header">
             <h2 className="single-blog-reviewer-header-title"> {get(reviewer, 'full_name', '')}</h2>
             <div className="single-blog-reviewer-header-right">
-              <p className="single-blog-reviewer-header-right-label">Review #{get(reviewer, 'review_id', '')}</p>
+              <p className="single-blog-reviewer-header-right-label">Review</p>
               <p className="single-blog-reviewer-header-right-status">
                 <Chip
-                  label={camelCase(get(reviewer, 'status', ''))}
+                  label={get({
+                    in_progress: 'In progress',
+                    accepted: 'Accepted',
+                    rejected: 'Rejected',
+                  }, get(reviewer, 'status', ''), '')}
                   variant="default"
-                  color="primary"
+                  color={get({
+                    in_progress: 'primary',
+                    accepted: 'success',
+                    rejected: 'error',
+                  }, get(reviewer, 'status', ''), '')}
                 />
               </p>
             </div>
@@ -260,4 +249,4 @@ function Blogs(): Node {
   );
 }
 
-export default Blogs;
+export default EditorReview;
