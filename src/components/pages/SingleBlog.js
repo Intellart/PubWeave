@@ -138,9 +138,8 @@ function Blogs(): Node {
       )}
       <div className="reaction-icons unselectable">
         <LikeButton
-          enabled={!isEmpty(user)}
           article={article}
-          userId={get(user, 'id', 1)}
+          userId={get(user, 'id')}
           iconType='solid'
         />
         <CommentModal
