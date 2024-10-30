@@ -1087,8 +1087,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       // --------------------------------------------------------------------
 
     case types.ART_LIKE_ARTICLE_FULFILLED:
-      toast.success('Article liked successfully!');
-      console.log('like', action.payload);
+      // toast.success('Article liked successfully!');
+      // console.log('like', action.payload);
 
       return {
         ...state,
@@ -1108,8 +1108,8 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       };
 
     case types.ART_LIKE_ARTICLE_REMOVAL_FULFILLED:
-      toast.success('Article unliked successfully!');
-      console.log('unlike', action.payload);
+      // toast.success('Article unliked successfully!');
+      // console.log('unlike', action.payload);
 
       return {
         ...state,
