@@ -20,12 +20,11 @@ import ArticleConfig from '../editor/ArticleConfig';
 import SideBar from '../editor/SideBar';
 import Editor, { EditorStatus } from '../editor/Editor';
 import { editorPermissions, permissions } from '../../utils/hooks';
-import { selectors as userSelectors } from '../../store/userStore';
 
 const cookies = new Cookies();
 
-const useAutoSave = (initialAutoSave: boolean = true) => {
-  const [autoSave, setAutoSave] = useState(initialAutoSave);
+const useAutoSave = () => {
+  const [autoSave, setAutoSave] = useState(false);
   const autosaveRef = useRef(autoSave);
 
   const handleAutoSave = (newAutoSave: boolean) => {
@@ -49,10 +48,8 @@ function ReactEditor (): React$Element<any> {
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
-  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
-  const isAdmin = !isEmpty(admin);
 
-  const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave(!isAdmin);
+  const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
