@@ -109,7 +109,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
       message: 'Amount must be less than 100',
     },
     [errorList.transactionLimit]: {
-      isError: (value: number) => value > (treasury.totalAmount || 0) * 0.5,
+      isError: (value: number) => value > (treasury.totalAmount || 0),
       message: 'Transaction limit is too high',
     },
   };
