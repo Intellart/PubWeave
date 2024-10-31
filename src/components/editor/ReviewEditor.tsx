@@ -12,7 +12,6 @@ import {
 } from "../../utils/hooks";
 import { EditorStat, EditorStatus } from "./Editor";
 import { Block, BlockCategoriesToChange } from "../../store/article/types";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 // import useCopy from '../../utils/useCopy';
 // import Undo from 'editorjs-undo';
@@ -33,10 +32,7 @@ function ReviewEditor({ isReady, onChange, status, userId }: Props): any {
   const editor = useRef(null);
   const EDITOR_JS_TOOLS = useEditorTools();
 
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
+  const article = useSelector(articleSelectors.article, isEqual);
 
   const articleReviewers = get(article, "reviewers", []);
   const articleReview = find(

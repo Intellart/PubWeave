@@ -20,7 +20,6 @@ import { useScrollTopEffect } from "../../utils/hooks";
 import OrcIDButton from "../elements/OrcIDButton";
 import Editor, { EditorStatus } from "../editor/Editor";
 import LikeButton from "../containers/LikeButton";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import articleActions from "../../store/article/actions";
@@ -39,18 +38,10 @@ function Blogs() {
   // const likeArticle = (articleId: number) => dispatch(actions.likeArticle(articleId));
   // const removeArticleLike = (articleId: number) => dispatch(actions.likeArticleRemoval(articleId));
 
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
-  const categories = useSelector(
-    (state: ReduxState) => articleSelectors.getCategories(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const article = useSelector(articleSelectors.article, isEqual);
+
+  const categories = useSelector(articleSelectors.getCategories, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
   const [isReady, setIsReady] = useState(
     !isEmpty(article) && id && get(article, "id") === toInteger(id)
   );

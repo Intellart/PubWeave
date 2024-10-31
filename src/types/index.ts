@@ -3,6 +3,7 @@ import type { State as GlobalState } from "../store/globalStore";
 import { ArticleState } from "../store/article/types";
 import { WalletState } from "../store/cardano/types";
 import { UserState } from "../store/user/types";
+import { Action } from "@reduxjs/toolkit";
 
 export type ReduxState = {
   user: UserState;
@@ -20,13 +21,12 @@ export type PayloadReduxAction = {
   payload: any;
 };
 
-export type ReduxAction = {
-  type: string;
+export type ReduxAction = Action & {
   payload?: any;
   propagate?: any;
 };
-export type ReduxActionWithPayload = {
-  type: string;
+
+export type ReduxActionWithPayload = Action & {
   payload: any;
   propagate?: any;
 };

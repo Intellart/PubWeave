@@ -32,7 +32,6 @@ import Conditions from "../modal/Conditions";
 import Input from "../elements/Input";
 import TreasuryModal from "../modal/TreasuryModal";
 import ModalWrapper from "../modal/ModalWrapper";
-import { ReduxState } from "../../types";
 import selectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import articleActions from "../../store/article/actions";
@@ -226,10 +225,7 @@ function NewReview({ disabled }: NewReviewProps) {
 }
 
 function ReviewTable(props: any) {
-  const admin = useSelector(
-    (state: ReduxState) => userSelectors.getAdmin(state),
-    isEqual
-  );
+  const admin = useSelector(userSelectors.getAdmin, isEqual);
   const dispatch = useDispatch();
   const acceptUserReview = (userReviewId: number) =>
     dispatch(actions.acceptUserReview(userReviewId));
@@ -383,10 +379,7 @@ function ReviewTable(props: any) {
 function Review(props: any) {
   const { id } = useParams();
 
-  const reviewers = useSelector(
-    (state: ReduxState) => selectors.getReviewers(state),
-    isEqual
-  );
+  const reviewers = useSelector(selectors.getReviewers, isEqual);
 
   const dispatch = useDispatch();
   const newReview = (
@@ -514,23 +507,11 @@ function ArticleSettings() {
   // // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [id]);
 
-  const reviews = useSelector(
-    (state: ReduxState) => selectors.getReviews(state),
-    isEqual
-  );
-  const article = useSelector(
-    (state: ReduxState) => selectors.article(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const reviews = useSelector(selectors.getReviews, isEqual);
+  const article = useSelector(selectors.article, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
   // const treasury = useSelector((state) => cardanoSelectors.getTreasury(state), isEqual);
-  const reviewers = useSelector(
-    (state: ReduxState) => selectors.getReviewers(state),
-    isEqual
-  );
+  const reviewers = useSelector(selectors.getReviewers, isEqual);
 
   // console.log('article', article);
   const inlineReviews = groupBy(

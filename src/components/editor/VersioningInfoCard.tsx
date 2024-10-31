@@ -1,8 +1,6 @@
 import { get, isEqual } from "lodash";
 
 import { useSelector } from "react-redux";
-import { ReduxState } from "../../types";
-import { ArticleContent } from "../../store/article/types";
 import articleSelectors from "../../store/article/selectors";
 
 type VersioningInfoCardProps = {
@@ -11,10 +9,7 @@ type VersioningInfoCardProps = {
 };
 
 export default function VersioningInfoCard(props: VersioningInfoCardProps) {
-  const content: ArticleContent = useSelector(
-    (state: ReduxState) => articleSelectors.articleContent(state),
-    isEqual
-  );
+  const content = useSelector(articleSelectors.articleContent, isEqual);
 
   const currentBlock = get(content, ["blocks", props.sectionId], {});
 

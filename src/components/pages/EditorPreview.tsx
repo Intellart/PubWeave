@@ -28,7 +28,6 @@ import ImageSelection from "../editor/ImageSelection";
 import Editor, { EditorStatus } from "../editor/Editor";
 import EditorTitle from "../editor/EditorTitle";
 import routes from "../../routes";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import articleActions from "../../store/article/actions";
 
@@ -40,22 +39,10 @@ function ReactEditor() {
   const navigate = useNavigate();
 
   // useSelector
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
-  const articleContent = useSelector(
-    (state: ReduxState) => articleSelectors.articleContent(state),
-    isEqual
-  );
-  const categories = useSelector(
-    (state: ReduxState) => articleSelectors.getCategories(state),
-    isEqual
-  );
-  const tags = useSelector(
-    (state: ReduxState) => articleSelectors.getTags(state),
-    isEqual
-  );
+  const article = useSelector(articleSelectors.article, isEqual);
+  const articleContent = useSelector(articleSelectors.articleContent, isEqual);
+  const categories = useSelector(articleSelectors.getCategories, isEqual);
+  const tags = useSelector(articleSelectors.getTags, isEqual);
 
   // dispatch
   const dispatch = useDispatch();

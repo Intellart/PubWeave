@@ -18,7 +18,6 @@ import { Link } from "react-router-dom";
 
 import { useDispatch, useSelector } from "react-redux";
 import Comment from "./Comment";
-import { ReduxState } from "../../types";
 import userSelectors from "../../store/user/selectors";
 import articleSelectors from "../../store/article/selectors";
 import articleActions from "../../store/article/actions";
@@ -33,14 +32,8 @@ function CommentSection(props: Props) {
   const tempCommentRef = useRef(null);
   const [newCommentContent, setNewCommentContent] = useState("");
 
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const article = useSelector(articleSelectors.article, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   const dispatch = useDispatch();
   const createComment = (

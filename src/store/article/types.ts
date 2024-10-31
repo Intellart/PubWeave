@@ -345,6 +345,7 @@ export type Article = {
   star: boolean;
   reviewers: Array<User>;
   category: string;
+  user_review_id: number;
   created_at: string;
   updated_at: string;
   comments: { [key: number]: Comment };

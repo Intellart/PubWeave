@@ -7,4 +7,5 @@ const userSelectors = {
   getSelectedUser: (state: ReduxState): User | null => state.user.selectedUser,
   getOrcidAccount: (state: ReduxState): any => state.user.orcidAccount,
 };
+
 export default userSelectors;

@@ -3,14 +3,10 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faHistory } from "@fortawesome/free-solid-svg-icons";
-import { selectors as userSelectors } from "../../store/user/reducer";
-import { ReduxState } from "../../types";
+import userSelectors from "../../store/user/selectors";
 
 function ActiveUsers() {
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   const users = [
     {

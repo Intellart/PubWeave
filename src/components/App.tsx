@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import { isEmpty, isEqual } from "lodash";
@@ -26,24 +26,13 @@ import { checkEnvironmentVariables } from "../utils/lists";
 import Loader from "./containers/Loader";
 import Navbar from "./navigation/Navbar";
 import Footer from "./navigation/Footer";
-import { ReduxState } from "../types";
 import userSelectors from "../store/user/selectors";
 
 function App() {
   useScrollTopEffect();
-  const isLoading = useSelector(
-    (state: ReduxState) => globalSelectors.checkIsLoading(state),
-    isEqual
-  );
-
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
-  const admin = useSelector(
-    (state: ReduxState) => userSelectors.getAdmin(state),
-    isEqual
-  );
+  const isLoading = useSelector(globalSelectors.checkIsLoading, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
+  const admin = useSelector(userSelectors.getAdmin, isEqual);
 
   const isUser: boolean = !isEmpty(user);
   const isAdmin: boolean = !isEmpty(admin);

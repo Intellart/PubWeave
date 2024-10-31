@@ -18,7 +18,6 @@ import classNames from "classnames";
 import type {
   ArticleContentToServer,
   Block,
-  BlockCategoriesToChange,
   FilledBlock,
 } from "../../store/article/types";
 import routes from "../../routes";
@@ -28,7 +27,6 @@ import ArticleConfig from "../editor/ArticleConfig";
 import SideBar from "../editor/SideBar";
 import Editor, { EditorEvent, EditorStatus } from "../editor/Editor";
 import { editorPermissions, permissions } from "../../utils/hooks";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import articleActions from "../../store/article/actions";
 import { OutputData } from "@editorjs/editorjs";
@@ -94,10 +92,7 @@ function ReactEditor() {
   const navigate = useNavigate();
 
   const article = useSelector(articleSelectors.article, isEqual);
-  const articleContent = useSelector(
-    (state: ReduxState) => articleSelectors.articleContent(state),
-    isEqual
-  );
+  const articleContent = useSelector(articleSelectors.articleContent, isEqual);
   const categories = useSelector(articleSelectors.getCategories, isEqual);
   const tags = useSelector(articleSelectors.getTags, isEqual);
   const blocks = useSelector(articleSelectors.getBlocks, isEqual);

@@ -15,7 +15,6 @@ import { Alert, AlertTitle } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import MyDataGrid from "../containers/MyDataGrid";
 
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import articleActions from "../../store/article/actions";
 
@@ -54,14 +53,8 @@ export const statuses = {
 
 function Dashboard() {
   // const articles = useSelector((state) => selectors.getUsersArticles(state), isEqual);
-  const articles = useSelector(
-    (state: ReduxState) => articleSelectors.getAllArticles(state),
-    isEqual
-  );
-  const categories = useSelector(
-    (state: ReduxState) => articleSelectors.getCategories(state),
-    isEqual
-  );
+  const articles = useSelector(articleSelectors.getAllArticles, isEqual);
+  const categories = useSelector(articleSelectors.getCategories, isEqual);
 
   const dispatch = useDispatch();
   const fetchAllArticles = () => dispatch(articleActions.fetchAllArticles());

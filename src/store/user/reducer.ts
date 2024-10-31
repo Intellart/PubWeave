@@ -3,6 +3,7 @@ import type { ReduxActionWithPayload } from "../../types";
 import { setItem, removeItem } from "../../localStorage";
 import { localStorageKeys } from "../../tokens";
 import { UserState, userTypes as types } from "./types";
+import { Reducer } from "redux";
 
 const logoutUser = (): UserState => {
   removeItem(localStorageKeys.jwt);
@@ -16,14 +17,19 @@ const logoutUser = (): UserState => {
   };
 };
 
-// const logoutAdmin = (): State => {
-//   removeItem('_jwt');
-//   removeItem('admin');
+export const initialUserState: UserState = {
+  profile: null,
+  currentAdmin: null,
+  selectedUser: null,
+  orcidAccount: null,
+};
 
-//   return {};
-// };
+const handleSilentLogin = (
+  state: UserState | undefined,
+  payload: any
+): UserState => {
+  if (!state) return initialUserState;
 
-const handleSilentLogin = (state: UserState, payload: any): UserState => {
   if (payload.is_admin) {
     return {
       ...state,
@@ -40,16 +46,18 @@ const handleSilentLogin = (state: UserState, payload: any): UserState => {
   };
 };
 
-export const reducer = (
-  state: UserState,
-  action: ReduxActionWithPayload
-): UserState => {
+export const reducer: Reducer<UserState, ReduxActionWithPayload> = (
+  state,
+  action
+) => {
+  if (!state) return initialUserState;
+
   switch (action.type) {
     case types.USR_VALIDATE_USER_FULFILLED:
       return handleSilentLogin(state, action.payload);
 
     case types.USR_LOGIN_USER_FULFILLED:
-      toast.success("User successfully logged in!");
+      toast.success("You successfully logged in!");
       setItem(localStorageKeys.isAdmin, "false");
 
       return {
@@ -67,10 +75,8 @@ export const reducer = (
 
       return {
         ...state,
-        ...{
-          profile: null,
-          currentAdmin: action.payload,
-        },
+        profile: null,
+        currentAdmin: action.payload,
       };
 
     case types.USR_REGISTER_ORCID_USER_FULFILLED:
@@ -130,6 +136,6 @@ export const reducer = (
       };
 
     default:
-      return state || {};
+      return state;
   }
 };

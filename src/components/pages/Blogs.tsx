@@ -9,7 +9,6 @@ import {
   includes,
   some,
   size,
-  countBy,
 } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -33,7 +32,6 @@ import Earth from "../../images/EarthImg.png";
 import { /* useDebounce */ useScrollTopEffect } from "../../utils/hooks";
 import { CategoryList } from "../elements/CategoryList";
 import OrcIDButton from "../elements/OrcIDButton";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import userActions from "../../store/user/actions";
@@ -42,26 +40,11 @@ const images = [Rocket, Space, Astronaut, Earth];
 
 function Blogs() {
   useScrollTopEffect();
-  const articles = useSelector(
-    (state: ReduxState) => articleSelectors.getPublishedArticles(state),
-    isEqual
-  );
-  const categories = useSelector(
-    (state: ReduxState) => articleSelectors.getCategories(state),
-    isEqual
-  );
-  const tags = useSelector(
-    (state: ReduxState) => articleSelectors.getTags(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
-  const selectedUser = useSelector(
-    (state: ReduxState) => userSelectors.getSelectedUser(state),
-    isEqual
-  );
+  const articles = useSelector(articleSelectors.getPublishedArticles, isEqual);
+  const categories = useSelector(articleSelectors.getCategories, isEqual);
+  const tags = useSelector(articleSelectors.getTags, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
+  const selectedUser = useSelector(userSelectors.getSelectedUser, isEqual);
 
   const navigate = useNavigate();
 

@@ -22,7 +22,6 @@ import { useOutsideClickEffect, useScreenSize } from "../../utils/hooks";
 import { store } from "../../store/index.tsx";
 import routes from "../../routes";
 import UserDropdownMenu from "../containers/UserDropdownMenu";
-import { ReduxState } from "../../types/index.ts";
 import articleSelectors from "../../store/article/selectors.ts";
 import userActions from "../../store/user/actions.ts";
 
@@ -36,10 +35,7 @@ function Navbar(props: Props) {
     limitNetwork: NetworkType.TESTNET,
   });
 
-  const articles = useSelector(
-    (state: ReduxState) => articleSelectors.getPublishedArticles(state),
-    isEqual
-  );
+  const articles = useSelector(articleSelectors.getPublishedArticles, isEqual);
 
   const navigate = useNavigate();
 

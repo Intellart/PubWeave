@@ -14,7 +14,6 @@ import ShareModal from "./ShareModal";
 import CollabModal from "./CollabModal";
 import { useDebounce } from "../../utils/hooks";
 import VersioningInfoCard from "../editor/VersioningInfoCard";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 
@@ -32,23 +31,13 @@ type Props = {
 };
 
 function Modal(props: Props) {
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
-  const articles = useSelector(
-    (state: ReduxState) => articleSelectors.getAllArticles(state),
-    isEqual
-  );
-
+  const article = useSelector(articleSelectors.article, isEqual);
+  const articles = useSelector(articleSelectors.getAllArticles, isEqual);
   const activeSections = useSelector(
-    (state: ReduxState) => articleSelectors.getActiveSections(state),
+    articleSelectors.getActiveSections,
     isEqual
   );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   const [open, setOpen] = useState(false);
   const onlineNum = useDebounce(

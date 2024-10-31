@@ -33,16 +33,12 @@ import UserInfoItem from "../elements/UserInfoItem";
 import UserInfoButton from "../elements/UserInfoButton";
 import UserInfoInput from "../elements/UserInfoInput";
 import Input from "../elements/Input";
-import { ReduxState } from "../../types";
 import userSelectors from "../../store/user/selectors";
 import userActions from "../../store/user/actions";
 
 function UserPage() {
   // const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const user = useSelector(userSelectors.getUser, isEqual);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [avatarImg, setAvatarImg] = useState(get(user, "profile_img"));
   const uploadAvatarRef = useRef<HTMLInputElement | null>(null);

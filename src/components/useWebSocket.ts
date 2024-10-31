@@ -4,7 +4,6 @@ import { createConsumer } from "@rails/actioncable";
 import { secondsToMilliseconds } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
 import { get, isEqual } from "lodash";
-import { ReduxState } from "../types";
 import userSelectors from "../store/user/selectors";
 import articleActions from "../store/article/actions";
 // import { actions } from '../store/eventStore';
@@ -22,10 +21,7 @@ type Props = {
 };
 
 function useWebSocket({ articleId, enabled = false }: Props): any {
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   const connectionStatus = useRef("awaiting");
 

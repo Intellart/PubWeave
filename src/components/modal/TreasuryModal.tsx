@@ -20,7 +20,6 @@ import { find, toNumber, truncate } from "lodash";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import Input from "../elements/Input";
-import { ReduxState } from "../../types";
 import walletSelectors from "../../store/cardano/selectors";
 import walletActions from "../../store/cardano/actions";
 
@@ -39,18 +38,10 @@ function TreasuryModal({ onClose, type }: Props) {
     transactionLimit: "",
   });
 
-  const txId = useSelector((state: ReduxState) =>
-    walletSelectors.getTxID(state)
-  );
-  const signature = useSelector((state: ReduxState) =>
-    walletSelectors.getSignature(state)
-  );
-  const txIDFulfilled = useSelector((state: ReduxState) =>
-    walletSelectors.getTxIDFulfilled(state)
-  );
-  const witnessSet = useSelector((state: ReduxState) =>
-    walletSelectors.getWitnessSet(state)
-  );
+  const txId = useSelector(walletSelectors.getTxID);
+  const signature = useSelector(walletSelectors.getSignature);
+  const txIDFulfilled = useSelector(walletSelectors.getTxIDFulfilled);
+  const witnessSet = useSelector(walletSelectors.getWitnessSet);
 
   const dispatch = useDispatch();
   const buildFill = (payload: any) =>

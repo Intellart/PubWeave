@@ -4,11 +4,33 @@ import { toast } from "react-toastify";
 import type { ReduxActionWithPayload } from "../../types";
 import { Article, ArticleState, articleTypes as types } from "./types";
 import { differenceInSeconds } from "date-fns";
+import { Reducer } from "@reduxjs/toolkit";
 
-export const reducer = (
-  state: ArticleState,
-  action: ReduxActionWithPayload
-): ArticleState => {
+export const initialArticleState: ArticleState = {
+  oneArticle: null,
+  allArticles: {},
+  comments: {},
+  categories: {},
+  tags: {},
+  versions: [],
+  reviewers: [],
+  reviews: [],
+  activeBlock: null,
+  activeSections: {},
+  blockIdQueue: {
+    updated: {},
+    created: {},
+    deleted: {},
+  },
+  critical_section_ids: [],
+};
+
+export const reducer: Reducer<ArticleState, ReduxActionWithPayload> = (
+  state,
+  action
+) => {
+  if (!state) return initialArticleState;
+
   switch (action.type) {
     case types.ART_USER_REVIEW_ACCEPT_FULFILLED:
     case types.ART_USER_REVIEW_REJECT_FULFILLED:
@@ -16,7 +38,7 @@ export const reducer = (
 
       return {
         ...state,
-        reviews: map(state.reviews, (review) => {
+        reviews: map(state?.reviews, (review) => {
           if (review.id === action.payload.review_id) {
             return {
               ...review,

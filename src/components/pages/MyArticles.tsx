@@ -11,7 +11,6 @@ import ArticleCard from "../containers/ArticleCard";
 import { useScrollTopEffect } from "../../utils/hooks";
 import routes from "../../routes";
 import HowItWorks from "../modal/HowItWorks";
-import { ReduxState } from "../../types";
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import articleActions from "../../store/article/actions";
@@ -26,14 +25,8 @@ function MyArticles() {
   // const setting = get(workTypes, type, workTypes.articles);
 
   useScrollTopEffect();
-  const articles = useSelector(
-    (state: ReduxState) => articleSelectors.getUsersArticles(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
+  const articles = useSelector(articleSelectors.getUsersArticles, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   // console.log(articles);
 

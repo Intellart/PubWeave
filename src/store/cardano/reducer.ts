@@ -2,11 +2,21 @@ import { get } from "lodash";
 import { ReduxActionWithPayload } from "../../types";
 import { WalletState, types } from "./types";
 import { toast } from "react-toastify";
+import { Reducer } from "@reduxjs/toolkit";
 
-export const reducer = (
-  state: WalletState,
-  action: ReduxActionWithPayload
-): WalletState => {
+export const initialWalletState: WalletState = {
+  tx_id: "",
+  signature: "",
+  treasury: null,
+  tx_id_fulfilled: "",
+  witness_set: {},
+};
+
+export const reducer: Reducer<WalletState, ReduxActionWithPayload> = (
+  state,
+  action
+) => {
+  if (!state) return initialWalletState;
   switch (action.type) {
     case types.WLT_CLEAR_TX:
       return {

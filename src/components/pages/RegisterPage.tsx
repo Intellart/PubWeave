@@ -5,17 +5,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import MyTable from '../containers/MyTable';
 import classNames from "classnames";
-import {
-  isEmpty,
-  isEqual,
-  join,
-  map,
-  size,
-  split,
-  get,
-  some,
-  every,
-} from "lodash";
+import { isEmpty, isEqual, map, size, get, some, every } from "lodash";
 import { Alert } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -23,7 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../assets/images/pubweave_logo.png";
 import orcidImg from "../../assets/images/orcid_logo.png";
 import { orcidOAuthLink } from "../../utils/hooks";
-import { ReduxState } from "../../types";
 import userSelectors from "../../store/user/selectors";
 import userActions from "../../store/user/actions";
 
@@ -94,9 +83,7 @@ function RegistrationPage({ forAdmin }: Props) {
 
   const navigate = useNavigate();
 
-  const orcidAccount = useSelector((state: ReduxState) =>
-    userSelectors.getOrcidAccount(state)
-  );
+  const orcidAccount = useSelector(userSelectors.getOrcidAccount);
 
   const dispatch = useDispatch();
   const registerUser = (user: any) => dispatch(userActions.registerUser(user));

@@ -62,30 +62,16 @@ function Blogs() {
       articleActions.updateArticleContentSilently(articleId, newArticleContent)
     );
 
-  const article = useSelector(
-    (state: ReduxState) => articleSelectors.article(state),
-    isEqual
-  );
-  const categories = useSelector(
-    (state: ReduxState) => articleSelectors.getCategories(state),
-    isEqual
-  );
-  const user = useSelector(
-    (state: ReduxState) => userSelectors.getUser(state),
-    isEqual
-  );
-  const admin = useSelector(
-    (state: ReduxState) => userSelectors.getAdmin(state),
-    isEqual
-  );
+  const article = useSelector(articleSelectors.article, isEqual);
+  const categories = useSelector(articleSelectors.getCategories, isEqual);
+  const user = useSelector(userSelectors.getUser, isEqual);
+  const admin = useSelector(userSelectors.getAdmin, isEqual);
 
-  const articleContent = useSelector(
-    (state: ReduxState) => articleSelectors.articleContent(state),
-    isEqual
-  );
-  const userReview = useSelector(
-    (state: ReduxState) => articleSelectors.userReview(state, get(user, "id")),
-    isEqual
+  const articleContent = useSelector(articleSelectors.articleContent, isEqual);
+  const userReviewers = useSelector(articleSelectors.userReviewers, isEqual);
+
+  const userReview = find(userReviewers, (reviewer) =>
+    isEqual(get(reviewer, "user_id"), get(user, "id"))
   );
 
   const isReady =

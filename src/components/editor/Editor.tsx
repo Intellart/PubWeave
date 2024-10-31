@@ -1,9 +1,5 @@
 import { useEffect, useRef } from "react";
-import EditorJS, {
-  API,
-  BlockMutationEvent,
-  OutputData,
-} from "@editorjs/editorjs";
+import EditorJS, { API, BlockMutationEvent } from "@editorjs/editorjs";
 import {
   findKey,
   forEach,
@@ -12,20 +8,11 @@ import {
   isEqual,
   size,
   includes,
-  groupBy,
-  partition,
-  xor,
-  isEmpty,
-  first,
   find,
   omit,
   filter,
-  flatMap,
-  xorBy,
   union,
-  unionBy,
   values,
-  difference,
   differenceBy,
 } from "lodash";
 import { toast } from "react-toastify";

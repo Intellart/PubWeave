@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { isEqual, map } from "lodash";
-import { ReduxState } from "../../types";
 import articleActions from "../../store/article/actions";
 import articleSelectors from "../../store/article/selectors";
 
@@ -29,10 +28,7 @@ function SideBar(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.sectionId]);
 
-  const versions = useSelector(
-    (state: ReduxState) => articleSelectors.getVersions(state),
-    isEqual
-  );
+  const versions = useSelector(articleSelectors.getVersions, isEqual);
 
   // console.log('VERSIONS', versions, props.sectionId);
 
