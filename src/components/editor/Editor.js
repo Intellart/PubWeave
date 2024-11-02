@@ -313,7 +313,7 @@ function Editor({
         placeholder: 'Start your article here!',
         onReady: () => {
           labelCriticalSections();
-          if (editor.current) {
+          if (editor.current && status === EditorStatus.IN_PROGRESS) {
             const key = findKey(activeSections, (o) => o === get(user, 'id'));
             const currentBlock = get(content, ['blocks', key], {});
             editor.current.caret.setToBlock(get(currentBlock, 'position', 0));
