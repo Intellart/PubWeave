@@ -1,5 +1,5 @@
-import { EditorEventType } from "../../components/editor/Editor";
-import { User } from "../user/types";
+import { EditorEventType, EditorStat } from "../../components/editor/Editor";
+import { Reviewer, User } from "../user/types";
 
 export const articleTypes = {
   TEST_WS_BLOCK_UPDATE: "TEST_WS_BLOCK_UPDATE",
@@ -328,6 +328,11 @@ export type Tags = {
   [key: number]: Tag;
 };
 
+export type ArticleLike = {
+  id: number;
+  user_id: number;
+};
+
 export type Article = {
   article_type: "blog_article" | "preprint" | "scientific_article";
   id: number;
@@ -338,12 +343,12 @@ export type Article = {
   };
   content: ArticleContent;
   author: User;
-  likes: Array<Object>;
-  status: string;
+  likes: ArticleLike[];
+  status: EditorStat;
   description: string;
   image: string;
   star: boolean;
-  reviewers: Array<User>;
+  reviewers: Reviewer[];
   category: string;
   user_review_id: number;
   created_at: string;
@@ -379,5 +384,5 @@ export type ArticleState = {
   blockIdQueue: BlockIdQueue;
   critical_section_ids: Array<string>;
   reviewers: Array<User>;
-  reviews: Array<any>;
+  reviews: Array<Reviewer>;
 };

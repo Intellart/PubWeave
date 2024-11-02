@@ -11,15 +11,7 @@ type Props = {
   readOnly?: boolean;
   helperText?: string;
   error?: boolean;
-  color?:
-    | "primary"
-    | "secondary"
-    | "success"
-    | "error"
-    | "info"
-    | "warning"
-    | "default"
-    | void;
+  color?: "primary" | "secondary" | "success" | "error" | "info" | "warning";
 };
 
 function Input({
@@ -40,7 +32,6 @@ function Input({
       focused={!!color}
       label={label}
       value={value}
-      readOnly={readOnly}
       helperText={helperText}
       error={error}
       onChange={(e) => onChange && onChange(e.target.value)}
@@ -64,7 +55,7 @@ function Input({
             </Button>
           </InputAdornment>
         ),
-        readOnly,
+        readOnly: readOnly,
         // disableUnderline: readOnly,
       }}
       type={type || "text"}

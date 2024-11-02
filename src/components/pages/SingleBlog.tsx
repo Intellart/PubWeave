@@ -12,7 +12,16 @@ import {
 import Avatar from "@mui/material/Avatar";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { find, get, isEmpty, isEqual, map, size, toInteger } from "lodash";
+import {
+  find,
+  get,
+  isEmpty,
+  isEqual,
+  map,
+  size,
+  toInteger,
+  toNumber,
+} from "lodash";
 import { Chip } from "@mui/material";
 import CommentModal from "../comments/CommentModal";
 // import { store } from '../../store';
@@ -52,7 +61,7 @@ function Blogs() {
 
   useEffect(() => {
     if (!isReady) {
-      fetchArticle(id);
+      fetchArticle(toNumber(id));
     }
     if (document.body) {
       document.body.spellcheck = false;
@@ -162,13 +171,8 @@ function Blogs() {
         </div>
       )}
       <div className="reaction-icons unselectable">
-        <LikeButton
-          enabled={!isEmpty(user)}
-          article={article}
-          userId={get(user, "id", 1)}
-          iconType="solid"
-        />
-        <CommentModal enabled articleId={id} />
+        <LikeButton article={article} iconType="solid" />
+        <CommentModal enabled articleId={toNumber(id)} />
         <p>{size(get(article, "comments", []))}</p>
       </div>
     </main>

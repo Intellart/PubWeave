@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  difference,
   every,
   first,
   forEach,
@@ -10,9 +9,7 @@ import {
   isEmpty,
   isEqual,
   keyBy,
-  keys,
   map,
-  pickBy,
   size,
   sortBy,
   sum,
@@ -27,8 +24,8 @@ import apiClient from "../api/axios";
 import { EditorStat, EditorStatus } from "../components/editor/Editor";
 import {
   _BlockFromEditor,
+  Article,
   Block,
-  BlockCategoriesToChange,
   BlockFromBackend,
   BlockFromEditor,
   Blocks,
@@ -38,6 +35,8 @@ import {
   BlockToChange,
   SimpleBlock,
 } from "../store/article/types";
+import { useSelector } from "react-redux";
+import userSelectors from "../store/user/selectors";
 
 export const regex = {
   specialChars: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
@@ -113,6 +112,27 @@ type EditorPermissionProps = {
   ownerId?: number;
   isReviewer?: boolean;
   isCollaborator?: boolean;
+};
+
+export const useEditorPermissions = ({
+  article,
+}: {
+  article?: Article | null;
+}) => {
+  const user = useSelector(userSelectors.getUser, isEqual);
+  const ownerId = get(article, "author.id", 0);
+  const reviewersIds = map(get(article, "reviewers"), "user_id");
+  const collaboratorIds = map(get(article, "collaborators", []), "id");
+  const articleType = get(article, "article_type", "blog_article");
+
+  return editorPermissions({
+    type: articleType,
+    status: get(article, "status") || "draft",
+    userId: user?.id,
+    ownerId,
+    isReviewer: includes(reviewersIds, user?.id),
+    isCollaborator: includes(collaboratorIds, user?.id),
+  });
 };
 
 export const editorPermissions = ({
@@ -261,9 +281,13 @@ export const convertBlockToEditorJS = (block: Block): _BlockFromEditor => ({
 //   return false;
 // };
 
-export const getSmallReviewCount = (blocks: Blocks): any => {
+export const getSmallReviewCount = (blocks?: Blocks) => {
   const reviewRegex = /<m.*?<\/m>/g;
-  const reviews: any = [];
+  const reviews: Array<{
+    dataNote: string | null;
+    dataId: number;
+    dataName: string | null;
+  }> = [];
 
   forEach(blocks, (block) => {
     const text = get(block, "data.text", "");

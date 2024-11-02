@@ -1,4 +1,4 @@
-import { filter, find, get } from "lodash";
+import { filter, get } from "lodash";
 import { ReduxState } from "../../types";
 import {
   ActiveSections,
@@ -8,6 +8,7 @@ import {
   Blocks,
   Tags,
 } from "./types";
+import { User } from "../user/types";
 
 const articleSelectors = {
   article: (state: ReduxState) => state.article.oneArticle,
@@ -43,7 +44,8 @@ const articleSelectors = {
     state.article.blockIdQueue,
   getActiveSections: (state: ReduxState): ActiveSections =>
     get(state.article, "activeSections") || {},
-  getReviewers: (state: ReduxState) => get(state.article, "reviewers", []),
+  getReviewers: (state: ReduxState): User[] =>
+    get(state.article, "reviewers", []),
 };
 
 export default articleSelectors;

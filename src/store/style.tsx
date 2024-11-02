@@ -76,7 +76,7 @@ const theme = createTheme({
 });
 
 type Props = {
-  children: React$Node;
+  children: React.ReactNode;
 };
 
 function ThemeProvider(props: Props) {

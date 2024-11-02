@@ -1,6 +1,7 @@
 // import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Link } from "react-router-dom";
 import Modal from "../modal/Modal";
+import { Tags } from "../../store/article/types";
 // import { useScreenSize } from '../../utils/hooks';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
   author: string;
   date: string;
   // eslint-disable-next-line react/no-unused-prop-types
-  tags?: Array<string>;
+  tags?: Tags;
   // editable?: Function,
   // deleteable?: Function,
   status?: string;

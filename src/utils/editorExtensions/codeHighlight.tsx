@@ -1,53 +1,54 @@
-import { IconBrackets } from '@codexteam/icons';
-import 'highlight.js/styles/github.css';
+// @ts-nocheck
+import { IconBrackets } from "@codexteam/icons";
+import "highlight.js/styles/github.css";
 
 export default class CodeTool {
   /**
-     * Notify core that read-only mode is supported
-     *
-     * @returns {boolean}
-     */
+   * Notify core that read-only mode is supported
+   *
+   * @returns {boolean}
+   */
   static get isReadOnlySupported() {
     return true;
   }
 
   /**
-     * Allow to press Enter inside the CodeTool textarea
-     *
-     * @returns {boolean}
-     * @public
-     */
+   * Allow to press Enter inside the CodeTool textarea
+   *
+   * @returns {boolean}
+   * @public
+   */
   static get enableLineBreaks() {
     return true;
   }
 
   /**
-     * @typedef {object} CodeData — plugin saved data
-     * @property {string} code - previously saved plugin code
-     */
+   * @typedef {object} CodeData — plugin saved data
+   * @property {string} code - previously saved plugin code
+   */
 
   /**
-     * Render plugin`s main Element and fill it with saved data
-     *
-     * @param {object} options - tool constricting options
-     * @param {CodeData} options.data — previously saved plugin code
-     * @param {object} options.config - user config for Tool
-     * @param {object} options.api - Editor.js API
-     * @param {boolean} options.readOnly - read only mode flag
-     */
-  constructor({
-    data, config, api, readOnly,
-  }) {
+   * Render plugin`s main Element and fill it with saved data
+   *
+   * @param {object} options - tool constricting options
+   * @param {CodeData} options.data — previously saved plugin code
+   * @param {object} options.config - user config for Tool
+   * @param {object} options.api - Editor.js API
+   * @param {boolean} options.readOnly - read only mode flag
+   */
+  constructor({ data, config, api, readOnly }) {
     this.api = api;
     this.readOnly = readOnly;
 
-    this.placeholder = this.api.i18n.t(config.placeholder || CodeTool.DEFAULT_PLACEHOLDER);
+    this.placeholder = this.api.i18n.t(
+      config.placeholder || CodeTool.DEFAULT_PLACEHOLDER
+    );
 
     this.CSS = {
       baseClass: this.api.styles.block,
       input: this.api.styles.input,
-      wrapper: 'ce-code',
-      textarea: 'ce-code__textarea',
+      wrapper: "ce-code",
+      textarea: "ce-code__textarea",
     };
 
     this.nodes = {
@@ -56,15 +57,15 @@ export default class CodeTool {
     };
 
     this.data = {
-      code: data.code || '',
+      code: data.code || "",
     };
 
     this.nodes.holder = this.drawView();
   }
 
   drawViewReadOnly() {
-    const wrapper = document.createElement('pre');
-    const textarea = document.createElement('code');
+    const wrapper = document.createElement("pre");
+    const textarea = document.createElement("code");
 
     textarea.textContent = this.data.code;
 
@@ -78,18 +79,18 @@ export default class CodeTool {
   }
 
   /**
-     * Create Tool's view
-     *
-     * @returns {HTMLElement}
-     * @private
-     */
+   * Create Tool's view
+   *
+   * @returns {HTMLElement}
+   * @private
+   */
   drawView() {
     if (this.readOnly) {
       return this.drawViewReadOnly();
     }
 
-    const wrapper = document.createElement('div');
-    const textarea = document.createElement('textarea');
+    const wrapper = document.createElement("div");
+    const textarea = document.createElement("textarea");
 
     wrapper.classList.add(this.CSS.baseClass, this.CSS.wrapper);
     textarea.classList.add(this.CSS.textarea, this.CSS.input);
@@ -104,11 +105,11 @@ export default class CodeTool {
     wrapper.appendChild(textarea);
 
     /**
-       * Enable keydown handlers
-       */
-    textarea.addEventListener('keydown', (event) => {
+     * Enable keydown handlers
+     */
+    textarea.addEventListener("keydown", (event) => {
       switch (event.code) {
-        case 'Tab':
+        case "Tab":
           this.tabHandler(event);
           break;
         default:
@@ -122,33 +123,33 @@ export default class CodeTool {
   }
 
   /**
-     * Return Tool's view
-     *
-     * @returns {HTMLDivElement} this.nodes.holder - Code's wrapper
-     * @public
-     */
+   * Return Tool's view
+   *
+   * @returns {HTMLDivElement} this.nodes.holder - Code's wrapper
+   * @public
+   */
   render() {
     return this.nodes.holder;
   }
 
   /**
-     * Extract Tool's data from the view
-     *
-     * @param {HTMLDivElement} codeWrapper - CodeTool's wrapper, containing textarea with code
-     * @returns {CodeData} - saved plugin code
-     * @public
-     */
+   * Extract Tool's data from the view
+   *
+   * @param {HTMLDivElement} codeWrapper - CodeTool's wrapper, containing textarea with code
+   * @returns {CodeData} - saved plugin code
+   * @public
+   */
   save(codeWrapper) {
     return {
-      code: codeWrapper.querySelector('textarea').value,
+      code: codeWrapper.querySelector("textarea").value,
     };
   }
 
   /**
-     * onPaste callback fired from Editor`s core
-     *
-     * @param {PasteEvent} event - event with pasted content
-     */
+   * onPaste callback fired from Editor`s core
+   *
+   * @param {PasteEvent} event - event with pasted content
+   */
   onPaste(event) {
     const content = event.detail.data;
 
@@ -158,19 +159,19 @@ export default class CodeTool {
   }
 
   /**
-     * Returns Tool`s data from private property
-     *
-     * @returns {CodeData}
-     */
+   * Returns Tool`s data from private property
+   *
+   * @returns {CodeData}
+   */
   get data() {
     return this._data;
   }
 
   /**
-     * Set Tool`s data to private property and update view
-     *
-     * @param {CodeData} data - saved tool data
-     */
+   * Set Tool`s data to private property and update view
+   *
+   * @param {CodeData} data - saved tool data
+   */
   set data(data) {
     this._data = data;
 
@@ -180,47 +181,47 @@ export default class CodeTool {
   }
 
   /**
-     * Get Tool toolbox settings
-     * icon - Tool icon's SVG
-     * title - title to show in toolbox
-     *
-     * @returns {{icon: string, title: string}}
-     */
+   * Get Tool toolbox settings
+   * icon - Tool icon's SVG
+   * title - title to show in toolbox
+   *
+   * @returns {{icon: string, title: string}}
+   */
   static get toolbox() {
     return {
       icon: IconBrackets,
-      title: 'My code',
+      title: "My code",
     };
   }
 
   /**
-     * Default placeholder for CodeTool's textarea
-     *
-     * @public
-     * @returns {string}
-     */
+   * Default placeholder for CodeTool's textarea
+   *
+   * @public
+   * @returns {string}
+   */
   static get DEFAULT_PLACEHOLDER() {
-    return 'Enter a code';
+    return "Enter a code";
   }
 
   /**
-     *  Used by Editor.js paste handling API.
-     *  Provides configuration to handle CODE tag.
-     *
-     * @static
-     * @returns {{tags: string[]}}
-     */
+   *  Used by Editor.js paste handling API.
+   *  Provides configuration to handle CODE tag.
+   *
+   * @static
+   * @returns {{tags: string[]}}
+   */
   static get pasteConfig() {
     return {
-      tags: ['pre'],
+      tags: ["pre"],
     };
   }
 
   /**
-     * Automatic sanitize config
-     *
-     * @returns {{code: boolean}}
-     */
+   * Automatic sanitize config
+   *
+   * @returns {{code: boolean}}
+   */
   static get sanitize() {
     return {
       code: true, // Allow HTML tags
@@ -228,43 +229,46 @@ export default class CodeTool {
   }
 
   /**
-     * Handles Tab key pressing (adds/removes indentations)
-     *
-     * @private
-     * @param {KeyboardEvent} event - keydown
-     * @returns {void}
-     */
+   * Handles Tab key pressing (adds/removes indentations)
+   *
+   * @private
+   * @param {KeyboardEvent} event - keydown
+   * @returns {void}
+   */
   tabHandler(event) {
     /**
-       * Prevent editor.js tab handler
-       */
+     * Prevent editor.js tab handler
+     */
     event.stopPropagation();
 
     /**
-       * Prevent native tab behaviour
-       */
+     * Prevent native tab behaviour
+     */
     event.preventDefault();
 
     const textarea = event.target;
     const isShiftPressed = event.shiftKey;
     const caretPosition = textarea.selectionStart;
     const { value } = textarea;
-    const indentation = '  ';
+    const indentation = "  ";
 
     let newCaretPosition;
 
     /**
-       * For Tab pressing, just add an indentation to the caret position
-       */
+     * For Tab pressing, just add an indentation to the caret position
+     */
     if (!isShiftPressed) {
       newCaretPosition = caretPosition + indentation.length;
 
-      textarea.value = value.substring(0, caretPosition) + indentation + value.substring(caretPosition);
+      textarea.value =
+        value.substring(0, caretPosition) +
+        indentation +
+        value.substring(caretPosition);
     } else {
       /**
-         * For Shift+Tab pressing, remove an indentation from the start of line
-         */
-      const currentLineStart = value.lastIndexOf('\n', caretPosition - 1) + 1;
+       * For Shift+Tab pressing, remove an indentation from the start of line
+       */
+      const currentLineStart = value.lastIndexOf("\n", caretPosition - 1) + 1;
       const firstLineChars = value.substr(currentLineStart, indentation.length);
 
       if (firstLineChars !== indentation) {
@@ -272,15 +276,17 @@ export default class CodeTool {
       }
 
       /**
-         * Trim the first two chars from the start of line
-         */
-      textarea.value = value.substring(0, currentLineStart) + value.substring(currentLineStart + indentation.length);
+       * Trim the first two chars from the start of line
+       */
+      textarea.value =
+        value.substring(0, currentLineStart) +
+        value.substring(currentLineStart + indentation.length);
       newCaretPosition = caretPosition - indentation.length;
     }
 
     /**
-       * Restore the caret
-       */
+     * Restore the caret
+     */
     textarea.setSelectionRange(newCaretPosition, newCaretPosition);
   }
 }

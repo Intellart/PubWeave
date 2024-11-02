@@ -10,13 +10,15 @@ import App from "./components/App.tsx";
 import { store } from "./store";
 import articleActions from "./store/article/actions.ts";
 import userActions from "./store/user/actions.ts";
+import { ReduxActionWithPayload } from "./types/index.ts";
 
 const _jwt = getItem(localStorageKeys.jwt);
-if (!isEmpty(_jwt) && _jwt) store.dispatch(userActions.validateUser(_jwt));
+if (!isEmpty(_jwt) && _jwt)
+  store.dispatch(userActions.validateUser(_jwt) as ReduxActionWithPayload);
 
-store.dispatch(articleActions.fetchAllArticles());
-store.dispatch(articleActions.fetchCategories());
-store.dispatch(articleActions.fetchTags());
+store.dispatch(articleActions.fetchAllArticles() as ReduxActionWithPayload);
+store.dispatch(articleActions.fetchCategories() as ReduxActionWithPayload);
+store.dispatch(articleActions.fetchTags() as ReduxActionWithPayload);
 
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>

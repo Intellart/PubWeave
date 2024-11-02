@@ -14,7 +14,7 @@ export const jsonToFormData = (rootParam: string, payload: any): FormData => {
       !(data instanceof Blob);
 
     if (data && isObject(data) && isValidObject) {
-      forEach(data, (val: any, key: number) => {
+      forEach(data, (_val: any, key: number) => {
         const propertyPath = isArray(data) ? "[]" : `[${key}]`;
 
         buildFormData(

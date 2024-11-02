@@ -1,3 +1,5 @@
+import { Article } from "../article/types";
+
 export const userTypes = {
   USR_LOGIN_USER: "USR/LOGIN_USER",
   USR_LOGIN_USER_PENDING: "USR/LOGIN_USER_PENDING",
@@ -55,6 +57,15 @@ export type User = {
   full_name: string;
   created_at: string;
   updated_at: string;
+};
+
+export type Reviewer = {
+  id: number;
+  user_id: number;
+  review_id: number;
+  full_name: string;
+  status: string;
+  review_content: Article;
 };
 
 export type Admin = {

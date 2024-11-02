@@ -30,17 +30,11 @@ import useLocking from "../../utils/useLocking";
 import useWebSocket from "../useWebSocket";
 import Modal from "../modal/Modal";
 import { store } from "../../store/index.tsx";
-import {
-  Article,
-  BlockCategoriesToChange,
-  BlockIds,
-  FilledBlock,
-} from "../../store/article/types.ts";
+import { Article, BlockIds, FilledBlock } from "../../store/article/types.ts";
 import articleSelectors from "../../store/article/selectors.ts";
 import userSelectors from "../../store/user/selectors.ts";
 import articleActions from "../../store/article/actions.ts";
-import { groupBlocks, isBlockPeaceful, structureBlock } from "./helpers.ts";
-import { Button } from "@mui/material";
+import { isBlockPeaceful } from "./helpers.ts";
 
 export type EditorEventType =
   | "block-added"
@@ -60,7 +54,15 @@ export type EditorEvent = {
 // import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
 
-export const EditorStatus = {
+export type EditorStat =
+  | "draft"
+  | "reviewing"
+  | "reviewPane"
+  | "reviewPaneReadOnly"
+  | "published"
+  | "preview";
+
+export const EditorStatus: Record<string, EditorStat> = {
   IN_PROGRESS: "draft",
   IN_REVIEW: "reviewing",
   REVIEW_PANE: "reviewPane",
@@ -68,8 +70,6 @@ export const EditorStatus = {
   PUBLISHED: "published",
   PREVIEW: "preview",
 };
-
-export type EditorStat = (typeof EditorStatus)[keyof typeof EditorStatus];
 
 type Props = {
   status: EditorStat;
@@ -82,7 +82,7 @@ type Props = {
   onShowHistory?: (sectionId: string) => void;
 };
 
-function Editor({ isReady, onChange, onShowHistory, status }: Props): any {
+function Editor({ isReady, onChange, onShowHistory, status }: Props) {
   const editor = useRef<null | EditorJS>(null);
   const EDITOR_JS_TOOLS = useEditorTools();
 

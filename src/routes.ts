@@ -1,24 +1,24 @@
 const routes = {
-  home: '/dashboard',
+  home: "/dashboard",
   myWork: {
-    root: '/my-work',
-    chooseType: '/my-work/choose-type',
-    project: (type, id) => `/my-work/${id}`,
-    review: (type, id) => `/my-work/${id}/review`,
-    preview: (type, id) => `/my-work/${id}/preview`,
+    root: "/my-work",
+    chooseType: "/my-work/choose-type",
+    project: (_type: string, id: string | number) => `/my-work/${id}`,
+    review: (_type: string, id: string | number) => `/my-work/${id}/review`,
+    preview: (_type: string, id: string | number) => `/my-work/${id}/preview`,
   },
   blogs: {
-    root: '/blogs',
-    blog: (id) => `/singleblog/${id}`,
+    root: "/blogs",
+    blog: (id: string | number) => `/singleblog/${id}`,
   },
-  user: () => '/user/',
-  login: '/login',
-  adminLogin: '/admin-login',
+  user: () => "/user/",
+  login: "/login",
+  adminLogin: "/admin-login",
   projects: {
-    root: (type) => `/projects/${type}`,
-    project: (type, id) => `/projects/${type}/${id}`,
+    root: (type: string) => `/projects/${type}`,
+    project: (type: string, id: string | number) => `/projects/${type}/${id}`,
   },
-  about: '/about',
+  about: "/about",
 };
 
 export default routes;

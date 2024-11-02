@@ -59,3 +59,8 @@ export type ActionChains = {
 export type DispatchFn = (key: BaseReduxAction | PayloadReduxAction) => void;
 
 export type AsyncCallback = (key: any) => void;
+
+export type BasicOption = {
+  label: string;
+  value: number | string;
+};

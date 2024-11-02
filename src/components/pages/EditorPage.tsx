@@ -12,12 +12,10 @@ import {
   isEmpty,
   values,
   flatten,
-  size,
 } from "lodash";
 import classNames from "classnames";
 import type {
   ArticleContentToServer,
-  Block,
   FilledBlock,
 } from "../../store/article/types";
 import routes from "../../routes";
@@ -25,11 +23,10 @@ import TutorialModal from "../editor/TutorialModal";
 import EditorTitle from "../editor/EditorTitle";
 import ArticleConfig from "../editor/ArticleConfig";
 import SideBar from "../editor/SideBar";
-import Editor, { EditorEvent, EditorStatus } from "../editor/Editor";
-import { editorPermissions, permissions } from "../../utils/hooks";
+import Editor, { EditorStatus } from "../editor/Editor";
+import { permissions, useEditorPermissions } from "../../utils/hooks";
 import articleSelectors from "../../store/article/selectors";
 import articleActions from "../../store/article/actions";
-import { OutputData } from "@editorjs/editorjs";
 
 const cookies = new Cookies();
 
@@ -62,16 +59,7 @@ const useEditorPageDispatch = (articleId?: string) => {
     dispatch(
       articleActions.updateArticleContentSilently(articleId, newArticleContent)
     );
-  const updateArticleContentSilentlyNew = (
-    articleId?: number | string,
-    newArticleContent?: OutputData
-  ) =>
-    dispatch(
-      articleActions.updateArticleContentSilentlyNew(
-        articleId,
-        newArticleContent
-      )
-    );
+
   const addTag = (articleId: number, tagId: number) =>
     dispatch(articleActions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) =>
@@ -81,7 +69,6 @@ const useEditorPageDispatch = (articleId?: string) => {
     fetchArticle,
     updateArticle,
     updateArticleContentSilently,
-    updateArticleContentSilentlyNew,
     addTag,
     removeTag,
   };
@@ -101,16 +88,14 @@ function ReactEditor() {
     fetchArticle,
     updateArticle,
     updateArticleContentSilently,
-    updateArticleContentSilentlyNew,
     addTag,
     removeTag,
   } = useEditorPageDispatch(id);
 
   const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave();
 
-  const currentPermissions = editorPermissions({
-    type: get(article, "article_type") || "blog_article",
-    status: "inProgress",
+  const currentPermissions = useEditorPermissions({
+    article,
   });
 
   const [wordCount, setWordCount] = useState(0);
@@ -187,14 +172,14 @@ function ReactEditor() {
     }
   };
 
-  const handleNewChange = (data: OutputData & { events: EditorEvent[] }) => {
-    setLastSaved(data.time || 0);
-    const getBlockSize = (block: Block) => size(words(get(block, "data.text")));
+  // const handleNewChange = (data: OutputData & { events: EditorEvent[] }) => {
+  //   setLastSaved(data.time || 0);
+  //   const getBlockSize = (block: Block) => size(words(get(block, "data.text")));
 
-    setWordCount(sum(map(data.blocks, getBlockSize)));
+  //   setWordCount(sum(map(data.blocks, getBlockSize)));
 
-    updateArticleContentSilentlyNew(id, data);
-  };
+  //   updateArticleContentSilentlyNew(id, data);
+  // };
 
   return (
     <main

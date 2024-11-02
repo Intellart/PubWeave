@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-import-assign */
 import * as redux from "redux";
 import { chainActionsMiddleware, configureStore } from "./index.tsx";

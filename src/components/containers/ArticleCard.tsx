@@ -8,11 +8,10 @@ import {
   faWarning,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { Chip } from "@mui/material";
+import { Chip, ChipOwnProps } from "@mui/material";
 import classNames from "classnames";
-import { filter, get, includes, size } from "lodash";
+import { filter, get, includes, isEqual, map, size } from "lodash";
 import { Link } from "react-router-dom";
-import type { Article } from "../../store/articleStore";
 import {
   editorPermissions,
   permissions,
@@ -23,18 +22,22 @@ import Modal from "../modal/Modal";
 import LikeButton from "./LikeButton";
 import ArticleTypeModal from "../modal/ArticleTypeModal";
 import { EditorStatus } from "../editor/Editor";
+import { Article } from "../../store/article/types";
+import userSelectors from "../../store/user/selectors";
+import { useSelector } from "react-redux";
 
 type Props = {
   article: Article;
   onDelete?: (id: number) => void;
   showPublishedChip?: boolean;
   onClick?: () => void;
-  currentUserId?: number;
   onConvert: () => void;
 };
 
 function ArticleCard(props: Props) {
   const { isMobile } = useScreenSize();
+
+  const user = useSelector(userSelectors.getUser, isEqual);
 
   const description = props.article.description
     ? props.article.description
@@ -47,9 +50,9 @@ function ArticleCard(props: Props) {
   const currentPermissions = editorPermissions({
     type: workType,
     status: status || EditorStatus.IN_PROGRESS,
-    userId: props.currentUserId,
+    userId: user?.id,
     ownerId: props.article.author.id,
-    isReviewer: includes(props.article.reviewers, props.currentUserId),
+    isReviewer: includes(map(props.article.reviewers, "user_id"), user?.id),
   });
 
   console.log("status", props.article.status);
@@ -82,13 +85,13 @@ function ArticleCard(props: Props) {
     }
   };
 
-  const chipParams = (imageChip: boolean = false) => {
+  const chipParams = (imageChip: boolean = false): ChipOwnProps => {
     if (imageChip && !isPublished && noImage) {
       return {
         label: "No image",
         color: "warning",
         icon: <FontAwesomeIcon icon={faWarning} />,
-        variant: "default",
+        variant: "filled",
       };
     }
 
@@ -112,7 +115,7 @@ function ArticleCard(props: Props) {
           label: "Published",
           color: "success",
           icon: <FontAwesomeIcon icon={faCheck} />,
-          variant: "default",
+          variant: "filled",
           sx: {
             fontSize: "1.2rem",
           },
@@ -136,7 +139,7 @@ function ArticleCard(props: Props) {
           label: `Reviewing ${numOfReviewers > 0 ? `(${numOfReviewers})` : ""}`,
           color: "warning",
           icon: <FontAwesomeIcon icon={faGlasses} />,
-          variant: "default",
+          variant: "filled",
         };
       default:
         return {
@@ -228,11 +231,7 @@ function ArticleCard(props: Props) {
                 isOwner
               />
               {get(currentPermissions, permissions.LIKE_ARTICLE, false) && (
-                <LikeButton
-                  article={props.article}
-                  userId={props.currentUserId}
-                  iconType="default"
-                />
+                <LikeButton article={props.article} iconType="default" />
               )}
               {get(currentPermissions, permissions.ARTICLE_SETTINGS, false) && (
                 <Link

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useCardano } from "@cardano-foundation/cardano-connect-with-wallet";
 
@@ -35,6 +35,8 @@ import ModalWrapper from "../modal/ModalWrapper";
 import selectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import articleActions from "../../store/article/actions";
+import { BasicOption } from "../../types";
+import { Reviewer, User } from "../../store/user/types";
 
 type ReviewFormProps = {
   onSubmit: Function;
@@ -57,21 +59,25 @@ function ReviewForm(props: ReviewFormProps) {
   );
   // eslint-disable-next-line no-unused-vars
   const [amount, setAmount] = useState(props.review ? props.review.amount : "");
-  const [values, setValues] = useState<Array<number>>(
+
+  const [selectedReviewers, setSelectedReviewers] = useState<
+    Array<BasicOption>
+  >(
     props.review
-      ? map(props.review.user_reviews, (userReview) => {
+      ? map(props.review.user_reviews, (userReview: Reviewer) => {
           const user = find(
             reviewers,
             (reviewer) => reviewer.id === userReview.user_id
-          );
+          ) as User;
 
           return {
-            label: user.full_name,
-            value: user.id,
+            label: user?.full_name,
+            value: user?.id,
           };
         })
       : []
   );
+
   const [searchValue, setSearchValue] = useState("");
 
   const searchOptions = map(reviewers, (reviewer) => ({
@@ -80,23 +86,24 @@ function ReviewForm(props: ReviewFormProps) {
   }));
 
   const handleReviewSubmit = () => {
-    if (!amount || !deadline || isEmpty(values)) {
+    if (!amount || !deadline || isEmpty(selectedReviewers)) {
       return;
     }
 
     props.onSubmit(
       toInteger(amount),
       deadline,
-      map(values, (value) => toInteger(value.value))
+      map(selectedReviewers, (value) => toInteger(value.value))
     );
   };
 
-  const numOfSelectedReviewers = size(values);
+  const numOfSelectedReviewers = size(selectedReviewers);
   const maxAmountPerReviewer = totalAmount / numOfSelectedReviewers;
   const invalidAmount =
     toInteger(amount) > totalAmount || toInteger(amount) > maxAmountPerReviewer;
 
-  const isDisabled = !amount || !deadline || isEmpty(values) || invalidAmount;
+  const isDisabled =
+    !amount || !deadline || isEmpty(selectedReviewers) || invalidAmount;
 
   return (
     <>
@@ -111,12 +118,12 @@ function ReviewForm(props: ReviewFormProps) {
         multiple
         limitTags={3}
         className="review-modal-autocomplete"
-        value={values}
-        onChange={(e, newValues) => {
-          setValues(newValues);
+        value={selectedReviewers}
+        onChange={(_e, newValues) => {
+          setSelectedReviewers(newValues);
         }}
         inputValue={searchValue}
-        onInputChange={(e, v) => setSearchValue(v)}
+        onInputChange={(_e, v) => setSearchValue(v)}
         isOptionEqualToValue={(option: any, value: any) =>
           option.value === value.value
         }
@@ -400,7 +407,7 @@ function Review(props: any) {
     dispatch(articleActions.fetchArticle(ind));
 
   const handleClose = () => {
-    fetchArticle(id);
+    fetchArticle(toInteger(id));
   };
 
   const [editMode, setEditMode] = useState(false);
@@ -500,7 +507,6 @@ function Review(props: any) {
 function ArticleSettings() {
   const { id } = useParams();
   // eslint-disable-next-line no-unused-vars
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind: number) =>
@@ -539,7 +545,7 @@ function ArticleSettings() {
   });
 
   useEffect(() => {
-    fetchReviews(id);
+    fetchReviews(toInteger(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -555,7 +561,7 @@ function ArticleSettings() {
 
   useEffect(() => {
     if (!isReady) {
-      fetchArticle(id);
+      fetchArticle(toInteger(id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
@@ -631,7 +637,7 @@ function ArticleSettings() {
                 button="Fill treasury"
                 title="Treasury"
                 enabled={isReady && isAuthor}
-                onClose={() => fetchArticle(id)}
+                onClose={() => fetchArticle(toInteger(id))}
               />
             )}
           </div>

@@ -5,7 +5,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { filter, isEqual, map, slice, size } from "lodash";
 import { Chip, Pagination } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import ArticleCard from "../containers/ArticleCard";
 import { useScrollTopEffect } from "../../utils/hooks";
@@ -20,8 +20,6 @@ function MyArticles() {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
   const navigate = useNavigate();
 
-  const { type } = useParams();
-
   // const setting = get(workTypes, type, workTypes.articles);
 
   useScrollTopEffect();
@@ -32,7 +30,7 @@ function MyArticles() {
 
   useEffect(() => {
     if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
-      navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
+      navigate(routes.myWork.project("", articles[size(articles) - 1].id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articles, lastKnownSize]);
@@ -77,10 +75,10 @@ function MyArticles() {
         navigate(routes.blogs.blog(article.id));
         break;
       case "reviewing":
-        navigate(routes.myWork.review(type, article.id));
+        navigate(routes.myWork.review("", article.id));
         break;
       default:
-        navigate(routes.myWork.project(type, article.id));
+        navigate(routes.myWork.project("", article.id));
     }
   };
 
@@ -130,7 +128,6 @@ function MyArticles() {
                   showPublishedChip
                   onDelete={handleDeleteClick}
                   onClick={() => handleArticleClick(a)}
-                  currentUserId={user?.id}
                   onConvert={() => {
                     convertArticle(a.id);
                     window.location.reload();

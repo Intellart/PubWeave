@@ -1,8 +1,11 @@
 type Props = {
-  orcid: string,
+  orcid?: string;
 };
 
 function OrcIDButton(props: Props) {
+  if (!props.orcid) {
+    return null;
+  }
   return (
     <div
       className="orcid-button"

@@ -1,37 +1,30 @@
 import { faHeart as faHeartSolid } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import classNames from "classnames";
-import { find, get, size } from "lodash";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { find, get, isEqual, size } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { faHeart } from "@fortawesome/free-regular-svg-icons";
 import articleActions from "../../store/article/actions";
 import { Article } from "../../store/article/types";
+import userSelectors from "../../store/user/selectors";
 
 type Props = {
-  article: Article;
-  userId?: number;
+  article?: Article | null;
   iconType: "default" | "solid";
 };
 
-function LikeButton({ article, userId, iconType = "solid" }: Props) {
+function LikeButton({ article, iconType = "solid" }: Props) {
+  const user = useSelector(userSelectors.getUser, isEqual);
+
   const dispatch = useDispatch();
   const likeArticle = (articleId: number) =>
     dispatch(articleActions.likeArticle(articleId));
   const removeArticleLike = (articleId: number) =>
     dispatch(articleActions.likeArticleRemoval(articleId));
-  const [userAlreadyLiked, setUserAlreadyLiked] = useState(
-    find(get(article, "likes", []), (like) => like.user_id === userId)
-  );
 
-  // console.log(get(article, 'likes', []));
+  const likes = get(article, "likes") || [];
 
-  useEffect(() => {
-    setUserAlreadyLiked(
-      find(get(article, "likes", []), (like) => like.user_id === userId) ||
-        false
-    );
-  }, [article, userId]);
+  const userAlreadyLiked = !!find(likes, (like) => like.user_id === user?.id);
 
   // if (!enabled) {
   //   return null;
@@ -44,13 +37,13 @@ function LikeButton({ article, userId, iconType = "solid" }: Props) {
           "like-button-icon-active": userAlreadyLiked,
         })}
         onClick={() => {
-          if (!userId) {
+          if (!user) {
             return;
           }
 
-          if (userAlreadyLiked) {
-            removeArticleLike(article.id);
-          } else {
+          if (userAlreadyLiked && article?.id) {
+            removeArticleLike(article?.id);
+          } else if (article?.id) {
             likeArticle(article.id);
           }
         }}
@@ -61,7 +54,7 @@ function LikeButton({ article, userId, iconType = "solid" }: Props) {
           color: userAlreadyLiked ? "#FF0000" : "#11273F",
         }}
       />
-      <p>{size(get(article, "likes", 0))}</p>
+      <p>{size(likes)}</p>
     </div>
   );
 }

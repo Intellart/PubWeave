@@ -21,6 +21,7 @@ import {
   isEqual,
   map,
   toInteger,
+  toNumber,
 } from "lodash";
 import { Button, Chip } from "@mui/material";
 // import { store } from '../../store';
@@ -28,7 +29,6 @@ import { useScrollTopEffect } from "../../utils/hooks";
 import OrcIDButton from "../elements/OrcIDButton";
 import Editor, { EditorStatus } from "../editor/Editor";
 import ReviewEditor from "../editor/ReviewEditor";
-import { ReduxState } from "../../types";
 import articleActions from "../../store/article/actions";
 import {
   ArticleContentToServer,
@@ -102,7 +102,7 @@ function Blogs() {
 
   useEffect(() => {
     if (!isReady) {
-      fetchArticle(id);
+      fetchArticle(toNumber(id));
     }
     if (document.body) {
       document.body.spellcheck = false;
@@ -112,6 +112,7 @@ function Blogs() {
   }, [articleContent, id, isReady]);
 
   const handleCreateReviewContent = () => {
+    if (!userReview) return;
     createArticle(get(user, "id", 1), userReview.id);
   };
 

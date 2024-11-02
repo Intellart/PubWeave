@@ -12,6 +12,7 @@ import {
   toInteger,
   uniq,
   size,
+  toNumber,
 } from "lodash";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -67,7 +68,7 @@ function ReactEditor() {
 
   useEffect(() => {
     if (!isReady) {
-      fetchArticle(id);
+      fetchArticle(toNumber(id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [article, id, isReady]);
@@ -82,8 +83,7 @@ function ReactEditor() {
           map(
             get(articleContent, "blocks"),
             (block) => words(get(block, "data.text")).length
-          ),
-          0
+          )
         )
       );
       setLastSaved(get(articleContent, "time"));

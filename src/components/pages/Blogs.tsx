@@ -9,6 +9,8 @@ import {
   includes,
   some,
   size,
+  toNumber,
+  values,
 } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -35,6 +37,7 @@ import OrcIDButton from "../elements/OrcIDButton";
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import userActions from "../../store/user/actions";
+import { Article } from "../../store/article/types";
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -43,7 +46,6 @@ function Blogs() {
   const articles = useSelector(articleSelectors.getPublishedArticles, isEqual);
   const categories = useSelector(articleSelectors.getCategories, isEqual);
   const tags = useSelector(articleSelectors.getTags, isEqual);
-  const user = useSelector(userSelectors.getUser, isEqual);
   const selectedUser = useSelector(userSelectors.getSelectedUser, isEqual);
 
   const navigate = useNavigate();
@@ -96,7 +98,7 @@ function Blogs() {
 
   useEffect(() => {
     if (userId && !selectedUser) {
-      getSelectedUser(userId);
+      getSelectedUser(toNumber(userId));
     }
     setPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +238,7 @@ function Blogs() {
                 <h2 className="blogs-featured-subtitle">Featured</h2>
               )}
               <div className="blogs-featured-cards">
-                {map(featuredArticles.slice(0, 3), (a, index) => (
+                {map(featuredArticles.slice(0, 3), (a: Article, index) => (
                   <FeaturedCard
                     key={index}
                     status={get(a, "status", "")}
@@ -247,7 +249,7 @@ function Blogs() {
                     description={get(a, "description", "")}
                     author={get(a, "author.full_name", "")}
                     tags={get(a, "tags", [])}
-                    date={a.date}
+                    date={a.created_at}
                   />
                 ))}
               </div>
@@ -279,7 +281,6 @@ function Blogs() {
                   key={index}
                   article={a}
                   onConvert={() => {}}
-                  currentUserId={get(user, "id", null)}
                   onClick={() => navigate(`/singleblog/${a.id}`)}
                 />
               )
@@ -295,7 +296,7 @@ function Blogs() {
               width: "100%",
             }}
             page={page}
-            onChange={(e, value) => {
+            onChange={(_e, value) => {
               setPage(value);
             }}
           />
