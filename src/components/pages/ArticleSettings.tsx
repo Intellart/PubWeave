@@ -185,8 +185,12 @@ function NewReview({ disabled }: NewReviewProps) {
     articleId: number,
     deadline: string,
     reviewerIds: number[]
-  ) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
-  const fetchReviews = (ind: number) => dispatch(actions.fetchReviews(ind));
+  ) =>
+    dispatch(
+      articleActions.newReview(amount, articleId, deadline, reviewerIds)
+    );
+  const fetchReviews = (ind: number) =>
+    dispatch(articleActions.fetchReviews(ind));
 
   return (
     <section
@@ -228,9 +232,9 @@ function ReviewTable(props: any) {
   const admin = useSelector(userSelectors.getAdmin, isEqual);
   const dispatch = useDispatch();
   const acceptUserReview = (userReviewId: number) =>
-    dispatch(actions.acceptUserReview(userReviewId));
+    dispatch(articleActions.acceptUserReview(userReviewId));
   const rejectUserReview = (userReviewId: number) =>
-    dispatch(actions.rejectUserReview(userReviewId));
+    dispatch(articleActions.rejectUserReview(userReviewId));
 
   const reviewStatus = {
     IN_PROGRESS: "in_progress",
@@ -387,9 +391,13 @@ function Review(props: any) {
     articleId: number,
     deadline: string,
     reviewerIds: number[]
-  ) => dispatch(actions.newReview(amount, articleId, deadline, reviewerIds));
+  ) =>
+    dispatch(
+      articleActions.newReview(amount, articleId, deadline, reviewerIds)
+    );
   // const deleteReview = (reviewId: number) => dispatch(actions.deleteReview(reviewId));
-  const fetchArticle = (ind: number) => dispatch(actions.fetchArticle(ind));
+  const fetchArticle = (ind: number) =>
+    dispatch(articleActions.fetchArticle(ind));
 
   const handleClose = () => {
     fetchArticle(id);
