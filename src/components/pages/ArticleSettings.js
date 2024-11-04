@@ -27,7 +27,11 @@ import { actions, selectors } from '../../store/articleStore';
 // eslint-disable-next-line no-unused-vars
 import { actions as cardanoActions, selectors as cardanoSelectors } from '../../store/cardanoStore';
 import { selectors as userSelectors } from '../../store/userStore';
-import { getSmallReviewCount, getWordCount } from '../../utils/hooks';
+import {
+  getSmallReviewCount,
+  getWordCount,
+  useNetworkToggle,
+} from '../../utils/hooks';
 import HowItWorks from '../modal/HowItWorks';
 import Conditions from '../modal/Conditions';
 import Input from '../elements/Input';
@@ -462,7 +466,9 @@ function ArticleSettings(): Node {
   const inlineReviews = groupBy(getSmallReviewCount(get(article, ['content', 'blocks'])),
     (smallReview) => smallReview.dataId);
 
-  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  // eslint-disable-next-line no-unused-vars
+  const [networkType, toggleNetworkType] = useNetworkToggle();
+
   const isAuthor = get(article, 'author.id') === get(user, 'id');
   const txAmount = get(article, 'tx_amount_in_treasury') || 0;
   const isArticleReady = () => !isEmpty(article) && id && get(article, 'id') === toInteger(id);

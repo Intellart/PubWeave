@@ -60,6 +60,8 @@ export const selectors = {
 
 };
 
+const networkType = localStorage.getItem('networkType') || process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+
 export const actions = {
   fetchTreasury: (articleId: number, showMessage?: boolean): ReduxAction => ({
     type: types.WLT_FETCH_WALLET,
@@ -77,7 +79,7 @@ export const actions = {
 
     return {
       type: types.WLT_BUILD_FILL_TREASURY,
-      payload: API.postTreasury(payload),
+      payload: API.postTreasury({ ...payload, networkType }),
       propagate: {
         articleId: payload.articleId,
       },
@@ -92,7 +94,7 @@ export const actions = {
 
     return {
       type: types.WLT_BUILD_SPEND_TREASURY,
-      payload: API.postSpendTreasury(payload),
+      payload: API.postSpendTreasury({ ...payload, networkType }),
       propagate: {
         articleId: payload.articleId,
       },
@@ -112,6 +114,7 @@ export const actions = {
         witness: signature,
         article_id: id,
       },
+      networkType,
     }),
   }),
   clearTx: (): ReduxAction => ({
@@ -126,6 +129,7 @@ export const actions = {
         witness_set: ws,
         article_id: id,
       },
+      networkType,
     }),
   }),
 };

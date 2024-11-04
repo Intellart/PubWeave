@@ -496,3 +496,17 @@ export function uploadByUrl(url: any): any {
   //   });
   // });
 }
+
+export const useNetworkToggle = (): [string, Function] => {
+  const initValue = localStorage.getItem('networkType') || process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+
+  const [networkType, setNetworkType] = useState(initValue);
+
+  const toggleNetwork = () => {
+    const newNetworkType = networkType === 'testnet' ? 'mainnet' : 'testnet';
+    setNetworkType(newNetworkType);
+    localStorage.setItem('networkType', newNetworkType);
+  };
+
+  return [networkType, toggleNetwork];
+};
