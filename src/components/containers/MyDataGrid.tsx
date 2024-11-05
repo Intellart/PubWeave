@@ -19,8 +19,8 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
-import { map, get, find, filter } from "lodash";
-import { Link } from "react-router-dom";
+import { map, get, find, filter, toInteger, includes } from "lodash";
+import { Link, useSearchParams } from "react-router-dom";
 import { statuses } from "../pages/Dashboard";
 import { useScreenSize } from "../../utils/hooks";
 // import { toast } from 'react-toastify';
@@ -34,6 +34,23 @@ type Props = {
   categories: { key: Object };
   setStar(id: number, star: boolean): void;
   rows: any[];
+};
+
+const useDashboardSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const rowsPerPage = toInteger(searchParams.get("rpp")) || 10;
+  const page = toInteger(searchParams.get("p")) || 0;
+
+  const handleChange = ({ rpp, p }: { rpp: number; p: number }) => {
+    setSearchParams({ rpp: `${rpp}`, p: `${p}` });
+  };
+
+  return {
+    rowsPerPage,
+    page,
+    handleChange,
+  };
 };
 
 export default function MyDataGrid(props: Props) {
@@ -185,24 +202,24 @@ export default function MyDataGrid(props: Props) {
       }
     };
 
-    console.log(params.value.value);
-    console.log(statuses);
+    // console.log(params.value.value);
+    // console.log(statuses);
 
     const newStatuses = filter(statuses, (status) => {
       if (params.value.value === "requested") {
-        return status.value === "published" || status.value === "rejected";
+        return includes(["published", "rejected", "requested"], status.value);
       }
       if (params.value.value === "published") {
-        return status.value === "rejected";
+        return includes(["published", "rejected"], status.value);
       }
       if (params.value.value === "rejected") {
-        return status.value === "published";
+        return includes(["published", "rejected"], status.value);
       }
 
       return true;
     });
 
-    console.log(newStatuses);
+    // console.log(newStatuses);
 
     return (
       <FormControl
@@ -368,7 +385,7 @@ export default function MyDataGrid(props: Props) {
         switch (get(params, "row.status.value")) {
           case "published":
             return (
-              <Link to={`/singleblog/${params.row.id}`}>
+              <Link to={`/blog/${params.row.slug || params.row.id}`}>
                 <FontAwesomeIcon icon={faGlasses} />
               </Link>
             );
@@ -389,7 +406,7 @@ export default function MyDataGrid(props: Props) {
     },
     {
       field: "edit",
-      headerName: "EDIT",
+      headerName: "Edit",
       width: 30,
       editable: false,
       renderCell: (params) => (
@@ -441,18 +458,18 @@ export default function MyDataGrid(props: Props) {
       field: "firstName",
       headerName: "First name",
       width: 150,
-      editable: true,
+      editable: false,
     },
     {
       field: "email",
       headerName: "Email",
-      width: 250,
-      editable: true,
+      width: 200,
+      editable: false,
     },
     {
       field: "category",
       headerName: "Category",
-      width: 250,
+      width: 150,
       editable: true,
       renderEditCell: renderEditCategory,
       renderCell: (params) => renderCategoryCell(params),
@@ -462,7 +479,7 @@ export default function MyDataGrid(props: Props) {
     {
       field: "ORCID",
       headerName: "ORCID",
-      width: 250,
+      width: 200,
       editable: false,
     },
     {
@@ -527,12 +544,23 @@ export default function MyDataGrid(props: Props) {
     // },
   ];
 
+  const { rowsPerPage, page, handleChange } = useDashboardSearchParam();
+
   const { isMobile } = useScreenSize();
 
   return (
     <Box
       sx={{
-        height: 500,
+        height: get(
+          {
+            5: 450,
+            10: 700,
+            15: 1000,
+            20: 1300,
+          },
+          rowsPerPage,
+          700
+        ),
         width: "90%",
         borderRadius: "4px",
         // boxShadow: '0px 0px 12px 0px rgba(0,0,0,0.25)',
@@ -545,17 +573,21 @@ export default function MyDataGrid(props: Props) {
         sx={{
           border: "none",
         }}
+        page={page}
+        onPageChange={(newPage) =>
+          handleChange({ rpp: rowsPerPage, p: newPage })
+        }
+        pagination
+        onPageSizeChange={(newPageSize) =>
+          handleChange({ rpp: newPageSize, p: 0 })
+        }
         rows={props.rows}
         columns={columns}
-        pageSize={5}
-        components={{
-          Toolbar: GridToolbar,
-        }}
-        // onStateChange={(state) => console.log(state)}
-        rowsPerPageOptions={[5]}
         checkboxSelection
         disableSelectionOnClick
         experimentalFeatures={{ newEditingApi: true }}
+        pageSize={rowsPerPage}
+        rowsPerPageOptions={[5, 10, 15, 20]}
         // used for one click edit
         cellModesModel={cellModesModel}
         // used for one click edit

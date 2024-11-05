@@ -62,6 +62,8 @@ function ImageSelection(props: Props) {
     setCustomImageUrl(URL.createObjectURL(e.target.files[0]));
   };
 
+  if (isEmpty(_linkList)) return null;
+
   return (
     <div className="editor-wrapper-image-selection-wrapper">
       {hasNonCloudinaryLinks && (

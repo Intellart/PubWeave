@@ -39,7 +39,7 @@ import {
 import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 
-function Blogs() {
+function EditorReview() {
   useScrollTopEffect();
   const { id } = useParams();
 
@@ -221,25 +221,10 @@ function Blogs() {
               time: number,
               version: string
             ) => {
-              const blocksToAdd: BlockToServer[] = [
-                ...map(newBlocks.created, (block: Block) => ({
-                  ...block,
-                  action: "created",
-                })),
-                ...map(newBlocks.changed, (block: Block) => ({
-                  ...block,
-                  action: "updated",
-                })),
-                ...map(newBlocks.deleted, (block: Block) => ({
-                  ...block,
-                  action: "deleted",
-                })),
-              ];
-
               updateArticleContentSilently(id, {
-                time,
-                version,
-                blocks: blocksToAdd,
+                time: time || 0,
+                version: version || "1",
+                blocks: newBlocks,
               });
             }}
           />
@@ -273,25 +258,10 @@ function Blogs() {
               time: number,
               version: string
             ) => {
-              const blocksToAdd: BlockToServer[] = [
-                ...map(newBlocks.created, (block: Block) => ({
-                  ...block,
-                  action: "created",
-                })),
-                ...map(newBlocks.changed, (block: Block) => ({
-                  ...block,
-                  action: "updated",
-                })),
-                ...map(newBlocks.deleted, (block: Block) => ({
-                  ...block,
-                  action: "deleted",
-                })),
-              ];
-
               updateArticleContentSilently(articleReviewContent.id, {
-                time,
-                version,
-                blocks: blocksToAdd,
+                time: time || 0,
+                version: version || "1",
+                blocks: newBlocks,
               });
             }}
           />
@@ -308,13 +278,29 @@ function Blogs() {
               </h2>
               <div className="single-blog-reviewer-header-right">
                 <p className="single-blog-reviewer-header-right-label">
-                  Review #{get(reviewer, "review_id", "")}
+                  Review
                 </p>
                 <p className="single-blog-reviewer-header-right-status">
                   <Chip
-                    label={camelCase(get(reviewer, "status", ""))}
-                    variant="default"
-                    color="primary"
+                    label={get(
+                      {
+                        in_progress: "In progress",
+                        accepted: "Accepted",
+                        rejected: "Rejected",
+                      },
+                      get(reviewer, "status", ""),
+                      ""
+                    )}
+                    variant="filled"
+                    color={get(
+                      {
+                        in_progress: "primary",
+                        accepted: "success",
+                        rejected: "error",
+                      },
+                      get(reviewer, "status", ""),
+                      ""
+                    )}
                   />
                 </p>
               </div>
@@ -346,4 +332,4 @@ function Blogs() {
   );
 }
 
-export default Blogs;
+export default EditorReview;

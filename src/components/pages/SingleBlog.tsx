@@ -51,13 +51,10 @@ function Blogs() {
 
   const categories = useSelector(articleSelectors.getCategories, isEqual);
   const user = useSelector(userSelectors.getUser, isEqual);
-  const [isReady, setIsReady] = useState(
-    !isEmpty(article) && id && get(article, "id") === toInteger(id)
-  );
 
-  useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, "id") === toInteger(id));
-  }, [article, id]);
+  const isIdCorrect = get(article, "id") === toInteger(id);
+  const isSlugOk = get(article, "slug") === id;
+  const isReady = !isEmpty(article) && id && (isIdCorrect || isSlugOk);
 
   useEffect(() => {
     if (!isReady) {

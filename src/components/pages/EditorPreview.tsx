@@ -212,7 +212,7 @@ function ReactEditor() {
         placeholder='Start your article here!'
       />
       )} */}
-      <Editor isReady={isReady} status={EditorStatus.IN_REVIEW} />
+      <Editor isReady={isReady} status={EditorStatus.PREVIEW} />
     </main>
   );
 }

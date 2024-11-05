@@ -3,9 +3,9 @@ import { Fragment, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { filter, isEqual, map, slice, size } from "lodash";
+import { filter, isEqual, map, slice, size, toInteger } from "lodash";
 import { Chip, Pagination } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import ArticleCard from "../containers/ArticleCard";
 import { useScrollTopEffect } from "../../utils/hooks";
@@ -15,6 +15,23 @@ import articleSelectors from "../../store/article/selectors";
 import userSelectors from "../../store/user/selectors";
 import articleActions from "../../store/article/actions";
 import { Article } from "../../store/article/types";
+
+const useMyArticlesSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const category = searchParams.get("c") || "all";
+  const page = toInteger(searchParams.get("p")) || 1;
+
+  const handleChange = ({ c, p }: { c: string; p: number }) => {
+    setSearchParams({ c: `${c}`, p: `${p}` });
+  };
+
+  return {
+    category,
+    page,
+    handleChange,
+  };
+};
 
 function MyArticles() {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
@@ -44,10 +61,10 @@ function MyArticles() {
     { id: "rejected", name: "Rejected" },
     { id: "draft", name: "Draft" },
   ];
-  const [statusCategory, setStatusCategory] = useState("all");
+
+  const { category, page, handleChange } = useMyArticlesSearchParam();
 
   const itemsPerPage = 5;
-  const [page, setPage] = useState(1);
 
   const dispatch = useDispatch();
   const createArticle = (userId: number) =>
@@ -72,7 +89,7 @@ function MyArticles() {
   const handleArticleClick = (article: Article) => {
     switch (article.status) {
       case "published":
-        navigate(routes.blogs.blog(article.id));
+        navigate(routes.blogs.blog(article.slug || article.id));
         break;
       case "reviewing":
         navigate(routes.myWork.review("", article.id));
@@ -103,10 +120,9 @@ function MyArticles() {
                   c.id !== "all" ? a.status === c.id : true
                 ).length
               })`}
-              variant={statusCategory === c.id ? "filled" : "outlined"}
+              variant={category === c.id ? "filled" : "outlined"}
               onClick={() => {
-                setStatusCategory(c.id);
-                setPage(1);
+                handleChange({ c: c.id, p: 1 });
               }}
             />
           ))}
@@ -116,7 +132,7 @@ function MyArticles() {
             slice(
               filter(
                 articles,
-                (a) => a.status === statusCategory || statusCategory === "all"
+                (a) => a.status === category || category === "all"
               ),
               (page - 1) * itemsPerPage,
               page * itemsPerPage
@@ -140,10 +156,8 @@ function MyArticles() {
         </div>
         <Pagination
           count={Math.ceil(
-            filter(
-              articles,
-              (a) => a.status === statusCategory || statusCategory === "all"
-            ).length / itemsPerPage
+            filter(articles, (a) => a.status === category || category === "all")
+              .length / itemsPerPage
           )}
           sx={{
             display: "flex",
@@ -154,7 +168,7 @@ function MyArticles() {
           }}
           page={page}
           onChange={(_e, value) => {
-            setPage(value);
+            handleChange({ c: category, p: value });
           }}
         />
       </section>

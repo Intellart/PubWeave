@@ -14,6 +14,7 @@ import {
   union,
   values,
   differenceBy,
+  isEmpty,
 } from "lodash";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,6 +36,7 @@ import articleSelectors from "../../store/article/selectors.ts";
 import userSelectors from "../../store/user/selectors.ts";
 import articleActions from "../../store/article/actions.ts";
 import { isBlockPeaceful } from "./helpers.ts";
+import Loader from "../containers/Loader.tsx";
 
 export type EditorEventType =
   | "block-added"
@@ -107,9 +109,13 @@ function Editor({ isReady, onChange, onShowHistory, status }: Props) {
   const reviewersIds = map(get(article, "reviewers"), "user_id");
   const articleType = get(article, "article_type", "blog_article");
 
+  const admin = useSelector(userSelectors.getAdmin, isEqual);
+
+  const isAdmin = !isEmpty(admin);
+
   // Permissions ---------------------------------------------------------------
   const readOnly = includes(
-    [EditorStatus.PREVIEW, EditorStatus.PUBLISHED],
+    [EditorStatus.PREVIEW, EditorStatus.PUBLISHED, EditorStatus.IN_REVIEW],
     status
   );
   const currentPermissions = editorPermissions({
@@ -307,12 +313,12 @@ function Editor({ isReady, onChange, onShowHistory, status }: Props) {
 
     labelCriticalSections();
 
-    const allowedToUpdate =
+    // if user can't review or edit, or can't add or remove, and there are changes
+    const forbiddenToUpdate =
       !canReviewOrEdit ||
-      // || !allChangedBlocksPeaceful
       (!canAddOrRemove && (numOfCreated > 0 || numOfDeleted > 0));
 
-    if (allowedToUpdate) {
+    if (forbiddenToUpdate && !isAdmin) {
       // reset the editor with the new blocks
       editor.current?.blocks.render({
         blocks: convertBlocksToEditorJS(blocks) || [],
@@ -357,7 +363,7 @@ function Editor({ isReady, onChange, onShowHistory, status }: Props) {
       placeholder: "Start your article here!",
       onReady: () => {
         labelCriticalSections();
-        if (editor.current) {
+        if (editor.current && status === EditorStatus.IN_PROGRESS) {
           const key = findKey(activeSections, (o) => o === userId);
 
           if (key) {
@@ -418,6 +424,7 @@ function Editor({ isReady, onChange, onShowHistory, status }: Props) {
           setSelectedVersioningBlock(null);
         }}
       />
+      {isEmpty(article) && <Loader />}
       <div
         id="editorjs"
         className={classNames(

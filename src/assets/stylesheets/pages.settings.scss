@@ -1,6 +1,6 @@
 @import "./colors";
 @import "./scrollbars";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 .article-settings-wrapper {
   display: flex;
@@ -10,7 +10,7 @@
   justify-content: flex-start;
   flex: 1;
   gap: 30px;
-  padding: 20px 40px;
+  padding: 20px 40px 40px 40px;
 
   .article-settings {
     display: flex;
@@ -52,7 +52,6 @@
         width: 400px;
       }
 
-
       .article-settings-subtitle {
         font-size: 1.2rem;
         font-weight: 600;
@@ -66,7 +65,6 @@
           height: 1px;
           background-color: rgb(229, 229, 229);
           margin-top: 10px;
-
         }
       }
 
@@ -97,12 +95,8 @@
             white-space: normal;
           }
         }
-
-
-
       }
     }
-
 
     section.review-modal {
       display: flex;
@@ -153,7 +147,7 @@
         justify-content: space-between;
         width: 100%;
 
-        .review-modal-buttons{
+        .review-modal-buttons {
           display: flex;
           flex-direction: row;
           align-items: center;
@@ -184,8 +178,6 @@
         }
       }
 
-
-
       .review-modal-content {
         display: flex;
         flex-direction: column;
@@ -207,7 +199,4 @@
       }
     }
   }
-
-
-
 }

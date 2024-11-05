@@ -88,6 +88,7 @@ function Dashboard() {
             registeredOn: get(article, "author.created_at", ""),
             category: get(article, "category", ""),
             star: get(article, "star", false) || false,
+            slug: article.slug,
           })
         )
       );

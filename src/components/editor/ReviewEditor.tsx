@@ -1,6 +1,18 @@
 import { useEffect, useRef } from "react";
 import EditorJS from "@editorjs/editorjs";
-import { get, map, groupBy, isEqual, mapValues, find } from "lodash";
+import {
+  get,
+  map,
+  groupBy,
+  isEqual,
+  mapValues,
+  find,
+  values,
+  union,
+  filter,
+  includes,
+  omit,
+} from "lodash";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
 import { useEditorTools } from "../../utils/editor_constants";
@@ -13,6 +25,7 @@ import {
 import { EditorStat, EditorStatus } from "./Editor";
 import { Block, BlockCategoriesToChange } from "../../store/article/types";
 import articleSelectors from "../../store/article/selectors";
+import { store } from "../../store";
 // import useCopy from '../../utils/useCopy';
 // import Undo from 'editorjs-undo';
 // import DragDrop from 'editorjs-drag-drop';
@@ -60,74 +73,75 @@ function ReviewEditor({ isReady, onChange, status, userId }: Props): any {
    * @param {any} events_ - The events object or array of events.
    */
   const handleOnChange = async (api: any, events_: any) => {
-    const events = Array.isArray(events_) ? events_ : [events_];
+    const events = map(Array.isArray(events_) ? events_ : [events_], (e) => ({
+      type: e.type,
+      id: e.detail?.target?.id,
+    }));
 
-    /**
-     * For each list of events, we flatten them into one event.
-     */
-    const flattenEvents = (blockArray: Array<Block>): Block | null => {
-      const firstEvent = blockArray[0];
-      switch (blockArray.length) {
-        case 1:
-          return {
-            ...firstEvent,
-            action: firstEvent.action,
-          };
-        case 2:
-          const createdBlockIndex = firstEvent.action !== "created" ? 1 : 0;
+    const { time, version, blocks: blocks_ } = await api.saver.save();
 
-          return {
-            ...blockArray[createdBlockIndex],
-            data: blockArray[(createdBlockIndex + 1) % 2].data,
-          };
-        default:
-          return null;
-      }
-    };
+    const newBlocks = map(blocks_, (block, index) => ({
+      ...block,
+      position: index,
+    }));
 
-    /**
-     * For each event, that can be block-changed, block-added, block-removed,
-     * we get block/event type, position, and data.
-     * e.detail.target.save() returns a promise with ACTUAL block data.
-     *
-     * Note: block-added and block-removed events can be fired twice for the same block,
-     * so we need to group them by block id and then merge them.
-     */
-    const {
-      created,
-      changed,
-      deleted,
-    }: {
-      created: BlocksToChange;
-      changed: BlocksToChange;
-      deleted: BlocksToChange;
-    } = groupBy(
-      mapValues(
-        groupBy(
-          await Promise.all(
-            map(events, async (e) => ({
-              action: {
-                "block-changed": "changed",
-                "block-added": "created",
-                "block-removed": "deleted",
-                "block-moved": "moved",
-              }[e.type || "block-changed"],
-              position: e.detail.index,
-              type: e.detail.target.name,
-              ...(await e.detail.target.save()),
-            }))
-          ),
-          "id"
+    const oldBlocks = values(
+      get(
+        find(
+          get(store.getState().article.oneArticle, "reviewers", []),
+          (reviewer) => reviewer.user_id === userId
         ),
-        flattenEvents
-      ),
-      "action"
+        "review_content.content.blocks",
+        []
+      )
     );
 
-    const { time, version } = await api.saver.save();
+    const allIds = union(map(oldBlocks, "id"), map(newBlocks, "id"));
+
+    const changedBlockIds = map(
+      filter(events, ["type", "block-changed"]),
+      "id"
+    );
+
+    const allBlocks = map(allIds, (id) => {
+      const oldPosition = get(find(oldBlocks, ["id", id]), "position");
+      const newPosition = get(find(newBlocks, ["id", id]), "position");
+
+      const isRemoved = newPosition === undefined;
+      const isAdded = oldPosition === undefined;
+
+      const block = isRemoved
+        ? find(oldBlocks, ["id", id])
+        : find(newBlocks, ["id", id]);
+
+      const isChanged = includes(changedBlockIds, id);
+
+      const getAction = () => {
+        if (isRemoved) {
+          return "block-removed";
+        }
+
+        if (isAdded) {
+          return "block-added";
+        }
+
+        if (isChanged) {
+          return "block-changed";
+        }
+
+        return "block-ok";
+      };
+
+      return {
+        ...(isChanged || isAdded ? block : omit(block, ["data"])),
+        position: newPosition,
+        id,
+        action: getAction(),
+      };
+    });
 
     if (onChange) {
-      onChange({ created, changed, deleted }, time, version);
+      onChange(allBlocks, time, version);
     }
   };
 

@@ -16,6 +16,7 @@ import {
 import classNames from "classnames";
 import type {
   ArticleContentToServer,
+  BlockCategoriesToChange,
   FilledBlock,
 } from "../../store/article/types";
 import routes from "../../routes";
@@ -112,6 +113,12 @@ function ReactEditor() {
 
   const articleTime = get(articleContent, "time");
 
+  const initialState = {
+    blocks: [],
+    time: 0,
+    version: "1",
+  };
+
   useEffect(() => {
     if (!isReady && id) {
       fetchArticle(id);
@@ -128,13 +135,12 @@ function ReactEditor() {
     cookies.get("tutorial") !== "true"
   );
   // console.log('currentPermissions', currentPermissions);
-  const [savedState, setSavedState] = useState<any>({
-    blocks: [],
-    time: 0,
-    version: "1",
-  });
+  const [savedState, setSavedState] = useState<any>(initialState);
 
-  const handleManualSave = async () => {
+  const handleManualSave = () => {
+    if (savedState.time === 0) return;
+
+    toast.success("Article saved");
     const blocksToAdd = flatten(values(savedState.blocks));
 
     updateArticleContentSilently(id, {
@@ -142,14 +148,15 @@ function ReactEditor() {
       version: savedState.version || "1",
       blocks: blocksToAdd,
     });
+
+    setSavedState(initialState);
   };
 
   const handleChange = (
-    newBlocks: FilledBlock[],
+    newBlocks: BlockCategoriesToChange,
     time?: number,
     version?: string
   ) => {
-    console.log("newBlocks", autosaveRef.current);
     setWordCount(
       sum(map(newBlocks, (block) => words(get(block, "data.text")).length))
     );

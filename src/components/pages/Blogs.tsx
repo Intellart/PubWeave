@@ -11,9 +11,15 @@ import {
   size,
   toNumber,
   values,
+  toInteger,
 } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import classNames from "classnames";
 import { Chip, Pagination } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -40,6 +46,21 @@ import userActions from "../../store/user/actions";
 import { Article } from "../../store/article/types";
 
 const images = [Rocket, Space, Astronaut, Earth];
+
+const useBlogsSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = toInteger(searchParams.get("p")) || 1;
+
+  const handleChange = ({ p }: { c: string; p: number }) => {
+    setSearchParams({ p: `${p}` });
+  };
+
+  return {
+    page,
+    handleChange,
+  };
+};
 
 function Blogs() {
   useScrollTopEffect();
@@ -94,13 +115,11 @@ function Blogs() {
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
   const itemsPerPage = 5;
-  const [page, setPage] = useState(1);
-
+  const { page, handleChange } = useBlogsSearchParam();
   useEffect(() => {
     if (userId && !selectedUser) {
       getSelectedUser(toNumber(userId));
     }
-    setPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser]);
 
@@ -121,7 +140,6 @@ function Blogs() {
         <CategoryList
           onClick={(c: any) => {
             navigate(`/blogs/${c}`);
-            setPage(1);
           }}
           categories={map(showedCategories, (c) => ({
             name: c.category_name,
@@ -226,7 +244,7 @@ function Blogs() {
           </div>
         </div>
       </section>
-      {!isEmpty(featuredArticles) && (
+      {!isEmpty(featuredArticles) && !cat && (
         <section
           className={classNames("blogs-featured", {
             "blogs-featured-active": cat,
@@ -244,6 +262,7 @@ function Blogs() {
                     status={get(a, "status", "")}
                     img={a.image || images[a.id % 4]}
                     id={a.id}
+                    slug={a.slug}
                     title={a.title}
                     category={get(a, "category", "")}
                     description={get(a, "description", "")}
@@ -281,7 +300,7 @@ function Blogs() {
                   key={index}
                   article={a}
                   onConvert={() => {}}
-                  onClick={() => navigate(`/singleblog/${a.id}`)}
+                  onClick={() => navigate(`/blog/${a.slug || a.id}`)}
                 />
               )
             )}
@@ -297,7 +316,7 @@ function Blogs() {
             }}
             page={page}
             onChange={(_e, value) => {
-              setPage(value);
+              handleChange({ p: value });
             }}
           />
         </section>

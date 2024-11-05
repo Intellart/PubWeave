@@ -177,9 +177,9 @@ function ArticleConfig({
     );
   };
 
-  const onNewTagInput = (value: string) => {
-    console.log("onNewTagInput", value);
-  };
+  // const onNewTagInput = (value: string) => {
+  //   console.log("onNewTagInput", value);
+  // };
 
   return (
     <>
@@ -207,35 +207,39 @@ function ArticleConfig({
           <FontAwesomeIcon className="article-config-icon" icon={faClock} />
           <h6>{_lastSaved > 0 ? lastSavedString() : "N/A"}</h6>
         </div>
-        <div
-          className="article-config-item"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleAutoSave();
-          }}
-        >
-          <FontAwesomeIcon
-            className={classNames("article-config-icon", {
-              "article-config-icon-blue": autoSave,
-            })}
-            icon={faRefresh}
-          />
-          <h6>{autoSave ? "Autosave On" : "Autosave Off"}</h6>
-        </div>
-        {!autoSave && (
-          <div
-            className="article-config-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSave();
-            }}
-          >
-            <FontAwesomeIcon
-              className="article-config-icon article-config-icon-blue"
-              icon={faSave}
-            />
-            <h6>Save</h6>
-          </div>
+        {onSave && toggleAutoSave && (
+          <>
+            <div
+              className="article-config-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleAutoSave();
+              }}
+            >
+              <FontAwesomeIcon
+                className={classNames("article-config-icon", {
+                  "article-config-icon-blue": autoSave,
+                })}
+                icon={faRefresh}
+              />
+              <h6>{autoSave ? "Autosave On" : "Autosave Off"}</h6>
+            </div>
+            {!autoSave && (
+              <div
+                className="article-config-item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSave();
+                }}
+              >
+                <FontAwesomeIcon
+                  className="article-config-icon article-config-icon-blue"
+                  icon={faSave}
+                />
+                <h6>Save</h6>
+              </div>
+            )}
+          </>
         )}
         <div className="article-config-item">
           <FontAwesomeIcon
@@ -306,7 +310,7 @@ function ArticleConfig({
               limitTags={2}
               id="combo-box-demo"
               onChange={(e, values) => onNewTagClick(values)}
-              onInputChange={(e, value) => onNewTagInput(value)}
+              // onInputChange={(e, value) => onNewTagInput(value)}
               value={tagValues}
               isOptionEqualToValue={(option: BasicOption, value: BasicOption) =>
                 option.value === value.value

@@ -348,6 +348,7 @@ export type Article = {
   description: string;
   image: string;
   star: boolean;
+  slug: string;
   reviewers: Reviewer[];
   category: string;
   user_review_id: number;
