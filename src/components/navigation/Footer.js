@@ -69,7 +69,7 @@ function Footer(): Node {
       </div>
       <hr className="solid" />
       <div className="copyrights-termsofuse">
-        <p>© 2022 Intellart. All rights reserved.</p>
+        <p>© 2024 Intellart. All rights reserved.</p>
         <p>
           <Link
             to="#"

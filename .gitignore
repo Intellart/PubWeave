@@ -52,3 +52,5 @@ yarn.lock
 dump.rdb
 
 .env
+
+/build
