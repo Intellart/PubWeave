@@ -8,7 +8,7 @@ import {
   filter, isEqual, map, slice, size,
 } from 'lodash';
 import { Chip, Pagination } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { selectors as articleSelectors, actions } from '../../store/articleStore';
 import { selectors as userSelectors } from '../../store/userStore';
 import ArticleCard from '../containers/ArticleCard';
@@ -17,26 +17,28 @@ import routes from '../../routes';
 import type { Article } from '../../store/articleStore';
 import HowItWorks from '../modal/HowItWorks';
 
+const useMyArticlesSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const category = searchParams.get('c') || 'all';
+  const page = parseInt(searchParams.get('p'), 10) || 1;
+
+  const handleChange = ({ c, p }: { c: string, p: number }) => {
+    setSearchParams({ c, p });
+  };
+
+  return {
+    category,
+    page,
+    handleChange,
+  };
+};
+
 function MyArticles(): Node {
   const [lastKnownSize, setLastKnownSize] = useState(-1);
   const navigate = useNavigate();
 
   const { type } = useParams();
-
-  // const setting = get(workTypes, type, workTypes.articles);
-
-  useScrollTopEffect();
-  const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
-  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-
-  // console.log(articles);
-
-  useEffect(() => {
-    if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
-      navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [articles, lastKnownSize]);
 
   const categories = [
     { id: 'all', name: 'All' },
@@ -47,10 +49,25 @@ function MyArticles(): Node {
     { id: 'rejected', name: 'Rejected' },
     { id: 'draft', name: 'Draft' },
   ];
-  const [statusCategory, setStatusCategory] = useState('all');
+
+  const {
+    category, page, handleChange,
+  } = useMyArticlesSearchParam();
+
+  // const setting = get(workTypes, type, workTypes.articles);
+
+  useScrollTopEffect();
+  const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
+  const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+  useEffect(() => {
+    if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
+      navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articles, lastKnownSize]);
 
   const itemsPerPage = 5;
-  const [page, setPage] = React.useState(1);
+  // const [page, setPage] = React.useState(1);
 
   const dispatch = useDispatch();
   const createArticle = (userId : number) => dispatch(actions.createArticle(userId));
@@ -72,7 +89,7 @@ function MyArticles(): Node {
   const handleArticleClick = (article: Article) => {
     switch (article.status) {
       case 'published':
-        navigate(routes.blogs.blog(article.id));
+        navigate(routes.blogs.blog(article.slug || article.id));
         break;
       case 'reviewing':
         navigate(routes.myWork.review(type, article.id));
@@ -99,16 +116,15 @@ function MyArticles(): Node {
             <Chip
               key={c.id}
               label={`${c.name} (${filter(articles, a => (c.id !== 'all' ? a.status === c.id : true)).length})`}
-              variant={statusCategory === c.id ? 'default' : 'outlined'}
+              variant={category === c.id ? 'default' : 'outlined'}
               onClick={() => {
-                setStatusCategory(c.id);
-                setPage(1);
+                handleChange({ c: c.id, p: 1 });
               }}
             />
           ))}
         </div>
         <div className="articles-list">
-          {map(slice(filter(articles, a => a.status === statusCategory || statusCategory === 'all'), (page - 1) * itemsPerPage, page * itemsPerPage), (a) => (
+          {map(slice(filter(articles, a => a.status === category || category === 'all'), (page - 1) * itemsPerPage, page * itemsPerPage), (a) => (
             <React.Fragment key={a.id}>
               <ArticleCard
                 article={a}
@@ -126,7 +142,7 @@ function MyArticles(): Node {
           ))}
         </div>
         <Pagination
-          count={Math.ceil(filter(articles, a => a.status === statusCategory || statusCategory === 'all').length / itemsPerPage)}
+          count={Math.ceil(filter(articles, a => a.status === category || category === 'all').length / itemsPerPage)}
           sx={{
             display: 'flex',
             justifyContent: 'center',
@@ -136,7 +152,7 @@ function MyArticles(): Node {
           }}
           page={page}
           onChange={(e, value) => {
-            setPage(value);
+            handleChange({ c: category, p: value });
           }}
         />
       </section>

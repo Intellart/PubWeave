@@ -73,6 +73,10 @@ export default class MarkerTool {
     const mark = this.api.selection.findParentTag(this.tag, this.class);
     const text = range.extractContents();
 
+    if (!mark) {
+      return;
+    }
+
     mark.remove();
 
     range.insertNode(text);
@@ -139,7 +143,7 @@ export default class MarkerTool {
   static get sanitize() {
     return {
       mark: {
-        class: 'cdx-marker',
+        class: 'cdx-review',
       },
     };
   }

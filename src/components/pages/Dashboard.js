@@ -73,6 +73,7 @@ function Dashboard(): Node {
       setRows(map(filter(articles, a => a.status !== 'draft'), (article) => ({
         id: article.id,
         title: article.title,
+        slug: article.slug,
         status: get(statuses, get(article, 'status', 'draft')),
         firstName: get(article, 'author.full_name', ''),
         email: get(article, 'author.email', ''),

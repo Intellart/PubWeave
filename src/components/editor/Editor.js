@@ -6,23 +6,26 @@ import {
   forEach,
   get,
   map,
-  groupBy,
   isEqual,
-  mapValues,
   size,
   includes,
   filter,
+  omit,
+  union,
+  isEmpty,
+  find,
+  values,
+  differenceBy,
 } from 'lodash';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import { useEditorTools } from '../../utils/editor_constants';
+import Loader from '../containers/Loader';
 import type {
   ArticleContent,
-  Block,
   BlockCategoriesToChange,
   BlockIds,
-  BlocksToChange,
 } from '../../store/articleStore';
 import { actions, selectors } from '../../store/articleStore';
 import {
@@ -79,9 +82,13 @@ function Editor({
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
   const article = useSelector((state) => selectors.article(state), isEqual);
+  const userId = get(user, 'id');
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+
+  const isAdmin = !isEmpty(admin);
 
   // Permissions ---------------------------------------------------------------
-  const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.PUBLISHED], status);
+  const readOnly = includes([EditorStatus.PREVIEW, EditorStatus.IN_REVIEW, EditorStatus.PUBLISHED], status);
   const currentPermissions = editorPermissions({
     type: get(article, 'article_type'),
     status: status || EditorStatus.IN_PROGRESS,
@@ -165,7 +172,48 @@ function Editor({
    * @param {any} events_ - The events object or array of events.
    */
   const handleOnChange = async (api: any, events_: any) => {
-    const events = Array.isArray(events_) ? events_ : [events_];
+    const events = map(Array.isArray(events_) ? events_ : [events_], (e) => ({
+      type: e.type,
+      id: e.detail?.target?.id,
+    }));
+
+    const { time, version, blocks: blocks_ } = await api.saver.save();
+
+    const newBlocks = map(blocks_, (block, index) => ({
+      ...block,
+      position: index,
+    }));
+
+    const oldBlocks = values(
+      store.getState().article.oneArticle.content.blocks,
+    );
+
+    const numOfCreated = size(differenceBy(newBlocks, oldBlocks, 'id'));
+    const numOfDeleted = size(differenceBy(oldBlocks, newBlocks, 'id'));
+
+    const allIds = union(map(oldBlocks, 'id'), map(newBlocks, 'id'));
+
+    const changedBlockIds = map(
+      filter(events, ['type', 'block-changed']),
+      'id',
+    );
+
+    /**
+     * Checks if the block is peaceful:
+     *  1. if it is not owned by anyone
+     *  OR
+     *  2. it is owned by the current user.
+     * @param {string} blockId - The block id.
+     * */
+    const isBlockPeaceful = (
+      blockId: string,
+      activeSections2: any,
+      userId2: number,
+    ) => {
+      const blockOwner = get(activeSections2, blockId, null);
+
+      return !blockOwner || blockOwner === userId2;
+    };
 
     const {
       // content: { /* time_, */ blocks: blocks_/*  version_ */ },
@@ -176,84 +224,51 @@ function Editor({
     const canAddOrRemove = get(currentPermissions, permissions.ADD_OR_REMOVE_BLOCKS, false);
     const locking = get(currentPermissions, permissions.locking, false);
 
-    /**
-     * For each list of events, we flatten them into one event.
-     */
-    const flattenEvents = (blockArray: Array<Block>): Block | null => {
-      const firstEvent = blockArray[0];
-      switch (blockArray.length) {
-        case 1:
-          return {
-            ...firstEvent,
-            action: firstEvent.action,
-          };
-        case 2:
-          const createdBlockIndex = firstEvent.action !== 'created' ? 1 : 0;
+    const allBlocks = map(allIds, (id) => {
+      const oldPosition = get(find(oldBlocks, ['id', id]), 'position');
+      const newPosition = get(find(newBlocks, ['id', id]), 'position');
 
-          return {
-            ...blockArray[createdBlockIndex],
-            data: blockArray[(createdBlockIndex + 1) % 2].data,
-          };
-        default:
-          return null;
-      }
-    };
+      const isRemoved = newPosition === undefined;
+      const isAdded = oldPosition === undefined;
 
-    /**
-     * For each event, that can be block-changed, block-added, block-removed,
-     * we get block/event type, position, and data.
-     * e.detail.target.save() returns a promise with ACTUAL block data.
-     *
-     * Note: block-added and block-removed events can be fired twice for the same block,
-     * so we need to group them by block id and then merge them.
-     */
-    const { created, changed, deleted }: {
-      created: BlocksToChange,
-      changed: BlocksToChange,
-      deleted: BlocksToChange,
-    } = groupBy(mapValues(
-      groupBy(
-        await Promise.all(
-          map(events, async (e) => ({
-            action: {
-              'block-changed': 'changed',
-              'block-added': 'created',
-              'block-removed': 'deleted',
-              'block-moved': 'moved',
-            }[e.type || 'block-changed'],
-            position: e.detail.index,
-            type: e.detail.target.name,
-            ...(await e.detail.target.save()),
-          })),
-        ),
-        'id',
-      ),
-      flattenEvents,
-    ), 'action');
+      const block = isRemoved
+        ? find(oldBlocks, ['id', id])
+        : find(newBlocks, ['id', id]);
+
+      const isChanged = includes(changedBlockIds, id)
+        && (!locking || isBlockPeaceful(id, activeSections_, userId));
+
+      const getAction = () => {
+        if (isRemoved) {
+          return 'block-removed';
+        }
+
+        if (isAdded) {
+          return 'block-added';
+        }
+
+        if (isChanged) {
+          return 'block-changed';
+        }
+
+        return 'block-ok';
+      };
+
+      return {
+        ...(isChanged || isAdded ? block : omit(block, ['data'])),
+        position: newPosition,
+        id,
+        action: getAction(),
+      };
+    });
 
     labelCriticalSections();
 
-    /**
-     * Checks if the block is peaceful:
-     *  1. if it is not owned by anyone
-     *  OR
-     *  2. it is owned by the current user.
-     * @param {string} blockId - The block id.
-     * */
-    const isBlockPeaceful = (blockId: string) => {
-      const blockOwner = get(activeSections_, blockId, null);
-      const currentUserId = get(user, 'id');
+    // if user can't review or edit, or can't add or remove, and there are changes
+    const forbiddenToUpdate = !canReviewOrEdit
+      || (!canAddOrRemove && (numOfCreated > 0 || numOfDeleted > 0));
 
-      return !blockOwner || (blockOwner && blockOwner === currentUserId);
-    };
-
-    const allChangedBlocksPeaceful = filter(changed, (block) => !locking || isBlockPeaceful(block.id));
-
-    if (
-      !canReviewOrEdit
-      // || !allChangedBlocksPeaceful
-      || (!canAddOrRemove && (size(created) > 0 || size(deleted) > 0))
-    ) {
+    if (forbiddenToUpdate && !isAdmin) {
       editor.current?.blocks.render({
         blocks: convertBlocksToEditorJS(blocks) || [],
       });
@@ -263,10 +278,8 @@ function Editor({
       return;
     }
 
-    const { time, version } = await api.saver.save();
-
     if (onChange) {
-      onChange({ created, changed: allChangedBlocksPeaceful, deleted }, time, version);
+      onChange(allBlocks, time, version);
     }
   };
 
@@ -300,7 +313,7 @@ function Editor({
         placeholder: 'Start your article here!',
         onReady: () => {
           labelCriticalSections();
-          if (editor.current) {
+          if (editor.current && status === EditorStatus.IN_PROGRESS) {
             const key = findKey(activeSections, (o) => o === get(user, 'id'));
             const currentBlock = get(content, ['blocks', key], {});
             editor.current.caret.setToBlock(get(currentBlock, 'position', 0));
@@ -348,6 +361,7 @@ function Editor({
           setSelectedVersioningBlock(null);
         }}
       />
+      {isEmpty(article) && <Loader />}
       <div
         id="editorjs"
         className={classNames('editorjs', { 'editorjs-read-only': readOnly || status === EditorStatus.IN_REVIEW }, `editorjs-${status}`)}

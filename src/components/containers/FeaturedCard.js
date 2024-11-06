@@ -3,12 +3,13 @@ import React from 'react';
 import type { Node } from 'react';
 // import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
-import Modal from '../modal/Modal';
+// import Modal from '../modal/Modal';
 // import { useScreenSize } from '../../utils/hooks';
 
 type Props = {
   img: string,
   id: number,
+  slug: string,
   title: string,
   category: string,
   description: string,
@@ -18,19 +19,19 @@ type Props = {
   tags?: Array<string>,
   // editable?: Function,
   // deleteable?: Function,
+  // eslint-disable-next-line react/no-unused-prop-types
   status?: string,
   // likeable?: boolean,
 };
 
 function FeaturedCard(props : Props): Node {
   // const { isMobile } = useScreenSize();
-  console.log('FeaturedCard', props.status);
 
   const description = props.description ? props.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
 
   return (
     <>
-      <Link to={`/blog/${props.id}`}>
+      <Link to={`/blog/${props.slug || props.id}`}>
         <div
           key={props.id}
           className="featured-card"
@@ -39,10 +40,11 @@ function FeaturedCard(props : Props): Node {
           <div className="categoryname-share-like">
             <h4>{props.category || 'Category'}</h4>
             <div className="icons-share-heart">
-              <Modal
+              {/* <Modal
                 enabled
                 type="share"
-              />
+                shape="icon"
+              /> */}
               {/* <FontAwesomeIcon icon={faHeart} /> */}
             </div>
           </div>

@@ -11,12 +11,14 @@ import {
   size,
 } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link, useNavigate, useParams, useSearchParams,
+} from 'react-router-dom';
 import classNames from 'classnames';
 import { Chip, Pagination } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons';
-import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faGlobe, faClose } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import FeaturedCard from '../containers/FeaturedCard';
 // import MyTable from '../containers/MyTable';
@@ -30,6 +32,21 @@ import { actions, selectors as userSelectors } from '../../store/userStore';
 import { /* useDebounce */useScrollTopEffect } from '../../utils/hooks';
 import { CategoryList } from '../elements/CategoryList';
 import OrcIDButton from '../elements/OrcIDButton';
+
+const useBlogsSearchParam = (): any => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = parseInt(searchParams.get('p'), 10) || 1;
+
+  const handleChange = ({ p }: { c: string, p: number }) => {
+    setSearchParams({ p });
+  };
+
+  return {
+    page,
+    handleChange,
+  };
+};
 
 const images = [Rocket, Space, Astronaut, Earth];
 
@@ -50,7 +67,7 @@ function Blogs(): Node {
 
   useEffect(() => {
     if (cat) {
-      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Undefined') {
+      if (!includes(map(categories, 'category_name'), cat) && cat !== 'Uncategorized') {
         toast.error('Error: You selected an invalid category.');
         navigate('/blogs');
       }
@@ -69,13 +86,13 @@ function Blogs(): Node {
   const featuredArticles = filteredArticles.filter((a) => a.star);
 
   const itemsPerPage = 20;
-  const [page, setPage] = React.useState(1);
+
+  const { page, handleChange } = useBlogsSearchParam();
 
   useEffect(() => {
     if (userId && !selectedUser) {
       getSelectedUser(userId);
     }
-    setPage(1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser]);
 
@@ -83,7 +100,7 @@ function Blogs(): Node {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
 
-  if (cat === 'Undefined') {
+  if (cat === 'Uncategorized') {
     filteredArticles = unGroupedArticles;
   }
 
@@ -92,8 +109,7 @@ function Blogs(): Node {
       {!userId && (
         <CategoryList
           onClick={(c) => {
-            navigate(`/blogs/${c}`);
-            setPage(1);
+            navigate(`/blogs/${c}?p=1`);
           }}
           categories={map(showedCategories, (c) => ({
             name: c.category_name,
@@ -152,6 +168,11 @@ function Blogs(): Node {
         </section>
       )}
       <section className={classNames('blogs-category-highlight', { 'blogs-category-highlight-active': cat })}>
+        <div className="category-highlight-close">
+          <Link to="/blogs">
+            <FontAwesomeIcon className="article-config-icon" icon={faClose} />
+          </Link>
+        </div>
         <div className="category-highlight-text">
           <div className="all-chips">
             {map(categoryTags, (t, index) => {
@@ -178,7 +199,7 @@ function Blogs(): Node {
           </div>
         </div>
       </section>
-      {!isEmpty(featuredArticles) && (
+      {!isEmpty(featuredArticles) && !cat && (
         <section className={classNames('blogs-featured', { 'blogs-featured-active': cat })}>
           {!userId && (
           <>
@@ -190,6 +211,7 @@ function Blogs(): Node {
                   status={get(a, 'status', '')}
                   img={a.image || images[a.id % 4]}
                   id={a.id}
+                  slug={a.slug}
                   title={a.title}
                   category={get(a, 'category', '')}
                   description={get(a, 'description', '')}
@@ -214,7 +236,7 @@ function Blogs(): Node {
               article={a}
               onConvert={() => {}}
               currentUserId={get(user, 'id', null)}
-              onClick={() => navigate(`/blog/${idMapping.get(a.id)}`)}
+              onClick={() => navigate(`/blog/${a.slug || a.id}`)}
             />
           ))}
         </div>
@@ -229,7 +251,7 @@ function Blogs(): Node {
           }}
           page={page}
           onChange={(e, value) => {
-            setPage(value);
+            handleChange({ p: value });
           }}
         />
       </section>

@@ -129,8 +129,8 @@ function TreasuryModal({ onClose, type }: Props): Node {
   const steps = [
     {
       label: 'Input amount and transaction limit',
-      description: `The treasury is a smart contract that holds ADA 
-      and. You can fill the treasury with ADA from your wallet.`,
+      description: `The treasury is a smart contract that holds ADA.
+      You can fill the treasury with ADA from your wallet.`,
       step: (type === 'fill') ? (
         <>
           <Input

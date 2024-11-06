@@ -186,7 +186,7 @@ function ReactEditor (): React$Element<any> {
       )} */}
       <Editor
         isReady={isReady}
-        status={EditorStatus.IN_REVIEW}
+        status={EditorStatus.PREVIEW}
 
       />
     </main>

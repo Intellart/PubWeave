@@ -91,12 +91,12 @@ export function CategoryList(props: CategoryListProps): Node {
         ) }
       </div>
       <div ref={categoryListRef} className='category-list-inner'>
-        {props.undefinedArticles
+        {!!props.undefinedArticles
         && (
         <CategoryItem
-          key='Undefined'
-          isActive={props.activeCategory === 'Undefined'}
-          name='Undefined'
+          key="Uncategorized"
+          isActive={props.activeCategory === 'Uncategorized'}
+          name="Uncategorized"
           articleCount={props.undefinedArticles}
           onClick={props.onClick}
         />

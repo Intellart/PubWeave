@@ -1,17 +1,16 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Cookies from 'universal-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  sum, words, get, map, isEqual, toInteger, isEmpty,
+  sum, words, get, map, isEqual, toInteger, isEmpty, flatten, values,
 } from 'lodash';
 import classNames from 'classnames';
+import { toast } from 'react-toastify';
 import type {
-  Block,
   BlockCategoriesToChange,
   ArticleContentToServer,
-  BlockToServer,
 } from '../../store/articleStore';
 import { actions, selectors } from '../../store/articleStore';
 import routes from '../../routes';
@@ -24,6 +23,22 @@ import { editorPermissions, permissions } from '../../utils/hooks';
 
 const cookies = new Cookies();
 
+const useAutoSave = () => {
+  const [autoSave, setAutoSave] = useState(false);
+  const autosaveRef = useRef(autoSave);
+
+  const handleAutoSave = (newAutoSave: boolean) => {
+    setAutoSave(newAutoSave);
+    autosaveRef.current = newAutoSave;
+  };
+
+  return {
+    autoSaveState: autoSave,
+    autosaveRef,
+    toggleAutoSave: () => handleAutoSave(!autoSave),
+  };
+};
+
 function ReactEditor (): React$Element<any> {
   const { id, type } = useParams();
   const navigate = useNavigate();
@@ -33,6 +48,8 @@ function ReactEditor (): React$Element<any> {
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const tags = useSelector((state) => selectors.getTags(state), isEqual);
   const blocks = useSelector((state) => selectors.getBlocks(state), isEqual);
+
+  const { autoSaveState, autosaveRef, toggleAutoSave } = useAutoSave();
 
   const dispatch = useDispatch();
   const fetchArticle = (ind:number) => dispatch(actions.fetchArticle(ind));
@@ -66,6 +83,56 @@ function ReactEditor (): React$Element<any> {
 
   const [openTutorialModal, setOpenTutorialModal] = useState(cookies.get('tutorial') !== 'true');
   // console.log('currentPermissions', currentPermissions);
+
+  const initialState = {
+    blocks: [],
+    time: 0,
+    version: '1',
+  };
+
+  const [savedState, setSavedState] = useState<any>(initialState);
+
+  const handleManualSave = () => {
+    if (savedState.time === 0) return;
+
+    toast.success('Article saved');
+    const blocksToAdd = flatten(values(savedState.blocks));
+
+    updateArticleContentSilently(id, {
+      time: savedState.time || 0,
+      version: savedState.version || '1',
+      blocks: blocksToAdd,
+    });
+
+    setSavedState(initialState);
+  };
+
+  const handleChange = (
+    newBlocks: BlockCategoriesToChange,
+    time?: number,
+    version?: string,
+  ) => {
+    setWordCount(
+      sum(map(newBlocks, (block) => words(get(block, 'data.text')).length)),
+    );
+    setLastSaved(time || 0);
+
+    // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
+
+    setSavedState({
+      blocks: newBlocks,
+      time: time || 0,
+      version: version || '1',
+    });
+
+    if (autosaveRef.current) {
+      updateArticleContentSilently(id, {
+        time: time || 0,
+        version: version || '1',
+        blocks: (newBlocks: any),
+      });
+    }
+  };
 
   return (
     <main
@@ -122,6 +189,10 @@ function ReactEditor (): React$Element<any> {
         allTags={tags}
         addTag={addTag}
         removeTag={removeTag}
+        onSave={handleManualSave}
+        autoSave={autoSaveState}
+        toggleAutoSave={toggleAutoSave}
+
       />
       )}
       {get(currentPermissions, permissions.history) && (
@@ -139,29 +210,7 @@ function ReactEditor (): React$Element<any> {
           setHistorySectionId(sectionId);
           setSidebar({ ...sidebar, show: true });
         }}
-        onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
-          const blocksToAdd :BlockToServer[] = [
-            ...map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })),
-            ...map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })),
-            ...map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })),
-          ];
-
-          setWordCount(sum(map(blocksToAdd, (block) => words(get(block, 'data.text')).length), 0));
-          setLastSaved(time);
-
-          // console.log('UPDATING > ');
-          // console.log('created', map(newBlocks.created, (block: Block) => ({ ...block, action: 'created' })));
-          // console.log('changed', map(newBlocks.changed, (block: Block) => ({ ...block, action: 'updated' })));
-          // console.log('deleted', map(newBlocks.deleted, (block: Block) => ({ ...block, action: 'deleted' })));
-
-          // setLastUpdatedArticleIds(map(newBlocks.changed, (block: Block) => block.id));
-
-          updateArticleContentSilently(id, {
-            time,
-            version,
-            blocks: blocksToAdd,
-          });
-        }}
+        onChange={handleChange}
         isReady={isReady}
 
       />

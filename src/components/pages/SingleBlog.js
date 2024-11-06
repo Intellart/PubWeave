@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe } from '@fortawesome/free-solid-svg-icons';
@@ -38,11 +38,10 @@ function Blogs(): Node {
   const article = useSelector((state) => selectors.article(state), isEqual);
   const categories = useSelector((state) => selectors.getCategories(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
-  const [isReady, setIsReady] = useState(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
 
-  useEffect(() => {
-    setIsReady(!isEmpty(article) && id && get(article, 'id') === toInteger(id));
-  }, [article, id]);
+  const isIdCorrect = get(article, 'id') === toInteger(id);
+  const isSlugOk = get(article, 'slug') === id;
+  const isReady = !isEmpty(article) && id && (isIdCorrect || isSlugOk);
 
   useEffect(() => {
     if (!isReady) {
@@ -139,9 +138,8 @@ function Blogs(): Node {
       )}
       <div className="reaction-icons unselectable">
         <LikeButton
-          enabled={!isEmpty(user)}
           article={article}
-          userId={get(user, 'id', 1)}
+          userId={get(user, 'id')}
           iconType='solid'
         />
         <CommentModal

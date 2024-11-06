@@ -2,7 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import type { Node } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faCog, faPen } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBook, faCog, faPen, faSave, faRefresh,
+} from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import TextField from '@mui/material/TextField';
@@ -39,6 +41,9 @@ type Props = {
   allTags: Tags,
   addTag: Function,
   removeTag: (articleTagId: number) => void,
+  autoSave?: boolean;
+  toggleAutoSave?: Function;
+  onSave?: Function;
 };
 
 type BasicOption = {
@@ -48,7 +53,7 @@ type BasicOption = {
 
 function ArticleConfig({
   allTags, article, lastSaved: _lastSaved, wordCount,
-  updateArticle, categories, addTag, removeTag,
+  updateArticle, categories, addTag, removeTag, autoSave, toggleAutoSave, onSave,
 }: Props): Node {
   const [articleSettingsExpanded, setArticleSettingsExpanded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -119,8 +124,8 @@ function ArticleConfig({
     const tagsToRemove: Tags = omitBy(articleTags, (tag) => get(tags, tag.id, null));
     const tagsToAdd: Tags = omitBy(tags, (tag) => get(articleTags, tag.id, null));
 
-    console.log('tagsToAdd', tagsToAdd);
-    console.log('tagsToRemove', tagsToRemove);
+    // console.log('tagsToAdd', tagsToAdd);
+    // console.log('tagsToRemove', tagsToRemove);
 
     if (size(tagsToRemove) > 0) {
       map(tagsToRemove, (tag: Tag) => {
@@ -137,10 +142,6 @@ function ArticleConfig({
 
   const onNewTagClick = (values: BasicOption[]) => {
     setTags(pickBy(allTags, (tag) => find(values, (v: BasicOption) => v.value === tag.id)));
-  };
-
-  const onNewTagInput = (value: string) => {
-    console.log('onNewTagInput', value);
   };
 
   return (
@@ -165,8 +166,45 @@ function ArticleConfig({
           <FontAwesomeIcon className='article-config-icon' icon={faClock} />
           <h6>{_lastSaved > 0 ? lastSavedString() : 'N/A'}</h6>
         </div>
+        {onSave && toggleAutoSave && (
+          <>
+            <div
+              className="article-config-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleAutoSave();
+              }}
+            >
+              <FontAwesomeIcon
+                className={classNames('article-config-icon', {
+                  'article-config-icon-blue': autoSave,
+                })}
+                icon={faRefresh}
+              />
+              <h6>{autoSave ? 'Autosave On' : 'Autosave Off'}</h6>
+            </div>
+            {!autoSave && (
+            <div
+              className="article-config-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSave();
+              }}
+            >
+              <FontAwesomeIcon
+                className="article-config-icon article-config-icon-blue"
+                icon={faSave}
+              />
+              <h6>Save</h6>
+            </div>
+            )}
+          </>
+        )}
         <div className="article-config-item">
-          <FontAwesomeIcon className='article-config-icon article-config-icon-blue' icon={faCog} />
+          <FontAwesomeIcon
+            className="article-config-icon article-config-icon-blue"
+            icon={faCog}
+          />
         </div>
       </div>
       <div className={classNames('article-config-large', { hidden: !articleSettingsExpanded })}>
@@ -223,7 +261,6 @@ function ArticleConfig({
               limitTags={2}
               id="combo-box-demo"
               onChange={(e, values) => onNewTagClick(values)}
-              onInputChange={(e, value) => onNewTagInput(value)}
               value={tagValues}
               isOptionEqualToValue={(option: BasicOption, value: BasicOption) => option.value === value.value}
               options={tagOptions}

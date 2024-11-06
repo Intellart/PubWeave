@@ -20,7 +20,7 @@ import {
   permissions,
   useScreenSize,
 } from '../../utils/hooks';
-import LogoImg from '../../assets/images/pubweave_logo.png';
+import LogoImg from '../../assets/images/empty_thumbnail.png';
 import Modal from '../modal/Modal';
 import LikeButton from './LikeButton';
 import ArticleTypeModal from '../modal/ArticleTypeModal';
@@ -52,8 +52,8 @@ function ArticleCard(props : Props): Node {
     isReviewer: includes(props.article.reviewers, props.currentUserId),
   });
 
-  console.log('status', props.article.status);
-  console.log('currentPermissions', currentPermissions);
+  // console.log('status', props.article.status);
+  // console.log('currentPermissions', currentPermissions);
 
   // const [userAlreadyLiked, setUserAlreadyLiked] = useState(find(get(props.article, 'likes', []), (like) => like.user_id === props.currentUserId));
 

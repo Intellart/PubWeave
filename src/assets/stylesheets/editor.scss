@@ -69,6 +69,8 @@
     // min-height: calc(80vh - 210px);
   }
 
+
+
   // IMAGE PLUGIN > center property
   .cdx-block.image-tool.image-tool--center {
     .image-tool__image {
@@ -76,6 +78,10 @@
       justify-content: center;
     }
   }
+
+  .image-tool__image {
+      background: transparent !important;
+    }
 
 
 
