@@ -210,12 +210,14 @@ function EditorReview(): Node {
                   label={get({
                     in_progress: 'In progress',
                     accepted: 'Accepted',
+                    paid: 'Accepted and paid',
                     rejected: 'Rejected',
                   }, get(reviewer, 'status', ''), '')}
                   variant="default"
                   color={get({
                     in_progress: 'primary',
                     accepted: 'success',
+                    paid: 'success',
                     rejected: 'error',
                   }, get(reviewer, 'status', ''), '')}
                 />
