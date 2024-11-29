@@ -68,6 +68,7 @@ export const actions = {
       showMessage,
     },
   }),
+
   buildFill: (payload: any): ReduxAction => {
     toast('Filling treasury...', {
       type: toast.TYPE.INFO,
@@ -83,6 +84,7 @@ export const actions = {
       },
     };
   },
+
   buildSpend: (payload: any): ReduxAction => {
     toast('Spending treasury...', {
       type: toast.TYPE.INFO,
@@ -98,12 +100,14 @@ export const actions = {
       },
     };
   },
+
   signMessage: (signature: string): ReduxAction => ({
     type: types.WLT_SIGN_MESSAGE,
     payload: {
       signature,
     },
   }),
+
   sumbitFill: (signature: string, tx: string, id: number): ReduxAction => ({
     type: types.WLT_SUBMIT_FILL_TREASURY,
     payload: API.submitTx({
@@ -114,9 +118,11 @@ export const actions = {
       },
     }),
   }),
+
   clearTx: (): ReduxAction => ({
     type: types.WLT_CLEAR_TX,
   }),
+
   submitSpend: (signature: string, tx: string, id: number, ws: string): ReduxAction => ({
     type: types.WLT_SUBMIT_SPEND_TREASURY,
     payload: API.submitSpendTx({
@@ -128,6 +134,7 @@ export const actions = {
       },
     }),
   }),
+
 };
 
 export const reducer = (state: State, action: ReduxActionWithPayload): State => {

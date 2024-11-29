@@ -176,7 +176,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
       && isTransactionLimitValid),
     },
     {
-      label: 'Recieved transaction ID',
+      label: 'Received transaction ID',
       description:
       'You now have a transaction ID. You can use this to sign the transaction.',
       step: (<Chip
@@ -213,9 +213,9 @@ function TreasuryModal({ onClose, type }: Props): Node {
 
   const handleNext = () => {
     setNextButtonDisabled(true);
+
     switch (activeStep) {
       case 0:
-
         if (type === 'fill') {
           const fillPayload = {
             article: {
@@ -252,6 +252,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
           });
         }
         break;
+
       case 2:
         console.log('Submitting message... ', signature);
         if (type === 'spend') {
@@ -260,6 +261,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
           sumbitFill(signature, txId, id);
         }
         break;
+
       default:
         break;
     }

@@ -273,7 +273,7 @@ function Editor({
         blocks: convertBlocksToEditorJS(blocks) || [],
       });
 
-      toast.error('Error! You are not allowed to edit this blocks');
+      toast.error('Error! You are not allowed to edit this block.');
 
       return;
     }
