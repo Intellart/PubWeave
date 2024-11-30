@@ -2,7 +2,6 @@ import { forEach, join, pickBy } from 'lodash';
 
 export const envErrors = {
   REACT_APP_API_BASE_URL: null,
-  REACT_APP_CARDANO_NETWORK_TYPE: ['testnet', 'mainnet'],
 };
 
 export const envWarnings = {

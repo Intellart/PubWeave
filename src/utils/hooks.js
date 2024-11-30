@@ -498,7 +498,7 @@ export function uploadByUrl(url: any): any {
 }
 
 export const useNetworkToggle = (): [string, Function] => {
-  const initValue = localStorage.getItem('networkType') || process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  const initValue = localStorage.getItem('networkType') || 'testnet';
 
   const [networkType, setNetworkType] = useState(initValue);
 

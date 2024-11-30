@@ -60,7 +60,7 @@ export const selectors = {
 
 };
 
-const networkType = localStorage.getItem('networkType') || process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+const networkType = localStorage.getItem('networkType') || 'testnet';
 
 export const actions = {
   fetchTreasury: (articleId: number, showMessage?: boolean): ReduxAction => ({
