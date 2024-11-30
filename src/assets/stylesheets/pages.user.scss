@@ -33,6 +33,15 @@
       width: 100%;
     }
 
+    .user-section-wrapper-toggle {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 20px;
+       }
+
     .user-page-hero {
       display: flex;
       flex-direction: column;

@@ -20,7 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import {
-  Alert, AlertTitle, Button, Chip,
+  Alert, AlertTitle, Button, Chip, Switch,
 } from '@mui/material';
 import { ConnectWalletButton, useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
 import { getWalletIcon } from '@cardano-foundation/cardano-connect-with-wallet-core';
@@ -29,6 +29,7 @@ import {
   emailChecks,
   nameChecks,
   uploadImage,
+  useNetworkToggle,
   usernameChecks,
 } from '../../utils/hooks';
 import UserSection from '../containers/UserSection';
@@ -79,7 +80,7 @@ function UserPage(): React$Node {
     });
   }, [user]);
 
-  const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
+  const [networkType, toggleNetworkType] = useNetworkToggle();
 
   const {
     // isEnabled,
@@ -90,6 +91,7 @@ function UserPage(): React$Node {
     // signMessage,
     usedAddresses,
     enabledWallet,
+    // networkType,
     // installedExtensions,
     // connect,
     disconnect,
@@ -128,7 +130,9 @@ function UserPage(): React$Node {
     && (!get(user, 'wallet_address')
     || get(user, 'wallet_address') !== usedAddresses[0])) {
       setNewAddress(usedAddresses[0]);
+      console.log('setNewAddress', usedAddresses[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usedAddresses[0]]);
 
   const disconnectWallet = () => {
@@ -476,9 +480,31 @@ function UserPage(): React$Node {
             }}
           />
         </Alert>
-        )
-        }
-        { !isConnected && (
+        )}
+        <UserSection
+          title="Global settings"
+          expandedCard={expandedCard}
+          setExpandedCard={setExpandedCard}
+          variants={variants}
+          index={4}
+        >
+          <div className="user-section-wrapper-toggle">
+            <p>{networkType === 'mainnet' ? 'Mainnet' : 'Testnet'}</p>
+            <Switch
+              checked={networkType === 'mainnet'}
+              onChange={() => {
+                toggleNetworkType();
+                disconnectWallet();
+              }}
+              name="networkType"
+              color="primary"
+              inputProps={{ 'aria-label': 'primary checkbox' }}
+            />
+
+          </div>
+        </UserSection>
+
+        {!isConnected && (
         <ConnectWalletButton
           message="Connect wallet"
           limitNetwork={networkType}

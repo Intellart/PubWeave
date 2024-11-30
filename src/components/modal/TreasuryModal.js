@@ -44,7 +44,6 @@ function TreasuryModal({ onClose, type }: Props): Node {
   const sumbitFill = (signature_: string, tx: string, articleId: number) => dispatch(actions.sumbitFill(signature_, tx, articleId));
   const submitSpend = (signature_: string, tx: string, articleId: number, ws: string) => dispatch(actions.submitSpend(signature_, tx, articleId, ws));
   const clearTx = () => dispatch(actions.clearTx());
-  // const networkType = process.env.REACT_APP_CARDANO_NETWORK_TYPE || 'testnet';
 
   const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
   const [activeStep, setActiveStep] = React.useState(0);
@@ -74,23 +73,6 @@ function TreasuryModal({ onClose, type }: Props): Node {
       setActiveStep(2);
     }
   }, [signature]);
-
-  // const {
-  //   // isEnabled,
-  //   // isConnected,
-  //   // enabledWallet,
-  //   // stakeAddress,
-  //   // accountBalance,
-  //   // signMessage,
-  //   // usedAddresses,
-  //   // enabledWallet,
-  //   // installedExtensions,
-  //   // connect,
-  //   // disconnect,
-  //   // connectedCip45Wallet,
-  // } = useCardano({
-  //   limitNetwork: networkType,
-  // });
 
   const errorList = {
     isEmpty: 'isEmpty',

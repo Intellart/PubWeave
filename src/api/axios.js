@@ -10,25 +10,12 @@ import { actions } from '../store/userStore';
 import { localStorageKeys } from '../tokens';
 import { getItem, setItem } from '../localStorage';
 
-const requestTimeoutMs = 120000;
 const baseURL: string = get(process.env, 'REACT_APP_API_BASE_URL', 'http://localhost:3000');
 const apiVersion: string = get(process.env, 'REACT_APP_API_VERSION', 'v1');
-const baseURLCardano: string = get(process.env, 'REACT_APP_CARDANO_API_BASE_URL', 'http://127.0.0.1:5000');
-const apiVersionCardano: string = get(process.env, 'REACT_APP_CARDANO_API_VERSION', 'v1');
 
 const apiClient: any = axios.create({
   baseURL: `${baseURL}/api/${apiVersion}`,
   timeout: minutesToMilliseconds(1),
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    Accept: '*/*',
-  },
-});
-
-export const apiClientCardano: any = axios.create({
-  baseURL: `${baseURLCardano}/api/${apiVersionCardano}`,
-  timeout: requestTimeoutMs,
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',

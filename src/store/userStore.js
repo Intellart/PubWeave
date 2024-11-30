@@ -224,7 +224,7 @@ export const reducer = (state: State, action: ReduxActionWithPayload): State => 
       return state;
 
     case types.USR_UPDATE_USER_FULFILLED:
-      toast.success('User successfully updated!');
+      // toast.success('User successfully updated!');
 
       return {
         ...state,
