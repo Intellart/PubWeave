@@ -9,7 +9,7 @@ import {
   Box, Button, Chip, Paper, Step, StepContent, StepLabel, Stepper, Typography,
 } from '@mui/material';
 import {
-  find, toNumber, truncate,
+  find, toInteger, truncate,
 } from 'lodash';
 // import type { Article } from '../../store/articleStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -125,7 +125,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
             onChange={(newValue: string) => {
               setTreasury({
                 ...treasury,
-                totalAmount: toNumber(newValue),
+                totalAmount: toInteger(newValue),
               });
             }}
           />
@@ -139,7 +139,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
             onChange={(newValue: string) => {
               setTreasury({
                 ...treasury,
-                transactionLimit: toNumber(newValue),
+                transactionLimit: toInteger(newValue),
               });
             }}
           />
