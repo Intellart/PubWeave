@@ -83,16 +83,16 @@ function TreasuryModal({ onClose, type }: Props): Node {
 
   const errors = {
     [errorList.lessThanZero]: {
-      isError: (value: number) => value < 0,
-      message: 'Amount must be greater than 0',
+      isError: (value: number) => (value < 1) && (value !== ''),
+      message: 'Amount must be greater or equal to 1',
     },
     [errorList.greaterThanMax]: {
-      isError: (value: number) => value > 100,
-      message: 'Amount must be less than 100',
+      isError: (value: number) => value > 1000,
+      message: 'Amount must be at most 1000',
     },
     [errorList.transactionLimit]: {
       isError: (value: number) => value < (treasury.totalAmount || 0),
-      message: 'Transaction limit is too high',
+      message: 'Transaction limit cannot be lower than total amount',
     },
   };
 
@@ -118,7 +118,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
           <Input
             error={!isAmountValid}
             label="Total Amount"
-            helperText={getError(treasury.totalAmount, amountErrors) || 'Total amount of ADA to be sent to the treasury'}
+            helperText={getError(treasury.totalAmount, amountErrors) || 'Total ADA amount to be sent to the treasury'}
             type='number'
             currency='₳'
             value={treasury.totalAmount}
@@ -132,7 +132,7 @@ function TreasuryModal({ onClose, type }: Props): Node {
           <Input
             label="Transaction Limit"
             error={!isTransactionLimitValid}
-            helperText={getError(treasury.transactionLimit, transactionLimitErrors) || 'Maximum amount of ADA to be sent in a single transaction'}
+            helperText={getError(treasury.transactionLimit, transactionLimitErrors) || 'Max ADA to be sent in one transaction (if in doubt enter same value in both cells)'}
             type='number'
             currency='₳'
             value={treasury.transactionLimit}
