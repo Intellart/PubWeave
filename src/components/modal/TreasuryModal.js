@@ -202,8 +202,8 @@ function TreasuryModal({ onClose, type }: Props): Node {
           const fillPayload = {
             article: {
               total_amount: treasury.totalAmount,
-              transaction_limit: treasury.transactionLimit,
-              price_cap: 500,
+              transaction_limit: 1,
+              price_cap: treasury.transactionLimit,
               article_id: id,
             },
           };
