@@ -417,7 +417,7 @@ function Review(props: any) {
       {allReviewsSettled && size(allAcceptedReviews) > 0 && (
         <ModalWrapper
           // eslint-disable-next-line react/no-unstable-nested-components
-          content={(p: { onClose: any }) => (<TreasuryModal {...p} type="spend" />)}
+          content={(p: { onClose: any }) => (<TreasuryModal {...p} type="spend" walletName={props.enabledWallet} />)}
           button={`Pay out to ${size(allAcceptedReviews)} reviewers`}
           title="Treasury"
           enabled={props.isAuthor}
@@ -476,6 +476,7 @@ function ArticleSettings(): Node {
 
   const {
     isConnected,
+    enabledWallet,
   } = useCardano({
     limitNetwork: networkType,
   });
@@ -565,7 +566,7 @@ function ArticleSettings(): Node {
 
               <ModalWrapper
                 // eslint-disable-next-line react/no-unstable-nested-components
-                content={(p: { onClose: any }) => (<TreasuryModal {...p} type="fill" />)}
+                content={(p: { onClose: any }) => (<TreasuryModal {...p} type="fill" walletName={enabledWallet} />)}
                 button="Fill treasury"
                 title="Treasury"
                 enabled={isReady && isAuthor}
@@ -601,6 +602,7 @@ function ArticleSettings(): Node {
                 inlineReviews={inlineReviews}
                 txAmount={txAmount}
                 isAuthor={isAuthor}
+                enabledWallet={enabledWallet}
               />
             ))}
             {/* <Review id={1} amount={8} />

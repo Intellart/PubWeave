@@ -20,9 +20,10 @@ import Input from '../elements/Input';
 type Props = {
   onClose: () => void,
   type: 'fill' | 'spend',
+  walletName: '',
 };
 
-function TreasuryModal({ onClose, type }: Props): Node {
+function TreasuryModal({ onClose, type, walletName }: Props): Node {
   const { id } = useParams();
   // eslint-disable-next-line no-unused-vars
   const [searchParams, setSearchParams] = useSearchParams();
@@ -222,15 +223,19 @@ function TreasuryModal({ onClose, type }: Props): Node {
       case 1:
         if (type === 'spend') {
           console.log('Signing message... ', txId);
-          window.cardano.signTx(txId, true).then((signature_: string) => {
-            console.log('Message signed', signature_);
-            saveSignedMessage(signature_);
+          window.cardano[walletName].enable().then(wallet => {
+            wallet.signTx(txId, true).then((signature_: string) => {
+              console.log('Message signed', signature_);
+              saveSignedMessage(signature_);
+            });
           });
         } else {
           console.log('Signing message... ', txId);
-          window.cardano.signTx(txId).then((signature_: string) => {
-            console.log('Message signed', signature_);
-            saveSignedMessage(signature_);
+          window.cardano[walletName].enable().then(wallet => {
+            wallet.signTx(txId).then((signature_: string) => {
+              console.log('Message signed', signature_);
+              saveSignedMessage(signature_);
+            });
           });
         }
         break;
