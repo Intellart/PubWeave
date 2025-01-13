@@ -200,12 +200,12 @@ function RegistrationPage({ forAdmin }: Props): Node {
             <img src={logoImg} alt="PubWeave Logo" className="login-image" width="40px" />
           </div>
           <div className="login-name">
-            <h1 className="login-name-title">PubWeave Register</h1>
+            <h1 className="login-name-title">PubWeave Sign-up</h1>
           </div>
           {!isEmpty(orcidAccount) && (
           <div className="login-email">
             <label htmlFor="full-name" className="login-email-label">
-              ORCID ID
+              ORCID
             </label>
             <div className='login-email-input-wrapper'>
               <input
@@ -233,6 +233,18 @@ function RegistrationPage({ forAdmin }: Props): Node {
             </Alert>
           </div>
           ) }
+
+          {!orcidAccount && (
+          <button
+            onClick={handleORCIDSubmit}
+            type="button"
+            className={classNames('orcid-login-button')}
+          >
+            <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
+            Register with ORCID
+          </button>
+          ) }
+
           <InputField
             label="First name"
             value={registerForm.firstName}
@@ -302,16 +314,6 @@ function RegistrationPage({ forAdmin }: Props): Node {
               Forget Password?
             </a>
           </div> */}
-          {!orcidAccount && (
-          <button
-            onClick={handleORCIDSubmit}
-            type="button"
-            className={classNames('orcid-login-button')}
-          >
-            <img src={orcidImg} alt="ORCID Logo" className="orcid-login-image" width="40px" />
-            Register with ORCID
-          </button>
-          ) }
 
           <button
             onClick={handleSubmit}
