@@ -14,9 +14,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faScroll, faUser } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import { useCardano } from '@cardano-foundation/cardano-connect-with-wallet';
-import { NetworkType } from '@cardano-foundation/cardano-connect-with-wallet-core';
 import logoImg from '../../assets/images/pubweave_logo.png';
-import { useOutsideClickEffect, useScreenSize } from '../../utils/hooks';
+import { useOutsideClickEffect, useNetworkToggle, useScreenSize } from '../../utils/hooks';
 // import { actions } from '../../store/userStore';
 import { store } from '../../store';
 import { actions } from '../../store/userStore';
@@ -29,11 +28,15 @@ type Props = {
   isAdmin: boolean,
   user?: any,
 };
+
 function Navbar(props: Props): Node {
+  // eslint-disable-next-line no-unused-vars
+  const [networkType, toggleNetworkType] = useNetworkToggle();
+
   const {
     disconnect,
   } = useCardano({
-    limitNetwork: NetworkType.TESTNET,
+    limitNetwork: networkType,
   });
 
   const articles = useSelector((state) => selectors.getPublishedArticles(state), isEqual);
