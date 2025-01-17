@@ -54,9 +54,11 @@ function promiseMiddleware({ dispatch }: ReduxMiddlewareArgument): any {
     if (action.payload && isPromise(action.payload)) {
       action.payload
         .then((payload) => {
-          if (get(payload, 'message')) {
+          if (get(payload, 'error')) {
+            console.log('Payload error:', payload.error);
             toast.error(<ErrorMessage error={payload} />);
-
+          } else if (get(payload, 'message')) {
+            console.log('Non-error message:', payload.message);
             // dispatch({ type: action.type + '_REJECTED', payload });
           } else {
             dispatch({
