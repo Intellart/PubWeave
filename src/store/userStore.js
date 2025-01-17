@@ -137,6 +137,10 @@ export const actions = {
     type: types.USR_SELECT_USER,
     payload: API.getRequest(`intellart/users/${userId}`),
   }),
+  confirmUser: (confirmationToken: string): ReduxAction => ({
+    type: types.USR_SELECT_USER,
+    payload: API.getRequest(`intellart/users/confirmation?confirmation_token=${confirmationToken}`),
+  }),
 };
 
 const logoutUser = (): State => {

@@ -62,8 +62,21 @@ function Blogs(): Node {
 
   const dispatch = useDispatch();
   const getSelectedUser = (userId: number) => dispatch(actions.selectUser(userId));
+  const getConfirmation = (confirmationToken: string) => dispatch(actions.confirmUser(confirmationToken));
 
   const { cat, tag, userId } = useParams();
+
+  // Get the confirmation_token from the URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const confirmationToken = urlParams.get('confirmation_token');
+
+  useEffect(() => {
+    if (confirmationToken) {
+      getConfirmation(confirmationToken);
+      toast.success('Confirmation completed');
+      navigate('/login');
+    }
+  }, []);
 
   useEffect(() => {
     if (cat) {
@@ -90,13 +103,13 @@ function Blogs(): Node {
   const { page, handleChange } = useBlogsSearchParam();
 
   useEffect(() => {
-    if (userId && !selectedUser) {
+    if (!confirmationToken && userId && !selectedUser) {
       getSelectedUser(userId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, selectedUser]);
 
-  if (userId) {
+  if (!confirmationToken && userId) {
     filteredArticles = filter(articles, (a) => get(a, 'author.id') === parseInt(userId, 10));
   }
 
