@@ -94,7 +94,7 @@ function Editor({
     status: status || EditorStatus.IN_PROGRESS,
     userId: get(user, 'id'),
     ownerId: get(article, 'author.id'),
-    isReviewer: includes(get(article, 'reviewers', []), get(user, 'id')),
+    isReviewer: includes(map(get(article, 'reviewers', []), 'user_id'), get(user, 'id')),
     isCollaborator: includes(map(get(article, 'collaborators', []), 'id'), get(user, 'id')),
   });
 

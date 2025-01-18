@@ -11,7 +11,7 @@ import {
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
 import {
-  filter, get, includes, size,
+  filter, get, includes, size, map,
 } from 'lodash';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
@@ -49,7 +49,7 @@ function ArticleCard(props : Props): Node {
     status: status || EditorStatus.IN_PROGRESS,
     userId: props.currentUserId,
     ownerId: props.article.author.id,
-    isReviewer: includes(props.article.reviewers, props.currentUserId),
+    isReviewer: includes(map(props.article.reviewers, 'user_id'), props.currentUserId),
   });
 
   // console.log('status', props.article.status);
