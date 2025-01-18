@@ -3,31 +3,25 @@ import {
   includes, map, size, trim,
 } from 'lodash';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { actions } from '../../store/articleStore';
 
 type CollabModalProps = {
-    articleId: number,
     collaborators: any,
     isOwner: boolean,
+    addCollaborator: any
 };
 
-function CollabModal ({ isOwner, collaborators, articleId }: CollabModalProps): any {
-  const dispatch = useDispatch();
-
-  const addCollaborator = (email: string) => dispatch(actions.addCollaborator(articleId, email));
-
+function CollabModal ({ isOwner, collaborators, addCollaborator }: CollabModalProps): any {
   const [collaboratorEmail, setCollaboratorEmail] = useState('');
 
   const handleAddColab = () => {
     if (includes(map(collaborators, 'email'), trim(collaboratorEmail))) {
       toast.error('User already added.');
       setCollaboratorEmail('');
-
-      return;
+    } else {
+      addCollaborator(collaboratorEmail);
+      setCollaboratorEmail('');
     }
-    addCollaborator(collaboratorEmail);
   };
 
   console.log(collaborators);

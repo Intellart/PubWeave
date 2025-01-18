@@ -1,5 +1,6 @@
 // @flow
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { Button, Chip, Modal as MUIModal } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -8,11 +9,11 @@ import {
 import {
   faSackDollar, faShare, faUsers, faXmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import classNames from 'classnames';
 import ShareModal from './ShareModal';
 import CollabModal from './CollabModal';
-import { selectors } from '../../store/articleStore';
+import { actions, selectors } from '../../store/articleStore';
 import { useDebounce } from '../../utils/hooks';
 import { selectors as userSelectors } from '../../store/userStore';
 import VersioningInfoCard from '../editor/VersioningInfoCard';
@@ -31,8 +32,12 @@ type Props = {
 };
 
 function Modal(props: Props): React$Node {
+  const dispatch = useDispatch();
+
   const article = useSelector((state) => selectors.article(state), isEqual);
   const articles = useSelector((state) => selectors.getAllArticles(state), isEqual);
+
+  const articleId = get(article, 'id') || props.articleId;
 
   const activeSections = useSelector((state) => selectors.getActiveSections(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
@@ -42,6 +47,15 @@ function Modal(props: Props): React$Node {
 
   const collaborators = get(article, 'collaborators') || get(articles, [props.articleId, 'collaborators']);
   const allNum = useDebounce(size(collaborators), 1000);
+
+  const handleAddCollaborator = (email: string) => {
+    console.log('Updating collaborators:', collaborators, 'with', email);
+    dispatch(actions.addCollaborator(articleId, email));
+    setOpen(false);
+    toast.success('Updating collaborators...')
+  };
+
+  console.log('Rendering ParentComponent with collaborators:', collaborators);
 
   useEffect(() => {
     if (!props.shape) {
@@ -158,9 +172,9 @@ function Modal(props: Props): React$Node {
     } else if (props.type === 'collab') {
       return (
         <CollabModal
-          articleId={get(article, 'id') || props.articleId}
           isOwner={props.isOwner || false}
           collaborators={collaborators}
+          addCollaborator={handleAddCollaborator}
         />
       );
     } else if (props.type === 'versioning') {
@@ -218,7 +232,6 @@ function Modal(props: Props): React$Node {
         </div>
       </MUIModal>
     </>
-
   );
 }
 
