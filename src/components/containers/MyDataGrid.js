@@ -216,10 +216,10 @@ export default function MyDataGrid(props: Props) {
         return status.value === 'published' || status.value === 'rejected' || status.value === 'requested';
       }
       if (params.value.value === 'published') {
-        return status.value === 'rejected' || status.value === 'published';
+        return status.value === 'rejected' || status.value === 'published' || status.value === 'requested';
       }
       if (params.value.value === 'rejected') {
-        return status.value === 'published' || status.value === 'rejected';
+        return status.value === 'published' || status.value === 'rejected' || status.value === 'requested';
       }
 
       return true;

@@ -51,6 +51,7 @@ export const EditorStatus = {
   REVIEW_PANE_READ_ONLY: 'reviewPaneReadOnly',
   PUBLISHED: 'published',
   PREVIEW: 'preview',
+  REQUESTED: 'requested',
 };
 
 export type EditorStatusType = $Values<typeof EditorStatus>;
