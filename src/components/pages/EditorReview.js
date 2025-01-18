@@ -53,7 +53,7 @@ function EditorReview(): Node {
   const articleReviewContent = get(userReview, 'review_content', '');
 
   const isReviewReady = isReady
-    && get(article, 'status') === EditorStatus.IN_REVIEW
+    && (get(article, 'status') === EditorStatus.IN_REVIEW || get(article, 'status') === EditorStatus.PUBLISHED)
     && !isEmpty(articleReviewers)
     && !isEmpty(userReview);
 
@@ -61,7 +61,7 @@ function EditorReview(): Node {
 
   const allReviews = filter(articleReviewers, (reviewer) => !isEmpty(reviewer.review_content));
 
-  const showReviews = isAuthor && get(article, 'status') === EditorStatus.IN_REVIEW
+  const showReviews = isAuthor && (get(article, 'status') === EditorStatus.IN_REVIEW || get(article, 'status') === EditorStatus.PUBLISHED)
   && !isEmpty(allReviews);
 
   useEffect(() => {
@@ -156,7 +156,7 @@ function EditorReview(): Node {
         >
           <Editor
             isReady={isReady}
-            status={EditorStatus.IN_REVIEW}
+            status={EditorStatus.IN_REVIEW || EditorStatus.PUBLISHED}
             onChange={(newBlocks: BlockCategoriesToChange, time:number, version: string) => {
               updateArticleContentSilently(id, {
                 time: time || 0,

@@ -524,9 +524,9 @@ function ArticleSettings(): Node {
             <Conditions
               steps={[
                 {
-                  label: 'Article status: Blog',
-                  error: get(article, 'article_type') !== 'blog_article',
-                  errorMessage: 'Article is not in status: Blog',
+                  label: 'Article status: Preprint',
+                  error: get(article, 'article_type') !== 'preprint',
+                  errorMessage: 'Article is not in status: Preprint',
                 },
                 {
                   label: 'Connect wallet',
