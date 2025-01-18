@@ -379,7 +379,13 @@ export const selectors = {
   article: (state: ReduxState): Article | null => state.article.oneArticle,
   userReview: (state: ReduxState, userId: number): Article | null => find(state.article.oneArticle?.reviewers, (reviewer) => reviewer.user_id === userId),
   articleContent: (state: ReduxState): ArticleContent => get(state.article.oneArticle, 'content'),
-  getUsersArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => !article.user_review_id && (article.author.id === state.user.profile?.id || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id))),
+  getUsersArticles: (state: ReduxState): any => filter(
+    state.article.allArticles,
+    (article) => !article.user_review_id && (
+      article.author.id === state.user.profile?.id
+      || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id)
+    ),
+  ),
   getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
   getAllArticles: (state: ReduxState): any => state.article.allArticles,
   getPublishedArticles: (state: ReduxState): any => filter(state.article.allArticles, (article) => article.status === 'published'),
