@@ -144,7 +144,7 @@ export const editorPermissions = ({
       [permissions.history]: true,
       [permissions.collaborators]: true,
       [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer || isCollaborator,
-      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
+      [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId || isCollaborator,
       [permissions.DELETE_ARTICLE]: userId === ownerId,
 
     },
