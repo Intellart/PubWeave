@@ -34,7 +34,7 @@ function ArticleTypeModal(props: Props): React$Node {
         };
       case 'scientific_article':
         return {
-          label: 'Article',
+          label: 'Research Article',
           color: 'success',
           icon: <FontAwesomeIcon icon={faNewspaper} />,
           variant: props.enabled ? 'default' : 'outlined',
@@ -42,7 +42,7 @@ function ArticleTypeModal(props: Props): React$Node {
       case 'preprint':
         return {
           label: 'Preprint',
-          color: 'warning',
+          color: 'success',
           icon: <FontAwesomeIcon icon={faNewspaper} />,
           variant: props.enabled ? 'default' : 'outlined',
         };

@@ -8,6 +8,7 @@ import {
   faGear,
   faGlasses,
   faPencil, faPenToSquare, faWarning, faXmark,
+  faHourglassHalf,
 } from '@fortawesome/free-solid-svg-icons';
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
@@ -103,7 +104,7 @@ function ArticleCard(props : Props): Node {
     switch (props.article.status) {
       case 'draft':
         return {
-          label: 'Draft',
+          label: props.article.article_type === 'preprint' ? 'Manuscript' : 'Draft',
           color: 'info',
           icon: <FontAwesomeIcon icon={faPenToSquare} />,
           variant: 'outlined',
@@ -129,7 +130,7 @@ function ArticleCard(props : Props): Node {
         return {
           label: 'Requested',
           color: 'warning',
-          icon: <FontAwesomeIcon icon={faPencil} />,
+          icon: <FontAwesomeIcon icon={faHourglassHalf} />,
           variant: 'outlined',
         };
       case 'reviewing':
