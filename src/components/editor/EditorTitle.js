@@ -85,7 +85,7 @@ export default function EditorTitle ({
         onClick={() => titleRef.current.focus()}
       >
 
-        {!titleFocus && (!inReview ? (<div className='editor-publish-button-back' />) : (
+        {!titleFocus && ((inReview || inReview === undefined) ? (<div className='editor-publish-button-back' />) : (
           <Link
             onClick={(e) => {
               e.stopPropagation();
@@ -164,7 +164,15 @@ export default function EditorTitle ({
             }}
             className="editor-publish-button"
           >
-            {inReview ? 'Publish' : 'Review before publishing'}
+            {(() => {
+              if (inReview === undefined) {
+                return 'Review before publishing';
+              } else if (!inReview) {
+                return 'Publish';
+              } else {
+                return 'Request publishing';
+              }
+            })()}
           </div>
         </div>
         )}

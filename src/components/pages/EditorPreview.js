@@ -120,7 +120,7 @@ function ReactEditor (): React$Element<any> {
         articleType={get(article, 'article_type')}
         title={get(article, 'title')}
         onTitleChange={(newTitle) => updateArticle(id, { title: newTitle })}
-        inReview
+        inReview={get(article, 'status') === 'reviewing'}
         onPublishClick={() => {
           publishArticle(id, 'requested');
           navigate(routes.myWork.root);
