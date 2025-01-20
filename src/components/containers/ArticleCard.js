@@ -39,7 +39,7 @@ function ArticleCard(props : Props): Node {
   const { isMobile } = useScreenSize();
 
   const description = props.article.description ? props.article.description : 'Some quick example text to build on the card title and make up the bulk of the cards content.';
-  const status = props.article.status ? props.article.status : 'draft';
+  const status = props.article.status ? props.article.status : EditorStatus.IN_PROGRESS;
   const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
   const noImage = props.article.image === null;

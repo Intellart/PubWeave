@@ -58,7 +58,7 @@ function ReactEditor (): React$Element<any> {
   const addTag = (articleId:number, tagId: number) => dispatch(actions.addTag(articleId, tagId));
   const removeTag = (articleTagId: number) => dispatch(actions.removeTag(id, articleTagId));
 
-  const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: 'inProgress' });
+  const currentPermissions = editorPermissions({ type: get(article, 'article_type'), status: EditorStatus.IN_PROGRESS });
 
   const [wordCount, setWordCount] = useState(0);
   const [lastSaved, setLastSaved] = useState(0);

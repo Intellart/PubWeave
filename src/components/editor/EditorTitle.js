@@ -9,6 +9,7 @@ import { get } from 'lodash';
 import routes from '../../routes';
 import Modal from '../modal/Modal';
 import { editorPermissions, permissions } from '../../utils/hooks';
+import { EditorStatus } from './Editor';
 // import ActiveUsers from './ActiveUsers';
 
 type Props = {
@@ -37,7 +38,7 @@ export default function EditorTitle ({
 
   const [articleTitle, setArticleTitle] = useState('');
 
-  const currentPermissions = editorPermissions({ type: articleType, status: 'inProgress' });
+  const currentPermissions = editorPermissions({ type: articleType, status: EditorStatus.IN_PROGRESS });
 
   useEffect(() => {
     if (titleRef.current) {
