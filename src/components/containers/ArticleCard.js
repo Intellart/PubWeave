@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import type { Node } from 'react';
+import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
@@ -11,10 +12,11 @@ import {
 import { Chip } from '@mui/material';
 import classNames from 'classnames';
 import {
-  filter, get, includes, size, map,
+  filter, get, includes, isEmpty, isEqual, size, map,
 } from 'lodash';
 import { Link } from 'react-router-dom';
 import type { Article } from '../../store/articleStore';
+import { selectors as userSelectors } from '../../store/userStore';
 import {
   editorPermissions,
   permissions,
@@ -43,6 +45,9 @@ function ArticleCard(props : Props): Node {
   const workType = get(props.article, 'article_type', 'blog_article');
   const isPublished = status === 'published';
   const noImage = props.article.image === null;
+  const admin = useSelector((state) => userSelectors.getAdmin(state), isEqual);
+
+  const isAdmin = !isEmpty(admin);
 
   const currentPermissions = editorPermissions({
     type: workType,
@@ -50,6 +55,7 @@ function ArticleCard(props : Props): Node {
     userId: props.currentUserId,
     ownerId: props.article.author.id,
     isReviewer: includes(map(props.article.reviewers, 'user_id'), props.currentUserId),
+    isAdmin,
   });
 
   // console.log('status', props.article.status);

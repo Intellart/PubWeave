@@ -119,7 +119,7 @@ type EditorPermissionProps = {
 };
 
 export const editorPermissions = ({
-  type, status, userId, ownerId, isReviewer, isCollaborator,
+  type, status, userId, ownerId, isReviewer, isCollaborator, isAdmin,
 }: EditorPermissionProps): any => ({
   scientific_article: {
     [EditorStatus.IN_PROGRESS]: {
@@ -156,7 +156,7 @@ export const editorPermissions = ({
     },
     [EditorStatus.PUBLISHED]: {
       [permissions.ARTICLE_SETTINGS]: userId === ownerId,
-      [permissions.SWITCH_ARTICLE_TYPE]: isReviewer,
+      [permissions.SWITCH_ARTICLE_TYPE]: isAdmin || isReviewer,
     },
     // [EditorStatus.PREVIEW]: {
     // },
