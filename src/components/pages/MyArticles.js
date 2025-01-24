@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  filter, isEqual, map, slice, size,
+  filter, isEqual, includes, flatten, map, slice, size,
 } from 'lodash';
 import { Chip, Pagination } from '@mui/material';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -59,6 +59,7 @@ function MyArticles(): Node {
   useScrollTopEffect();
   const articles = useSelector((state) => articleSelectors.getUsersArticles(state), isEqual);
   const user = useSelector((state) => userSelectors.getUser(state), isEqual);
+
   useEffect(() => {
     if (lastKnownSize === size(articles) - 1 && size(articles) > 0) {
       navigate(routes.myWork.project(type, articles[size(articles) - 1].id));
@@ -86,13 +87,23 @@ function MyArticles(): Node {
     }
   };
 
+  function filterUserReviews(userReviews) {
+    return filter(userReviews, (userReview) => userReview.status === 'paid' || userReview.status === 'rejected');
+  }
+
   const handleArticleClick = (article: Article) => {
     switch (article.status) {
       case 'published':
         navigate(routes.blogs.blog(article.slug || article.id));
         break;
       case 'reviewing':
-        navigate(routes.myWork.review(type, article.id));
+        const allReviewsAccepted = flatten(map(article.reviews, (review) => filterUserReviews(review.user_reviews))).length;
+
+        if (includes(map(article.reviewers, 'user_id'), user.id) || !allReviewsAccepted) {
+          navigate(routes.myWork.review(type, article.id));
+        } else {
+          navigate(routes.myWork.project(type, article.id));
+        }
         break;
       default:
         navigate(routes.myWork.project(type, article.id));
