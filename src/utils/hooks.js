@@ -149,12 +149,15 @@ export const editorPermissions = ({
       [permissions.ARTICLE_SETTINGS]: userId === ownerId,
     },
     [EditorStatus.IN_REVIEW]: {
+      [permissions.collaborators]: true,
       [permissions.ARTICLE_SETTINGS]: userId === ownerId,
       [permissions.DELETE_ARTICLE]: false,
     },
     [EditorStatus.REQUESTED]: {
+      [permissions.collaborators]: true,
     },
     [EditorStatus.PUBLISHED]: {
+      [permissions.collaborators]: true,
       [permissions.ARTICLE_SETTINGS]: userId === ownerId,
       [permissions.SWITCH_ARTICLE_TYPE]: isAdmin || isReviewer,
     },
