@@ -143,6 +143,24 @@ export type Tags = {
   [number]: Tag,
 };
 
+export type UserReview = {
+  id: number,
+  review_id: number,
+  user_id: number,
+  status: string,
+  created_at: string,
+  updated_at: string,
+};
+
+export type Review = {
+  id: number,
+  amount: number,
+  article_id: number,
+  created_at: string,
+  updated_at: string,
+  user_reviews: Array<UserReview>,
+}
+
 export type Article = {
   article_type: string,
   id: number,
@@ -160,6 +178,7 @@ export type Article = {
   image: string,
   star: boolean,
   reviewers: Array<User>,
+  reviews: Array<Review>,
   category: string,
   created_at: string,
   updated_at: string,
@@ -192,7 +211,7 @@ export type State = {
   blockIdQueue: BlockIdQueue,
   critical_section_ids: Array<string>,
   reviewers: Array<User>,
-  reviews: Array<any>,
+  reviews: Array<Review>,
 };
 
 export const types = {
