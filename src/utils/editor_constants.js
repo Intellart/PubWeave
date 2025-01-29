@@ -26,8 +26,8 @@ import { uploadByFile, uploadByUrl } from './hooks';
 import VersioningTune from './editorExtensions/versioningTune';
 import ReviewTool from './editorExtensions/reviewTool';
 import { selectors } from '../store/userStore';
-// import { Superscript } from './editorExtensions/superscript';
-// import { Subscript } from './editorExtensions/subscript';
+import { Superscript } from './editorExtensions/superscript';
+import { Subscript } from './editorExtensions/subscript';
 
 // import { MyTune } from './editorExtensions/tuneVersioning';
 // import Code from '@editorjs/code';
@@ -48,8 +48,8 @@ export function useEditorTools (): { [toolName: string]: any} {
 
       },
     },
-    // subscript: Subscript,
-    // superscript: Superscript,
+    subscript: Subscript,
+    superscript: Superscript,
     alignmentTune: {
       class: AlignmentTuneTool,
       config: {
