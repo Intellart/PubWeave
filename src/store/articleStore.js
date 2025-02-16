@@ -384,6 +384,7 @@ export const selectors = {
     (article) => !article.user_review_id && (
       article.author.id === state.user.profile?.id
       || article.reviewers?.some((reviewer) => reviewer.user_id === state.user.profile?.id)
+      || article.collaborators?.some((collaborator) => collaborator.id === state.user.profile?.id)
     ),
   ),
   getBlocks: (state: ReduxState): Array<Block> => get(state.article.oneArticle, 'content.blocks'),
