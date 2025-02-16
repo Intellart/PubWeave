@@ -143,7 +143,7 @@ export const editorPermissions = ({
       [permissions.configMenu]: true,
       [permissions.history]: true,
       [permissions.collaborators]: true,
-      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer || isCollaborator,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isCollaborator,
       [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId || isCollaborator,
       [permissions.DELETE_ARTICLE]: userId === ownerId,
 
@@ -155,7 +155,7 @@ export const editorPermissions = ({
   },
   blog_article: {
     [EditorStatus.IN_PROGRESS]: {
-      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId || isReviewer,
+      [permissions.REVIEW_OR_EDIT_BLOCKS]: userId === ownerId,
       [permissions.ADD_OR_REMOVE_BLOCKS]: userId === ownerId,
       [permissions.DELETE_ARTICLE]: userId === ownerId,
       [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
@@ -164,7 +164,6 @@ export const editorPermissions = ({
     },
     [EditorStatus.PUBLISHED]: {
       [permissions.LIKE_ARTICLE]: userId !== ownerId,
-
     },
     // [EditorStatus.PREVIEW]: {
     //   [permissions.SWITCH_ARTICLE_TYPE]: userId === ownerId,
